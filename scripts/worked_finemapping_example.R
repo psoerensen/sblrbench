@@ -23,19 +23,19 @@ example_files <- download_sblrbench_example_data(
 )
 
 # 3. Create and inspect the Glist ------------------------------------------
-genotype_list <- qgg::gprep(
+Glist <- qgg::gprep(
   study = "sblrbench worked example",
   bedfiles = unname(example_files["human.bed"]),
   bimfiles = unname(example_files["human.bim"]),
   famfiles = unname(example_files["human.fam"])
 )
 
-stopifnot(length(genotype_list$ids) >= 400L)
-stopifnot(length(genotype_list$rsids[[1L]]) >= 500L)
+stopifnot(length(Glist$ids) >= 400L)
+stopifnot(length(Glist$rsids[[1L]]) >= 500L)
 
 # 4. Select samples and markers --------------------------------------------
 retained_marker_ids <- qgg::gfilter(
-  Glist = genotype_list,
+  Glist = Glist,
   excludeMAF = 0.05,
   excludeMISS = 0.05,
   excludeCGAT = TRUE,
@@ -45,25 +45,21 @@ retained_marker_ids <- qgg::gfilter(
   excludeMHC = FALSE
 )
 
-chromosome_marker_ids <- genotype_list$rsids[[1L]]
+chromosome_marker_ids <- Glist$rsids[[1L]]
 qc_marker_ids <- chromosome_marker_ids[
   !is.na(match(chromosome_marker_ids, retained_marker_ids))
 ]
 
-sample_ids <- genotype_list$ids[seq_len(400L)]
+sample_ids <- Glist$ids[seq_len(400L)]
 marker_ids <- qc_marker_ids[seq_len(500L)]
 
 stopifnot(!anyDuplicated(sample_ids))
 stopifnot(!anyDuplicated(marker_ids))
 
-# Tell the public BED model which chromosome-1 markers to analyse.
-analysis_glist <- genotype_list
-analysis_glist$rsidsLD <- vector("list", length(genotype_list$rsids))
-analysis_glist$rsidsLD[[1L]] <- marker_ids
 
 # 5. Extract standardized genotypes ----------------------------------------
 genotype_matrix <- qgg::getG(
-  Glist = analysis_glist,
+  Glist = Glist,
   chr = 1L,
   ids = sample_ids,
   rsids = marker_ids,
@@ -120,7 +116,7 @@ fit_start <- proc.time()[["elapsed"]]
 
 native_fit <- sblr::stblr_bed(
   y = phenotype,
-  Glist = analysis_glist,
+  Glist = Glist,
   method = "bayesc",
   nit = 100L,
   nburn = 50L,
