@@ -30,3 +30,13 @@ Public-API limitations relevant here are the installed/source export mismatch no
 - Final source commit: `fd76b18828bc77756948aa3138de07ae4dc75513`
 - Final `git status --short`: empty (clean)
 - The final commit and status are identical to the recorded initial values.
+
+## qgg genotype preparation used by Study 01
+
+Installed qgg 1.1.6 was inspected through its exported functions and installed help. `gprep()` creates a Glist containing study/file metadata, sample IDs and counts, per-chromosome marker IDs/counts, alleles, chromosome and position metadata, allele frequencies (`af`, `af1`, `af2`), MAF, missingness and genotype-count summaries, and LD-related slots. `gfilter()` returns retained marker IDs after the requested MAF, missingness, HWE, ambiguous-allele, INDEL, duplicate, and optional MHC filters.
+
+`getG()` uses `match()` to resolve requested `rsids` and `ids`, retains their requested order, and returns a sample-by-marker matrix with sample IDs as row names and marker IDs as column names. Its documented `impute = TRUE` contract replaces missing genotypes with their expected values, twice the allele frequency. With `scale = TRUE`, qgg's native reader uses the selected `Glist$af[[chr]]` allele frequencies to return centered, variance-scaled markers. Study 01 validates the returned dimensions, names, order, uniqueness, and finiteness rather than reproducing these operations.
+
+Accordingly, `sblrbench` delegates PLINK/Glist preparation, marker QC, extraction, imputation, and scaling entirely to qgg. It passes the resulting matrix without further scaling to `sblr::mtsim(standardize_W = FALSE)` and delegates sparse-LD construction to exported `sblr::make_sparse_ld()`.
+
+The installed qgg package does not carry a Git `RemoteSha`, so its inspectable identity is version 1.1.6 rather than a source commit. The full qgg example setup retained 37,991 of 50,000 chromosome-1 markers and extracted a finite 5,000 × 37,991 standardized matrix. Sparse LD completed in canonical order. The installed `sblr` 0.1.0 then failed its public one-trait `mtsim(h2 = 0.2)` call with `non-conformable arguments` while constructing the residual covariance. The same exact public call on a small synthetic matrix passes, so routine contract tests remain available, but no successful real-data oracle summary is claimed for this environment. The sibling source was not installed or modified, and the configured scientific value was not altered to work around the dependency behavior.

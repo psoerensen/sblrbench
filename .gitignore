@@ -4,3 +4,7 @@
 .Ruserdata
 results/local/
 _targets/
+*.bed
+*.bim
+*.fam
+*.ld*
