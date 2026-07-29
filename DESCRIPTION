@@ -1,0 +1,26 @@
+Package: sblrbench
+Title: Evaluation and Benchmarking of sblr Methods
+Version: 0.0.0.9000
+Authors@R: person(
+    "Peter", "Sørensen",
+    email = "peter.sorensen@r-qgg.org",
+    role = c("aut", "cre")
+  )
+Description: Tools for simulation-based evaluation, benchmarking,
+    robustness analysis, and comparison of scalable Bayesian linear
+    regression methods implemented in or compared with sblr.
+License: GPL-3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Config/testthat/edition: 3
+Imports:
+    jsonlite,
+    sblr
+Suggests:
+    targets,
+    testthat (>= 3.0.0)
+Remotes:
+    psoerensen/sblr
+URL: https://github.com/psoerensen/sblrbench
+BugReports: https://github.com/psoerensen/sblrbench/issues

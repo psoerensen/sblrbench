@@ -1,0 +1,1 @@
+list(study="02_prediction",traits=3L,replicates=10L,train_fraction=0.7,architectures=c("mostly_shared","mostly_trait_specific"),methods=c("st_bed_bayesr","mt_bed_bayesr","st_csr_sbayesr","mt_csr_sbayesr"),initial_metrics=c("prediction_correlation","prediction_mse"))

@@ -1,0 +1,7 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^_targets\.R$
+^_targets$
+^studies$
+^results$
+^docs$
