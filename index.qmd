@@ -1,0 +1,32 @@
+---
+title: "sblrbench"
+---
+
+```{r}
+#| echo: false
+capsule <- "results/reference/01_finemapping/separated-development-v1"
+manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), simplifyVector = TRUE)
+status <- read.csv(file.path(capsule, "replicate_status.csv"))
+summary <- read.csv(file.path(capsule, "benchmark_summary.csv"))
+```
+
+`sblrbench` provides reusable contracts, validation, metrics, provenance and reproducible benchmark studies for scalable Bayesian linear regression methods implemented in `sblr`.
+
+## Latest reference benchmark
+
+### [Separated-locus fine-mapping development pilot](studies/01_finemapping/separated-development-pilot.qmd)
+
+```{r}
+#| echo: false
+facts <- data.frame(
+  Item = c("Simulation replicates", "Successful fits", "Methods", "Canonical markers", "Causal markers per replicate", "Status"),
+  Value = c(manifest$replicate_count, paste0(sum(status$status == "ok"), "/", nrow(status)),
+    length(manifest$methods), format(manifest$canonical_marker_count, big.mark = ","),
+    manifest$simulation$n_causal, if (manifest$development_settings) "Development settings" else "Scientific settings")
+)
+knitr::kable(facts)
+```
+
+> Results currently demonstrate pipeline correctness and software consistency. They are not final method-performance claims.
+
+Browse the [benchmark catalogue](studies/index.qmd) or download the [reproducibility capsule](results/reference/01_finemapping/separated-development-v1/README.md).

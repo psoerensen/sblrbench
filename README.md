@@ -31,3 +31,26 @@ Add a future method by constructing an ordinary `sblrbench_method`; no registry 
 Study 01 implements a separated-locus fine-mapping pilot. Ten exact causal markers are selected by a seeded randomized-greedy scan after MAF filtering, retained in chromosome order, and separated by at least 1 Mb. The four scalar-trait methods are BED BayesC/BayesR and CSR SBayesC/SBayesR. Set `SBLR_BENCH_STUDY=01_finemapping` and `SBLR_BENCH_REPLICATES` to `1`, `5`, or `10` before `targets::tar_make()`; genotype and sparse-LD targets are cached across stages.
 
 Outputs cover effect RMSE, PIP Brier score, average precision, causal ranks/top-K recall, and exact/LD-proxy credible-set coverage. The configured 500-iteration, 250-burn-in, one-chain controls are development settings only. Structural success does not prove convergence or support rankings. Cumulative marginal-PIP credible sets are not per-effect causal configurations; scientific runs require longer chains and sensitivity analyses.
+
+## Website
+
+Reusable benchmark reports will be published at <https://psoerensen.github.io/sblrbench/>. The repository owner may need to select **GitHub Actions** as the Pages source in repository settings.
+
+## Running a study
+
+```r
+Sys.setenv(SBLR_BENCH_STUDY = "01_finemapping")
+targets::tar_make()
+```
+
+## Published benchmark capsules
+
+Reviewed, compact, versioned benchmark snapshots live under `results/reference/`. Working outputs and full local study artifacts remain ignored under `results/local/`.
+
+## Reproducing reports
+
+```bash
+quarto render
+```
+
+Report rendering reads only tracked reference capsules and does not run the targets pipeline.

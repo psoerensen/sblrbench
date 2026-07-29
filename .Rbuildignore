@@ -5,3 +5,13 @@
 ^studies$
 ^results$
 ^docs$
+^_quarto\.yml$
+^index\.qmd$
+^framework\.qmd$
+^metrics\.qmd$
+^reproducibility\.qmd$
+^scripts$
+^_site$
+^\.quarto$
+^_freeze$
+^\.github$

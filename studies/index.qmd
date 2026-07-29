@@ -1,0 +1,34 @@
+---
+title: "Benchmark catalogue"
+---
+
+```{r}
+#| echo: false
+capsule <- "results/reference/01_finemapping/separated-development-v1"
+manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), simplifyVector = TRUE)
+```
+
+## Available benchmarks
+
+### [Separated-locus fine-mapping development pilot](01_finemapping/separated-development-pilot.qmd)
+
+| Field | Value |
+|---|---|
+| Status | Development benchmark |
+| Study type | Separated-locus, scalar-trait fine-mapping |
+| Methods | `r paste(manifest$methods, collapse = ", ")` |
+| Replicates | `r manifest$replicate_count` |
+| Data limitation | Example markers have limited LD; genotype data are not redistributed |
+| Capsule | [Benchmark reproducibility capsule](../results/reference/01_finemapping/separated-development-v1/README.md) |
+
+## Planned benchmarks
+
+- Separated-locus benchmark with realistic LD.
+- High-LD causal architecture.
+- Scientific-length MCMC calibration.
+- Prediction study.
+- Multi-trait study.
+- Annotation-informed models.
+- Block-eigen methods.
+
+Planned benchmarks are not yet completed or published.

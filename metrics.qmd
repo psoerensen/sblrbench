@@ -1,0 +1,31 @@
+---
+title: "Metrics"
+---
+
+## Marker-level metrics
+
+- **PIP Brier score:** mean squared error between posterior inclusion probability and binary causal truth.
+- **Effect RMSE:** root mean squared error of posterior-mean marker effects.
+- **Average precision:** mean precision at causal-marker ranks after sorting by decreasing PIP.
+- **Causal-marker ranks:** best, median, mean and worst one-based causal rank.
+- **Top-K causal recall:** fraction of causal markers among the top 10, 20 and 50 PIP-ranked markers.
+
+PIP ties are resolved by first occurrence in canonical marker order.
+
+## Credible-set metrics
+
+- Number of constructed credible sets.
+- Mean and median set size.
+- Conditional exact causal coverage.
+- Conditional LD-proxy coverage at the configured threshold.
+- Number of causal loci detected.
+- Sets without exact causal markers.
+- Sets without causal markers or qualifying proxies.
+
+> **Conditional credible-set coverage**  
+> Among constructed sets, how many contain the truth?
+
+> **Causal-locus detection**  
+> Among all true causal loci, how many generated a credible set?
+
+These are cumulative marginal-PIP credible sets. They are not guaranteed per-effect credible sets or complete causal configurations.

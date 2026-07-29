@@ -4,7 +4,12 @@
 .Ruserdata
 results/local/
 _targets/
+_site/
+.quarto/
+_freeze/
 *.bed
 *.bim
 *.fam
 *.ld*
+
+/.quarto/

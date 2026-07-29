@@ -1,0 +1,43 @@
+project:
+  type: website
+  output-dir: _site
+  execute-dir: project
+  render:
+    - index.qmd
+    - framework.qmd
+    - metrics.qmd
+    - reproducibility.qmd
+    - studies/index.qmd
+    - studies/01_finemapping/separated-development-pilot.qmd
+  resources:
+    - results/reference/**
+
+website:
+  title: "sblrbench"
+  site-url: "https://psoerensen.github.io/sblrbench/"
+  repo-url: "https://github.com/psoerensen/sblrbench"
+  repo-actions: [source, issue]
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: framework.qmd
+        text: Framework
+      - href: metrics.qmd
+        text: Metrics
+      - href: studies/index.qmd
+        text: Benchmarks
+      - href: reproducibility.qmd
+        text: Reproducibility
+
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-tools: true
+    theme: cosmo
+
+execute:
+  freeze: auto
+  warning: false
+  message: false

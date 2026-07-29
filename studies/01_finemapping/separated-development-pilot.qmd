@@ -1,0 +1,267 @@
+---
+title: "Separated-locus fine-mapping development pilot"
+description: "A frozen 10-replicate structural benchmark of four single-trait sblr workflows."
+---
+
+> **Development benchmark—not a final scientific comparison.**  
+> Markers in the example Glist have limited LD, and models were run with 500 iterations, 250 burn-in iterations and one chain. Results primarily validate orchestration, alignment, fitting, extraction and reporting.
+
+```{r}
+#| echo: false
+capsule <- "results/reference/01_finemapping/separated-development-v1"
+manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), simplifyVector = TRUE)
+benchmark <- read.csv(file.path(capsule, "benchmark_summary.csv"), check.names = FALSE)
+marker <- read.csv(file.path(capsule, "marker_metrics.csv"), check.names = FALSE)
+cs <- read.csv(file.path(capsule, "credible_set_summary.csv"), check.names = FALSE)
+computational <- read.csv(file.path(capsule, "computational_summary.csv"), check.names = FALSE)
+fit_status <- read.csv(file.path(capsule, "replicate_status.csv"), check.names = FALSE)
+sources <- read.csv(file.path(capsule, "source_files.csv"), check.names = FALSE)
+labels <- setNames(benchmark$method_label, benchmark$method)
+fmt_pm <- function(x, digits = 3) sprintf(paste0("%.", digits, "f ± %.", digits, "f"), x[1], x[2])
+metric_wide <- function(metrics) marker[marker$metric %in% metrics, c("replicate", "method", "metric", "value")]
+plot_metric <- function(metric, ylab, lower_better = FALSE) {
+  z <- marker[marker$metric == metric, ]
+  groups <- split(z$value, factor(z$method, levels = benchmark$method))
+  boxplot(groups, names = benchmark$method_label, ylab = ylab, las = 2,
+          col = "#dbeafe", border = "#2563eb", outline = FALSE)
+  for (i in seq_along(groups)) points(jitter(rep(i, length(groups[[i]])), amount = .08),
+                                      groups[[i]], pch = 19, col = "#0f172acc")
+}
+```
+
+## Benchmark status
+
+The frozen capsule records `r manifest$replicate_count` deterministic replicates and `r sum(fit_status$status == "ok")`/`r nrow(fit_status)` successful fits. It is a development infrastructure benchmark.
+
+## Scientific question
+
+Can one complete separated-causal-locus path—simulation, oracle validation, BED and CSR fitting, standardized extraction, marker metrics, credible sets and reporting—run reproducibly across four single-trait methods?
+
+## Methods compared
+
+`r paste(benchmark$method_label, collapse = ", ")`.
+
+## Data and simulation design
+
+```{r}
+#| echo: false
+design <- data.frame(
+  Setting = c("Architecture", "Replicates", "Canonical markers", "Causal variants per replicate", "Heritability",
+    "Minimum causal distance", "MAF range", "Methods", "MCMC", "Software"),
+  Value = c(manifest$architecture, manifest$replicate_count, format(manifest$canonical_marker_count, big.mark = ","),
+    manifest$simulation$n_causal, manifest$simulation$h2,
+    paste(format(manifest$causal_selection$min_distance_bp, big.mark = ","), "bp"),
+    paste0("[", manifest$causal_selection$min_maf, ", ", manifest$causal_selection$max_maf, "]"),
+    paste(manifest$methods, collapse = ", "),
+    paste0("nit=", manifest$mcmc$nit, ", nburn=", manifest$mcmc$nburn, ", nthin=", manifest$mcmc$nthin,
+      ", chains=", manifest$mcmc$nchains, ", cores=", manifest$mcmc$ncores),
+    paste0("sblr ", manifest$package_versions$sblr, "; sblrbench ", manifest$package_versions$sblrbench,
+      "; qgg ", manifest$package_versions$qgg)), stringsAsFactors = FALSE)
+knitr::kable(design)
+```
+
+## Configuration
+
+The exact immutable settings are in [`config.R`](/results/reference/01_finemapping/separated-development-v1/config.R). Changed settings require a new versioned snapshot.
+
+## Validation checks
+
+```{r}
+#| echo: false
+v <- manifest$validation
+checks <- data.frame(Check = c("Distinct deterministic causal sets", "Exact causals per replicate",
+  "Minimum observed causal separation", "Oracle checks", "Successful fits", "Canonical markers",
+  "Marker alignment", "Sample alignment"),
+  Result = c(v$distinct_causal_sets, manifest$simulation$n_causal,
+    paste(format(v$minimum_observed_causal_distance_bp, big.mark = ","), "bp"),
+    paste0(v$oracle_checks_passed, "/", manifest$replicate_count, " passed"),
+    paste0(v$successful_fits, "/", v$expected_fits), format(manifest$canonical_marker_count, big.mark = ","),
+    if (v$marker_alignment_validated) "Validated" else "Not recorded",
+    if (v$sample_alignment_validated) "Validated" else "Not recorded"))
+knitr::kable(checks)
+```
+
+## Results
+
+```{r}
+#| echo: false
+main_table <- data.frame(
+  Method = benchmark$method_label,
+  `Average precision` = mapply(function(a,b) fmt_pm(c(a,b)), benchmark$average_precision_mean, benchmark$average_precision_sd),
+  `PIP Brier` = mapply(function(a,b) fmt_pm(c(a,b), 5), benchmark$pip_brier_mean, benchmark$pip_brier_sd),
+  `Effect RMSE` = mapply(function(a,b) fmt_pm(c(a,b), 5), benchmark$effect_rmse_mean, benchmark$effect_rmse_sd),
+  `Top-10 recall` = mapply(function(a,b) fmt_pm(c(a,b)), benchmark$causal_top_10_recall_mean, benchmark$causal_top_10_recall_sd),
+  `Causal loci detected` = sprintf("%.1f / %d", benchmark$causal_loci_detected_mean, manifest$simulation$n_causal),
+  `Detection fraction` = sprintf("%.3f", benchmark$causal_locus_detection_fraction),
+  `Conditional exact coverage` = sprintf("%.3f", benchmark$conditional_exact_coverage_mean),
+  `Mean set size` = sprintf("%.2f", benchmark$mean_set_size),
+  `Runtime (s)` = mapply(function(a,b) fmt_pm(c(a,b), 1), benchmark$runtime_mean_seconds, benchmark$runtime_sd_seconds),
+  check.names = FALSE)
+knitr::kable(main_table)
+```
+
+### Replicate-level plots
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| fig-cap: "Average precision across the ten replicates. Points are replicate-level observations."
+plot_metric("average_precision", "Average precision")
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| fig-cap: "PIP Brier score across replicates; lower is better."
+plot_metric("pip_brier", "PIP Brier score")
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| fig-cap: "Effect RMSE across replicates; lower is better."
+plot_metric("effect_rmse", "Effect RMSE")
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| fig-cap: "Top-10 causal recall across replicates."
+plot_metric("causal_top_10_recall", "Top-10 causal recall")
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| fig-cap: "Number of true causal loci with a constructed credible set."
+z <- cs[cs$metric == "causal_loci_detected", ]
+groups <- split(z$value, factor(z$method, levels = benchmark$method))
+boxplot(groups, names = benchmark$method_label, ylab = "Causal loci detected", las = 2,
+  col = "#dcfce7", border = "#15803d", outline = FALSE)
+for (i in seq_along(groups)) points(jitter(rep(i, length(groups[[i]])), amount=.08), groups[[i]], pch=19, col="#14532dcc")
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| fig-cap: "Elapsed fitting time by method."
+groups <- split(computational$runtime, factor(computational$method, levels = benchmark$method))
+boxplot(groups, names = benchmark$method_label, ylab = "Runtime (seconds)", las = 2,
+  col = "#fef3c7", border = "#b45309", outline = FALSE)
+for (i in seq_along(groups)) points(jitter(rep(i, length(groups[[i]])), amount=.08), groups[[i]], pch=19, col="#78350fcc")
+```
+
+### Causal-marker ranking
+
+```{r}
+#| echo: false
+rank_metrics <- c("causal_rank_best", "causal_rank_median", "causal_rank_mean", "causal_rank_worst",
+                  "causal_top_10_recall", "causal_top_20_recall", "causal_top_50_recall")
+rank_table <- do.call(rbind, lapply(benchmark$method, function(m) {
+  vals <- sapply(rank_metrics, function(q) mean(marker$value[marker$method == m & marker$metric == q]))
+  data.frame(Method = labels[[m]], t(vals), check.names = FALSE)
+}))
+names(rank_table)[-1] <- c("Best rank", "Median rank", "Mean rank", "Worst rank", "Top-10 recall", "Top-20 recall", "Top-50 recall")
+knitr::kable(rank_table, digits = 3)
+```
+
+A low median rank paired with a large mean or worst rank means most causal variants are recovered well while a small subset receives little support.
+
+### Credible sets
+
+```{r}
+#| echo: false
+cs_table <- benchmark[c("method_label", "conditional_exact_coverage_mean", "conditional_ld_proxy_coverage_mean",
+  "causal_locus_detection_fraction", "credible_sets_mean", "mean_set_size")]
+names(cs_table) <- c("Method", "Conditional exact coverage", "Conditional LD-proxy coverage",
+  "Causal-locus detection fraction", "Number of sets", "Mean set size")
+knitr::kable(cs_table, digits = 3)
+```
+
+Markers have limited LD, so credible sets are mostly or entirely singleton sets and exact and proxy coverage may be identical. These results validate structure rather than realistic fine-mapping uncertainty.
+
+Some BayesR branches reported regional sparse-LD matrices with zero off-diagonal entries. This is consistent with the low-LD example data but must be revisited with realistic LD before scientific interpretation.
+
+### Runtime
+
+BED and CSR runtimes differ in this small development pilot, but the observed timing is specific to these inputs, controls and environment. It does not establish general computational superiority.
+
+## Interpretation
+
+All four workflows complete; extracted outputs and truth-aware metrics are aligned and finite; BED and CSR show broadly similar pilot behaviour; and the reporting pipeline is ready for realistic-LD and scientific-length studies.
+
+## Limitations
+
+- Limited LD and no realistic competition among correlated markers.
+- Only 500 MCMC iterations, 250 burn-in iterations and one chain.
+- Ten replicates, one heritability and separated causal loci only.
+- No final convergence assessment.
+- No scientific method-ranking claims.
+- Cumulative marginal-PIP sets are not guaranteed per-effect causal configurations.
+
+## Code and reproduction
+
+### Minimal runnable example
+
+This fast synthetic example validates the public simulation, oracle, result and metric contracts. It deliberately avoids a full sampler because public samplers require BED/Glist or CSR/LD inputs.
+
+```{r}
+#| echo: false
+#| results: asis
+cat("```r\n", paste(readLines(file.path(capsule, "minimal_example.R")), collapse="\n"), "\n```\n", sep="")
+```
+
+[Download `minimal_example.R`](/results/reference/01_finemapping/separated-development-v1/minimal_example.R).
+
+### Exact benchmark invocation
+
+```{r}
+#| echo: false
+#| results: asis
+cat("```r\n", paste(readLines(file.path(capsule, "run_benchmark.R")), collapse="\n"), "\n```\n", sep="")
+```
+
+[Download `run_benchmark.R`](/results/reference/01_finemapping/separated-development-v1/run_benchmark.R). The genotype input is not redistributed; invoking this workflow requires the original or a compatible Glist.
+
+### Source code
+
+```{r}
+#| echo: false
+base_url <- paste0("https://github.com/psoerensen/sblrbench/blob/", manifest$source_snapshot_commit, "/")
+source_links <- data.frame(File = sources$path, Role = sources$role,
+  Source = paste0("[view](", base_url, sources$path, ")"), check.names = FALSE)
+knitr::kable(source_links, escape = FALSE)
+```
+
+### Reproducibility level
+
+> The public capsule supports complete inspection of the configuration, reporting code, metric definitions and study pipeline. Exact numerical reproduction additionally requires the original genotype data, which are not redistributed.
+
+## Downloads
+
+**Benchmark reproducibility capsule:** [capsule README](/results/reference/01_finemapping/separated-development-v1/README.md)
+
+- [Benchmark summary](/results/reference/01_finemapping/separated-development-v1/benchmark_summary.csv)
+- [Marker metrics](/results/reference/01_finemapping/separated-development-v1/marker_metrics.csv)
+- [Credible-set summary](/results/reference/01_finemapping/separated-development-v1/credible_set_summary.csv)
+- [Credible-set metrics](/results/reference/01_finemapping/separated-development-v1/credible_set_metrics.csv)
+- [Computational summary](/results/reference/01_finemapping/separated-development-v1/computational_summary.csv)
+- [Replicate status](/results/reference/01_finemapping/separated-development-v1/replicate_status.csv)
+- [Benchmark manifest](/results/reference/01_finemapping/separated-development-v1/benchmark_manifest.json)
+- [Frozen configuration](/results/reference/01_finemapping/separated-development-v1/config.R)
+- [Exact run script](/results/reference/01_finemapping/separated-development-v1/run_benchmark.R)
+- [Minimal example](/results/reference/01_finemapping/separated-development-v1/minimal_example.R)
+- [Source inventory](/results/reference/01_finemapping/separated-development-v1/source_files.csv)
+- [Session information](/results/reference/01_finemapping/separated-development-v1/session_info.txt)
+- [Checksums](/results/reference/01_finemapping/separated-development-v1/checksums.csv)
+
+## Software versions and commits
+
+```{r}
+#| echo: false
+versions <- data.frame(Item = c("sblrbench source snapshot", "Fit provenance commit", "sblr Git commit",
+  "sblr", "sblrbench", "qgg"), Value = c(manifest$source_snapshot_commit, manifest$fit_provenance_commit,
+  manifest$sblr_git_commit, manifest$package_versions$sblr, manifest$package_versions$sblrbench,
+  manifest$package_versions$qgg))
+knitr::kable(versions)
+```

@@ -1,0 +1,33 @@
+---
+title: "Reproducibility"
+---
+
+## Benchmark lifecycle
+
+```text
+local targets pipeline
+→ reviewed compact outputs
+→ promotion validation
+→ frozen reference capsule
+→ Quarto report
+→ GitHub Pages publication
+```
+
+Run a local study with compatible input:
+
+```r
+Sys.setenv(SBLR_BENCH_STUDY = "01_finemapping")
+targets::tar_make()
+```
+
+`results/local/` contains ignored working outputs and full local study results. `results/reference/` contains reviewed, versioned, compact benchmark capsules.
+
+Promote reviewed outputs with:
+
+```r
+source("scripts/promote_reference_results.R")
+```
+
+The promotion validator checks benchmark identity, dimensions, methods, statuses, metrics, finite values, coverage identifiers, and absence of absolute user paths. It refuses to overwrite a snapshot unless `SBLRBENCH_OVERWRITE_REFERENCE=true`.
+
+Each capsule contains compact summaries and metrics, a frozen configuration, exact run command, minimal example, source-code inventory, software versions, checksums and explicit limitations. Public reports exclude genotype data, sparse-LD files, full posterior samples, full fit objects and `_targets/` stores.
