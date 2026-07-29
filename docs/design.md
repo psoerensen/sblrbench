@@ -1,5 +1,7 @@
 # Design
 
+Study 01 is a configuration-driven separated-locus vertical path. Replicates branch from shared genotype and sparse-LD targets and cross with four scalar-trait methods. It uses seeded randomized-greedy physical separation, exact-causal simulation verification, canonical-tie marker ranking, public `sblr` credible sets, and exact/reference-LD proxy scoring. Method failures remain structured records. Development MCMC controls are replaceable as one config list and are not scientific defaults.
+
 ```text
 sblr or external simulation
           ↓

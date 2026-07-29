@@ -1,36 +1,18 @@
-# Study 01: fine-mapping genotype setup
+# Study 01: separated-locus fine-mapping pilot
 
-Task 1 is development infrastructure, not a scientific benchmark:
+This scalar-trait pilot reuses the qgg-prepared chromosome-1 Glist, QC-retained canonical markers, sparse LD, and scaled genotype matrix. It excludes high-LD, multi-trait, annotation, and block-eigen models.
 
-```text
-PLINK BED/BIM/FAM
-    ↓
-qgg::gprep()
-    ↓
-qgg::gfilter()
-    ↓
-canonical chromosome marker order
-    ↓
-sblr::make_sparse_ld()
-    ↓
-qgg::getG(impute = TRUE, scale = TRUE)
-    ↓
-sblr::mtsim(standardize_W = FALSE)
-    ↓
-sblrbench oracle validation
+For each replicate, candidates have MAF in `[0.05, 0.5]`. A deterministic seed permutes them; a greedy scan accepts markers at least 1 Mb from all previously accepted markers. The ten selected markers are restored to chromosome order and passed as the complete `causal_rsids` pool to `sblr::mtsim()`. The exact set and `Z %*% B = G` oracle are verified.
+
+The same phenotype, individuals, markers, and LD feed BED BayesC, BED BayesR, CSR SBayesC, and CSR SBayesR. Metrics are effect RMSE, PIP Brier score, average precision, causal rank mean/median/best/worst, top-10/20/50 recall, and exact/reference-LD proxy credible-set coverage. PIP ties use canonical marker order. Credible sets come only from public `sblr::make_credible_sets()`.
+
+```r
+Sys.setenv(SBLR_BENCH_STUDY = "01_finemapping", SBLR_BENCH_REPLICATES = "1")
+targets::tar_make()
+Sys.setenv(SBLR_BENCH_REPLICATES = "5"); targets::tar_make()
+Sys.setenv(SBLR_BENCH_REPLICATES = "10"); targets::tar_make()
 ```
 
-qgg owns Glist preparation, marker QC, genotype extraction, missing-genotype imputation, and scaling. `sblrbench` does not reimplement these operations. sblr owns sparse-LD construction and simulation. No model is fitted in Task 1. A passing oracle proves the internal identity `Z %*% B = G` after strict alignment; it does not establish model correctness.
+Changing counts creates only missing branches; shared genotype/LD targets are reused. Compact files are written below `results/local/01_finemapping/separated/`; full fits remain in `_targets/`.
 
-By default the pipeline downloads the five public `human.*` qgg example files only when absent, under ignored `results/local/01_finemapping/data/`. Override that directory with `SBLR_BENCH_DATA_DIR`, or set `SBLR_BENCH_GLIST` to an existing Glist RDS. The original RDS is never overwritten. Generated Glist caches, sparse LD, matrices, and simulations remain local and ignored.
-
-From the repository root:
-
-```powershell
-$env:SBLR_BENCH_STUDY = "01_finemapping"
-Rscript -e "targets::tar_make()"
-```
-
-Future work remains the documented one-trait pilot with separated and high-LD causal architectures, 10 replicates, ST-BED BayesC/BayesR and ST-CSR SBayesC/SBayesR, initial PIP Brier scoring, and later ranking and exported-sblr credible-set metrics. None of that fitting or scoring is implemented here. No study work may modify `sblr`.
-
-In the development environment recorded in `docs/sblr_inventory.md`, installed `sblr` 0.1.0 could not complete the full example matrix's one-trait `mtsim(h2 = 0.2)` residual-covariance step. The pipeline stops with the native error and writes no oracle success summary. Run the command above with a compatible installed public `sblr`; do not install or patch the sibling source as a workaround.
+The controls (`nit=500`, `nburn=250`, `nthin=1`, one chain/core) are development-only. Structural checks do not prove MCMC convergence or justify method rankings. Cumulative marginal-PIP credible sets are not SuSiE-style per-effect configurations. Scientific runs need longer MCMC, multiple chains, convergence review, and sensitivity analyses.
