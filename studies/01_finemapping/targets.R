@@ -5,7 +5,7 @@ list(
   targets::tar_target(config_file, file.path("studies", "01_finemapping", "config.R"), format = "file"),
   targets::tar_target(config, source(config_file, local = TRUE)$value),
   targets::tar_target(data_paths, .study01_paths()),
-  targets::tar_target(example_files, if (identical(data_paths$source, "qgg_example")) .study01_example_files(data_paths$data_dir) else character()),
+  targets::tar_target(example_files, if (identical(data_paths$source, "qgg_example")) .study01_example_files(data_paths$data_dir, config$example_data) else character()),
   targets::tar_target(Glist, .study01_load_glist(data_paths, example_files)),
   targets::tar_target(filtered_markers, .study01_run_qc(Glist, config)),
   targets::tar_target(working_glist, .study01_set_rsids_ld(Glist, config$chr, filtered_markers$marker_ids)),

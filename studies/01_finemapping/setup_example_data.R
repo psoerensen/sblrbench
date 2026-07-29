@@ -19,24 +19,15 @@
        source = if (nzchar(glist_path)) "existing_glist" else "qgg_example")
 }
 
-.study01_example_files <- function(data_dir) {
-  files <- c("human.bed", "human.bim", "human.fam", "human.pheno",
-             "human.covar")
-  dir.create(data_dir, recursive = TRUE, showWarnings = FALSE)
-  paths <- file.path(data_dir, files)
-  base_url <- paste0(
-    "https://github.com/psoerensen/qgdata/raw/main/",
-    "simulated_human_data/"
-  )
-  for (i in which(!file.exists(paths))) {
-    utils::download.file(paste0(base_url, files[i]), paths[i],
-                         mode = "wb", quiet = FALSE)
+.study01_example_files <- function(data_dir, example_data) {
+  paths <- sblrbench::download_sblrbench_example_data(data_dir)
+  if (!identical(attr(paths, "repository"), example_data$repository) ||
+      !identical(attr(paths, "commit"), example_data$commit) ||
+      !identical(attr(paths, "subdirectory"), example_data$subdirectory) ||
+      !identical(names(paths), example_data$files)) {
+    stop("Study 01 example-data configuration does not match the pinned package manifest.", call. = FALSE)
   }
-  if (any(!file.exists(paths))) {
-    stop("Not all five qgg example files are available in ", data_dir,
-         ".", call. = FALSE)
-  }
-  stats::setNames(paths, files)
+  paths
 }
 
 .study01_load_glist <- function(paths, example_files = NULL) {

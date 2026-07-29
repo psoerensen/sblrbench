@@ -6,6 +6,12 @@ development_mcmc <- list(
 list(
   study = "01_finemapping", architecture = "separated", task = "pilot",
   data_source = "qgg_example", chr = 1L, sample_limit = NULL,
+  example_data = list(
+    repository = "psoerensen/qgdata",
+    commit = "6cca5819e711d326cfb2614d7e9d9f34942612cd",
+    subdirectory = "simulated_human_data",
+    files = c("human.bed", "human.bim", "human.fam", "human.pheno", "human.covar")
+  ),
   replicate_counts = c(development = 1L, intermediate = 5L, pilot = 10L),
   qc = list(excludeMAF = 0.05, excludeMISS = 0.05, excludeCGAT = TRUE,
     excludeINDEL = TRUE, excludeDUPS = TRUE, excludeHWE = 1e-12,

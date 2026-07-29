@@ -30,4 +30,8 @@ source("scripts/promote_reference_results.R")
 
 The promotion validator checks benchmark identity, dimensions, methods, statuses, metrics, finite values, coverage identifiers, and absence of absolute user paths. It refuses to overwrite a snapshot unless `SBLRBENCH_OVERWRITE_REFERENCE=true`.
 
-Each capsule contains compact summaries and metrics, a frozen configuration, exact run command, minimal example, source-code inventory, software versions, checksums and explicit limitations. Public reports exclude genotype data, sparse-LD files, full posterior samples, full fit objects and `_targets/` stores.
+Each capsule contains compact summaries and metrics, a frozen configuration, exact run command, worked example or smoke test as appropriate, source-code inventory, software versions, checksums and explicit limitations. Capsules may describe public, private, synthetic, downloadable, or non-redistributable sources without assuming every study has genotype data.
+
+For Study 01, the simulated PLINK inputs are publicly accessible from a pinned qgdata commit. `download_sblrbench_example_data()` retrieves and checksum-validates them automatically. The capsule records the pinned URLs, file sizes and MD5 checksums; the large genotype files themselves are not copied into this repository or website.
+
+Public reports exclude sparse-LD files, full posterior samples, full fit objects and `_targets/` stores.

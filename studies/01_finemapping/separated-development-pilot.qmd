@@ -8,7 +8,7 @@ description: "A frozen 10-replicate structural benchmark of four single-trait sb
 
 ```{r}
 #| echo: false
-capsule <- "results/reference/01_finemapping/separated-development-v1"
+capsule <- "results/reference/01_finemapping/separated-development-v1.1"
 manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), simplifyVector = TRUE)
 benchmark <- read.csv(file.path(capsule, "benchmark_summary.csv"), check.names = FALSE)
 marker <- read.csv(file.path(capsule, "marker_metrics.csv"), check.names = FALSE)
@@ -16,6 +16,7 @@ cs <- read.csv(file.path(capsule, "credible_set_summary.csv"), check.names = FAL
 computational <- read.csv(file.path(capsule, "computational_summary.csv"), check.names = FALSE)
 fit_status <- read.csv(file.path(capsule, "replicate_status.csv"), check.names = FALSE)
 sources <- read.csv(file.path(capsule, "source_files.csv"), check.names = FALSE)
+example_data <- read.csv(file.path(capsule, "example_data_manifest.csv"), check.names = FALSE)
 labels <- setNames(benchmark$method_label, benchmark$method)
 fmt_pm <- function(x, digits = 3) sprintf(paste0("%.", digits, "f ± %.", digits, "f"), x[1], x[2])
 metric_wide <- function(metrics) marker[marker$metric %in% metrics, c("replicate", "method", "metric", "value")]
@@ -62,7 +63,7 @@ knitr::kable(design)
 
 ## Configuration
 
-The exact immutable settings are in [`config.R`](/results/reference/01_finemapping/separated-development-v1/config.R). Changed settings require a new versioned snapshot.
+The exact immutable settings are in [`config.R`](/results/reference/01_finemapping/separated-development-v1.1/config.R). Changed settings require a new versioned snapshot.
 
 ## Validation checks
 
@@ -201,19 +202,51 @@ All four workflows complete; extracted outputs and truth-aware metrics are align
 
 ## Code and reproduction
 
-### Minimal runnable example
+### Worked example
 
-This fast synthetic example validates the public simulation, oracle, result and metric contracts. It deliberately avoids a full sampler because public samplers require BED/Glist or CSR/LD inputs.
+This example downloads the public simulated PLINK data used by the study, creates a Glist, simulates one phenotype, fits one actual `sblr` model, and evaluates recovery of the known causal effects. It uses 400 samples, 500 markers, and short demonstration-only ST-BED BayesC settings.
 
 ```{r}
 #| echo: false
 #| results: asis
-cat("```r\n", paste(readLines(file.path(capsule, "minimal_example.R")), collapse="\n"), "\n```\n", sep="")
+cat("```r\n", paste(readLines(file.path(capsule, "worked_finemapping_example.R")), collapse="\n"), "\n```\n", sep="")
 ```
 
-[Download `minimal_example.R`](/results/reference/01_finemapping/separated-development-v1/minimal_example.R).
+[Download `worked_finemapping_example.R`](/results/reference/01_finemapping/separated-development-v1.1/worked_finemapping_example.R).
 
-### Exact benchmark invocation
+### Example data
+
+The five files are simulated and publicly accessible from [`psoerensen/qgdata`](https://github.com/psoerensen/qgdata) at pinned commit `r manifest$public_data_source$commit`. The local benchmark inputs match these sizes and checksums exactly.
+
+```{r}
+#| echo: false
+data_table <- example_data[c("filename", "role", "size_bytes", "md5", "download_url")]
+data_table$download_url <- paste0("[download](", data_table$download_url, ")")
+names(data_table) <- c("File", "Role", "Bytes", "MD5", "Pinned download")
+knitr::kable(data_table, escape = FALSE)
+```
+
+No explicit data licence was found in the qgdata repository root at the pinned revision. The files are publicly accessible, but reuse terms should be clarified with the repository owner.
+
+[Download `example_data_manifest.csv`](/results/reference/01_finemapping/separated-development-v1.1/example_data_manifest.csv).
+
+### Developer contract smoke test
+
+This secondary test checks simulation, oracle, result-object, and metric contracts without fitting a sampler.
+
+```{r}
+#| echo: false
+#| results: asis
+cat("<details><summary>Show developer smoke test</summary>\n\n```r\n",
+    paste(readLines(file.path(capsule, "contract_smoke_test.R")), collapse="\n"),
+    "\n```\n\n</details>\n", sep="")
+```
+
+[Download `contract_smoke_test.R`](/results/reference/01_finemapping/separated-development-v1.1/contract_smoke_test.R).
+
+### Reproduce the complete benchmark
+
+The targets entry point downloads the same pinned public data when needed, validates checksums, reuses the local data and `_targets/` caches, and runs only missing or outdated work.
 
 ```{r}
 #| echo: false
@@ -221,39 +254,48 @@ cat("```r\n", paste(readLines(file.path(capsule, "minimal_example.R")), collapse
 cat("```r\n", paste(readLines(file.path(capsule, "run_benchmark.R")), collapse="\n"), "\n```\n", sep="")
 ```
 
-[Download `run_benchmark.R`](/results/reference/01_finemapping/separated-development-v1/run_benchmark.R). The genotype input is not redistributed; invoking this workflow requires the original or a compatible Glist.
+[Download `run_benchmark.R`](/results/reference/01_finemapping/separated-development-v1.1/run_benchmark.R).
 
 ### Source code
 
 ```{r}
 #| echo: false
 base_url <- paste0("https://github.com/psoerensen/sblrbench/blob/", manifest$source_snapshot_commit, "/")
-source_links <- data.frame(File = sources$path, Role = sources$role,
-  Source = paste0("[view](", base_url, sources$path, ")"), check.names = FALSE)
+published_paths <- c("_targets.R", "studies/01_finemapping/config.R",
+  "studies/01_finemapping/targets.R", "studies/01_finemapping/setup_example_data.R",
+  "studies/01_finemapping/pilot.R", "R/metrics.R", "R/alignment.R",
+  "R/simulation.R", "R/adapter-sblr.R")
+published_sources <- sources[sources$path %in% published_paths, ]
+source_links <- data.frame(File = published_sources$path, Role = published_sources$role,
+  Source = paste0("[view](", base_url, published_sources$path, ")"), check.names = FALSE)
 knitr::kable(source_links, escape = FALSE)
 ```
 
+The v1.1 capsule additionally records content hashes for the new downloader and example scripts in `source_files.csv`; those files are directly downloadable below pending the next reviewed source commit.
+
 ### Reproducibility level
 
-> The public capsule supports complete inspection of the configuration, reporting code, metric definitions and study pipeline. Exact numerical reproduction additionally requires the original genotype data, which are not redistributed.
+> The simulated genotype files are publicly available from the pinned qgdata revision and are downloaded automatically. The reference capsule records file checksums, software versions, seeds, and study code. Small numerical differences may still arise across platforms and numerical libraries.
 
 ## Downloads
 
-**Benchmark reproducibility capsule:** [capsule README](/results/reference/01_finemapping/separated-development-v1/README.md)
+**Benchmark reproducibility capsule:** [v1.1 capsule README](/results/reference/01_finemapping/separated-development-v1.1/README.md). The [original v1 capsule](/results/reference/01_finemapping/separated-development-v1/README.md) remains available unchanged.
 
-- [Benchmark summary](/results/reference/01_finemapping/separated-development-v1/benchmark_summary.csv)
-- [Marker metrics](/results/reference/01_finemapping/separated-development-v1/marker_metrics.csv)
-- [Credible-set summary](/results/reference/01_finemapping/separated-development-v1/credible_set_summary.csv)
-- [Credible-set metrics](/results/reference/01_finemapping/separated-development-v1/credible_set_metrics.csv)
-- [Computational summary](/results/reference/01_finemapping/separated-development-v1/computational_summary.csv)
-- [Replicate status](/results/reference/01_finemapping/separated-development-v1/replicate_status.csv)
-- [Benchmark manifest](/results/reference/01_finemapping/separated-development-v1/benchmark_manifest.json)
-- [Frozen configuration](/results/reference/01_finemapping/separated-development-v1/config.R)
-- [Exact run script](/results/reference/01_finemapping/separated-development-v1/run_benchmark.R)
-- [Minimal example](/results/reference/01_finemapping/separated-development-v1/minimal_example.R)
-- [Source inventory](/results/reference/01_finemapping/separated-development-v1/source_files.csv)
-- [Session information](/results/reference/01_finemapping/separated-development-v1/session_info.txt)
-- [Checksums](/results/reference/01_finemapping/separated-development-v1/checksums.csv)
+- [Benchmark summary](/results/reference/01_finemapping/separated-development-v1.1/benchmark_summary.csv)
+- [Marker metrics](/results/reference/01_finemapping/separated-development-v1.1/marker_metrics.csv)
+- [Credible-set summary](/results/reference/01_finemapping/separated-development-v1.1/credible_set_summary.csv)
+- [Credible-set metrics](/results/reference/01_finemapping/separated-development-v1.1/credible_set_metrics.csv)
+- [Computational summary](/results/reference/01_finemapping/separated-development-v1.1/computational_summary.csv)
+- [Replicate status](/results/reference/01_finemapping/separated-development-v1.1/replicate_status.csv)
+- [Benchmark manifest](/results/reference/01_finemapping/separated-development-v1.1/benchmark_manifest.json)
+- [Frozen configuration](/results/reference/01_finemapping/separated-development-v1.1/config.R)
+- [Worked example](/results/reference/01_finemapping/separated-development-v1.1/worked_finemapping_example.R)
+- [Developer smoke test](/results/reference/01_finemapping/separated-development-v1.1/contract_smoke_test.R)
+- [Exact run script](/results/reference/01_finemapping/separated-development-v1.1/run_benchmark.R)
+- [Example-data manifest](/results/reference/01_finemapping/separated-development-v1.1/example_data_manifest.csv)
+- [Source inventory](/results/reference/01_finemapping/separated-development-v1.1/source_files.csv)
+- [Session information](/results/reference/01_finemapping/separated-development-v1.1/session_info.txt)
+- [Checksums](/results/reference/01_finemapping/separated-development-v1.1/checksums.csv)
 
 ## Software versions and commits
 

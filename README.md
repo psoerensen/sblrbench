@@ -54,3 +54,11 @@ quarto render
 ```
 
 Report rendering reads only tracked reference capsules and does not run the targets pipeline.
+
+Study 01 uses public simulated PLINK data from a pinned `psoerensen/qgdata` revision. Download and validate the five example files with:
+
+```r
+download_sblrbench_example_data()
+```
+
+The improved `separated-development-v1.1` capsule contains the same numerical benchmark results as v1 with a real worked sampler example, a separate developer smoke test, pinned data checksums, and clearer full-workflow reproduction guidance.

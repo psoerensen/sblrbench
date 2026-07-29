@@ -4,7 +4,7 @@ title: "Benchmark catalogue"
 
 ```{r}
 #| echo: false
-capsule <- "results/reference/01_finemapping/separated-development-v1"
+capsule <- "results/reference/01_finemapping/separated-development-v1.1"
 manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), simplifyVector = TRUE)
 ```
 
@@ -18,8 +18,8 @@ manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), s
 | Study type | Separated-locus, scalar-trait fine-mapping |
 | Methods | `r paste(manifest$methods, collapse = ", ")` |
 | Replicates | `r manifest$replicate_count` |
-| Data limitation | Example markers have limited LD; genotype data are not redistributed |
-| Capsule | [Benchmark reproducibility capsule](../results/reference/01_finemapping/separated-development-v1/README.md) |
+| Data limitation | Example markers have limited LD; simulated inputs are publicly downloadable from a pinned qgdata revision |
+| Capsule | [Improved v1.1 reproducibility capsule](../results/reference/01_finemapping/separated-development-v1.1/README.md) · [Original v1 capsule](../results/reference/01_finemapping/separated-development-v1/README.md) |
 
 ## Planned benchmarks
 
