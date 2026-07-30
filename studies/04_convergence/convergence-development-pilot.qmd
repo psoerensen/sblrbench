@@ -1,0 +1,186 @@
+---
+title: "Single-trait multichain convergence development benchmark"
+---
+
+```{r}
+capsule <- file.path("results", "reference", "04_convergence",
+  "st-multichain-convergence-development-v1")
+source(file.path("studies", "04_convergence", "promotion.R"))
+.study04_validate_capsule(capsule)
+manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), simplifyVector = TRUE)
+draws <- read.csv(file.path(capsule, "scalar_chain_draws.csv"))
+diagnostics <- read.csv(file.path(capsule, "convergence_diagnostics.csv"))
+stability <- read.csv(file.path(capsule, "burnin_stability.csv"))
+recommendations <- read.csv(file.path(capsule, "method_recommendations.csv"))
+runtime <- read.csv(file.path(capsule, "computational_summary.csv"))
+agreement <- read.csv(file.path(capsule, "chain_agreement.csv"))
+thresholds <- read.csv(file.path(capsule, "diagnostic_thresholds.csv"))
+method_labels <- c(st_bed_bayesc="ST-BED BayesC",st_csr_sbayesc="ST-CSR SBayesC",
+  st_bed_bayesr="ST-BED BayesR",st_csr_sbayesr="ST-CSR SBayesR")
+draws$method_label <- unname(method_labels[draws$method])
+diagnostics$method_label <- unname(method_labels[diagnostics$method])
+```
+
+## Benchmark status
+
+> **Complete one-replicate matched-architecture development benchmark.** This
+> benchmark applies operational multichain diagnostics to one simulated dataset
+> per matched architecture. Passing thresholds supports a provisional MCMC
+> configuration for subsequent benchmarks; it does not prove convergence for
+> every dataset, architecture, prior setting, or scientific application.
+
+All `r manifest$expected_chain_count` planned chains completed: four identifiable
+chains for each of four matched method–architecture combinations. Diagnostic
+failure means the evaluated length is insufficient or inconclusive—not that the
+statistical model is invalid.
+
+## Objective: convergence, not accuracy
+
+Study 04 asks whether principal scalar chains appear to sample a common stable
+posterior and how much warm-up and retained history met prespecified development
+criteria. Simulation truth is not used in pass/fail rules. The study makes no
+parameter-recovery, predictive-performance, convergence-proof, or method-ranking
+claim.
+
+## Chain execution and matched design
+
+The verified native `sblr` interface ran four independent chains with explicit
+seeds, `nchains = 4`, `ncores = 4`, `keep_chains = TRUE`, and retained convergence
+traces. `nit` is post-warm-up draws and `nburn` is additional warm-up. The maximum
+run used `nit = 3000`, `nburn = 0`, and `nthin = 1`, preserving all 3,000 draws;
+candidate burn-in was applied downstream exactly once.
+
+The homogeneous architecture is paired with BED/CSR BayesC, and the sparse
+mixture architecture with BED/CSR BayesR. Each simulation uses 5,000 samples,
+37,991 canonical markers, 50 causal markers, and realized heritability 0.30.
+
+## Diagnostics and operational thresholds
+
+Core quantities are effect variance, genetic variance, residual variance, and
+draw-wise heritability. Aligned inclusion-proportion traces are unavailable in
+the retained common contract, so no proxy was substituted.
+
+```{r}
+knitr::kable(thresholds)
+```
+
+Diagnostics are rank-normalized split R-hat, bulk ESS, tail ESS, MCSE of the
+mean, and relative MCSE. Burn-in candidates are 250, 500, and 1,000 draws;
+retained checkpoints are 250, 500, 1,000, and 2,000 draws per chain.
+
+## Trace and running-mean views
+
+```{r}
+trace_data <- draws[draws$raw_iteration %% 10L == 0L, ]
+trace_long <- reshape(trace_data,
+  varying=c("effect_variance","genetic_variance","residual_variance","heritability"),
+  v.names="value",timevar="estimand",times=c("effect_variance","genetic_variance","residual_variance","heritability"),
+  direction="long")
+ggplot2::ggplot(trace_long, ggplot2::aes(raw_iteration,value,colour=factor(chain))) +
+  ggplot2::geom_line(alpha=.65,linewidth=.25) +
+  ggplot2::facet_grid(estimand ~ method_label, scales="free_y") +
+  ggplot2::labs(colour="Chain",x="Raw iteration",y=NULL)
+```
+
+```{r}
+running <- do.call(rbind,lapply(split(draws,interaction(draws$architecture,draws$method,draws$chain,drop=TRUE)),function(x){
+  x$running_mean <- cumsum(x$heritability)/seq_len(nrow(x)); x[x$raw_iteration%%10L==0L,]
+}))
+ggplot2::ggplot(running,ggplot2::aes(raw_iteration,running_mean,colour=factor(chain)))+
+  ggplot2::geom_line(linewidth=.3)+ggplot2::facet_wrap(~method_label,scales="free_y")+
+  ggplot2::labs(colour="Chain",x="Raw iteration",y="Running mean heritability")
+```
+
+## Diagnostic trajectories
+
+```{r}
+ggplot2::ggplot(diagnostics,ggplot2::aes(retained_draw_candidate,rhat,colour=estimand))+
+  ggplot2::geom_hline(yintercept=1.01,linetype=2)+ggplot2::geom_line()+ggplot2::geom_point()+
+  ggplot2::facet_grid(burnin_candidate~method_label)+ggplot2::labs(x="Retained draws/chain",y="Rank-normalized split R-hat")
+```
+
+```{r}
+ess_long <- reshape(diagnostics,varying=c("ess_bulk","ess_tail"),v.names="ess",timevar="type",
+  times=c("bulk","tail"),direction="long")
+ggplot2::ggplot(ess_long,ggplot2::aes(retained_draw_candidate,ess,colour=estimand))+
+  ggplot2::geom_hline(yintercept=400,linetype=2)+ggplot2::geom_line()+ggplot2::geom_point()+
+  ggplot2::facet_grid(type~method_label)+ggplot2::labs(x="Retained draws/chain",y="Effective sample size")
+```
+
+```{r}
+ggplot2::ggplot(diagnostics,ggplot2::aes(retained_draw_candidate,relative_mcse,colour=estimand))+
+  ggplot2::geom_hline(yintercept=.05,linetype=2)+ggplot2::geom_line()+ggplot2::geom_point()+
+  ggplot2::facet_grid(burnin_candidate~method_label)+ggplot2::labs(x="Retained draws/chain",y="Relative MCSE")
+```
+
+## Burn-in stability and recommendations
+
+```{r}
+knitr::kable(stability[,c("architecture","method","burnin_candidate","estimand","standardized_mean_shift","stable")],digits=4)
+```
+
+```{r}
+knitr::kable(recommendations,digits=4)
+```
+
+All recommendations use four chains and no thinning. A checkpoint qualifies
+only if every core estimand passes there and at every later checkpoint. The
+reported limiting quantity is descriptive for this one simulated dataset.
+
+## BED versus CSR and marker agreement
+
+BED and CSR are shown within their matched prior class only. Scalar convergence
+diagnostics—not high-dimensional agreement—determine recommendations.
+Chain-specific marker summaries were retained, so pairwise effect/PIP agreement
+is available as secondary context.
+
+```{r}
+knitr::kable(agreement,digits=4)
+```
+
+## Runtime
+
+```{r}
+method_runtime <- unique(runtime[c("architecture","method","method_total_runtime")])
+knitr::kable(method_runtime,digits=1)
+```
+
+Runtime is descriptive. Chain-level runtime was not exposed by native
+orchestration, so only method totals are reported; per-chain runtime remains NA.
+
+## Limitations
+
+There is one simulated dataset per architecture, one prior configuration, and a
+public example genotype resource with limited LD. Operational thresholds are not
+proof of convergence. No thinning was used to hide autocorrelation. Initial-state
+controls were unavailable, so chains used identical priors and independent seeds.
+The study does not update Studies 02 or 03 automatically.
+
+## Worked example
+
+The complete worked example is displayed below and is deliberately not executed
+during site rendering.
+
+```{r, echo=FALSE, results='asis'}
+example_code <- readLines(file.path(capsule,"worked_convergence_example.R"),warn=FALSE)
+cat("```r\n",paste(example_code,collapse="\n"),"\n```\n",sep="")
+```
+
+[Download the worked example](../../results/reference/04_convergence/st-multichain-convergence-development-v1/worked_convergence_example.R).
+
+## Developer smoke test and reproduction
+
+The [two-chain contract probe](../../results/reference/04_convergence/st-multichain-convergence-development-v1/convergence_contract_smoke_test.R)
+verifies retention semantics but is not benchmark evidence. The
+[full targets entry point](../../results/reference/04_convergence/st-multichain-convergence-development-v1/run_convergence_benchmark.R)
+reproduces the matched study when the pinned public inputs are available.
+
+## Downloads and provenance
+
+[Capsule README](../../results/reference/04_convergence/st-multichain-convergence-development-v1/README.md) ·
+[manifest](../../results/reference/04_convergence/st-multichain-convergence-development-v1/benchmark_manifest.json) ·
+[raw scalar chains](../../results/reference/04_convergence/st-multichain-convergence-development-v1/scalar_chain_draws.csv) ·
+[diagnostics](../../results/reference/04_convergence/st-multichain-convergence-development-v1/convergence_diagnostics.csv) ·
+[recommendations](../../results/reference/04_convergence/st-multichain-convergence-development-v1/method_recommendations.csv) ·
+[source inventory](../../results/reference/04_convergence/st-multichain-convergence-development-v1/source_files.csv) ·
+[checksums](../../results/reference/04_convergence/st-multichain-convergence-development-v1/checksums.csv).

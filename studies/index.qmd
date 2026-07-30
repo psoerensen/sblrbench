@@ -10,6 +10,15 @@ manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), s
 
 ## Available benchmarks
 
+### [Single-trait multichain convergence development benchmark](04_convergence/convergence-development-pilot.qmd)
+
+| Status | Study type | Methods | Architectures | Chains | Maximum draws | Diagnostics | Capsule |
+|---|---|---|---|---:|---:|---|---|
+| Complete one-replicate multichain development benchmark | Convergence | Matched ST BED/CSR BayesC and BayesR | Sparse homogeneous and sparse mixture | 4 per method (16 total) | 3,000 per chain | Rank-normalized split R-hat, bulk/tail ESS, relative MCSE, burn-in stability | [Capsule](../results/reference/04_convergence/st-multichain-convergence-development-v1/README.md) |
+
+Passing operational thresholds supports provisional development settings for
+these simulations; it is not universal proof of convergence.
+
 ### Single-trait parameter-estimation development benchmark
 
 | Status | Study type | Methods | Architectures | Replicates | Primary estimands | Validation | Capsule |
@@ -50,7 +59,7 @@ benchmark remain planned.
 - High-LD causal architecture.
 - Multi-replicate scientific-length prediction study.
 - Single-trait parameter-estimation benchmark.
-- Single-trait multichain convergence benchmark.
+- Independent validation of convergence-informed MCMC settings.
 - Multi-trait prediction study after computational optimization.
 - Annotation-informed models.
 - Block-eigen methods.

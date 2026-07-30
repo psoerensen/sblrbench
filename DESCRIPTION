@@ -19,6 +19,7 @@ Imports:
     sblr (>= 0.1.2)
 Suggests:
     knitr,
+    posterior,
     rmarkdown,
     qgg,
     targets,
