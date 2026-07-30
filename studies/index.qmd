@@ -1,65 +1,69 @@
 ---
 title: "Benchmark catalogue"
+description: "Ordered catalogue of frozen sblrbench development benchmarks and planned extensions."
 ---
-
-```{r}
-#| echo: false
-capsule <- "results/reference/01_finemapping/separated-development-v1.1"
-manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), simplifyVector = TRUE)
-```
 
 ## Available benchmarks
 
-### [Single-trait multichain convergence development benchmark](04_convergence/convergence-development-pilot.qmd)
-
-| Status | Study type | Methods | Architectures | Chains | Maximum draws | Diagnostics | Capsule |
-|---|---|---|---|---:|---:|---|---|
-| Complete one-replicate multichain development benchmark | Convergence | Matched ST BED/CSR BayesC and BayesR | Sparse homogeneous and sparse mixture | 4 per method (16 total) | 3,000 per chain | Rank-normalized split R-hat, bulk/tail ESS, relative MCSE, burn-in stability | [Capsule](../results/reference/04_convergence/st-multichain-convergence-development-v1/README.md) |
-
-Passing operational thresholds supports provisional development settings for
-these simulations; it is not universal proof of convergence.
-
-### Single-trait parameter-estimation development benchmark
-
-| Status | Study type | Methods | Architectures | Replicates | Primary estimands | Validation | Capsule |
-|---|---|---|---|---:|---|---|---|
-| Complete one-replicate development benchmark | Parameter estimation | ST BED/CSR BayesC and BayesR | Sparse homogeneous and sparse mixture | 1 | Effect, genetic and residual variance; heritability | 8/8 fits; simulation oracles passed | [Report](03_parameter_estimation/parameter-estimation-development-pilot.qmd) |
-
-One replicate validates the reporting contract but does not establish bias or
-interval calibration. A multi-replicate parameter-estimation benchmark with
-convergence-informed MCMC and a separate single-trait multichain convergence
-benchmark remain planned.
-
-### [Separated-locus fine-mapping development pilot](01_finemapping/separated-development-pilot.qmd)
+### [Study 01: Separated-locus fine-mapping](01_finemapping/separated-development-pilot.qmd)
 
 | Field | Value |
 |---|---|
 | Status | Complete development benchmark |
-| Study type | Separated-locus, scalar-trait fine-mapping |
-| Methods | `r paste(manifest$methods, collapse = ", ")` |
-| Replicates | `r manifest$replicate_count` |
-| Data limitation | Example markers have limited LD; simulated inputs are publicly downloadable from a pinned qgdata revision |
-| Capsule | [Improved v1.1 reproducibility capsule](../results/reference/01_finemapping/separated-development-v1.1/README.md) · [Original v1 capsule](../results/reference/01_finemapping/separated-development-v1/README.md) |
+| Study type | Fine-mapping and credible-set evaluation |
+| Methods | ST-BED BayesC; ST-BED BayesR; ST-CSR SBayesC; ST-CSR SBayesR |
+| Architectures | Separated causal loci |
+| Replicates or chains | 10 replicates |
+| Primary outputs | Marker recovery, causal ranks, credible sets |
+| Validation | 40/40 fits; simulation oracles and strict alignment passed |
+| Capsule | [v1.1 reproducibility capsule](../results/reference/01_finemapping/separated-development-v1.1/README.md) |
 
-### [Single-trait prediction development benchmark](02_prediction/prediction-development-pilot.qmd)
+### [Study 02: Single-trait prediction](02_prediction/prediction-development-pilot.qmd)
 
 | Field | Value |
 |---|---|
 | Status | Complete one-replicate development benchmark |
 | Study type | Held-out single-trait prediction |
-| Methods | ST-BED BayesC, ST-BED BayesR, ST-CSR SBayesC, ST-CSR SBayesR |
-| Architectures | Sparse homogeneous and sparse variance mixture |
-| Replicates | One per architecture |
-| Validation | 8/8 successful fits; training-only scaling, LD and summary statistics |
+| Methods | ST-BED BayesC; ST-BED BayesR; ST-CSR SBayesC; ST-CSR SBayesR |
+| Architectures | Sparse homogeneous; sparse variance mixture |
+| Replicates or chains | One replicate per architecture |
+| Primary outputs | Prediction correlation, NMSE, calibration, paired differences |
+| Validation | 8/8 fits; training-only scaling, LD and summary statistics |
 | Capsule | [Prediction reproducibility capsule](../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/README.md) |
+
+### [Study 03: Single-trait parameter estimation](03_parameter_estimation/parameter-estimation-development-pilot.qmd)
+
+| Field | Value |
+|---|---|
+| Status | Complete one-replicate development benchmark |
+| Study type | Posterior parameter estimation |
+| Methods | ST-BED BayesC; ST-BED BayesR; ST-CSR SBayesC; ST-CSR SBayesR |
+| Architectures | Sparse homogeneous; sparse variance mixture |
+| Replicates or chains | One replicate per architecture |
+| Primary outputs | Effect, genetic and residual variance; heritability; posterior intervals |
+| Validation | 8/8 fits; simulation oracles and posterior contracts passed |
+| Capsule | [Parameter-estimation reproducibility capsule](../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/README.md) |
+
+### [Study 04: Multichain convergence](04_convergence/convergence-development-pilot.qmd)
+
+| Field | Value |
+|---|---|
+| Status | Complete one-replicate multichain development benchmark |
+| Study type | Operational multichain convergence diagnostics |
+| Methods | Matched ST-BED/CSR BayesC and BayesR |
+| Architectures | Sparse homogeneous; sparse variance mixture |
+| Replicates or chains | Four chains per method; 16 total |
+| Primary outputs | R-hat, bulk/tail ESS, relative MCSE, burn-in stability, recommendations |
+| Validation | 16/16 chains; retained identities and complete checkpoint grid |
+| Capsule | [Convergence reproducibility capsule](../results/reference/04_convergence/st-multichain-convergence-development-v1/README.md) |
 
 ## Planned benchmarks
 
 - Fine-mapping with realistic LD.
 - High-LD causal architecture.
-- Multi-replicate scientific-length prediction study.
-- Single-trait parameter-estimation benchmark.
-- Independent validation of convergence-informed MCMC settings.
-- Multi-trait prediction study after computational optimization.
+- Five-replicate single-trait prediction benchmark.
+- Five-replicate single-trait parameter-estimation benchmark.
+- Five-replicate validation of convergence-informed MCMC settings.
+- Multi-trait prediction after computational optimization.
 - Annotation-informed models.
 - Block-eigen methods.

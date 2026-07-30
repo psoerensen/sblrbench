@@ -1,17 +1,20 @@
 ---
-title: "Single-trait prediction development benchmark"
+title: "Study 02: Single-trait prediction"
+description: "A frozen one-replicate held-out prediction benchmark across BayesC, BayesR, BED and CSR workflows."
 ---
 
-> **Development benchmark—not a final scientific comparison.** Fits use 500
-> iterations, 250 burn-in iterations and one chain with simulated public
-> genotypes that have limited LD. Test phenotypes are held out, and scaling,
-> LD and summary statistics use training individuals only. No convergence or
-> general superiority claim is supported.
+::: {.callout-warning .callout-development}
+## Development benchmark—not a final scientific comparison.
+Fits use 500 iterations, 250 burn-in iterations and one chain with simulated
+public genotypes that have limited LD. Test phenotypes are held out, and scaling,
+LD and summary statistics use training individuals only.
+:::
 
 ```{r}
 #| echo: false
 capsule <- file.path("results", "reference", "02_prediction",
   "st-bayesc-bayesr-one-replicate-development-v1")
+source("studies/reporting_helpers.R")
 source(file.path("studies", "02_prediction", "promotion.R"), local = TRUE)
 .study02_validate_capsule(capsule)
 metrics <- read.csv(file.path(capsule, "prediction_metrics.csv"))
@@ -21,6 +24,11 @@ status <- read.csv(file.path(capsule, "replicate_status.csv"))
 simulations <- read.csv(file.path(capsule, "simulation_summary.csv"))
 benchmark_summary <- read.csv(file.path(capsule, "benchmark_summary.csv"))
 manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), simplifyVector = TRUE)
+example_data <- read.csv(file.path(capsule,"example_data_manifest.csv"))
+metrics$method_label <- sblrbench_method_factor(metrics$method)
+metrics$architecture_label <- sblrbench_architecture_factor(metrics$architecture)
+computation$method_label <- sblrbench_method_factor(computation$method)
+computation$architecture_label <- sblrbench_architecture_factor(computation$architecture)
 available <- TRUE
 ```
 
@@ -86,7 +94,10 @@ canonical marker order, aligned effects and finite held-out predictions.
 
 ```{r}
 #| echo: false
-print(status)
+status_display <- status
+status_display$method <- sblrbench_method_factor(status_display$method)
+names(status_display) <- c("Architecture","Replicate","Method","Status","Reason")
+knitr::kable(status_display)
 ```
 
 ## Prediction results
@@ -102,7 +113,11 @@ main <- reshape(metrics[metrics$metric %in% display_metrics,
 main <- merge(main, computation[, c("architecture", "method", "runtime")],
   by = c("architecture", "method"), sort = FALSE)
 names(main) <- sub("^value\\.", "", names(main))
-print(main, row.names = FALSE)
+main$method <- sblrbench_method_factor(main$method)
+main$architecture <- sblrbench_architecture_factor(main$architecture)
+names(main) <- c("Architecture","Method","Prediction correlation","Prediction NMSE",
+  "Phenotype correlation","Calibration intercept","Calibration slope","Effect RMSE","Runtime (s)")
+knitr::kable(main,digits=4)
 ```
 
 ### Prediction correlation by architecture and method
@@ -111,9 +126,10 @@ print(main, row.names = FALSE)
 #| echo: false
 #| fig-width: 9
 if (available) print(ggplot2::ggplot(metrics[metrics$metric == "prediction_correlation", ],
-  ggplot2::aes(method, value, colour = method)) + ggplot2::geom_point() +
-  ggplot2::facet_wrap(~architecture) + ggplot2::theme_minimal() +
-  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1), legend.position = "none"))
+  ggplot2::aes(method, value, colour = method,shape=method)) + ggplot2::geom_point(size=2) +
+  ggplot2::facet_wrap(~architecture_label) + sblrbench_method_scales()+theme_sblrbench() +
+  ggplot2::scale_x_discrete(limits=sblrbench_method_levels(),labels=sblrbench_method_labels())+
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 25, hjust = 1), legend.position = "none"))
 ```
 
 ### Prediction NMSE
@@ -122,8 +138,9 @@ if (available) print(ggplot2::ggplot(metrics[metrics$metric == "prediction_corre
 #| echo: false
 #| fig-width: 9
 if (available) print(ggplot2::ggplot(metrics[metrics$metric == "prediction_nmse", ],
-  ggplot2::aes(method, value, colour = method)) + ggplot2::geom_point() +
-  ggplot2::facet_wrap(~architecture) + ggplot2::theme_minimal() +
+  ggplot2::aes(method, value, colour = method,shape=method)) + ggplot2::geom_point(size=2) +
+  ggplot2::facet_wrap(~architecture_label) + sblrbench_method_scales()+theme_sblrbench() +
+  ggplot2::scale_x_discrete(limits=sblrbench_method_levels(),labels=sblrbench_method_labels())+
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1), legend.position = "none"))
 ```
 
@@ -133,8 +150,9 @@ if (available) print(ggplot2::ggplot(metrics[metrics$metric == "prediction_nmse"
 #| echo: false
 #| fig-width: 9
 if (available) print(ggplot2::ggplot(metrics[metrics$metric == "phenotype_prediction_correlation", ],
-  ggplot2::aes(method, value, colour = method)) + ggplot2::geom_point() +
-  ggplot2::facet_wrap(~architecture) + ggplot2::theme_minimal() +
+  ggplot2::aes(method, value, colour = method,shape=method)) + ggplot2::geom_point(size=2) +
+  ggplot2::facet_wrap(~architecture_label) + sblrbench_method_scales()+theme_sblrbench() +
+  ggplot2::scale_x_discrete(limits=sblrbench_method_levels(),labels=sblrbench_method_labels())+
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1), legend.position = "none"))
 ```
 
@@ -144,8 +162,9 @@ if (available) print(ggplot2::ggplot(metrics[metrics$metric == "phenotype_predic
 #| echo: false
 #| fig-width: 9
 if (available) print(ggplot2::ggplot(metrics[metrics$metric == "prediction_calibration_slope", ],
-  ggplot2::aes(method, value, colour = method)) + ggplot2::geom_hline(yintercept = 1, linetype = 2) +
-  ggplot2::geom_point() + ggplot2::facet_wrap(~architecture) + ggplot2::theme_minimal() +
+  ggplot2::aes(method, value, colour = method,shape=method)) + ggplot2::geom_hline(yintercept = 1, linetype = 2) +
+  ggplot2::geom_point(size=2) + ggplot2::facet_wrap(~architecture_label) + sblrbench_method_scales()+theme_sblrbench() +
+  ggplot2::scale_x_discrete(limits=sblrbench_method_levels(),labels=sblrbench_method_labels())+
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1), legend.position = "none"))
 ```
 
@@ -165,13 +184,13 @@ descriptions rather than uncertainty estimates.
 #| fig-width: 10
 if (available) {
   z <- paired[grepl("bayesr_vs_bayesc", paired$comparison_id), ]
-  print(ggplot2::ggplot(z, ggplot2::aes(paired_metric, advantage, colour = comparison_id)) +
-    ggplot2::geom_hline(yintercept = 0, linetype = 2) + ggplot2::geom_point() +
-    ggplot2::facet_wrap(~architecture, scales = "free_x") + ggplot2::coord_flip() + ggplot2::theme_minimal())
+  print(ggplot2::ggplot(z, ggplot2::aes(paired_metric, advantage)) +
+    ggplot2::geom_hline(yintercept = 0, linetype = 2) + ggplot2::geom_point(colour="#4B5563") +
+    ggplot2::facet_wrap(~architecture, scales = "free_x") + ggplot2::coord_flip() + theme_sblrbench())
 }
 ```
 
-## CSR-versus-BED comparisons
+## CSR versus BED comparisons
 
 Positive advantages favor CSR for the corresponding model class.
 
@@ -180,19 +199,20 @@ Positive advantages favor CSR for the corresponding model class.
 #| fig-width: 10
 if (available) {
   z <- paired[grepl("csr_vs_bed", paired$comparison_id), ]
-  print(ggplot2::ggplot(z, ggplot2::aes(paired_metric, advantage, colour = comparison_id)) +
-    ggplot2::geom_hline(yintercept = 0, linetype = 2) + ggplot2::geom_point() +
-    ggplot2::facet_wrap(~architecture, scales = "free_x") + ggplot2::coord_flip() + ggplot2::theme_minimal())
+  print(ggplot2::ggplot(z, ggplot2::aes(paired_metric, advantage)) +
+    ggplot2::geom_hline(yintercept = 0, linetype = 2) + ggplot2::geom_point(colour="#4B5563") +
+    ggplot2::facet_wrap(~architecture, scales = "free_x") + ggplot2::coord_flip() + theme_sblrbench())
 }
 ```
 
-## Runtime
+## Computational performance
 
 ```{r}
 #| echo: false
 #| fig-width: 9
-if (available) print(ggplot2::ggplot(computation, ggplot2::aes(method, runtime, colour = method)) +
-  ggplot2::geom_point() + ggplot2::facet_wrap(~architecture) + ggplot2::theme_minimal() +
+if (available) print(ggplot2::ggplot(computation, ggplot2::aes(method, runtime, colour = method,shape=method)) +
+  ggplot2::geom_point(size=2) + ggplot2::facet_wrap(~architecture_label) + sblrbench_method_scales()+theme_sblrbench() +
+  ggplot2::scale_x_discrete(limits=sblrbench_method_levels(),labels=sblrbench_method_labels())+
   ggplot2::scale_y_log10() + ggplot2::labs(y = "Runtime (seconds, log scale)") +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1), legend.position = "none"))
 ```
@@ -208,47 +228,64 @@ MCMC is short and single-chain; replicate counts are preliminary; the public
 simulated resource has limited LD; only one heritability and two stylized sparse
 architectures are represented; convergence is not assessed.
 
+## Code and reproduction
+
 ## Worked example
 
-The [worked example](../../scripts/worked_prediction_example.R) fits all four
-active models to one held-out single-trait prediction problem.
+This frozen script fits all four active models to one held-out single-trait prediction problem. It is displayed but not executed during rendering.
+
+```{r, echo=FALSE, results='asis'}
+display_capsule_script(file.path(capsule,"worked_prediction_example.R"))
+```
+
+[Download the worked example](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/worked_prediction_example.R).
 
 ## Public example data
 
-Data are downloaded and checksum-validated from pinned qgdata commit
-`6cca5819e711d326cfb2614d7e9d9f34942612cd`.
+The simulated PLINK files are checksum-validated from the pinned qgdata revision.
 
-## Developer smoke test
+```{r, echo=FALSE}
+knitr::kable(example_data[c("filename","role","size_bytes","md5")],
+  col.names=c("File","Role","Bytes","MD5"))
+```
 
-The [prediction contract smoke test](../../scripts/prediction_contract_smoke_test.R)
-validates metrics, alignment and paired comparison orientation without MCMC.
+[Download the example-data manifest](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/example_data_manifest.csv).
+
+## Developer contract smoke test
+
+This sampler-free test validates metrics, alignment and paired comparison orientation.
+
+```{r, echo=FALSE, results='asis'}
+display_capsule_script_collapsed(file.path(capsule,"prediction_contract_smoke_test.R"))
+```
+
+[Download the smoke test](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/prediction_contract_smoke_test.R).
 
 ## Complete benchmark reproduction
 
-Use the staged [targets entry point](../../scripts/run_prediction_benchmark.R).
-Rendering this report never executes it.
+The frozen targets entry point reproduces the benchmark but is never executed while rendering.
 
-## Downloads
+```{r, echo=FALSE, results='asis'}
+display_capsule_script(file.path(capsule,"run_prediction_benchmark.R"))
+```
 
-The complete [benchmark reproducibility capsule](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/README.md)
-contains direct downloads for the [manifest](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/benchmark_manifest.json),
-[benchmark summary](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/benchmark_summary.csv),
-[paired summary](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/paired_comparison_summary.csv),
-[prediction metrics](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/prediction_metrics.csv),
-[paired rows](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/paired_method_differences.csv),
-[runtime](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/computational_summary.csv),
-[fit status](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/replicate_status.csv),
-[simulation summary](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/simulation_summary.csv),
-[configuration](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/config.R),
-[run script](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/run_prediction_benchmark.R),
-[worked example](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/worked_prediction_example.R),
-[smoke test](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/prediction_contract_smoke_test.R),
-[data manifest](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/example_data_manifest.csv),
-[source inventory](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/source_files.csv),
-[session information](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/session_info.txt), and
-[checksums](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/checksums.csv).
+[Download the reproduction script](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/run_prediction_benchmark.R).
+
+## Downloads and provenance
+
+| Resource | Download |
+|---|---|
+| Capsule | [README](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/README.md); [manifest](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/benchmark_manifest.json) |
+| Primary results | [Benchmark summary](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/benchmark_summary.csv); [prediction metrics](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/prediction_metrics.csv); [paired summary](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/paired_comparison_summary.csv) |
+| Computational evidence | [Runtime](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/computational_summary.csv); [fit status](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/replicate_status.csv) |
+| Reproduction | [Configuration](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/config.R); [worked example](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/worked_prediction_example.R); [smoke test](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/prediction_contract_smoke_test.R); [run script](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/run_prediction_benchmark.R) |
+| Provenance | [Example data](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/example_data_manifest.csv); [source inventory](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/source_files.csv); [session information](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/session_info.txt); [checksums](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/checksums.csv) |
 
 ## Software versions and commits
 
-Compact outputs record package versions, source commit/dirty state, split,
-simulation and MCMC seeds, controls, runtime and branch status.
+```{r, echo=FALSE}
+provenance <- data.frame(Item=c("sblrbench commit","sblr commit","qgdata commit","Source tree","Profile"),
+  Value=c(manifest$sblrbench_source_commit,manifest$versions$sblr_source_commit,manifest$qgdata$commit,
+    if(manifest$source_tree_clean) "Clean" else "Dirty","Development"))
+knitr::kable(provenance)
+```

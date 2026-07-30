@@ -1,0 +1,5 @@
+.callout-development { border-left-color: #D55E00; }
+.table { margin-bottom: 1.25rem; }
+pre { max-height: 42rem; overflow: auto; }
+.figure-caption, .table-caption { color: #4b5563; }
+details { margin: 0.75rem 0 1rem; }
