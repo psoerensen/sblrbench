@@ -57,6 +57,38 @@
   out <- do.call(rbind, rows); rownames(out) <- NULL; out
 }
 
+.study02_canonical_md5 <- function(paths) {
+  paths <- as.character(paths)
+  if (!length(paths)) return(setNames(character(), character()))
+  if (anyNA(paths) || any(!file.exists(paths)))
+    stop("All checksum paths must identify existing files.", call. = FALSE)
+  text_extensions <- c("r", "qmd", "md", "csv", "json", "txt", "yml", "yaml")
+  output <- character(length(paths))
+  names(output) <- paths
+  for (i in seq_along(paths)) {
+    path <- paths[[i]]
+    if (!tolower(tools::file_ext(path)) %in% text_extensions) {
+      output[[i]] <- unname(tools::md5sum(path))
+      next
+    }
+    bytes <- readBin(path, what = "raw", n = file.info(path)$size)
+    values <- as.integer(bytes)
+    if (length(values)) {
+      is_cr <- values == 13L
+      cr_before_lf <- is_cr & c(values[-1L] == 10L, FALSE)
+      values[is_cr] <- 10L
+      bytes <- as.raw(values[!cr_before_lf])
+    }
+    temporary <- tempfile("sblrbench-canonical-", fileext = ".bin")
+    on.exit(unlink(temporary), add = TRUE)
+    connection <- file(temporary, open = "wb")
+    tryCatch(writeBin(bytes, connection), finally = close(connection))
+    output[[i]] <- unname(tools::md5sum(temporary))
+    unlink(temporary)
+  }
+  output
+}
+
 .study02_validate_promotion_tables <- function(config, metrics, paired,
                                                 computation, status,
                                                 simulations, manifest,
@@ -129,12 +161,40 @@
   missing <- required[!file.exists(file.path(path, required))]
   if (length(missing)) stop("Incomplete prediction capsule: ", paste(missing, collapse = ", "), call. = FALSE)
   checks <- read.csv(file.path(path, "checksums.csv"), stringsAsFactors = FALSE)
-  actual <- unname(tools::md5sum(file.path(path, checks$file)))
-  if (anyNA(actual) || !identical(actual, checks$md5)) stop("Capsule checksum validation failed.", call. = FALSE)
+  if (!identical(names(checks), c("file", "size_bytes", "md5")))
+    stop("checksums.csv has an invalid schema.", call. = FALSE)
+  if (anyNA(checks$file) || anyDuplicated(checks$file))
+    stop("checksums.csv contains duplicate or missing filenames.", call. = FALSE)
+  if (any(checks$file != basename(checks$file)) ||
+      any(grepl("(^[A-Za-z]:|^[/\\\\]|(^|[/\\\\])\\.\\.([/\\\\]|$))", checks$file)))
+    stop("checksums.csv contains a path outside the capsule directory.", call. = FALSE)
+  required_listed <- setdiff(required, "checksums.csv")
+  absent_checksums <- setdiff(required_listed, checks$file)
+  if (length(absent_checksums))
+    stop("Required capsule files are absent from checksums.csv: ",
+      paste(absent_checksums, collapse = ", "), call. = FALSE)
+  listed_paths <- file.path(path, checks$file)
+  missing_listed <- checks$file[!file.exists(listed_paths)]
+  if (length(missing_listed))
+    stop("Files listed in checksums.csv are missing: ",
+      paste(missing_listed, collapse = ", "), call. = FALSE)
+  if (anyNA(checks$md5) || any(!grepl("^[0-9a-f]{32}$", checks$md5)))
+    stop("checksums.csv contains malformed MD5 values.", call. = FALSE)
+  actual <- unname(.study02_canonical_md5(listed_paths))
+  mismatched <- which(actual != checks$md5)
+  if (length(mismatched)) {
+    details <- paste0(checks$file[mismatched], ": expected ",
+      checks$md5[mismatched], ", observed ", actual[mismatched])
+    stop("Capsule checksum validation failed:\n", paste(details, collapse = "\n"),
+      call. = FALSE)
+  }
   metrics <- read.csv(file.path(path, "prediction_metrics.csv"))
   manifest <- jsonlite::read_json(file.path(path, "benchmark_manifest.json"), simplifyVector = TRUE)
+  methods <- .study02_expected_methods()
   if (manifest$replicate_count != 1L || manifest$successful_fit_count != 8L ||
-      any(grepl("^mt_", metrics$method)) || any(!is.finite(metrics$value)))
+      !identical(unname(manifest$active_methods), methods) ||
+      !setequal(unique(metrics$method), methods) || any(grepl("^mt_", metrics$method)) ||
+      any(!is.finite(metrics$value)))
     stop("Capsule report inputs are invalid.", call. = FALSE)
   invisible(TRUE)
 }

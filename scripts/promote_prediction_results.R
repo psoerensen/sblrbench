@@ -73,7 +73,7 @@ write.csv(data_manifest, file.path(destination, "example_data_manifest.csv"), ro
 blobs <- vapply(source_files, function(path)
   system2("git", c("rev-parse", paste0(commit, ":", path)), stdout = TRUE), character(1))
 source_inventory <- data.frame(path = source_files, role = roles,
-  git_blob_sha = blobs, md5 = unname(tools::md5sum(source_files)),
+  git_blob_sha = blobs, md5 = unname(.study02_canonical_md5(source_files)),
   source_commit = commit,
   source_url = paste0("https://github.com/psoerensen/sblrbench/blob/", commit, "/", source_files))
 write.csv(source_inventory, file.path(destination, "source_files.csv"), row.names = FALSE)
@@ -99,8 +99,9 @@ contents <- unlist(lapply(text_files, function(path) readLines(path, warn = FALS
 if (any(grepl("[A-Za-z]:[/\\\\]Users[/\\\\]", contents))) stop("Absolute user path detected.", call. = FALSE)
 files <- sort(setdiff(list.files(destination), "checksums.csv"))
 info <- file.info(file.path(destination, files))
+# size_bytes records the physical file; md5 canonicalizes text newlines only.
 checksums <- data.frame(file = files, size_bytes = info$size,
-  md5 = unname(tools::md5sum(file.path(destination, files))))
+  md5 = unname(.study02_canonical_md5(file.path(destination, files))))
 write.csv(checksums, file.path(destination, "checksums.csv"), row.names = FALSE)
 .study02_validate_capsule(destination)
 message("Created clean reference capsule at ", destination)

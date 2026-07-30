@@ -199,3 +199,75 @@ test_that("one-replicate summaries retain NA uncertainty", {
   expect_true(is.na(paired_summary$sd_advantage))
   expect_equal(paired_summary$complete_pairs, 1L)
 })
+
+test_that("canonical checksums normalize only text newlines", {
+  promotion_path <- testthat::test_path("..", "..", "studies", "02_prediction", "promotion.R")
+  skip_if_not(file.exists(promotion_path),
+    "repository-only Study 02 helpers are excluded from package builds")
+  source(promotion_path, local = TRUE)
+  write_raw <- function(path, bytes) {
+    con <- file(path, "wb"); on.exit(close(con)); writeBin(bytes, con)
+  }
+  lf <- tempfile(fileext = ".txt"); crlf <- tempfile(fileext = ".txt")
+  cr <- tempfile(fileext = ".txt"); changed <- tempfile(fileext = ".txt")
+  write_raw(lf, charToRaw("line one\nline two\nline three\n"))
+  write_raw(crlf, charToRaw("line one\r\nline two\r\nline three\r\n"))
+  write_raw(cr, charToRaw("line one\rline two\rline three\r"))
+  write_raw(changed, charToRaw("line one\nline TWO\nline three\n"))
+  expect_identical(unname(.study02_canonical_md5(lf)),
+    unname(.study02_canonical_md5(crlf)))
+  expect_identical(unname(.study02_canonical_md5(lf)),
+    unname(.study02_canonical_md5(cr)))
+  expect_false(identical(unname(.study02_canonical_md5(lf)),
+    unname(.study02_canonical_md5(changed))))
+  final_newline <- tempfile(fileext = ".txt")
+  no_final_newline <- tempfile(fileext = ".txt")
+  write_raw(final_newline, charToRaw("a\n")); write_raw(no_final_newline, charToRaw("a"))
+  expect_false(identical(unname(.study02_canonical_md5(final_newline)),
+    unname(.study02_canonical_md5(no_final_newline))))
+  binary <- tempfile(fileext = ".bin")
+  write_raw(binary, as.raw(c(0, 13, 10, 13, 255, 10)))
+  expect_identical(unname(.study02_canonical_md5(binary)),
+    unname(tools::md5sum(binary)))
+})
+
+test_that("capsule validator gives strict checksum diagnostics", {
+  promotion_path <- testthat::test_path("..", "..", "studies", "02_prediction", "promotion.R")
+  skip_if_not(file.exists(promotion_path),
+    "repository-only Study 02 helpers are excluded from package builds")
+  source(promotion_path, local = TRUE)
+  capsule <- tempfile("capsule-"); dir.create(capsule)
+  required <- c("README.md", "benchmark_summary.csv", "paired_comparison_summary.csv",
+    "paired_method_differences.csv", "computational_summary.csv", "replicate_status.csv",
+    "simulation_summary.csv", "config.R", "run_prediction_benchmark.R",
+    "worked_prediction_example.R", "prediction_contract_smoke_test.R",
+    "example_data_manifest.csv", "source_files.csv", "session_info.txt", "pilot.R", "targets.R")
+  invisible(lapply(file.path(capsule, required), function(path) writeLines("fixture", path)))
+  methods <- .study02_expected_methods()
+  write.csv(data.frame(method = methods, value = 1),
+    file.path(capsule, "prediction_metrics.csv"), row.names = FALSE)
+  jsonlite::write_json(list(replicate_count = 1L, successful_fit_count = 8L,
+    active_methods = methods), file.path(capsule, "benchmark_manifest.json"), auto_unbox = TRUE)
+  files <- sort(setdiff(list.files(capsule), "checksums.csv"))
+  make_checks <- function() data.frame(file = files,
+    size_bytes = file.info(file.path(capsule, files))$size,
+    md5 = unname(.study02_canonical_md5(file.path(capsule, files))))
+  checks <- make_checks()
+  write.csv(checks, file.path(capsule, "checksums.csv"), row.names = FALSE)
+  expect_invisible(.study02_validate_capsule(capsule))
+  writeLines("changed", file.path(capsule, "README.md"))
+  expect_error(.study02_validate_capsule(capsule), "README.md")
+  writeLines("fixture", file.path(capsule, "README.md"))
+  checks <- make_checks(); checks <- rbind(checks, checks[1, ])
+  write.csv(checks, file.path(capsule, "checksums.csv"), row.names = FALSE)
+  expect_error(.study02_validate_capsule(capsule), "duplicate")
+  checks <- make_checks(); checks$md5[[1]] <- "not-a-hash"
+  write.csv(checks, file.path(capsule, "checksums.csv"), row.names = FALSE)
+  expect_error(.study02_validate_capsule(capsule), "malformed")
+  extra <- file.path(capsule, "extra.txt"); writeLines("extra", extra)
+  checks <- rbind(make_checks(), data.frame(file = "extra.txt", size_bytes = 6,
+    md5 = unname(.study02_canonical_md5(extra))))
+  write.csv(checks, file.path(capsule, "checksums.csv"), row.names = FALSE)
+  unlink(extra)
+  expect_error(.study02_validate_capsule(capsule), "listed.*missing")
+})
