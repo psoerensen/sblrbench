@@ -62,3 +62,14 @@ download_sblrbench_example_data()
 ```
 
 The improved `separated-development-v1.1` capsule contains the same numerical benchmark results as v1 with a real worked sampler example, a separate developer smoke test, pinned data checksums, and clearer full-workflow reproduction guidance.
+
+## Prediction development study
+
+Study 02 compares ST/MT BayesR through BED and CSR interfaces for three traits under mostly-shared and mostly-trait-specific causal architectures. It uses a common deterministic 70/30 train/test split. Allele frequencies, standardization, sparse LD and summary statistics are learned from training individuals only; test phenotypes are held out from every fitting and preprocessing decision.
+
+```r
+Sys.setenv(SBLR_BENCH_STUDY = "02_prediction", SBLR_BENCH_REPLICATES = "1")
+targets::tar_make()
+```
+
+The readable worked example, developer smoke test and full benchmark entry point are respectively `scripts/worked_prediction_example.R`, `scripts/prediction_contract_smoke_test.R`, and `scripts/run_prediction_benchmark.R`. Short one-chain MCMC settings validate infrastructure only. Parameter-estimation and convergence benchmarks are planned separately.

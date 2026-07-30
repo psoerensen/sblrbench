@@ -23,6 +23,8 @@ data preparation
 → reproducible report
 ```
 
+Prediction studies replace credible-set evaluation with held-out prediction and paired method contrasts. Their allele frequencies, genotype scaling, sparse LD, and summary statistics are learned from training individuals only. Test phenotypes are used only by evaluation metrics.
+
 `targets` orchestrates and caches computational studies. Published reports never trigger those analyses: they consume reviewed, frozen compact outputs from a versioned reference capsule.
 
 ## Adding a benchmark
@@ -32,4 +34,4 @@ data preparation
 3. Add one catalogue entry to `studies/index.qmd`.
 4. Render the site.
 
-Every report follows: benchmark status, scientific question, methods, design, configuration, validation, results, interpretation, limitations, minimal example, exact invocation, source code, downloads, and software provenance.
+Every study separates a readable **worked example**, a fast **developer smoke test**, the complete targets-based benchmark, and a reviewed compact **reference capsule**. Parameter-estimation and convergence studies are planned separately and can reuse the same retained native fits without changing prediction metrics.

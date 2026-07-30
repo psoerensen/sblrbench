@@ -28,6 +28,54 @@ metric_prediction_mse <- function(simulation,result) {
   do.call(rbind,lapply(simulation$data$trait_names,function(t).metric_row(simulation,result,t,"prediction_mse",mean((z[,t]-truth[,t])^2))))
 }
 
+#' Normalized prediction MSE against true genetic value
+#' @inheritParams metric_effect_rmse
+#' @export
+metric_prediction_nmse <- function(simulation, result) {
+  z <- .metric_prepare(simulation, result, "prediction")
+  if (is.null(z)) return(.skip_traits(simulation, result, "prediction_nmse", "genetic-value predictions are unavailable"))
+  z <- align_traits(align_samples(z, simulation$data$sample_ids), simulation$data$trait_names)
+  truth <- simulation$truth$genetic_values
+  do.call(rbind, lapply(simulation$data$trait_names, function(t) {
+    v <- stats::var(truth[, t])
+    if (!is.finite(v) || v == 0) return(.metric_row(simulation, result, t, "prediction_nmse", status = "failed", reason = "true genetic value has zero variance"))
+    .metric_row(simulation, result, t, "prediction_nmse", mean((z[, t] - truth[, t])^2) / v)
+  }))
+}
+
+#' Phenotype prediction correlation
+#' @inheritParams metric_effect_rmse
+#' @export
+metric_phenotype_prediction_correlation <- function(simulation, result) {
+  z <- .metric_prepare(simulation, result, "prediction")
+  if (is.null(z)) return(.skip_traits(simulation, result, "phenotype_prediction_correlation", "genetic-value predictions are unavailable"))
+  z <- align_traits(align_samples(z, simulation$data$sample_ids), simulation$data$trait_names)
+  y <- simulation$truth$phenotypes
+  do.call(rbind, lapply(simulation$data$trait_names, function(t) {
+    if (stats::sd(z[, t]) == 0 || stats::sd(y[, t]) == 0) return(.metric_row(simulation, result, t, "phenotype_prediction_correlation", status = "failed", reason = "prediction or phenotype has zero variance"))
+    .metric_row(simulation, result, t, "phenotype_prediction_correlation", stats::cor(z[, t], y[, t]))
+  }))
+}
+
+#' Prediction calibration intercept and slope
+#'
+#' Fits `true genetic value = intercept + slope * predicted genetic value`.
+#' @inheritParams metric_effect_rmse
+#' @export
+metric_prediction_calibration <- function(simulation, result) {
+  z <- .metric_prepare(simulation, result, "prediction")
+  metrics <- c("prediction_calibration_intercept", "prediction_calibration_slope")
+  if (is.null(z)) return(do.call(rbind, lapply(metrics, function(n) .skip_traits(simulation, result, n, "genetic-value predictions are unavailable"))))
+  z <- align_traits(align_samples(z, simulation$data$sample_ids), simulation$data$trait_names)
+  truth <- simulation$truth$genetic_values
+  do.call(rbind, lapply(simulation$data$trait_names, function(t) {
+    if (stats::sd(z[, t]) == 0) return(do.call(rbind, lapply(metrics, function(n) .metric_row(simulation, result, t, n, status = "failed", reason = "prediction has zero variance"))))
+    fit <- stats::lm.fit(cbind(1, z[, t]), truth[, t])$coefficients
+    rbind(.metric_row(simulation, result, t, metrics[[1]], fit[[1]]),
+          .metric_row(simulation, result, t, metrics[[2]], fit[[2]]))
+  }))
+}
+
 .causal_matrix <- function(sim) { out<-matrix(0,nrow=length(sim$data$marker_ids),ncol=length(sim$data$trait_names),dimnames=list(sim$data$marker_ids,sim$data$trait_names)); shared<-sim$truth$causal$shared %||% character();if(length(shared))out[shared,]<-1;sp<-sim$truth$causal$specific %||% list();for(t in intersect(names(sp),colnames(out)))if(length(sp[[t]]))out[sp[[t]],t]<-1;out }
 
 #' Trait-specific PIP Brier score
@@ -99,5 +147,5 @@ metric_causal_ranks <- function(simulation, result) {
 #' @param metrics Metric names.
 #' @export
 evaluate_metrics <- function(simulation,result,metrics=c("effect_rmse","prediction_correlation","prediction_mse","pip_brier")) {
-  funs<-list(effect_rmse=metric_effect_rmse,prediction_correlation=metric_prediction_correlation,prediction_mse=metric_prediction_mse,pip_brier=metric_pip_brier,average_precision=metric_average_precision,causal_ranks=metric_causal_ranks);bad<-setdiff(metrics,names(funs));if(length(bad))stop("Unknown metrics: ",paste(bad,collapse=", "),call.=FALSE);do.call(rbind,lapply(metrics,function(n)funs[[n]](simulation,result)))
+  funs<-list(effect_rmse=metric_effect_rmse,prediction_correlation=metric_prediction_correlation,prediction_mse=metric_prediction_mse,prediction_nmse=metric_prediction_nmse,phenotype_prediction_correlation=metric_phenotype_prediction_correlation,prediction_calibration=metric_prediction_calibration,pip_brier=metric_pip_brier,average_precision=metric_average_precision,causal_ranks=metric_causal_ranks);bad<-setdiff(metrics,names(funs));if(length(bad))stop("Unknown metrics: ",paste(bad,collapse=", "),call.=FALSE);do.call(rbind,lapply(metrics,function(n)funs[[n]](simulation,result)))
 }

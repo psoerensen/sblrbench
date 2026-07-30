@@ -35,3 +35,14 @@ Each capsule contains compact summaries and metrics, a frozen configuration, exa
 For Study 01, the simulated PLINK inputs are publicly accessible from a pinned qgdata commit. `download_sblrbench_example_data()` retrieves and checksum-validates them automatically. The capsule records the pinned URLs, file sizes and MD5 checksums; the large genotype files themselves are not copied into this repository or website.
 
 Public reports exclude sparse-LD files, full posterior samples, full fit objects and `_targets/` stores.
+
+## Prediction benchmark
+
+```r
+Sys.setenv(SBLR_BENCH_STUDY = "02_prediction", SBLR_BENCH_REPLICATES = "10")
+targets::tar_make()
+```
+
+Study 02 uses one deterministic split for every architecture, replicate, method and trait. Allele frequencies and scaling parameters come from training rows; sparse LD and summary statistics also use training rows only. Test phenotypes never enter fitting.
+
+The prediction workflow has four distinct artifacts: `scripts/worked_prediction_example.R` for users, `scripts/prediction_contract_smoke_test.R` for fast contract validation, `scripts/run_prediction_benchmark.R` for the full paired study, and a reference capsule created only after review from a clean Git commit. Dedicated parameter-estimation and convergence benchmarks remain separate planned work.

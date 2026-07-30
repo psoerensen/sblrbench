@@ -26,9 +26,15 @@ manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), s
 - Separated-locus benchmark with realistic LD.
 - High-LD causal architecture.
 - Scientific-length MCMC calibration.
-- Prediction study.
+- Final scientific-length prediction study (the development implementation is available below).
 - Multi-trait study.
 - Annotation-informed models.
 - Block-eigen methods.
 
 Planned benchmarks are not yet completed or published.
+
+## Development implementations under review
+
+### [ST/MT BayesR prediction development pilot](02_prediction/prediction-development-pilot.qmd)
+
+This paired benchmark compares ST and MT BED/CSR prediction under mostly-shared and mostly-trait-specific architectures. It uses a common 70/30 split, training-only genotype scaling and LD, held-out test phenotypes, and short development MCMC. Results remain local until reviewed and promoted from a clean source commit.

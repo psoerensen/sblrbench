@@ -29,3 +29,14 @@ PIP ties are resolved by first occurrence in canonical marker order.
 > Among all true causal loci, how many generated a credible set?
 
 These are cumulative marginal-PIP credible sets. They are not guaranteed per-effect credible sets or complete causal configurations.
+
+## Prediction metrics
+
+- **Prediction correlation:** correlation between predicted and true held-out genetic values.
+- **Prediction MSE:** mean squared error against true held-out genetic values.
+- **Prediction NMSE:** prediction MSE divided by the variance of true held-out genetic values.
+- **Phenotype prediction correlation:** correlation between predicted genetic value and held-out phenotype, labelled separately from genetic-value accuracy.
+- **Calibration:** intercept and slope from `true G = intercept + slope × predicted G`.
+- **Effect RMSE:** secondary marker-effect diagnostic.
+
+Paired MT-versus-ST contrasts use the same architecture, replicate, representation and trait. Correlation advantages are `MT - ST`; error advantages are `ST - MT`, so positive values consistently favor MT.
