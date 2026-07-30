@@ -1,0 +1,132 @@
+---
+title: "Single-trait parameter-estimation development benchmark"
+---
+
+```{r}
+capsule <- file.path("results", "reference", "03_parameter_estimation",
+  "st-parameter-estimation-one-replicate-development-v1")
+source(file.path("studies", "03_parameter_estimation", "promotion.R"))
+.study03_validate_capsule(capsule)
+manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), simplifyVector = TRUE)
+estimates <- read.csv(file.path(capsule, "parameter_estimates.csv"))
+registry <- read.csv(file.path(capsule, "estimand_registry.csv"))
+paired <- read.csv(file.path(capsule, "paired_parameter_differences.csv"))
+runtime <- read.csv(file.path(capsule, "computational_summary.csv"))
+```
+
+## Benchmark status
+
+> **Complete one-replicate development benchmark.** This report validates the
+> parameter-estimation workflow and posterior-summary contract. One replicate
+> and short development MCMC do not estimate replicate-to-replicate variability,
+> interval calibration, convergence, or final method performance.
+
+The grid contains `r manifest$expected_fit_count` expected fits and
+`r manifest$successful_fit_count` successful fits across two architectures and
+four single-trait methods.
+
+## Objective and scope
+
+Study 03 asks whether posterior summaries recover known finite-sample
+quantities under approximately BayesC-like (`sparse_homogeneous`) and
+BayesR-like (`sparse_mixture`) architectures. It is parameter estimation—not
+held-out prediction (Study 02) or multichain convergence (future Study 04).
+
+## Data, simulation, and methods
+
+All 5,000 individuals and 37,991 post-QC markers are analyzed. Each simulation
+has 50 causal markers and realized heritability 0.30. BED and CSR fits receive
+the same phenotype and individuals; CSR summary statistics and sparse LD use
+that same analysis sample. The four methods are ST-BED BayesC, ST-BED BayesR,
+ST-CSR SBayesC, and ST-CSR SBayesR.
+
+The homogeneous/BayesC and mixture/BayesR combinations are labelled `matched`;
+cross-prior combinations are `misspecified` robustness checks. Whole-vector
+heritability rescaling means the simulations are only approximately prior-like.
+
+## Generating and realized truths
+
+```{r}
+knitr::kable(registry[, c("estimand_id", "description", "truth_type",
+  "truth_source", "posterior_source", "primary")])
+```
+
+The primary common estimands are effect variance, genetic variance, residual
+variance, and heritability. Inclusion proportion and total marker-effect
+variance are reported only where an aligned `pi_trace` exists; marker-level
+BayesR component summaries are not treated as draw-level traces. Nonlinear
+quantities are transformed draw by draw before posterior summarization.
+
+## Parameter recovery
+
+```{r}
+main <- estimates[estimates$estimand_id %in% registry$estimand_id[registry$primary],
+  c("architecture", "method", "model_specification", "estimand_id", "truth",
+    "posterior_mean", "lower_95", "upper_95", "bias", "covered_95")]
+knitr::kable(main, digits = 4)
+```
+
+```{r}
+ggplot2::ggplot(main, ggplot2::aes(truth, posterior_mean, colour = method)) +
+  ggplot2::geom_abline(slope = 1, intercept = 0, linetype = 2) +
+  ggplot2::geom_point(size = 2) +
+  ggplot2::facet_grid(estimand_id ~ architecture, scales = "free") +
+  ggplot2::labs(x = "Simulation truth", y = "Posterior mean")
+```
+
+```{r}
+ggplot2::ggplot(main, ggplot2::aes(method, bias, colour = model_specification)) +
+  ggplot2::geom_hline(yintercept = 0, linetype = 2) +
+  ggplot2::geom_point() + ggplot2::coord_flip() +
+  ggplot2::facet_grid(estimand_id ~ architecture, scales = "free_x")
+```
+
+```{r}
+ggplot2::ggplot(main, ggplot2::aes(posterior_mean, method, colour = model_specification)) +
+  ggplot2::geom_errorbarh(ggplot2::aes(xmin = lower_95, xmax = upper_95), height = .2) +
+  ggplot2::geom_point() +
+  ggplot2::facet_grid(estimand_id ~ architecture, scales = "free_x")
+```
+
+Each interval is an equal-tailed 95% posterior interval. `covered_95` is one
+binary observation, not empirical coverage calibration.
+
+## BED-versus-CSR paired comparisons
+
+```{r}
+knitr::kable(paired[paired$comparison_type == "BED-versus-CSR", ], digits = 4)
+```
+
+Differences use focal minus comparison with exact architecture, replicate and
+estimand keys. Prior-class comparisons are retained separately and are not
+presented as equivalent implementations.
+
+## Computational summary
+
+```{r}
+knitr::kable(runtime[, c("architecture", "method", "runtime", "status",
+  "nit", "nburn", "nchains", "posterior_draw_count")], digits = 2)
+```
+
+Runtimes are descriptive for this single run. The development settings use 500
+iterations after 250 burn-in iterations, one chain and one core; they are not
+convergence recommendations.
+
+## Limitations
+
+One replicate cannot establish unbiasedness or interval calibration. Short
+single-chain MCMC does not establish convergence. The public example genotype
+resource has limited LD, and results do not support general method rankings.
+Study 04 will address multichain diagnostics and MCMC-length selection.
+
+## Reproduction and downloads
+
+The [capsule README](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/README.md),
+[configuration](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/config.R),
+[worked example](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/worked_parameter_estimation_example.R),
+[run script](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/run_parameter_estimation_benchmark.R),
+[parameter estimates](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/parameter_estimates.csv),
+[source inventory](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/source_files.csv), and
+[checksums](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/checksums.csv)
+form the tracked reproducibility capsule. Genotypes, native fits, individual
+phenotypes, and posterior draw tables are not published.

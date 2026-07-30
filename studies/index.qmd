@@ -10,6 +10,17 @@ manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), s
 
 ## Available benchmarks
 
+### Single-trait parameter-estimation development benchmark
+
+| Status | Study type | Methods | Architectures | Replicates | Primary estimands | Validation | Capsule |
+|---|---|---|---|---:|---|---|---|
+| Complete one-replicate development benchmark | Parameter estimation | ST BED/CSR BayesC and BayesR | Sparse homogeneous and sparse mixture | 1 | Effect, genetic and residual variance; heritability | 8/8 fits; simulation oracles passed | [Report](03_parameter_estimation/parameter-estimation-development-pilot.qmd) |
+
+One replicate validates the reporting contract but does not establish bias or
+interval calibration. A multi-replicate parameter-estimation benchmark with
+convergence-informed MCMC and a separate single-trait multichain convergence
+benchmark remain planned.
+
 ### [Separated-locus fine-mapping development pilot](01_finemapping/separated-development-pilot.qmd)
 
 | Field | Value |
