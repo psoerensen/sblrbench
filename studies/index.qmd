@@ -14,27 +14,32 @@ manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), s
 
 | Field | Value |
 |---|---|
-| Status | Development benchmark |
+| Status | Complete development benchmark |
 | Study type | Separated-locus, scalar-trait fine-mapping |
 | Methods | `r paste(manifest$methods, collapse = ", ")` |
 | Replicates | `r manifest$replicate_count` |
 | Data limitation | Example markers have limited LD; simulated inputs are publicly downloadable from a pinned qgdata revision |
 | Capsule | [Improved v1.1 reproducibility capsule](../results/reference/01_finemapping/separated-development-v1.1/README.md) · [Original v1 capsule](../results/reference/01_finemapping/separated-development-v1/README.md) |
 
-## Planned benchmarks
-
-- Separated-locus benchmark with realistic LD.
-- High-LD causal architecture.
-- Scientific-length MCMC calibration.
-- Final scientific-length prediction study (the development implementation is available below).
-- Multi-trait study.
-- Annotation-informed models.
-- Block-eigen methods.
-
-Planned benchmarks are not yet completed or published.
-
-## Development implementations under review
-
 ### [Single-trait prediction development benchmark](02_prediction/prediction-development-pilot.qmd)
 
-This complete one-replicate development benchmark compares BayesC and BayesR across BED and CSR representations under sparse homogeneous and sparse variance-mixture architectures. It uses a common 70/30 split, training-only genotype scaling and LD, held-out test phenotypes, and short development MCMC. It validates the workflow without estimating replicate-to-replicate uncertainty.
+| Field | Value |
+|---|---|
+| Status | Complete one-replicate development benchmark |
+| Study type | Held-out single-trait prediction |
+| Methods | ST-BED BayesC, ST-BED BayesR, ST-CSR SBayesC, ST-CSR SBayesR |
+| Architectures | Sparse homogeneous and sparse variance mixture |
+| Replicates | One per architecture |
+| Validation | 8/8 successful fits; training-only scaling, LD and summary statistics |
+| Capsule | [Prediction reproducibility capsule](../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/README.md) |
+
+## Planned benchmarks
+
+- Fine-mapping with realistic LD.
+- High-LD causal architecture.
+- Multi-replicate scientific-length prediction study.
+- Single-trait parameter-estimation benchmark.
+- Single-trait multichain convergence benchmark.
+- Multi-trait prediction study after computational optimization.
+- Annotation-informed models.
+- Block-eigen methods.
