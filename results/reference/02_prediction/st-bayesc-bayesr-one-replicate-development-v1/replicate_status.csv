@@ -1,0 +1,9 @@
+"architecture","replicate","method","status","reason","expected_fit_count"
+"sparse_homogeneous",1,"st_bed_bayesc","ok","",8
+"sparse_homogeneous",1,"st_bed_bayesr","ok","",8
+"sparse_homogeneous",1,"st_csr_sbayesc","ok","",8
+"sparse_homogeneous",1,"st_csr_sbayesr","ok","",8
+"sparse_mixture",1,"st_bed_bayesc","ok","",8
+"sparse_mixture",1,"st_bed_bayesr","ok","",8
+"sparse_mixture",1,"st_csr_sbayesc","ok","",8
+"sparse_mixture",1,"st_csr_sbayesr","ok","",8

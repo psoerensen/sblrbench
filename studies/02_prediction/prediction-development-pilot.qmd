@@ -93,8 +93,16 @@ print(status)
 
 ```{r}
 #| echo: false
-if (available) print(aggregate(value ~ architecture + method + metric,
-  metrics[metrics$status == "ok", ], mean))
+display_metrics <- c("prediction_correlation", "prediction_nmse",
+  "phenotype_prediction_correlation", "prediction_calibration_intercept",
+  "prediction_calibration_slope", "effect_rmse")
+main <- reshape(metrics[metrics$metric %in% display_metrics,
+  c("architecture", "method", "metric", "value")],
+  idvar = c("architecture", "method"), timevar = "metric", direction = "wide")
+main <- merge(main, computation[, c("architecture", "method", "runtime")],
+  by = c("architecture", "method"), sort = FALSE)
+names(main) <- sub("^value\\.", "", names(main))
+print(main, row.names = FALSE)
 ```
 
 ### Prediction correlation by architecture and method
@@ -141,6 +149,12 @@ if (available) print(ggplot2::ggplot(metrics[metrics$metric == "prediction_calib
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1), legend.position = "none"))
 ```
 
+## Calibration
+
+Calibration intercept and slope are reported in the main table. The slope plot
+uses 1 as the descriptive reference; one replicate provides no calibration
+uncertainty estimate.
+
 ## BayesR-versus-BayesC comparisons
 
 Positive advantages favor BayesR/SBayesR. With one replicate, points are paired
@@ -179,6 +193,7 @@ if (available) {
 #| fig-width: 9
 if (available) print(ggplot2::ggplot(computation, ggplot2::aes(method, runtime, colour = method)) +
   ggplot2::geom_point() + ggplot2::facet_wrap(~architecture) + ggplot2::theme_minimal() +
+  ggplot2::scale_y_log10() + ggplot2::labs(y = "Runtime (seconds, log scale)") +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1), legend.position = "none"))
 ```
 
@@ -215,10 +230,23 @@ Rendering this report never executes it.
 
 ## Downloads
 
-The [benchmark capsule README](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/README.md)
-links to the frozen manifest, summaries, replicate-level metrics, configuration,
-worked example, smoke test, run script, data provenance, source inventory,
-session information and checksums in the same directory.
+The complete [benchmark reproducibility capsule](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/README.md)
+contains direct downloads for the [manifest](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/benchmark_manifest.json),
+[benchmark summary](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/benchmark_summary.csv),
+[paired summary](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/paired_comparison_summary.csv),
+[prediction metrics](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/prediction_metrics.csv),
+[paired rows](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/paired_method_differences.csv),
+[runtime](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/computational_summary.csv),
+[fit status](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/replicate_status.csv),
+[simulation summary](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/simulation_summary.csv),
+[configuration](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/config.R),
+[run script](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/run_prediction_benchmark.R),
+[worked example](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/worked_prediction_example.R),
+[smoke test](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/prediction_contract_smoke_test.R),
+[data manifest](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/example_data_manifest.csv),
+[source inventory](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/source_files.csv),
+[session information](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/session_info.txt), and
+[checksums](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/checksums.csv).
 
 ## Software versions and commits
 
