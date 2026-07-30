@@ -29,6 +29,7 @@ jobs:
             any::jsonlite
             any::knitr
             any::rmarkdown
+            any::ggplot2
       - uses: quarto-dev/quarto-actions/setup@v2
       - uses: actions/configure-pages@v5
       - name: Render website from frozen reference capsules
