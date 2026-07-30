@@ -36,3 +36,16 @@ metrics <- evaluate_metrics(test_simulation, result, c("prediction_correlation",
   "prediction_calibration"))
 stopifnot(all(metrics$status == "ok"), all(is.finite(metrics$value)))
 print(metrics)
+
+# BayesR-versus-BayesC and CSR-versus-BED pairing orientation.
+mock_metrics <- data.frame(architecture = "sparse_mixture", replicate = 1L,
+  method = c("st_bed_bayesc", "st_bed_bayesr", "st_csr_sbayesc",
+    "st_csr_sbayesr"), trait = "trait1", metric = "prediction_correlation",
+  value = c(.4, .5, .45, .55), status = "ok")
+comparisons <- data.frame(
+  comparison_id = c("bayesr_vs_bayesc_bed", "csr_vs_bed_bayesr"),
+  focal_method = c("st_bed_bayesr", "st_csr_sbayesr"),
+  comparison_method = c("st_bed_bayesc", "st_bed_bayesr"))
+paired <- paired_method_advantages(mock_metrics, comparisons)
+stopifnot(all(paired$complete_pair), all(paired$advantage > 0))
+print(paired)

@@ -39,4 +39,4 @@ These are cumulative marginal-PIP credible sets. They are not guaranteed per-eff
 - **Calibration:** intercept and slope from `true G = intercept + slope × predicted G`.
 - **Effect RMSE:** secondary marker-effect diagnostic.
 
-Paired MT-versus-ST contrasts use the same architecture, replicate, representation and trait. Correlation advantages are `MT - ST`; error advantages are `ST - MT`, so positive values consistently favor MT.
+Study 02 pairs BayesR versus BayesC within BED or CSR, and CSR versus BED within corresponding model classes. Correlation advantages use `focal - comparison`; MSE, NMSE, effect RMSE and absolute calibration-error advantages use `comparison - focal`. Positive values therefore consistently favor the named focal method.

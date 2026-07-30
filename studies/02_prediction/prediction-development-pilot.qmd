@@ -1,85 +1,172 @@
 ---
-title: "ST/MT BayesR prediction development pilot"
+title: "Single-trait prediction development benchmark"
 ---
 
-> **Development implementation—not a final scientific comparison.** Short 500-iteration, 250-burn-in, one-chain fits use simulated public genotypes with limited LD. Ten replicates are preliminary; no convergence or superiority claim is supported.
+> **Development benchmark—not a final scientific comparison.** Fits use 500
+> iterations, 250 burn-in iterations and one chain with simulated public
+> genotypes that have limited LD. Test phenotypes are held out, and scaling,
+> LD and summary statistics use training individuals only. No convergence or
+> general superiority claim is supported.
 
 ```{r}
 #| echo: false
 result_dir <- "results/local/02_prediction"
-available <- all(file.exists(file.path(result_dir, c("prediction_metrics.csv", "paired_method_differences.csv", "computational_summary.csv"))))
+needed <- c("prediction_metrics.csv", "paired_method_differences.csv",
+  "computational_summary.csv", "replicate_status.csv", "simulation_summary.csv")
+available <- all(file.exists(file.path(result_dir, needed)))
 if (available) {
   metrics <- read.csv(file.path(result_dir, "prediction_metrics.csv"))
   paired <- read.csv(file.path(result_dir, "paired_method_differences.csv"))
   computation <- read.csv(file.path(result_dir, "computational_summary.csv"))
+  status <- read.csv(file.path(result_dir, "replicate_status.csv"))
+  simulations <- read.csv(file.path(result_dir, "simulation_summary.csv"))
+  stopifnot(!any(grepl("^mt_", c(metrics$method, computation$method, status$method))))
 }
 ```
 
 ## Benchmark status
 
-The pipeline is implemented for review. A final reference capsule is intentionally blocked while the source working tree is dirty. This page renders compact local draft results when present—including explicitly incomplete staged runs—and otherwise documents the reproducible design without running samplers.
+The active benchmark is single-trait and contains four ST methods. Local draft
+results are displayed only when the complete compact files exist; Quarto never
+runs simulation or samplers. Final promotion requires a clean committed source
+tree and a complete ten-replicate result grid.
 
 ## Scientific question
 
-How well do single-trait and multi-trait BayesR models predict genetic values for new individuals when effects are mostly shared versus mostly trait-specific?
+How do BayesC and BayesR prediction models compare when fitted from
+individual-level BED data versus summary statistics and sparse-LD CSR data
+under different single-trait genetic architectures?
 
 ## Methods compared
 
-ST-BED BayesR, MT-BED BayesR, ST-CSR SBayesR and MT-CSR SBayesR distinguish single- versus multi-trait borrowing and individual-level versus summary-statistics representations. MT-BED uses diagonal residual covariance; MT-CSR records `sample_overlap = "not_modeled"`.
+- ST-BED BayesC
+- ST-BED BayesR
+- ST-CSR SBayesC
+- ST-CSR SBayesR
+
+The summary-statistics `s` prefix denotes a corresponding model class, not an
+identical likelihood or representation.
+
+## Genetic architectures
+
+`sparse_homogeneous` samples 50 causal effects from one normal distribution.
+`sparse_mixture` assigns the same number of causals to variance classes 0.01,
+0.1 and 1 with probabilities 0.60, 0.30 and 0.10. Each complete effect vector
+is globally rescaled to realized h2 = 0.30. These are approximately BayesC-like
+and BayesR-like architectures, not exact draws from either fitted sampler prior.
 
 ## Data and simulation design
 
-Three traits each target heritability 0.30 and shared-effect correlation 0.60, with residual correlation zero. `mostly_shared` uses 20 shared plus 5 trait-specific causal markers per trait; `mostly_trait_specific` uses 5 shared plus 20 trait-specific markers. Thus both architectures contain 25 causal effects per trait.
+The pinned public qgdata PLINK resource contributes 5,000 samples and 37,991
+post-QC chromosome-1 markers. Every architecture and replicate uses the same
+marker set, causal count, target heritability and split.
 
 ## Train/test and leakage controls
 
-One seeded 70/30 split is shared across architectures, replicates, methods and traits. Training rows alone determine allele frequencies, imputation, scaling, sparse LD and summary statistics. The full simulation uses that frozen scale. Test genotypes are transformed but never used to estimate scale or LD; test phenotypes enter metrics only.
+The deterministic split contains 3,500 training and 1,500 test samples.
+Training rows alone determine allele frequencies, imputation, genotype scaling,
+sparse LD and summary statistics. Test genotypes are transformed on the frozen
+training scale. Test phenotypes enter evaluation metrics only.
 
 ## Configuration
 
-The development run uses 500 iterations, 250 burn-in, thinning 1, one chain, one core, explicit BayesR mixture multipliers `c(0, .01, .1, 1)`, and deterministic simulation and method seeds.
+Development controls are 500 iterations, 250 burn-in, thinning 1, one chain and
+one core. BayesR uses explicit mixture multipliers `c(0, .01, .1, 1)`; BayesC
+uses an explicit initial inclusion probability. Prior parameterizations differ
+where required by their public model contracts.
 
 ## Validation checks
 
-Every branch requires canonical marker/trait order, exact train/test identity, finite scaled matrices, a passing `G = ZB` oracle, training-only summary sample size, aligned posterior effects and finite held-out predictions.
+Each branch requires 50 unique causals, target realized heritability, a passing
+`G = ZB` oracle, training `reference_n = 3500`, summary-statistics `n = 3500`,
+canonical marker order, aligned effects and finite held-out predictions.
+
+```{r}
+#| echo: false
+if (!available) cat("Complete active draft results are not present in this checkout.")
+if (available) print(status)
+```
 
 ## Prediction results
 
 ```{r}
 #| echo: false
-if (!available) cat("Compact draft results are not present in this checkout.")
-if (available) {
-  keep <- c("prediction_correlation", "prediction_nmse", "phenotype_prediction_correlation", "prediction_calibration_slope")
-  print(aggregate(value ~ architecture + method + trait + metric,
-    metrics[metrics$status == "ok" & metrics$metric %in% keep, ],
-    function(x) sprintf("%.3f ± %.3f", mean(x), sd(x))))
-}
+if (available) print(aggregate(value ~ architecture + method + metric,
+  metrics[metrics$status == "ok", ], mean))
 ```
+
+### Prediction correlation by architecture and method
+
+```{r}
+#| echo: false
+#| fig-width: 9
+if (available) print(ggplot2::ggplot(metrics[metrics$metric == "prediction_correlation", ],
+  ggplot2::aes(method, value, colour = method)) + ggplot2::geom_point() +
+  ggplot2::facet_wrap(~architecture) + ggplot2::theme_minimal() +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1), legend.position = "none"))
+```
+
+### Prediction NMSE
+
+```{r}
+#| echo: false
+#| fig-width: 9
+if (available) print(ggplot2::ggplot(metrics[metrics$metric == "prediction_nmse", ],
+  ggplot2::aes(method, value, colour = method)) + ggplot2::geom_point() +
+  ggplot2::facet_wrap(~architecture) + ggplot2::theme_minimal() +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1), legend.position = "none"))
+```
+
+### Phenotype prediction correlation
+
+```{r}
+#| echo: false
+#| fig-width: 9
+if (available) print(ggplot2::ggplot(metrics[metrics$metric == "phenotype_prediction_correlation", ],
+  ggplot2::aes(method, value, colour = method)) + ggplot2::geom_point() +
+  ggplot2::facet_wrap(~architecture) + ggplot2::theme_minimal() +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1), legend.position = "none"))
+```
+
+### Calibration slope
+
+```{r}
+#| echo: false
+#| fig-width: 9
+if (available) print(ggplot2::ggplot(metrics[metrics$metric == "prediction_calibration_slope", ],
+  ggplot2::aes(method, value, colour = method)) + ggplot2::geom_hline(yintercept = 1, linetype = 2) +
+  ggplot2::geom_point() + ggplot2::facet_wrap(~architecture) + ggplot2::theme_minimal() +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1), legend.position = "none"))
+```
+
+## BayesR-versus-BayesC comparisons
+
+Positive advantages favor BayesR/SBayesR. With one replicate, points are paired
+descriptions rather than uncertainty estimates.
 
 ```{r}
 #| echo: false
 #| fig-width: 10
-#| fig-height: 8
-if (available && requireNamespace("ggplot2", quietly = TRUE)) {
-  plot_metrics <- metrics[metrics$status == "ok" & metrics$metric %in% c("prediction_correlation", "prediction_nmse", "phenotype_prediction_correlation", "prediction_calibration_slope"), ]
-  print(ggplot2::ggplot(plot_metrics, ggplot2::aes(method, value, colour = method)) +
-    ggplot2::geom_point(position = ggplot2::position_jitter(width = .12), alpha = .7) +
-    ggplot2::facet_grid(metric + trait ~ architecture, scales = "free_y") +
-    ggplot2::theme_minimal() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1), legend.position = "none"))
+if (available) {
+  z <- paired[grepl("bayesr_vs_bayesc", paired$comparison_id), ]
+  print(ggplot2::ggplot(z, ggplot2::aes(paired_metric, advantage, colour = comparison_id)) +
+    ggplot2::geom_hline(yintercept = 0, linetype = 2) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(~architecture, scales = "free_x") + ggplot2::coord_flip() + ggplot2::theme_minimal())
 }
 ```
 
-## Paired ST-versus-MT results
+## CSR-versus-BED comparisons
 
-Positive paired values favor MT: correlations use MT minus ST, while MSE and NMSE use ST minus MT. Incomplete pairs remain explicitly flagged.
+Positive advantages favor CSR for the corresponding model class.
 
 ```{r}
 #| echo: false
-if (available && requireNamespace("ggplot2", quietly = TRUE)) {
-  z <- paired[paired$complete_pair & paired$paired_metric == "mt_advantage_prediction_correlation", ]
-  print(ggplot2::ggplot(z, ggplot2::aes(representation, advantage, group = replicate, colour = representation)) +
+#| fig-width: 10
+if (available) {
+  z <- paired[grepl("csr_vs_bed", paired$comparison_id), ]
+  print(ggplot2::ggplot(z, ggplot2::aes(paired_metric, advantage, colour = comparison_id)) +
     ggplot2::geom_hline(yintercept = 0, linetype = 2) + ggplot2::geom_point() +
-    ggplot2::facet_grid(trait ~ architecture) + ggplot2::theme_minimal() + ggplot2::theme(legend.position = "none"))
+    ggplot2::facet_wrap(~architecture, scales = "free_x") + ggplot2::coord_flip() + ggplot2::theme_minimal())
 }
 ```
 
@@ -87,41 +174,55 @@ if (available && requireNamespace("ggplot2", quietly = TRUE)) {
 
 ```{r}
 #| echo: false
-if (available && requireNamespace("ggplot2", quietly = TRUE)) print(
-  ggplot2::ggplot(computation[computation$status == "ok", ], ggplot2::aes(method, runtime, colour = method)) +
-    ggplot2::geom_point(position = ggplot2::position_jitter(width = .12)) +
-    ggplot2::facet_wrap(~architecture) + ggplot2::theme_minimal() +
-    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1), legend.position = "none"))
+#| fig-width: 9
+if (available) print(ggplot2::ggplot(computation, ggplot2::aes(method, runtime, colour = method)) +
+  ggplot2::geom_point() + ggplot2::facet_wrap(~architecture) + ggplot2::theme_minimal() +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1), legend.position = "none"))
 ```
 
 ## Interpretation
 
-The development benchmark can establish orchestration, no-leakage preprocessing, alignment, fitting and scoring. Scientific interpretation awaits realistic LD, longer chains, convergence assessment and sensitivity analyses.
+The development run validates paired BED/CSR prediction and prior-class
+comparisons. It does not establish general performance rankings.
 
 ## Limitations
 
-Public simulated genotypes have limited LD; MCMC is short and uses one chain; there are at most ten replicates, one heritability setting and two stylized architectures. MT-CSR does not model sample overlap. Parameter recovery and convergence are deliberately deferred.
+MCMC is short and single-chain; replicate counts are preliminary; the public
+simulated resource has limited LD; only one heritability and two stylized sparse
+architectures are represented; convergence is not assessed.
 
 ## Worked example
 
-The [worked prediction example](../../scripts/worked_prediction_example.R) downloads the pinned public data, learns scaling from training rows, fits real ST-BED and MT-BED BayesR models and scores held-out genetic values.
+The [worked example](../../scripts/worked_prediction_example.R) fits all four
+active models to one held-out single-trait prediction problem.
 
 ## Public example data
 
-Files come from pinned qgdata commit `6cca5819e711d326cfb2614d7e9d9f34942612cd` and are checksum-validated by `download_sblrbench_example_data()`.
+Data are downloaded and checksum-validated from pinned qgdata commit
+`6cca5819e711d326cfb2614d7e9d9f34942612cd`.
 
 ## Developer smoke test
 
-[Developer prediction contract smoke test](../../scripts/prediction_contract_smoke_test.R) validates subsetting, prediction attachment and metrics without MCMC.
+The [prediction contract smoke test](../../scripts/prediction_contract_smoke_test.R)
+validates metrics, alignment and paired comparison orientation without MCMC.
 
 ## Complete benchmark reproduction
 
-[Exact targets entry point](../../scripts/run_prediction_benchmark.R). The site never runs it during rendering.
+Use the staged [targets entry point](../../scripts/run_prediction_benchmark.R).
+Rendering this report never executes it.
+
+## Deferred multi-trait extension
+
+Multi-trait BED and CSR workflows remain implemented experimentally but are
+excluded pending separate computational profiling and optimization. Partial MT
+outputs are archived locally and are not plotted, promoted or published here.
 
 ## Downloads
 
-Draft compact outputs remain ignored under `results/local/02_prediction/`. After review and commit, `scripts/promote_prediction_results.R` creates the versioned capsule from a clean source tree.
+After review, commit and completion, the clean-only promotion script creates
+`results/reference/02_prediction/st-bayesc-bayesr-development-v1/`.
 
 ## Software versions and commits
 
-Local compact outputs record the `sblr`, `qgg`, `sblrbench` commit/dirty state, split and simulation seeds, MCMC seed, controls, runtime and status for every method branch.
+Compact outputs record package versions, source commit/dirty state, split,
+simulation and MCMC seeds, controls, runtime and branch status.

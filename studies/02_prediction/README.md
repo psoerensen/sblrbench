@@ -1,9 +1,21 @@
-# Study 02: paired ST/MT prediction
+# Study 02: single-trait prediction development benchmark
 
-This development study asks how ST and MT BayesR predict genetic values in held-out individuals when effects are mostly shared or mostly trait-specific. It compares BED and training-summary/CSR representations with one deterministic 70/30 split.
+Study 02 compares BayesC and BayesR through individual-level BED and
+summary-statistics/sparse-LD CSR representations. Two architectures use the
+same 50 causal markers per replicate and target h2 = 0.30: approximately
+BayesC-like homogeneous effects and approximately BayesR-like variance-mixture
+effects. Final heritability rescaling means neither is an exact sampler-prior
+draw.
 
-The central leakage rule is strict: training individuals alone determine allele frequencies, genotype scaling, sparse LD and summary statistics. Test genotypes are transformed with the frozen training scale; test phenotypes appear only in evaluation.
+One deterministic split supplies 3,500 training and 1,500 test samples.
+Training individuals alone determine allele frequencies, genotype scaling,
+sparse LD and summary statistics. Test phenotypes appear only in evaluation.
 
-Native fits remain in the ignored targets store. Depending on the public method contract they retain posterior/component quantities such as `vgs`, `vbs`, `ves`, `pis`, `vle`, and `vld`; Study 02 does not score or interpret them. Dedicated parameter-estimation and convergence studies will handle those quantities separately.
+Multi-trait BED and CSR workflows remain documented in
+`deferred_multitrait.R` and cached native fits remain in `_targets/`, but no MT
+method is dispatched or reported. They require a separate profiling and
+optimization study.
 
-Run one, five or ten replicates with `SBLR_BENCH_STUDY=02_prediction` and `SBLR_BENCH_REPLICATES=1`, `5`, or `10`. Development controls use 500 iterations, 250 burn-in, one chain and one core. They do not establish convergence or method superiority.
+Run `SBLR_BENCH_REPLICATES=1`, then expand to 5 or 10 without deleting the
+targets store. The 500-iteration, 250-burn-in, one-chain settings validate
+infrastructure only and do not establish convergence or method superiority.

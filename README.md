@@ -65,11 +65,11 @@ The improved `separated-development-v1.1` capsule contains the same numerical be
 
 ## Prediction development study
 
-Study 02 compares ST/MT BayesR through BED and CSR interfaces for three traits under mostly-shared and mostly-trait-specific causal architectures. It uses a common deterministic 70/30 train/test split. Allele frequencies, standardization, sparse LD and summary statistics are learned from training individuals only; test phenotypes are held out from every fitting and preprocessing decision.
+Study 02 is a single-trait prediction benchmark comparing BayesC and BayesR across individual-level BED and summary-statistics/CSR representations. Sparse homogeneous and sparse variance-mixture architectures use the same causal count and target heritability. It uses a common deterministic 70/30 train/test split. Allele frequencies, standardization, sparse LD and summary statistics are learned from training individuals only; test phenotypes are held out from every fitting and preprocessing decision.
 
 ```r
 Sys.setenv(SBLR_BENCH_STUDY = "02_prediction", SBLR_BENCH_REPLICATES = "1")
 targets::tar_make()
 ```
 
-The readable worked example, developer smoke test and full benchmark entry point are respectively `scripts/worked_prediction_example.R`, `scripts/prediction_contract_smoke_test.R`, and `scripts/run_prediction_benchmark.R`. Short one-chain MCMC settings validate infrastructure only. Parameter-estimation and convergence benchmarks are planned separately.
+The readable worked example, developer smoke test and full benchmark entry point are respectively `scripts/worked_prediction_example.R`, `scripts/prediction_contract_smoke_test.R`, and `scripts/run_prediction_benchmark.R`. Short one-chain MCMC settings validate infrastructure only. Multi-trait BED and CSR prediction workflows have been implemented experimentally but are excluded from the current benchmark because their computational performance requires separate profiling and optimization. Parameter-estimation and convergence benchmarks are also planned separately.

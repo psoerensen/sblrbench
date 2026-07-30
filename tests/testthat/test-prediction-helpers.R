@@ -67,14 +67,101 @@ test_that("prediction metrics are hand calculable and reject zero variance", {
   expect_identical(metric_prediction_nmse(zero, r)$status[[1]], "failed")
 })
 
-test_that("paired MT advantages orient benefit positively and retain missing pairs", {
+test_that("generic paired advantages orient benefit and retain missing pairs", {
   metrics <- data.frame(architecture = "a", replicate = 1L,
-    method = c("st", "mt", "st"), trait = "t",
-    metric = c("prediction_correlation", "prediction_correlation", "prediction_mse"),
-    value = c(.4, .6, 2), status = "ok")
-  map <- data.frame(method = c("st", "mt"), representation = "BED", scope = c("ST", "MT"))
-  z <- paired_mt_advantages(metrics, map)
-  expect_equal(z$advantage[z$metric == "prediction_correlation"], .2)
-  expect_false(z$complete_pair[z$metric == "prediction_mse"])
-  expect_true(is.na(z$advantage[z$metric == "prediction_mse"]))
+    method = c("bayesc", "bayesr", "bayesc", "bayesr", "bayesc"), trait = "t",
+    metric = c("prediction_correlation", "prediction_correlation",
+      "prediction_mse", "prediction_mse", "effect_rmse"),
+    value = c(.4, .6, 2, 1.5, .2), status = "ok")
+  comparisons <- data.frame(comparison_id = "bayesr_vs_bayesc",
+    focal_method = "bayesr", comparison_method = "bayesc")
+  z <- paired_method_advantages(metrics, comparisons)
+  expect_equal(z$advantage[z$paired_metric == "prediction_correlation"], .2)
+  expect_equal(z$advantage[z$paired_metric == "prediction_mse"], .5)
+  expect_false(z$complete_pair[z$paired_metric == "effect_rmse"])
+  expect_true(is.na(z$advantage[z$paired_metric == "effect_rmse"]))
+})
+
+test_that("calibration advantages use absolute error", {
+  metrics <- data.frame(architecture = "a", replicate = 1L,
+    method = rep(c("bed", "csr"), each = 2), trait = "t",
+    metric = rep(c("prediction_calibration_intercept",
+      "prediction_calibration_slope"), 2), value = c(.2, 1.3, .1, .9), status = "ok")
+  cmp <- data.frame(comparison_id = "csr_vs_bed", focal_method = "csr",
+    comparison_method = "bed")
+  z <- paired_method_advantages(metrics, cmp)
+  expect_equal(z$advantage[z$paired_metric == "absolute_calibration_intercept_error"], .1)
+  expect_equal(z$advantage[z$paired_metric == "absolute_calibration_slope_error"], .2)
+})
+
+test_that("single-trait architectures are deterministic and calibrated", {
+  pilot_path <- testthat::test_path("..", "..", "studies", "02_prediction", "pilot.R")
+  config_path <- testthat::test_path("..", "..", "studies", "02_prediction", "config.R")
+  skip_if_not(file.exists(pilot_path) && file.exists(config_path),
+    "repository-only Study 02 helpers are excluded from package builds")
+  source(pilot_path, local = TRUE)
+  config <- source(config_path, local = TRUE)$value
+  Z <- matrix(stats::rnorm(3000), 100, 30,
+    dimnames = list(paste0("s", 1:100), paste0("m", 1:30)))
+  config$simulation$n_causal <- 10L
+  for (architecture in names(config$simulation$architectures)) {
+    spec <- list(architecture = architecture, replicate = 1L,
+      simulation_seed = 5001L + match(architecture, names(config$simulation$architectures)))
+    a <- .study02_simulate(spec, Z, config)
+    b <- .study02_simulate(spec, Z, config)
+    expect_identical(a$truth$effects, b$truth$effects)
+    expect_length(a$truth$causal$all, 10L)
+    expect_equal(a$truth$parameters$h2_observed, config$simulation$h2,
+      tolerance = 1e-12)
+    expect_true(check_oracle_genetic_values(a)$ok)
+    expect_equal(nrow(a$extras$effect_components), 10L)
+    if (architecture == "sparse_mixture")
+      expect_true(all(grepl("^variance_", a$extras$effect_components$component)))
+  }
+})
+
+test_that("active Study 02 method set excludes deferred MT methods", {
+  pilot_path <- testthat::test_path("..", "..", "studies", "02_prediction", "pilot.R")
+  config_path <- testthat::test_path("..", "..", "studies", "02_prediction", "config.R")
+  skip_if_not(file.exists(pilot_path) && file.exists(config_path),
+    "repository-only Study 02 helpers are excluded from package builds")
+  source(pilot_path, local = TRUE)
+  config <- source(config_path, local = TRUE)$value
+  specs <- .study02_method_specs(config)
+  expect_identical(vapply(specs, `[[`, character(1), "id"), config$methods)
+  expect_false(any(grepl("^mt_", config$methods)))
+  expect_false(config$multitrait$enabled)
+})
+
+test_that("promotion validation rejects active MT rows and partial grids", {
+  promotion_path <- testthat::test_path("..", "..", "studies", "02_prediction", "promotion.R")
+  config_path <- testthat::test_path("..", "..", "studies", "02_prediction", "config.R")
+  skip_if_not(file.exists(promotion_path) && file.exists(config_path),
+    "repository-only Study 02 helpers are excluded from package builds")
+  source(promotion_path, local = TRUE)
+  config <- source(config_path, local = TRUE)$value
+  status <- expand.grid(architecture = names(config$simulation$architectures),
+    replicate = 1L, method = config$methods, stringsAsFactors = FALSE)
+  status$status <- "ok"; status$reason <- ""
+  computation <- status; computation$runtime <- 1
+  metrics <- merge(status[, c("architecture", "replicate", "method")],
+    data.frame(metric = c("prediction_correlation", "prediction_mse",
+      "prediction_nmse", "phenotype_prediction_correlation",
+      "prediction_calibration_intercept", "prediction_calibration_slope",
+      "effect_rmse")), by = NULL)
+  metrics$trait <- "trait1"; metrics$value <- 1; metrics$status <- "ok"
+  simulations <- data.frame(architecture = names(config$simulation$architectures),
+    replicate = 1L, causal_count = 50L, realized_h2 = .3, oracle_ok = TRUE)
+  paired <- data.frame(comparison_id = rep(c("bayesr_vs_bayesc_bed",
+    "sbayesr_vs_sbayesc_csr", "csr_vs_bed_bayesc", "csr_vs_bed_bayesr"), each = 7),
+    complete_pair = TRUE, advantage = 0)
+  manifest <- list(task = "single_trait_prediction", replicate_count = 1L,
+    active_methods = config$methods, multitrait = list(enabled = FALSE))
+  expect_invisible(.study02_validate_promotion_tables(config, metrics, paired,
+    computation, status, simulations, manifest))
+  bad <- status; bad$method[[1]] <- "mt_bed_bayesr"
+  expect_error(.study02_validate_promotion_tables(config, metrics, paired,
+    computation, bad, simulations, manifest), "MT rows")
+  expect_error(.study02_validate_promotion_tables(config, metrics, paired,
+    computation, status[-1, ], simulations, manifest), "complete successful")
 })

@@ -104,26 +104,45 @@ add_sblrbench_predictions <- function(result, genetic_value, simulation = NULL) 
   out
 }
 
-#' Create paired multi-trait versus single-trait advantages
+#' Create paired method advantages
 #' @param metrics Long metric data containing architecture, replicate, method,
 #' trait, metric, value, and status.
-#' @param method_map Data frame mapping method to representation and scope
-#' (`"ST"` or `"MT"`).
-#' @return One row per paired architecture, replicate, representation, trait,
-#' and metric. Incomplete pairs are retained and flagged.
+#' @param comparisons Data frame with unique `comparison_id`, `focal_method`,
+#' and `comparison_method` rows.
+#' @return Paired rows with incomplete pairs retained. Positive advantages
+#' consistently indicate better focal-method performance.
 #' @export
-paired_mt_advantages <- function(metrics, method_map) {
+paired_method_advantages <- function(metrics, comparisons) {
   required <- c("architecture", "replicate", "method", "trait", "metric", "value", "status")
   if (!is.data.frame(metrics) || length(setdiff(required, names(metrics)))) stop("metrics lacks required pairing columns.", call. = FALSE)
-  if (!is.data.frame(method_map) || length(setdiff(c("method", "representation", "scope"), names(method_map)))) stop("method_map lacks required columns.", call. = FALSE)
-  if (!all(method_map$scope %in% c("ST", "MT")) || anyDuplicated(method_map$method)) stop("method_map must uniquely classify methods as ST or MT.", call. = FALSE)
-  z <- merge(metrics[metrics$status == "ok", required, drop = FALSE], method_map, by = "method")
-  wide <- stats::reshape(z, idvar = c("architecture", "replicate", "representation", "trait", "metric"),
-    timevar = "scope", direction = "wide")
-  for (nm in c("value.ST", "value.MT")) if (!nm %in% names(wide)) wide[[nm]] <- NA_real_
-  wide$complete_pair <- is.finite(wide$value.ST) & is.finite(wide$value.MT)
-  error <- wide$metric %in% c("prediction_mse", "prediction_nmse")
-  wide$advantage <- ifelse(error, wide$value.ST - wide$value.MT, wide$value.MT - wide$value.ST)
-  wide$paired_metric <- paste0("mt_advantage_", sub("phenotype_prediction_correlation", "phenotype_correlation", wide$metric))
-  wide
+  needed <- c("comparison_id", "focal_method", "comparison_method")
+  if (!is.data.frame(comparisons) || length(setdiff(needed, names(comparisons)))) stop("comparisons lacks required columns.", call. = FALSE)
+  if (anyNA(comparisons[, needed]) || anyDuplicated(comparisons$comparison_id)) stop("comparison_id values must be unique and complete.", call. = FALSE)
+  z <- metrics[, required, drop = FALSE]
+  z$value[z$status != "ok"] <- NA_real_
+  z$paired_metric <- z$metric
+  intercept <- z$metric == "prediction_calibration_intercept"
+  slope <- z$metric == "prediction_calibration_slope"
+  z$value[intercept] <- abs(z$value[intercept])
+  z$value[slope] <- abs(z$value[slope] - 1)
+  z$paired_metric[intercept] <- "absolute_calibration_intercept_error"
+  z$paired_metric[slope] <- "absolute_calibration_slope_error"
+  rows <- lapply(seq_len(nrow(comparisons)), function(i) {
+    cmp <- comparisons[i, ]
+    focal <- z[z$method == cmp$focal_method, c("architecture", "replicate", "trait", "paired_metric", "value")]
+    reference <- z[z$method == cmp$comparison_method, c("architecture", "replicate", "trait", "paired_metric", "value")]
+    names(focal)[names(focal) == "value"] <- "focal_value"
+    names(reference)[names(reference) == "value"] <- "comparison_value"
+    out <- merge(focal, reference, by = c("architecture", "replicate", "trait", "paired_metric"), all = TRUE, sort = TRUE)
+    out$comparison_id <- cmp$comparison_id
+    out$focal_method <- cmp$focal_method
+    out$comparison_method <- cmp$comparison_method
+    out$complete_pair <- is.finite(out$focal_value) & is.finite(out$comparison_value)
+    lower <- out$paired_metric %in% c("prediction_mse", "prediction_nmse", "effect_rmse",
+      "absolute_calibration_intercept_error", "absolute_calibration_slope_error")
+    out$advantage <- ifelse(lower, out$comparison_value - out$focal_value,
+      out$focal_value - out$comparison_value)
+    out
+  })
+  do.call(rbind, rows)
 }
