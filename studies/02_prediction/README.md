@@ -11,11 +11,6 @@ One deterministic split supplies 3,500 training and 1,500 test samples.
 Training individuals alone determine allele frequencies, genotype scaling,
 sparse LD and summary statistics. Test phenotypes appear only in evaluation.
 
-Multi-trait BED and CSR workflows remain documented in
-`deferred_multitrait.R` and cached native fits remain in `_targets/`, but no MT
-method is dispatched or reported. They require a separate profiling and
-optimization study.
-
 Run `SBLR_BENCH_REPLICATES=1`, then expand to 5 or 10 without deleting the
 targets store. The 500-iteration, 250-burn-in, one-chain settings validate
 infrastructure only and do not establish convergence or method superiority.

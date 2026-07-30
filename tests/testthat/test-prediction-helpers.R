@@ -120,7 +120,7 @@ test_that("single-trait architectures are deterministic and calibrated", {
   }
 })
 
-test_that("active Study 02 method set excludes deferred MT methods", {
+test_that("active Study 02 method set is exactly the four ST methods", {
   pilot_path <- testthat::test_path("..", "..", "studies", "02_prediction", "pilot.R")
   config_path <- testthat::test_path("..", "..", "studies", "02_prediction", "config.R")
   skip_if_not(file.exists(pilot_path) && file.exists(config_path),
@@ -130,7 +130,8 @@ test_that("active Study 02 method set excludes deferred MT methods", {
   specs <- .study02_method_specs(config)
   expect_identical(vapply(specs, `[[`, character(1), "id"), config$methods)
   expect_false(any(grepl("^mt_", config$methods)))
-  expect_false(config$multitrait$enabled)
+  expect_false("multitrait" %in% names(config))
+  expect_identical(config$reference_profiles$one_replicate_development$replicate_count, 1L)
 })
 
 test_that("promotion validation rejects active MT rows and partial grids", {
@@ -152,16 +153,49 @@ test_that("promotion validation rejects active MT rows and partial grids", {
   metrics$trait <- "trait1"; metrics$value <- 1; metrics$status <- "ok"
   simulations <- data.frame(architecture = names(config$simulation$architectures),
     replicate = 1L, causal_count = 50L, realized_h2 = .3, oracle_ok = TRUE)
-  paired <- data.frame(comparison_id = rep(c("bayesr_vs_bayesc_bed",
-    "sbayesr_vs_sbayesc_csr", "csr_vs_bed_bayesc", "csr_vs_bed_bayesr"), each = 7),
-    complete_pair = TRUE, advantage = 0)
+  paired <- expand.grid(architecture = names(config$simulation$architectures),
+    comparison_id = c("bayesr_vs_bayesc_bed", "sbayesr_vs_sbayesc_csr",
+      "csr_vs_bed_bayesc", "csr_vs_bed_bayesr"),
+    paired_metric = paste0("metric", 1:7), stringsAsFactors = FALSE)
+  paired$replicate <- 1L; paired$focal_method <- "focal"
+  paired$comparison_method <- "comparison"; paired$complete_pair <- TRUE
+  paired$advantage <- 0
   manifest <- list(task = "single_trait_prediction", replicate_count = 1L,
-    active_methods = config$methods, multitrait = list(enabled = FALSE))
+    benchmark_scope = "one_replicate_development", benchmark_status = "complete",
+    active_methods = config$methods, training_sample_count = 3500L,
+    test_sample_count = 1500L, canonical_marker_count = 37991L,
+    expected_fit_count = 8L, successful_fit_count = 8L, failed_fit_count = 0L,
+    qgdata = list(commit = config$example_data$commit, files = config$example_data$files))
   expect_invisible(.study02_validate_promotion_tables(config, metrics, paired,
     computation, status, simulations, manifest))
   bad <- status; bad$method[[1]] <- "mt_bed_bayesr"
   expect_error(.study02_validate_promotion_tables(config, metrics, paired,
     computation, bad, simulations, manifest), "MT rows")
   expect_error(.study02_validate_promotion_tables(config, metrics, paired,
-    computation, status[-1, ], simulations, manifest), "complete successful")
+    computation, status[-1, ], simulations, manifest), "eight complete")
+  bad_manifest <- manifest; bad_manifest$replicate_count <- 10L
+  expect_error(.study02_validate_promotion_tables(config, metrics, paired,
+    computation, status, simulations, bad_manifest), "exactly one")
+})
+
+test_that("one-replicate summaries retain NA uncertainty", {
+  promotion_path <- testthat::test_path("..", "..", "studies", "02_prediction", "promotion.R")
+  skip_if_not(file.exists(promotion_path),
+    "repository-only Study 02 helpers are excluded from package builds")
+  source(promotion_path, local = TRUE)
+  metrics <- data.frame(architecture = "sparse_homogeneous", replicate = 1L,
+    method = "st_bed_bayesc", metric = "prediction_correlation",
+    value = .8, status = "ok")
+  summary <- .study02_benchmark_summary(metrics)
+  expect_equal(summary$value, .8)
+  expect_equal(summary$mean, .8)
+  expect_true(is.na(summary$sd))
+  expect_equal(summary$replicate_count, 1L)
+  paired <- data.frame(architecture = "sparse_homogeneous", replicate = 1L,
+    comparison_id = "bayesr_vs_bayesc_bed", focal_method = "st_bed_bayesr",
+    comparison_method = "st_bed_bayesc", paired_metric = "prediction_correlation",
+    advantage = .1, complete_pair = TRUE)
+  paired_summary <- .study02_paired_summary(paired)
+  expect_true(is.na(paired_summary$sd_advantage))
+  expect_equal(paired_summary$complete_pairs, 1L)
 })

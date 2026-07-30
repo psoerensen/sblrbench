@@ -45,4 +45,4 @@ targets::tar_make()
 
 Study 02 uses one deterministic split for every architecture, replicate and active ST method. Allele frequencies and scaling parameters come from training rows; sparse LD and summary statistics also use training rows only. Test phenotypes never enter fitting.
 
-The prediction workflow has four distinct artifacts: `scripts/worked_prediction_example.R` for users, `scripts/prediction_contract_smoke_test.R` for fast contract validation, `scripts/run_prediction_benchmark.R` for the full paired ST study, and a reference capsule created only after review from a clean Git commit. Multi-trait prediction, parameter-estimation and convergence benchmarks remain separate planned work.
+The prediction workflow has four distinct artifacts: `scripts/worked_prediction_example.R` for users, `scripts/prediction_contract_smoke_test.R` for fast contract validation, `scripts/run_prediction_benchmark.R` for the full paired single-trait study, and a reference capsule created only after review from a clean Git commit. Multi-trait prediction, parameter-estimation and convergence benchmarks remain separate planned work.

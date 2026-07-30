@@ -7,7 +7,14 @@ list(
     repository = "psoerensen/qgdata",
     commit = "6cca5819e711d326cfb2614d7e9d9f34942612cd",
     subdirectory = "simulated_human_data",
-    files = c("human.bed", "human.bim", "human.fam", "human.pheno", "human.covar")
+    files = c("human.bed", "human.bim", "human.fam", "human.pheno", "human.covar"),
+    size_bytes = c(human.bed = 62500003, human.bim = 1882359,
+      human.fam = 117786, human.pheno = 92786, human.covar = 641513),
+    md5 = c(human.bed = "e89bea9a6cedd9eeef3fd0a5c807db81",
+      human.bim = "0105119b04c67b7ac7f66cc5e6680963",
+      human.fam = "3c5db3d9eb7f3fc893c75f6f2b89836d",
+      human.pheno = "6a9e7cb1162e43999c170a363863176d",
+      human.covar = "d06002aa2b1b79bdc4c0e92c21f27ae5")
   ),
   chr = 1L,
   sample_limit = NULL,
@@ -30,18 +37,18 @@ list(
     )
   ),
   methods = c("st_bed_bayesc", "st_bed_bayesr", "st_csr_sbayesc", "st_csr_sbayesr"),
+  reference_profiles = list(
+    one_replicate_development = list(
+      replicate_count = 1L,
+      capsule_id = "st-bayesc-bayesr-one-replicate-development-v1",
+      status = "complete_development_benchmark"
+    )
+  ),
   priors = list(
     h2 = 0.30,
     bayesc_inclusion_probability = 0.01,
     bayesr_active_probability = 0.01,
     bayesr_mixture_var = c(0, 0.01, 0.1, 1)
-  ),
-  multitrait = list(
-    enabled = FALSE,
-    status = "deferred",
-    reason = paste("Multi-trait BED and CSR models are excluded from the current",
-      "benchmark pending computational profiling and optimization."),
-    methods = c("mt_bed_bayesr", "mt_csr_sbayesr")
   ),
   mcmc = list(nit = 500L, nburn = 250L, nthin = 1L, nchains = 1L,
     ncores = 1L, convergence = "none", seed_offset = 10000L),

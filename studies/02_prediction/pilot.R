@@ -121,7 +121,7 @@
 
 .study02_method_specs <- function(config) {
   active <- c("st_bed_bayesc", "st_bed_bayesr", "st_csr_sbayesc", "st_csr_sbayesr")
-  if (!identical(config$methods, active) || any(config$methods %in% config$multitrait$methods)) stop("Active Study 02 methods must be the four configured ST methods.", call. = FALSE)
+  if (!identical(config$methods, active)) stop("Active Study 02 methods must be the four configured ST methods.", call. = FALSE)
   map <- list(st_bed_bayesc = c("stblr_bed", "bayesc"),
     st_bed_bayesr = c("stblr_bed", "bayesr"),
     st_csr_sbayesc = c("stblr_csr", "sbayesc"),

@@ -72,4 +72,4 @@ Sys.setenv(SBLR_BENCH_STUDY = "02_prediction", SBLR_BENCH_REPLICATES = "1")
 targets::tar_make()
 ```
 
-The readable worked example, developer smoke test and full benchmark entry point are respectively `scripts/worked_prediction_example.R`, `scripts/prediction_contract_smoke_test.R`, and `scripts/run_prediction_benchmark.R`. Short one-chain MCMC settings validate infrastructure only. Multi-trait BED and CSR prediction workflows have been implemented experimentally but are excluded from the current benchmark because their computational performance requires separate profiling and optimization. Parameter-estimation and convergence benchmarks are also planned separately.
+The readable worked example, developer smoke test and full benchmark entry point are respectively `scripts/worked_prediction_example.R`, `scripts/prediction_contract_smoke_test.R`, and `scripts/run_prediction_benchmark.R`. Short one-chain MCMC settings validate infrastructure only. A separate future study may compare single-trait and multi-trait prediction after multi-trait computational performance has been assessed. Parameter-estimation and convergence benchmarks are also planned separately.

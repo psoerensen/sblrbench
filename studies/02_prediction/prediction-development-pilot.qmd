@@ -10,26 +10,29 @@ title: "Single-trait prediction development benchmark"
 
 ```{r}
 #| echo: false
-result_dir <- "results/local/02_prediction"
-needed <- c("prediction_metrics.csv", "paired_method_differences.csv",
-  "computational_summary.csv", "replicate_status.csv", "simulation_summary.csv")
-available <- all(file.exists(file.path(result_dir, needed)))
-if (available) {
-  metrics <- read.csv(file.path(result_dir, "prediction_metrics.csv"))
-  paired <- read.csv(file.path(result_dir, "paired_method_differences.csv"))
-  computation <- read.csv(file.path(result_dir, "computational_summary.csv"))
-  status <- read.csv(file.path(result_dir, "replicate_status.csv"))
-  simulations <- read.csv(file.path(result_dir, "simulation_summary.csv"))
-  stopifnot(!any(grepl("^mt_", c(metrics$method, computation$method, status$method))))
-}
+capsule <- file.path("results", "reference", "02_prediction",
+  "st-bayesc-bayesr-one-replicate-development-v1")
+source(file.path("studies", "02_prediction", "promotion.R"), local = TRUE)
+.study02_validate_capsule(capsule)
+metrics <- read.csv(file.path(capsule, "prediction_metrics.csv"))
+paired <- read.csv(file.path(capsule, "paired_method_differences.csv"))
+computation <- read.csv(file.path(capsule, "computational_summary.csv"))
+status <- read.csv(file.path(capsule, "replicate_status.csv"))
+simulations <- read.csv(file.path(capsule, "simulation_summary.csv"))
+benchmark_summary <- read.csv(file.path(capsule, "benchmark_summary.csv"))
+manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), simplifyVector = TRUE)
+available <- TRUE
 ```
 
 ## Benchmark status
 
-The active benchmark is single-trait and contains four ST methods. Local draft
-results are displayed only when the complete compact files exist; Quarto never
-runs simulation or samplers. Final promotion requires a clean committed source
-tree and a complete ten-replicate result grid.
+> This is a complete full-size one-replicate development benchmark. It validates
+> the complete prediction workflow but does not estimate replicate-to-replicate
+> uncertainty or support general method-ranking claims.
+
+The frozen capsule records 2 architectures, 1 replicate per architecture, 4
+methods, 8 expected fits, 8 successful fits and 0 failed fits. Quarto reads only
+the tracked capsule and never runs simulations or samplers.
 
 ## Scientific question
 
@@ -83,8 +86,7 @@ canonical marker order, aligned effects and finite held-out predictions.
 
 ```{r}
 #| echo: false
-if (!available) cat("Complete active draft results are not present in this checkout.")
-if (available) print(status)
+print(status)
 ```
 
 ## Prediction results
@@ -211,16 +213,12 @@ validates metrics, alignment and paired comparison orientation without MCMC.
 Use the staged [targets entry point](../../scripts/run_prediction_benchmark.R).
 Rendering this report never executes it.
 
-## Deferred multi-trait extension
-
-Multi-trait BED and CSR workflows remain implemented experimentally but are
-excluded pending separate computational profiling and optimization. Partial MT
-outputs are archived locally and are not plotted, promoted or published here.
-
 ## Downloads
 
-After review, commit and completion, the clean-only promotion script creates
-`results/reference/02_prediction/st-bayesc-bayesr-development-v1/`.
+The [benchmark capsule README](../../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/README.md)
+links to the frozen manifest, summaries, replicate-level metrics, configuration,
+worked example, smoke test, run script, data provenance, source inventory,
+session information and checksums in the same directory.
 
 ## Software versions and commits
 

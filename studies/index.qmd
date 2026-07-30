@@ -37,4 +37,4 @@ Planned benchmarks are not yet completed or published.
 
 ### [Single-trait prediction development benchmark](02_prediction/prediction-development-pilot.qmd)
 
-This benchmark compares BayesC and BayesR across BED and CSR representations under sparse homogeneous and sparse variance-mixture architectures. It uses a common 70/30 split, training-only genotype scaling and LD, held-out test phenotypes, and short development MCMC. Multi-trait prediction is deferred pending performance profiling. Results remain local until reviewed and promoted from a clean source commit.
+This complete one-replicate development benchmark compares BayesC and BayesR across BED and CSR representations under sparse homogeneous and sparse variance-mixture architectures. It uses a common 70/30 split, training-only genotype scaling and LD, held-out test phenotypes, and short development MCMC. It validates the workflow without estimating replicate-to-replicate uncertainty.

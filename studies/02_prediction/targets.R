@@ -1,5 +1,6 @@
 source(file.path("studies", "01_finemapping", "setup_example_data.R"), local = TRUE)
 source(file.path("studies", "02_prediction", "pilot.R"), local = TRUE)
+source(file.path("studies", "02_prediction", "promotion.R"), local = TRUE)
 
 list(
   targets::tar_target(prediction_config_file, file.path("studies", "02_prediction", "config.R"), format = "file"),
@@ -82,6 +83,10 @@ list(
   }),
   targets::tar_target(prediction_paired_method_differences,
     .study02_paired(prediction_metrics)),
+  targets::tar_target(prediction_benchmark_summary,
+    .study02_benchmark_summary(prediction_metrics)),
+  targets::tar_target(prediction_paired_comparison_summary,
+    .study02_paired_summary(prediction_paired_method_differences)),
   targets::tar_target(prediction_replicate_status, {
     expected <- expand.grid(architecture = names(prediction_config$simulation$architectures),
       replicate = seq_len(length(prediction_replicate_specs) /
@@ -125,25 +130,53 @@ list(
   targets::tar_target(prediction_simulation_file,
     .study02_write_csv(prediction_simulation_summary,
       file.path(prediction_output_dir, "simulation_summary.csv")), format = "file"),
+  targets::tar_target(prediction_benchmark_summary_file,
+    .study02_write_csv(prediction_benchmark_summary,
+      file.path(prediction_output_dir, "benchmark_summary.csv")), format = "file"),
+  targets::tar_target(prediction_paired_summary_file,
+    .study02_write_csv(prediction_paired_comparison_summary,
+      file.path(prediction_output_dir, "paired_comparison_summary.csv")), format = "file"),
   targets::tar_target(prediction_manifest_file, {
     path <- file.path(prediction_output_dir, "prediction_manifest.json")
-    jsonlite::write_json(list(study = prediction_config$study,
-      task = prediction_config$task, development_settings = TRUE,
-      active_architectures = names(prediction_config$simulation$architectures),
+    source_commit <- system2("git", c("rev-parse", "HEAD"), stdout = TRUE)
+    source_clean <- !length(system2("git", c("status", "--porcelain"), stdout = TRUE))
+    sblr_commit <- system2("git", c("-C", "../sblr", "rev-parse", "HEAD"), stdout = TRUE)
+    method_seeds <- unique(prediction_computational_summary[, c("architecture", "replicate", "method", "mcmc_seed")])
+    jsonlite::write_json(list(study = prediction_config$study, task = prediction_config$task,
+      benchmark_title = "Single-trait prediction one-replicate development benchmark",
+      benchmark_scope = "one_replicate_development", benchmark_status = "complete",
+      development_settings = TRUE, replicate_count = 1L,
+      expected_fit_count = 8L,
+      successful_fit_count = sum(prediction_replicate_status$status == "ok"),
+      failed_fit_count = sum(prediction_replicate_status$status != "ok"),
+      architectures = names(prediction_config$simulation$architectures),
       active_methods = prediction_config$methods,
-      multitrait = prediction_config$multitrait,
-      replicate_count = length(prediction_replicate_specs) /
-        length(prediction_config$simulation$architectures),
-      expected_fit_count = length(prediction_replicate_specs) * length(prediction_config$methods),
-      split = prediction_config$split,
+      train_fraction = prediction_config$split$train_fraction,
+      training_sample_count = length(prediction_split$train_ids),
+      test_sample_count = length(prediction_split$test_ids),
+      canonical_marker_count = length(prediction_filtered_markers$marker_ids),
+      causal_count = prediction_config$simulation$n_causal,
+      target_h2 = prediction_config$simulation$h2,
+      realized_h2 = setNames(prediction_simulation_summary$realized_h2,
+        prediction_simulation_summary$architecture),
+      simulation_seeds = setNames(prediction_simulation_summary$simulation_seed,
+        prediction_simulation_summary$architecture), split_seed = prediction_split$split_seed,
+      method_seeds = method_seeds, mcmc_controls = prediction_config$mcmc,
+      bayesr_mixture_multipliers = prediction_config$priors$bayesr_mixture_var,
+      bayesc_initial_pi = prediction_config$priors$bayesc_inclusion_probability,
       policies = list(genotype_scaling = "training individuals only",
         sparse_ld = "training individuals only",
         summary_statistics = "training individuals and phenotypes only",
         test_phenotypes = "evaluation only"),
-      simulation = prediction_config$simulation, mcmc = prediction_config$mcmc,
-      example_data = prediction_config$example_data,
+      oracle_results = prediction_simulation_summary[, c("architecture", "oracle_ok", "oracle_max_abs_error")],
+      qgdata = prediction_config$example_data,
       versions = list(sblr = as.character(packageVersion("sblr")),
-        qgg = as.character(packageVersion("qgg")))), path,
+        sblr_source_commit = sblr_commit, qgg = as.character(packageVersion("qgg")),
+        sblrbench = as.character(packageVersion("sblrbench"))),
+      sblrbench_source_commit = source_commit, source_tree_clean = source_clean,
+      created_at = format(Sys.time(), tz = "UTC", usetz = TRUE),
+      limitations = c("one replicate per architecture", "short single-chain development MCMC",
+        "no replicate-to-replicate uncertainty", "no convergence or general method-ranking claims")), path,
       pretty = TRUE, auto_unbox = TRUE)
     path
   }, format = "file")

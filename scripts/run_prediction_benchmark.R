@@ -1,8 +1,7 @@
 # Study 02: single-trait BayesC/BayesR prediction benchmark.
 #
 # Start with one replicate. Only ST-BED BayesC/BayesR and ST-CSR
-# SBayesC/SBayesR are active. Experimental MT prediction is deferred and is not
-# present in the targets graph. Public qgdata files are pinned, checksum
+# SBayesC/SBayesR are active. Public qgdata files are pinned, checksum
 # validated and cached; scaling, sparse LD and summary statistics use training
 # individuals only. Test phenotypes are evaluation-only.
 Sys.setenv(

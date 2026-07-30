@@ -163,5 +163,3 @@ summary <- reshape(metrics[, c("method", "metric", "value")],
   idvar = "method", timevar = "metric", direction = "wide")
 summary$runtime <- vapply(native_runs, `[[`, numeric(1), "runtime")
 print(summary, row.names = FALSE)
-
-cat("\nMulti-trait prediction is deferred pending computational profiling and optimization.\n")
