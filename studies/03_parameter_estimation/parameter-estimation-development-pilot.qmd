@@ -254,8 +254,30 @@ The [five-replicate capsule](../../results/reference/03_parameter_estimation/st-
 is the primary result source. The [original one-replicate capsule](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/README.md)
 remains an immutable historical reference.
 
-```{r, echo=FALSE}
-knitr::kable(data.frame(Item=c("sblrbench commit","sblr commit","qgdata commit","Source tree","Profile"),
-  Value=c(manifest$repository_commit,manifest$sblr_commit,manifest$qgdata_commit,
-    if(manifest$source_tree_clean) "Clean" else "Dirty","Development")))
-```
+source_tree_status <- if (
+  is.null(manifest$source_tree_clean) ||
+  length(manifest$source_tree_clean) == 0L
+) {
+  "Not recorded"
+} else if (isTRUE(manifest$source_tree_clean)) {
+  "Clean"
+} else {
+  "Dirty"
+}
+
+knitr::kable(data.frame(
+  Item = c(
+    "sblrbench commit",
+    "sblr commit",
+    "qgdata commit",
+    "Source tree",
+    "Profile"
+  ),
+  Value = c(
+    manifest$repository_commit,
+    manifest$sblr_commit,
+    manifest$qgdata_commit,
+    source_tree_status,
+    "Development"
+  )
+))
