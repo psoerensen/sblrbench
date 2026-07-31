@@ -1,0 +1,301 @@
+---
+title: "Study 05: Single-trait annotation-informed models"
+description: "A five-replicate development benchmark isolating annotation-informed mixture probabilities."
+---
+
+::: {.callout-warning .callout-development}
+## Development benchmark—not a final method ranking
+
+This package-specific benchmark reports five paired simulations under
+informative and uninformative annotations. The evidence is descriptive, is not
+universal convergence validation, and describes the current installed `sblr`
+behaviour.
+:::
+
+```{r}
+convergence_capsule <- file.path("results", "reference",
+  "05_annotation_models",
+  "st-annotation-models-convergence-development-v1")
+benchmark_capsule <- file.path("results", "reference",
+  "05_annotation_models",
+  "st-annotation-models-five-replicate-development-v1")
+source("studies/reporting_helpers.R")
+source(file.path("studies", "05_annotation_models", "promotion.R"))
+.study05_validate_convergence_capsule(convergence_capsule)
+.study05_validate_benchmark_capsule(benchmark_capsule)
+manifest <- jsonlite::read_json(file.path(benchmark_capsule,
+  "benchmark_manifest.json"), simplifyVector = TRUE)
+pilot_manifest <- jsonlite::read_json(file.path(convergence_capsule,
+  "benchmark_manifest.json"), simplifyVector = TRUE)
+prediction <- read.csv(file.path(benchmark_capsule, "prediction_metrics.csv"))
+prediction_summary <- read.csv(file.path(benchmark_capsule, "prediction_summary.csv"))
+parameters <- read.csv(file.path(benchmark_capsule, "parameter_estimates.csv"))
+parameter_summary <- read.csv(file.path(benchmark_capsule, "parameter_recovery_summary.csv"))
+alpha <- read.csv(file.path(benchmark_capsule, "annotation_coefficient_estimates.csv"))
+alpha_summary <- read.csv(file.path(benchmark_capsule, "annotation_recovery_summary.csv"))
+probability <- read.csv(file.path(benchmark_capsule, "probability_recovery_metrics.csv"))
+probability_summary <- read.csv(file.path(benchmark_capsule, "probability_recovery_summary.csv"))
+enrichment <- read.csv(file.path(benchmark_capsule, "enrichment_metrics.csv"))
+enrichment_summary <- read.csv(file.path(benchmark_capsule, "enrichment_summary.csv"))
+paired <- read.csv(file.path(benchmark_capsule, "paired_replicate_differences.csv"))
+paired_summary <- read.csv(file.path(benchmark_capsule, "paired_comparison_summary.csv"))
+interactions <- read.csv(file.path(benchmark_capsule, "annotation_value_interactions.csv"))
+interaction_summary <- read.csv(file.path(benchmark_capsule,
+  "annotation_value_interaction_summary.csv"))
+diagnostics <- read.csv(file.path(benchmark_capsule, "convergence_diagnostics.csv"))
+validation <- read.csv(file.path(benchmark_capsule, "convergence_validation_summary.csv"))
+runtime <- read.csv(file.path(benchmark_capsule, "computational_summary.csv"))
+simulation <- read.csv(file.path(benchmark_capsule, "simulation_summary.csv"))
+annotation_summary <- read.csv(file.path(benchmark_capsule,
+  "annotation_design_summary.csv"))
+true_alpha <- read.csv(file.path(benchmark_capsule, "true_alpha.csv"),
+  check.names = FALSE)
+recommendations <- read.csv(file.path(convergence_capsule,
+  "method_recommendations.csv"))
+availability <- read.csv(file.path(benchmark_capsule,
+  "method_output_availability.csv"))
+method_labels <- c(
+  st_bed_bayesr = "ST-BED BayesR",
+  st_bed_bayesrc = "ST-BED BayesRC",
+  st_csr_sbayesr = "ST-CSR SBayesR",
+  st_csr_sbayesrc = "ST-CSR SBayesRC")
+scenario_labels <- c(
+  informative_annotations = "Informative annotations",
+  uninformative_annotations = "Uninformative annotations")
+for (x in c("prediction", "prediction_summary", "parameters",
+            "parameter_summary", "alpha", "alpha_summary", "probability",
+            "probability_summary", "enrichment", "enrichment_summary",
+            "diagnostics", "validation", "runtime")) {
+  object <- get(x)
+  if ("method" %in% names(object))
+    object$method_label <- unname(method_labels[object$method])
+  if ("scenario" %in% names(object))
+    object$scenario_label <- unname(scenario_labels[object$scenario])
+  assign(x, object)
+}
+```
+
+## Scientific question
+
+Study 05 asks whether marker annotations improve mixture allocation and
+held-out prediction when annotations truly identify likely non-null or larger
+effects, while avoiding an apparent advantage when the same annotations are
+uninformative. The comparison isolates annotation-informed mixture
+probabilities by pairing BayesRC with BayesR in both BED and CSR interfaces.
+Block-eigen models are reserved for Study 06.
+
+## Methods and benchmark specification
+
+The four methods are ST-BED BayesR, ST-BED BayesRC, ST-CSR SBayesR and
+ST-CSR SBayesRC. Every method uses the Study 05 explicit four-component
+variance grid:
+
+```{r}
+manifest$mixture_var
+```
+
+This grid is a benchmark specification, not a model-specific default.
+
+## Annotation design and exact generating model
+
+One aligned marker-level matrix is reused for both scenarios and all five
+replicates. It contains an explicit intercept, a deterministic 10% binary
+enrichment class, a standardized continuous signal, and an independent
+standardized null annotation.
+
+```{r}
+knitr::kable(annotation_summary)
+```
+
+The verified installed probit stick-breaking orientation is documented in the
+[development run record](../../docs/dev/study05_annotation_models_run.md).
+The frozen coefficients are:
+
+```{r}
+knitr::kable(true_alpha)
+```
+
+The informative scenario uses nonzero enriched and continuous coefficients and
+a zero null-annotation coefficient. The uninformative scenario sets all
+non-intercept coefficients to zero and matches the informative
+marker-averaged component occupancy using intercepts calibrated once before
+simulation.
+
+## Data and held-out design
+
+The benchmark uses 5,000 cached qgdata samples and the canonical post-QC
+chromosome-1 marker set. The deterministic 70/30 split is shared by every
+method in a scenario-replicate pair. Scaling, allele frequencies, summary
+statistics and CSR LD use training individuals only. Test phenotypes remain
+held out.
+
+```{r}
+knitr::kable(simulation)
+```
+
+## Convergence-pilot recommendations
+
+BayesR and SBayesR settings come from Study 04's frozen recommendation capsule.
+BayesRC and SBayesRC settings were selected from four-chain, 3,000-draw maximum
+histories on the first informative simulation. Candidate burn-in was removed
+exactly once.
+
+```{r}
+knitr::kable(recommendations)
+```
+
+## Five-replicate completion status
+
+All `r manifest$expected_fit_count` planned multichain fits completed only if
+this frozen capsule passed its grid validator: two scenarios by five paired
+replicates by four methods, with four identifiable chains per fit.
+
+## Prediction results
+
+```{r}
+pred_plot <- prediction[prediction$metric %in% c(
+  "phenotype_prediction_correlation", "phenotype_prediction_rmse",
+  "genetic_value_correlation"), ]
+ggplot2::ggplot(pred_plot, ggplot2::aes(method_label, value,
+  colour = method_label)) +
+  ggplot2::geom_point(position = ggplot2::position_jitter(width = .08),
+    alpha = .8) +
+  ggplot2::facet_grid(metric ~ scenario_label, scales = "free_y") +
+  ggplot2::labs(x = NULL, y = NULL, colour = "Method") +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1)) +
+  theme_sblrbench()
+```
+
+```{r}
+knitr::kable(prediction_summary)
+```
+
+Each point is one paired simulation. No uncertainty has been fabricated.
+
+## Heritability and variance recovery
+
+```{r}
+knitr::kable(parameter_summary)
+```
+
+Observed interval coverage is deliberately labelled coarse: with five
+replicates, each miss changes the proportion by 20 percentage points. The
+known SBayesR heritability behaviour is benchmarked as currently installed and
+is not diagnosed or corrected here. Unavailable estimands remain in the
+downloadable tables with `available = FALSE` and a reason.
+
+## Annotation coefficient and variance behaviour
+
+```{r}
+alpha_nonintercept <- alpha[alpha$annotation_name != "Intercept", ]
+ggplot2::ggplot(alpha_nonintercept,
+  ggplot2::aes(true_alpha, posterior_mean, colour = method_label)) +
+  ggplot2::geom_abline(slope = 1, intercept = 0, linetype = 2) +
+  ggplot2::geom_errorbar(ggplot2::aes(ymin = lower_95, ymax = upper_95),
+    width = 0) +
+  ggplot2::geom_point() +
+  ggplot2::facet_grid(stick_name ~ scenario_label) +
+  ggplot2::labs(x = "True alpha", y = "Posterior alpha", colour = "Method") +
+  theme_sblrbench()
+```
+
+`sigmaSqAlpha` has no comparable generating truth in this simulation and is
+therefore reported as posterior behaviour, not parameter recovery.
+
+## Marker probability and enrichment recovery
+
+```{r}
+knitr::kable(probability_summary)
+```
+
+Annotation-implied prior probabilities, posterior component-allocation
+probabilities, global component proportions, and posterior marker non-null
+probabilities are separate quantities throughout the outputs.
+
+```{r}
+enrich_plot <- enrichment[enrichment$metric %in% c(
+  "enrichment_difference", "enrichment_ratio",
+  "continuous_annotation_direction"), ]
+ggplot2::ggplot(enrich_plot, ggplot2::aes(method_label, value,
+  colour = method_label)) +
+  ggplot2::geom_point(position = ggplot2::position_jitter(width = .08)) +
+  ggplot2::facet_grid(metric ~ scenario_label, scales = "free_y") +
+  ggplot2::labs(x = NULL, y = NULL, colour = "Method") +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1)) +
+  theme_sblrbench()
+```
+
+## Paired RC-minus-R comparisons
+
+```{r}
+knitr::kable(paired_summary[paired_summary$comparison_id %in%
+  c("bed_rc_minus_r", "csr_rc_minus_r"), ])
+```
+
+Positive differences always mean focal RC minus its paired R baseline; metric
+orientation remains explicit, so lower-is-better RMSE differences are
+interpreted accordingly.
+
+## Informative-minus-uninformative interaction
+
+```{r}
+knitr::kable(interaction_summary)
+```
+
+This is the descriptive paired interaction
+`(RC - R | informative) - (RC - R | uninformative)`. Five pairs do not provide
+definitive inferential evidence.
+
+## BED-versus-CSR comparisons
+
+```{r}
+knitr::kable(paired_summary[paired_summary$comparison_id %in%
+  c("csr_rc_minus_bed_rc", "csr_r_minus_bed_r"), ])
+```
+
+## Main-run convergence validation
+
+```{r}
+knitr::kable(validation)
+```
+
+The status summarizes the same applicable rank-normalized split R-hat, bulk
+ESS, tail ESS, MCSE and relative-MCSE thresholds used for recommendation
+selection. A failed estimand is not hidden inside the method-level aggregate.
+Support across five simulations is not universal convergence validation.
+
+## Runtime
+
+```{r}
+runtime_summary <- aggregate(cbind(model_fitting_time, total_time) ~
+  scenario_label + method_label, runtime, function(x)
+    c(mean = mean(x), sd = stats::sd(x), min = min(x), max = max(x)))
+knitr::kable(runtime_summary)
+```
+
+Preprocessing, summary-statistic construction, LD, fitting, prediction and
+metric generation remain separate in the downloadable computational table.
+
+## Limitations
+
+This is a development-scale, package-specific benchmark using five paired
+simulations and one qgdata chromosome. It is not a definitive ranking, a claim
+about other software implementations, or universal convergence validation.
+The annotation design is deliberately simple, and global quantities absent
+from the current returned chain contract are not reconstructed from proxies.
+
+## Downloads and provenance
+
+- [Convergence capsule README](../../results/reference/05_annotation_models/st-annotation-models-convergence-development-v1/README.md)
+- [Five-replicate capsule README](../../results/reference/05_annotation_models/st-annotation-models-five-replicate-development-v1/README.md)
+- [Benchmark manifest](../../results/reference/05_annotation_models/st-annotation-models-five-replicate-development-v1/benchmark_manifest.json)
+- [Prediction metrics](../../results/reference/05_annotation_models/st-annotation-models-five-replicate-development-v1/prediction_metrics.csv)
+- [Parameter estimates](../../results/reference/05_annotation_models/st-annotation-models-five-replicate-development-v1/parameter_estimates.csv)
+- [Annotation coefficient estimates](../../results/reference/05_annotation_models/st-annotation-models-five-replicate-development-v1/annotation_coefficient_estimates.csv)
+- [Probability recovery](../../results/reference/05_annotation_models/st-annotation-models-five-replicate-development-v1/probability_recovery_metrics.csv)
+- [Paired differences](../../results/reference/05_annotation_models/st-annotation-models-five-replicate-development-v1/paired_replicate_differences.csv)
+- [Checksums](../../results/reference/05_annotation_models/st-annotation-models-five-replicate-development-v1/checksums.csv)
+- [Reproduction runner](../../results/reference/05_annotation_models/st-annotation-models-five-replicate-development-v1/reproduce.R)
+
+The report reads only these frozen capsules; rendering never constructs LD,
+simulates data, or calls a sampler.
