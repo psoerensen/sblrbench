@@ -1,12 +1,22 @@
-.study04_specs <- function(config) lapply(seq_len(nrow(config$matched_grid)), function(i)
-  as.list(config$matched_grid[i, ]))
+.study04_specs <- function(config) {
+  n <- if (identical(config$profile, "five_replicate_validation")) 5L else 1L
+  out <- list()
+  for (r in seq_len(n)) for (i in seq_len(nrow(config$matched_grid))) {
+    z <- as.list(config$matched_grid[i, ])
+    z$replicate <- r
+    out[[length(out) + 1L]] <- z
+  }
+  out
+}
 
 .study04_sim_specs <- function(config) {
   architectures <- names(config$simulation$architectures)
-  lapply(seq_along(architectures), function(i) list(
-    architecture = architectures[i], replicate = 1L,
-    simulation_seed = as.integer(config$simulation$base_seed + i * 1000L + 1L)
-  ))
+  n <- if (identical(config$profile, "five_replicate_validation")) 5L else 1L
+  out <- list()
+  for (i in seq_along(architectures)) for (r in seq_len(n)) out[[length(out) + 1L]] <- list(
+    architecture = architectures[i], replicate = r,
+    simulation_seed = as.integer(config$simulation$base_seed + i * 1000L + r))
+  out
 }
 
 .study04_diagnostic_grid <- function(draws, config) do.call(rbind,

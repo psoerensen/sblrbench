@@ -32,10 +32,13 @@
     values <- x$value[x$status == "ok"]
     data.frame(architecture = x$architecture[[1]], method = x$method[[1]],
       method_label = unname(.study02_method_labels()[x$method[[1]]]),
-      metric = x$metric[[1]], value = if (length(values) == 1L) values else mean(values),
-      replicate_count = length(values), mean = mean(values),
+      metric = x$metric[[1]], value = if (length(values) == 1L) values else if (length(values)) mean(values) else NA_real_,
+      replicate_count = length(unique(x$replicate)), successful_replicates = length(values),
+      mean = if (length(values)) mean(values) else NA_real_,
       sd = if (length(values) > 1L) stats::sd(values) else NA_real_,
-      median = stats::median(values), minimum = min(values), maximum = max(values))
+      median = if (length(values)) stats::median(values) else NA_real_,
+      minimum = if (length(values)) min(values) else NA_real_,
+      maximum = if (length(values)) max(values) else NA_real_)
   })
   out <- do.call(rbind, rows); rownames(out) <- NULL; out
 }
@@ -50,9 +53,13 @@
       comparison_label = unname(.study02_comparison_labels()[x$comparison_id[[1]]]),
       focal_method = x$focal_method[[1]], comparison_method = x$comparison_method[[1]],
       paired_metric = x$paired_metric[[1]], advantage = if (length(values) == 1L) values else mean(values),
-      replicate_count = length(unique(x$replicate)), mean_advantage = mean(values),
+      replicate_count = length(unique(x$replicate)), successful_replicates = length(values),
+      mean_advantage = if (length(values)) mean(values) else NA_real_,
       sd_advantage = if (length(values) > 1L) stats::sd(values) else NA_real_,
-      median_advantage = stats::median(values), complete_pairs = length(values))
+      median_advantage = if (length(values)) stats::median(values) else NA_real_,
+      minimum_advantage = if (length(values)) min(values) else NA_real_,
+      maximum_advantage = if (length(values)) max(values) else NA_real_,
+      complete_pairs = length(values))
   })
   out <- do.call(rbind, rows); rownames(out) <- NULL; out
 }

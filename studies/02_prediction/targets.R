@@ -1,6 +1,7 @@
 source(file.path("studies", "01_finemapping", "setup_example_data.R"), local = TRUE)
 source(file.path("studies", "02_prediction", "pilot.R"), local = TRUE)
 source(file.path("studies", "02_prediction", "promotion.R"), local = TRUE)
+source(file.path("studies", "five_replicate_helpers.R"), local = TRUE)
 
 list(
   targets::tar_target(prediction_config_file, file.path("studies", "02_prediction", "config.R"), format = "file"),
@@ -113,8 +114,20 @@ list(
         as.integer(table(x$simulation$extras$effect_components$component)), sep = ":", collapse = ";"),
       oracle_ok = x$oracle$ok, oracle_max_abs_error = x$oracle$max_abs_error,
       stringsAsFactors = FALSE)))),
+  targets::tar_target(prediction_seed_registry, do.call(rbind,
+    lapply(prediction_method_run, function(x) do.call(rbind,
+      lapply(seq_along(x$fit$chain_seeds), function(chain) data.frame(
+        architecture = x$computational$architecture,
+        replicate = x$computational$replicate, method = x$computational$method,
+        data_selection_seed = prediction_config$split$seed,
+        architecture_seed = prediction_config$simulation$base_seed +
+          match(x$computational$architecture,
+            names(prediction_config$simulation$architectures)) * 1000L,
+        simulation_seed = x$computational$simulation_seed,
+        fit_seed = x$fit$mcmc_seed, chain = chain,
+        chain_seed = x$fit$chain_seeds[[chain]], stringsAsFactors = FALSE)))))),
   targets::tar_target(prediction_output_dir,
-    file.path("results", "local", "02_prediction")),
+    Sys.getenv("SBLR_BENCH_OUTPUT_DIR", file.path("results", "local", "02_prediction"))),
   targets::tar_target(prediction_metrics_file,
     .study02_write_csv(prediction_metrics, file.path(prediction_output_dir,
       "prediction_metrics.csv")), format = "file"),
@@ -136,17 +149,25 @@ list(
   targets::tar_target(prediction_paired_summary_file,
     .study02_write_csv(prediction_paired_comparison_summary,
       file.path(prediction_output_dir, "paired_comparison_summary.csv")), format = "file"),
+  targets::tar_target(prediction_seed_file,
+    .study02_write_csv(prediction_seed_registry,
+      file.path(prediction_output_dir, "seed_registry.csv")), format = "file"),
   targets::tar_target(prediction_manifest_file, {
     path <- file.path(prediction_output_dir, "prediction_manifest.json")
     source_commit <- system2("git", c("rev-parse", "HEAD"), stdout = TRUE)
     source_clean <- !length(system2("git", c("status", "--porcelain"), stdout = TRUE))
-    sblr_commit <- system2("git", c("-C", "../sblr", "rev-parse", "HEAD"), stdout = TRUE)
+    sblr_provenance <- .five_replicate_sblr_provenance()
+    nrep <- length(unique(prediction_simulation_summary$replicate))
+    expected_fits <- 2L * nrep * length(prediction_config$methods)
+    complete <- nrow(prediction_replicate_status) == expected_fits &&
+      all(prediction_replicate_status$status == "ok")
     method_seeds <- unique(prediction_computational_summary[, c("architecture", "replicate", "method", "mcmc_seed")])
     jsonlite::write_json(list(study = prediction_config$study, task = prediction_config$task,
-      benchmark_title = "Single-trait prediction one-replicate development benchmark",
-      benchmark_scope = "one_replicate_development", benchmark_status = "complete",
-      development_settings = TRUE, replicate_count = 1L,
-      expected_fit_count = 8L,
+      benchmark_title = if (nrep == 5L) "Single-trait prediction five-replicate development benchmark" else "Single-trait prediction one-replicate development benchmark",
+      benchmark_scope = if (nrep == 5L) "five_replicate_development" else "one_replicate_development",
+      benchmark_status = if (complete) "complete" else "incomplete",
+      development_settings = TRUE, replicate_count = nrep,
+      expected_fit_count = expected_fits,
       successful_fit_count = sum(prediction_replicate_status$status == "ok"),
       failed_fit_count = sum(prediction_replicate_status$status != "ok"),
       architectures = names(prediction_config$simulation$architectures),
@@ -157,11 +178,11 @@ list(
       canonical_marker_count = length(prediction_filtered_markers$marker_ids),
       causal_count = prediction_config$simulation$n_causal,
       target_h2 = prediction_config$simulation$h2,
-      realized_h2 = setNames(prediction_simulation_summary$realized_h2,
-        prediction_simulation_summary$architecture),
-      simulation_seeds = setNames(prediction_simulation_summary$simulation_seed,
-        prediction_simulation_summary$architecture), split_seed = prediction_split$split_seed,
-      method_seeds = method_seeds, mcmc_controls = prediction_config$mcmc,
+      realized_h2 = prediction_simulation_summary[c("architecture", "replicate", "realized_h2")],
+      simulation_seeds = prediction_simulation_summary[c("architecture", "replicate", "simulation_seed")],
+      split_seed = prediction_split$split_seed,
+      method_seeds = method_seeds, chain_seeds = prediction_seed_registry,
+      mcmc_controls = if (nrep == 5L) .five_replicate_recommendations() else prediction_config$mcmc,
       bayesr_mixture_multipliers = prediction_config$priors$bayesr_mixture_var,
       bayesc_initial_pi = prediction_config$priors$bayesc_inclusion_probability,
       policies = list(genotype_scaling = "training individuals only",
@@ -171,12 +192,24 @@ list(
       oracle_results = prediction_simulation_summary[, c("architecture", "oracle_ok", "oracle_max_abs_error")],
       qgdata = prediction_config$example_data,
       versions = list(sblr = as.character(packageVersion("sblr")),
-        sblr_source_commit = sblr_commit, qgg = as.character(packageVersion("qgg")),
+        sblr_source_commit = sblr_provenance$commit,
+        sblr_source_status = sblr_provenance$source_status,
+        qgg = as.character(packageVersion("qgg")),
         sblrbench = as.character(packageVersion("sblrbench"))),
       sblrbench_source_commit = source_commit, source_tree_clean = source_clean,
+      source_status = "working-tree five-replicate source; source inventory retained in capsule",
+      completion_counts = list(expected = expected_fits,
+        successful = sum(prediction_replicate_status$status == "ok"),
+        failed = sum(prediction_replicate_status$status != "ok")),
+      failures = prediction_replicate_status[prediction_replicate_status$status != "ok", ],
+      provenance = prediction_config$example_data,
+      validation_status = if (complete) "complete_grid_validated" else "incomplete_not_promotable",
       created_at = format(Sys.time(), tz = "UTC", usetz = TRUE),
-      limitations = c("one replicate per architecture", "short single-chain development MCMC",
-        "no replicate-to-replicate uncertainty", "no convergence or general method-ranking claims")), path,
+      thread_settings = .five_replicate_thread_settings(),
+      limitations = if (nrep == 5L) c("five-replicate development evidence is not universal validation",
+        "aggregate uncertainty is descriptive across five simulations") else
+        c("one replicate per architecture", "short single-chain development MCMC",
+          "no replicate-to-replicate uncertainty", "no convergence or general method-ranking claims")), path,
       pretty = TRUE, auto_unbox = TRUE)
     path
   }, format = "file")

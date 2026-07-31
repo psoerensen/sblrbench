@@ -22,48 +22,45 @@ description: "Ordered catalogue of frozen sblrbench development benchmarks and p
 
 | Field | Value |
 |---|---|
-| Status | Complete one-replicate development benchmark |
+| Status | Complete five-replicate development benchmark |
 | Study type | Held-out single-trait prediction |
 | Methods | ST-BED BayesC; ST-BED BayesR; ST-CSR SBayesC; ST-CSR SBayesR |
 | Architectures | Sparse homogeneous; sparse variance mixture |
 | Replicates or chains | One replicate per architecture |
 | Primary outputs | Prediction correlation, NMSE, calibration, paired differences |
 | Validation | 8/8 fits; training-only scaling, LD and summary statistics |
-| Capsule | [Prediction reproducibility capsule](../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/README.md) |
+| Capsule | [Five-replicate capsule](../results/reference/02_prediction/st-bayesc-bayesr-five-replicate-development-v1/README.md); [historical one-replicate capsule](../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/README.md) |
 
 ### [Study 03: Single-trait parameter estimation](03_parameter_estimation/parameter-estimation-development-pilot.qmd)
 
 | Field | Value |
 |---|---|
-| Status | Complete one-replicate development benchmark |
+| Status | Complete five-replicate development benchmark |
 | Study type | Posterior parameter estimation |
 | Methods | ST-BED BayesC; ST-BED BayesR; ST-CSR SBayesC; ST-CSR SBayesR |
 | Architectures | Sparse homogeneous; sparse variance mixture |
 | Replicates or chains | One replicate per architecture |
 | Primary outputs | Effect, genetic and residual variance; heritability; posterior intervals |
 | Validation | 8/8 fits; simulation oracles and posterior contracts passed |
-| Capsule | [Parameter-estimation reproducibility capsule](../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/README.md) |
+| Capsule | [Five-replicate capsule](../results/reference/03_parameter_estimation/st-parameter-estimation-five-replicate-development-v1/README.md); [historical one-replicate capsule](../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/README.md) |
 
 ### [Study 04: Multichain convergence](04_convergence/convergence-development-pilot.qmd)
 
 | Field | Value |
 |---|---|
-| Status | Complete one-replicate multichain development benchmark |
+| Status | Complete multichain development benchmark with five-replicate validation |
 | Study type | Operational multichain convergence diagnostics |
 | Methods | Matched ST-BED/CSR BayesC and BayesR |
 | Architectures | Sparse homogeneous; sparse variance mixture |
 | Replicates or chains | Four chains per method; 16 total |
 | Primary outputs | R-hat, bulk/tail ESS, relative MCSE, burn-in stability, recommendations |
 | Validation | 16/16 chains; retained identities and complete checkpoint grid |
-| Capsule | [Convergence reproducibility capsule](../results/reference/04_convergence/st-multichain-convergence-development-v1/README.md) |
+| Capsule | [Recommendation-generating capsule](../results/reference/04_convergence/st-multichain-convergence-development-v1/README.md); [five-replicate validation capsule](../results/reference/04_convergence/st-multichain-convergence-validation-five-replicate-v1/README.md) |
 
 ## Planned benchmarks
 
 - Fine-mapping with realistic LD.
 - High-LD causal architecture.
-- Five-replicate single-trait prediction benchmark.
-- Five-replicate single-trait parameter-estimation benchmark.
-- Five-replicate validation of convergence-informed MCMC settings.
 - Multi-trait prediction after computational optimization.
 - Annotation-informed models.
 - Block-eigen methods.

@@ -7,14 +7,18 @@
     prior_class = if (grepl("bayesr", id)) "BayesR" else "BayesC")
 }
 
-.study04_chain_seeds <- function(architecture, method, config) {
+.study04_chain_seeds <- function(architecture, method, config, replicate = 1L) {
   a <- match(architecture, names(config$simulation$architectures)); m <- match(method, config$methods)
-  as.integer(config$seeds$base_fit + a * 10000L + m * 1000L + seq_len(4L) * config$seeds$chain_stride)
+  as.integer(config$seeds$base_fit + a * 1000000L + as.integer(replicate) * 10000L +
+    m * 1000L + seq_len(4L) * config$seeds$chain_stride)
 }
 
 .study04_fit <- function(spec, simulation, stats, Glist, config) {
-  method <- .study04_method_spec(spec$method); p <- config$profiles$development
-  seeds <- .study04_chain_seeds(spec$architecture, spec$method, config)
+  method <- .study04_method_spec(spec$method)
+  p <- if (identical(config$profile, "five_replicate_validation"))
+    .five_replicate_mcmc(spec$method) else config$profiles$development
+  seeds <- .study04_chain_seeds(spec$architecture, spec$method, config,
+    spec$replicate %||% 1L)
   controls <- p; controls$seed <- seeds[1]; controls$chain_seeds <- seeds
   controls$verbose <- FALSE; controls$h2 <- config$priors$h2
   if (method$prior_class == "BayesR") {

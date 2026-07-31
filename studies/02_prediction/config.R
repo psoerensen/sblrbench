@@ -1,6 +1,7 @@
 list(
   study = "02_prediction",
   task = "single_trait_prediction",
+  profile = Sys.getenv("SBLR_BENCH_PROFILE", "one_replicate_development"),
   development_settings = TRUE,
   data_source = "qgg_example",
   example_data = list(
@@ -42,6 +43,11 @@ list(
       replicate_count = 1L,
       capsule_id = "st-bayesc-bayesr-one-replicate-development-v1",
       status = "complete_development_benchmark"
+    ),
+    five_replicate_development = list(
+      replicate_count = 5L,
+      capsule_id = "st-bayesc-bayesr-five-replicate-development-v1",
+      status = "complete_five_replicate_development_benchmark"
     )
   ),
   priors = list(

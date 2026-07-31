@@ -35,6 +35,11 @@ list(
   profiles = list(
     development = list(replicate_count = 1L, nit = 500L, nburn = 250L,
       nthin = 1L, nchains = 1L, ncores = 1L, convergence = "none"),
+    five_replicate_development = list(replicate_count = 5L,
+      recommendation_source = file.path("results", "reference", "04_convergence",
+        "st-multichain-convergence-development-v1", "method_recommendations.csv"),
+      nchains = 4L, ncores = 4L, nthin = 1L, convergence = "core",
+      keep_chains = TRUE, convergence_control = list(warn = FALSE, keep_traces = TRUE)),
     scientific = list(replicate_count = 10L, nit = 5000L, nburn = 2500L,
       nthin = 1L, nchains = 1L, ncores = 1L, convergence = "none",
       status = "provisional; Study 04 must determine convergence-informed lengths")),

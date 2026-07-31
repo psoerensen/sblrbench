@@ -8,7 +8,9 @@
     flags <- c(rhat <= thresholds$rhat, eb >= thresholds$ess_bulk,
       et >= thresholds$ess_tail, is.finite(rel) && rel <= thresholds$relative_mcse,
       ncol(m) == thresholds$chain_count, all(is.finite(m)) && sd_all > 0)
-    data.frame(architecture = z$architecture[1], method = z$method[1], burnin_candidate = burnin,
+    data.frame(architecture = z$architecture[1],
+      replicate = if ("replicate" %in% names(z)) z$replicate[1] else 1L,
+      method = z$method[1], burnin_candidate = burnin,
       retained_draw_candidate = retained, estimand = id, rhat = rhat, ess_bulk = eb,
       ess_tail = et, mcse_mean = mc, posterior_sd = sd_all, relative_mcse = rel,
       chain_count = ncol(m), draws_per_chain = nrow(m), total_draws = length(m),

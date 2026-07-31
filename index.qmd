@@ -12,9 +12,9 @@ implemented in `sblr`.
 | Study | Purpose | Development status | Scale | Report |
 |---|---|---|---|---|
 | Study 01 | Separated-locus fine-mapping | Complete structural benchmark | 10 replicates; 40 fits | [Fine-mapping](studies/01_finemapping/separated-development-pilot.qmd) |
-| Study 02 | Held-out single-trait prediction | Complete one-replicate benchmark | 2 architectures; 8 fits | [Prediction](studies/02_prediction/prediction-development-pilot.qmd) |
-| Study 03 | Single-trait parameter estimation | Complete one-replicate benchmark | 2 architectures; 8 fits | [Parameter estimation](studies/03_parameter_estimation/parameter-estimation-development-pilot.qmd) |
-| Study 04 | Multichain convergence diagnostics | Complete matched benchmark | 4 methods; 16 chains | [Convergence](studies/04_convergence/convergence-development-pilot.qmd) |
+| Study 02 | Held-out single-trait prediction | Complete five-replicate development benchmark | 2 architectures; 5 replicates; 40 fits | [Prediction](studies/02_prediction/prediction-development-pilot.qmd) |
+| Study 03 | Single-trait parameter estimation | Complete five-replicate development benchmark | 2 architectures; 5 replicates; 40 fits | [Parameter estimation](studies/03_parameter_estimation/parameter-estimation-development-pilot.qmd) |
+| Study 04 | Multichain convergence diagnostics | Complete development benchmark with five-replicate validation | 20 fits; 80 chains | [Convergence](studies/04_convergence/convergence-development-pilot.qmd) |
 
 ::: {.callout-warning .callout-development}
 ## Development benchmarks—not final method-performance claims.

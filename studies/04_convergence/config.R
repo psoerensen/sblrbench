@@ -3,6 +3,7 @@
 
 list(
   study = "04_convergence", task = "single_trait_multichain_convergence",
+  profile = Sys.getenv("SBLR_BENCH_PROFILE", "development"),
   development_settings = TRUE, chr = 1L, trait = "trait1", sample_limit = NULL,
   example_data = .study04_study03_config$example_data,
   qc = .study04_study03_config$qc,
@@ -15,6 +16,11 @@ list(
   profiles = list(development = list(nit = 3000L, nburn = 0L, nthin = 1L,
     nchains = 4L, ncores = 4L, convergence = "core", keep_chains = TRUE,
     convergence_control = list(warn = FALSE, keep_traces = TRUE)),
+    five_replicate_validation = list(replicate_count = 5L,
+      recommendation_source = file.path("results", "reference", "04_convergence",
+        "st-multichain-convergence-development-v1", "method_recommendations.csv"),
+      nthin = 1L, nchains = 4L, ncores = 4L, keep_chains = TRUE,
+      convergence = "core", convergence_control = list(warn = FALSE, keep_traces = TRUE)),
     robustness_unexecuted = list(enabled = FALSE, design = "all eight architecture-method combinations")),
   burnin_candidates = c(250L, 500L, 1000L),
   retained_draw_candidates = c(250L, 500L, 1000L, 2000L),

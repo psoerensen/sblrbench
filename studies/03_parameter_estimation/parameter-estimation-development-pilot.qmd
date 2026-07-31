@@ -1,37 +1,64 @@
 ---
 title: "Study 03: Single-trait parameter estimation"
-description: "A frozen one-replicate benchmark of posterior parameter summaries under matched and misspecified prior classes."
+description: "A five-replicate benchmark of posterior parameter summaries under matched and misspecified prior classes."
 ---
 
 ::: {.callout-warning .callout-development}
 ## Development benchmark—not a final scientific comparison.
 This report validates the parameter-estimation workflow and posterior-summary
-contract. One replicate and short MCMC do not establish bias, interval
-calibration, convergence, or final method performance.
+contract. Five replicates give coarse observed recovery and coverage evidence,
+not precise calibration or universal method performance.
 :::
 
 ```{r}
-capsule <- file.path("results", "reference", "03_parameter_estimation",
+historical_capsule <- file.path("results", "reference", "03_parameter_estimation",
   "st-parameter-estimation-one-replicate-development-v1")
+five_capsule <- file.path("results", "reference", "03_parameter_estimation",
+  "st-parameter-estimation-five-replicate-development-v1")
 source("studies/reporting_helpers.R")
-source(file.path("studies", "03_parameter_estimation", "promotion.R"))
-.study03_validate_capsule(capsule)
+if (dir.exists(five_capsule)) {
+  source(file.path("studies", "five_replicate_promotion.R"), local = TRUE)
+  .five_validate_study03_capsule(five_capsule); capsule <- five_capsule
+} else {
+  source(file.path("studies", "03_parameter_estimation", "promotion.R"))
+  .study03_validate_capsule(historical_capsule); capsule <- historical_capsule
+}
 manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), simplifyVector = TRUE)
 estimates <- read.csv(file.path(capsule, "parameter_estimates.csv"))
 registry <- read.csv(file.path(capsule, "estimand_registry.csv"))
 paired <- read.csv(file.path(capsule, "paired_parameter_differences.csv"))
+recovery_summary <- read.csv(file.path(capsule, "parameter_recovery_summary.csv"))
+paired_summary <- read.csv(file.path(capsule, "paired_comparison_summary.csv"))
 runtime <- read.csv(file.path(capsule, "computational_summary.csv"))
 example_data <- read.csv(file.path(capsule,"example_data_manifest.csv"))
 ```
 
 ## Benchmark status
 
-This is a complete one-replicate development benchmark. Completion means all
-expected fits and summaries exist; it is not a convergence or calibration pass.
+This is a **Complete five-replicate development benchmark**. Completion means all
+expected fits and summaries exist. Observed interval coverage remains coarse:
+each missed interval changes a five-replicate proportion by 20 percentage points.
 
 The grid contains `r manifest$expected_fit_count` expected fits and
 `r manifest$successful_fit_count` successful fits across two architectures and
 four single-trait methods.
+
+```{r}
+#| echo: false
+knitr::kable(recovery_summary[, intersect(c("architecture", "method", "model_specification",
+  "estimand_id", "replicate_count", "successful_replicates", "mean_bias", "rmse", "mae",
+  "observed_coverage_count", "observed_coverage_proportion", "mean_interval_width_95"),
+  names(recovery_summary))], digits = 4,
+  caption = "Aggregate recovery and coarse observed interval coverage.")
+```
+
+```{r}
+#| echo: false
+knitr::kable(paired_summary[, intersect(c("architecture", "comparison_id", "estimand_id",
+  "replicate_count", "successful_replicates", "mean_estimate_difference",
+  "sd_estimate_difference"), names(paired_summary))], digits = 4,
+  caption = "Replicate-paired BED/CSR and prior-class differences.")
+```
 
 ## Scientific question
 
@@ -179,7 +206,7 @@ transformations, posterior summaries and recovery metrics. It is not executed
 during rendering.
 
 ```{r, echo=FALSE, results='asis'}
-display_capsule_script(file.path(capsule,"worked_parameter_estimation_example.R"))
+display_capsule_script(file.path(historical_capsule,"worked_parameter_estimation_example.R"))
 ```
 
 [Download the worked example](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/worked_parameter_estimation_example.R).
@@ -199,7 +226,7 @@ The sampler-free contract test checks posterior extraction, draw-wise derived
 quantities, truth construction and recovery metrics.
 
 ```{r, echo=FALSE, results='asis'}
-display_capsule_script_collapsed(file.path(capsule,"parameter_estimation_contract_smoke_test.R"))
+display_capsule_script_collapsed(file.path(historical_capsule,"parameter_estimation_contract_smoke_test.R"))
 ```
 
 [Download the smoke test](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/parameter_estimation_contract_smoke_test.R).
@@ -209,7 +236,7 @@ display_capsule_script_collapsed(file.path(capsule,"parameter_estimation_contrac
 The frozen targets entry point reproduces the benchmark and is displayed without execution.
 
 ```{r, echo=FALSE, results='asis'}
-display_capsule_script(file.path(capsule,"run_parameter_estimation_benchmark.R"))
+display_capsule_script(file.path(historical_capsule,"run_parameter_estimation_benchmark.R"))
 ```
 
 [Download the reproduction script](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/run_parameter_estimation_benchmark.R).
@@ -222,6 +249,10 @@ display_capsule_script(file.path(capsule,"run_parameter_estimation_benchmark.R")
 | Primary results | [Parameter estimates](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/parameter_estimates.csv); [recovery summary](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/parameter_recovery_summary.csv); [paired differences](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/paired_parameter_differences.csv) |
 | Reproduction | [Configuration](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/config.R); [worked example](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/worked_parameter_estimation_example.R); [smoke test](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/parameter_estimation_contract_smoke_test.R); [run script](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/run_parameter_estimation_benchmark.R) |
 | Provenance | [Example data](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/example_data_manifest.csv); [source inventory](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/source_files.csv); [session information](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/session_info.txt); [checksums](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/checksums.csv) |
+
+The [five-replicate capsule](../../results/reference/03_parameter_estimation/st-parameter-estimation-five-replicate-development-v1/README.md)
+is the primary result source. The [original one-replicate capsule](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/README.md)
+remains an immutable historical reference.
 
 ```{r, echo=FALSE}
 knitr::kable(data.frame(Item=c("sblrbench commit","sblr commit","qgdata commit","Source tree","Profile"),

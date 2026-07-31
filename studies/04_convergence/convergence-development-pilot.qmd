@@ -235,6 +235,59 @@ display_capsule_script_collapsed(file.path(capsule,"convergence_contract_smoke_t
 
 [Download the smoke test](../../results/reference/04_convergence/st-multichain-convergence-development-v1/convergence_contract_smoke_test.R).
 
+## Five-replicate validation of recommended settings
+
+The original capsule above remains the recommendation-generating evidence. The
+separate validation capsule applies those fixed settings to five simulations per
+matched method–architecture combination; it does not repeat the 3,000-draw search
+and is not universal validation.
+
+```{r}
+#| echo: false
+validation_capsule <- file.path("results", "reference", "04_convergence",
+  "st-multichain-convergence-validation-five-replicate-v1")
+if (dir.exists(validation_capsule)) {
+  source(file.path("studies", "five_replicate_promotion.R"), local = TRUE)
+  .five_validate_study04_capsule(validation_capsule)
+  validation_replicates <- read.csv(file.path(validation_capsule,
+    "replicate_diagnostic_summary.csv"))
+  validation_methods <- read.csv(file.path(validation_capsule,
+    "method_validation_summary.csv"))
+  validation_diagnostics <- read.csv(file.path(validation_capsule,
+    "convergence_diagnostics.csv"))
+  knitr::kable(validation_replicates, digits = 4,
+    caption = "Replicate-level diagnostic pass/fail and limiting estimands.")
+  knitr::kable(validation_methods, digits = 4,
+    caption = "Five-replicate support for the provisional recommendations.")
+} else {
+  cat("The five-replicate validation capsule has not yet been promoted.")
+}
+```
+
+```{r}
+#| echo: false
+if (exists("validation_diagnostics")) {
+  diagnostic_long <- rbind(
+    data.frame(method = validation_diagnostics$method, diagnostic = "R-hat",
+      value = validation_diagnostics$rhat),
+    data.frame(method = validation_diagnostics$method, diagnostic = "Bulk ESS",
+      value = validation_diagnostics$ess_bulk),
+    data.frame(method = validation_diagnostics$method, diagnostic = "Tail ESS",
+      value = validation_diagnostics$ess_tail),
+    data.frame(method = validation_diagnostics$method, diagnostic = "Relative MCSE",
+      value = validation_diagnostics$relative_mcse))
+  print(ggplot2::ggplot(diagnostic_long,
+    ggplot2::aes(x = method, y = value, colour = method)) +
+    ggplot2::geom_boxplot(show.legend = FALSE) +
+    ggplot2::facet_wrap(~ diagnostic, scales = "free_y") +
+    ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(
+      angle = 30, hjust = 1)))
+}
+```
+
+Capsules: [original recommendation-generating results](../../results/reference/04_convergence/st-multichain-convergence-development-v1/README.md)
+and [five-replicate fixed-setting validation](../../results/reference/04_convergence/st-multichain-convergence-validation-five-replicate-v1/README.md).
+
 ## Complete benchmark reproduction
 
 The frozen targets entry point reproduces the full matched benchmark and is not executed during rendering.

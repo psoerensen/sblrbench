@@ -2,7 +2,8 @@
   glist_path <- Sys.getenv("SBLR_BENCH_GLIST", "")
   data_dir <- Sys.getenv("SBLR_BENCH_DATA_DIR", file.path("results", "local", "02_prediction", "data"))
   list(glist_path = glist_path, data_dir = data_dir,
-    output_dir = file.path("results", "local", "02_prediction", "genotype_setup"))
+    output_dir = Sys.getenv("SBLR_BENCH_LD_DIR",
+      file.path("results", "local", "02_prediction", "genotype_setup")))
 }
 
 .study02_set_training_af <- function(Glist, chr, marker_ids, af) {
@@ -42,7 +43,9 @@
 }
 
 .study02_replicate_specs <- function(config, replicate_override, architecture_override) {
-  n <- if (nzchar(replicate_override)) suppressWarnings(as.integer(replicate_override)) else config$replicate_counts[["development"]]
+  profile_n <- config$reference_profiles[[config$profile]]$replicate_count
+  if (is.null(profile_n)) profile_n <- config$replicate_counts[["development"]]
+  n <- if (nzchar(replicate_override)) suppressWarnings(as.integer(replicate_override)) else profile_n
   if (length(n) != 1L || is.na(n) || !n %in% unname(config$replicate_counts)) stop("SBLR_BENCH_REPLICATES must be 1, 5, or 10.", call. = FALSE)
   architectures <- names(config$simulation$architectures)
   if (nzchar(architecture_override)) {
@@ -136,8 +139,13 @@
   seed <- as.integer(config$mcmc$seed_offset +
     match(simulation$scenario$architecture, names(config$simulation$architectures)) * 10000L +
     simulation$scenario$replicate * 100L + method$method_index)
-  common <- config$mcmc[c("nit", "nburn", "nthin", "nchains", "ncores", "convergence")]
-  common$seed <- seed; common$verbose <- FALSE; common$h2 <- config$priors$h2
+  five <- identical(config$profile, "five_replicate_development")
+  common <- if (five) .five_replicate_mcmc(method$id) else
+    config$mcmc[c("nit", "nburn", "nthin", "nchains", "ncores", "convergence")]
+  common$seed <- seed
+  chain_seeds <- if (five) .five_replicate_chain_seeds(seed, common$nchains) else seed
+  if (five) common$chain_seeds <- chain_seeds
+  common$verbose <- FALSE; common$h2 <- config$priors$h2
   if (method$prior_class == "BayesR") {
     active <- config$priors$bayesr_active_probability
     common$pi <- c(1 - active, rep(active / 3, 3L))
@@ -155,9 +163,11 @@
     result <- sblrbench::run_sblrbench_method(spec, fit_inputs = input, controls = common)
     sblrbench::validate_sblrbench_result(result, simulation)
     list(status = "ok", reason = "", method = method, mcmc_seed = seed,
+      chain_seeds = chain_seeds,
       controls = common, result = result)
   }, error = function(e) list(status = "failed", reason = conditionMessage(e),
-    method = method, mcmc_seed = seed, controls = common, result = NULL))
+    method = method, mcmc_seed = seed, chain_seeds = chain_seeds,
+    controls = common, result = NULL))
 }
 
 .study02_predict <- function(fit, simulation, test_simulation, Z_test) {

@@ -1,4 +1,5 @@
-.study04_extract_chain_draws <- function(fit, architecture, method, expected_chains = 4L) {
+.study04_extract_chain_draws <- function(fit, architecture, method, replicate = 1L,
+                                         expected_chains = 4L) {
   bundle <- fit$convergence_traces
   if (is.null(bundle$values) || length(dim(bundle$values)) != 3L) stop("Native convergence trace bundle is unavailable.", call. = FALSE)
   values <- bundle$values; q <- bundle$quantities
@@ -6,12 +7,12 @@
   groups <- as.character(q$group); required <- c("vbs", "vgs", "ves")
   idx <- match(required, groups); if (anyNA(idx)) stop("Required scalar traces are absent.", call. = FALSE)
   out <- expand.grid(raw_iteration = seq_len(dim(values)[1L]), chain = seq_len(dim(values)[2L]))
-  out$architecture <- architecture; out$method <- method
+  out$architecture <- architecture; out$replicate <- as.integer(replicate); out$method <- method
   for (j in seq_along(required)) out[[c("effect_variance", "genetic_variance", "residual_variance")[j]]] <- as.vector(values[, , idx[j]])
   out$heritability <- out$genetic_variance / (out$genetic_variance + out$residual_variance)
-  out <- out[c("architecture", "method", "chain", "raw_iteration", "effect_variance",
+  out <- out[c("architecture", "replicate", "method", "chain", "raw_iteration", "effect_variance",
     "genetic_variance", "residual_variance", "heritability")]
-  if (any(!is.finite(as.matrix(out[5:8]))) || any(as.matrix(out[5:7]) < 0) ||
+  if (any(!is.finite(as.matrix(out[6:9]))) || any(as.matrix(out[6:8]) < 0) ||
       any(out$heritability < 0 | out$heritability > 1) || anyDuplicated(out[c("chain", "raw_iteration")]))
     stop("Invalid scalar chain draws.", call. = FALSE)
   out
