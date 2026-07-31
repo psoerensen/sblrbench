@@ -1,0 +1,78 @@
+{
+  "study": "06_ld_operator",
+  "task": "single_trait_ld_operator_benchmark",
+  "benchmark_scope": "five_replicate_development",
+  "benchmark_status": "complete",
+  "architectures": ["sparse_homogeneous", "sparse_mixture"],
+  "configurations": ["bed", "full_csr", "block_csr", "block_eigen_unfiltered", "block_eigen_hard", "block_eigen_ridge_fixed"],
+  "replicate_count": 5,
+  "expected_fit_count": 60,
+  "successful_fit_count": 60,
+  "failed_fit_count": 0,
+  "chains_per_fit": 4,
+  "expected_chain_count": 240,
+  "installed_sblr_version": "0.1.2",
+  "installed_sblr_commit": "92ff3f6e7a0b1228f9f04b693d91a36d86934b0f",
+  "installed_sblrbench_version": "0.0.0.9000",
+  "repository_commit": "0d5b7d854e655c88aac69cef59279be513f4b37d",
+  "qgdata_commit": "6cca5819e711d326cfb2614d7e9d9f34942612cd",
+  "selected_block_design": [
+    {
+      "target_size": 1000,
+      "candidate_id": "equal_1000",
+      "block_count": 38,
+      "minimum_block_size": 991,
+      "median_block_size": 1000,
+      "maximum_block_size": 1000,
+      "dense_upper_entries": 19010036,
+      "estimated_dense_storage_bytes": 76040144,
+      "cross_block_edge_count_removed": 1137695,
+      "cross_block_squared_ld_mass_removed": 1698.5301,
+      "cross_block_absolute_ld_mass_removed": 43442.1015,
+      "fraction_full_csr_squared_ld_mass_retained": 0.506,
+      "fraction_full_csr_absolute_ld_mass_retained": 0.506,
+      "maximum_removed_cross_block_edge": 0.0939,
+      "operator_construction_and_eigendecomposition_seconds": 173.64,
+      "total_positive_eigenvalue_mass": 132951131.5781,
+      "negative_eigenvalue_count": 0,
+      "negative_eigenvalue_mass": 0,
+      "runtime_diagonal_minimum": 3264.7727,
+      "runtime_diagonal_maximum": 3758.52,
+      "gate_construction_status": "passed"
+    }
+  ],
+  "selected_hard_filter": [
+    {
+      "configuration": "block_eigen_hard",
+      "policy": "hard_truncate",
+      "tau": 0.1,
+      "eta": null
+    },
+    {
+      "configuration": "block_eigen_ridge_fixed",
+      "policy": "ridge_fixed",
+      "tau": null,
+      "eta": 0.0101
+    },
+    {
+      "configuration": "block_eigen_unfiltered",
+      "policy": "ridge_fixed",
+      "tau": null,
+      "eta": 0
+    }
+  ],
+  "thread_controls": {
+    "OMP_NUM_THREADS": 4,
+    "OMP_THREAD_LIMIT": 4,
+    "OPENBLAS_NUM_THREADS": 1,
+    "MKL_NUM_THREADS": 1,
+    "VECLIB_MAXIMUM_THREADS": 1
+  },
+  "source_status": "cached_checksum_validated_offline",
+  "provenance": {
+    "installed_package_only": true,
+    "sibling_source_access": "read_only_audit"
+  },
+  "validation_status": "complete_grid_validated",
+  "failures": []
+}

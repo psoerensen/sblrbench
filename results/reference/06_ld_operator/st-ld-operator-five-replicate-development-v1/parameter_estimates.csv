@@ -1,0 +1,841 @@
+"architecture","replicate","configuration","method","estimand","available","unavailable_reason","posterior_mean","posterior_sd","posterior_median","lower_95","upper_95","truth","bias","squared_error","interval_coverage","interpretation","chain_count","draws_per_chain"
+"sparse_homogeneous",1,"bed","bayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"bed","bayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"bed","bayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"bed","bayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"bed","bayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"bed","bayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"bed","bayesc","global_nonnull_proportion",TRUE,"",0.000973416940989438,4.91640559811778e-05,0.000972947242638692,0.000864239512517727,0.00106211083094773,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"bed","bayesc","heritability",TRUE,"",0.264539861282896,0.0139738021331834,0.264320872900832,0.236523926639383,0.291948610406069,0.3,-0.0354601387171041,0.00125742143783626,FALSE,"parameter_recovery",4,250
+"sparse_homogeneous",1,"bed","bayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"bed","bayesc","vbs",TRUE,"",0.0186012653035384,0.00648875186948036,0.0175803442716573,0.0100887196987644,0.033135575457413,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"bed","bayesc","ves",TRUE,"",1.05264269818083,0.0260530356308452,1.05278968721785,1.00235035466537,1.10674295761679,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"bed","bayesc","vgs",TRUE,"",0.378858230650236,0.0247454432455598,0.377748160036999,0.332466435241268,0.427620756057929,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"bed","bayesc","vld",TRUE,"",-0.00931241388622596,0.00313558741943963,-0.00942807465774945,-0.0153256502910066,-0.00326945716121926,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"bed","bayesc","vle",TRUE,"",0.388170644536462,0.0252814512741443,0.387114946052322,0.33812840553788,0.436595483176103,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_csr","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_csr","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_csr","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_csr","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_csr","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_csr","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_csr","sbayesc","global_nonnull_proportion",TRUE,"",0.0010062827176772,4.29050803557748e-05,0.00100819125329297,0.000922718153604944,0.00108935282107335,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_csr","sbayesc","heritability",TRUE,"",0.294865625473127,0.0180413369438808,0.295857119921553,0.259446045960934,0.329778528623732,0.3,-0.00513437452687321,2.63618017822045e-05,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",1,"block_csr","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_csr","sbayesc","vbs",TRUE,"",0.010303250608857,0.00253332529056869,0.00983073568664035,0.00656593045318359,0.0160865414462279,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_csr","sbayesc","ves",TRUE,"",1.00951681522772,0.0300387261001428,1.00989585170992,0.951568700474074,1.06758904606587,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_csr","sbayesc","vgs",TRUE,"",0.422425646974125,0.0306586044245643,0.423576833978927,0.36266307015704,0.481712578419359,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_csr","sbayesc","vld",TRUE,"",-0.000841405432683151,0.00107029031218677,-0.000801361927410676,-0.00291860795417526,0.00111813475267215,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_csr","sbayesc","vle",TRUE,"",0.423267052406808,0.0306594513553829,0.424083743088863,0.363628154035245,0.48327692322399,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_hard","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_hard","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_hard","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_hard","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_hard","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_hard","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_hard","sbayesc","global_nonnull_proportion",TRUE,"",0.00100760020940969,4.49839154712241e-05,0.00100601644790401,0.000924887583453604,0.00109758539008155,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_hard","sbayesc","heritability",TRUE,"",0.294206616288152,0.0183970403681224,0.294671058341882,0.257035073655806,0.330784671535495,0.3,-0.00579338371184757,3.35632948327007e-05,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",1,"block_eigen_hard","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_hard","sbayesc","vbs",TRUE,"",0.010060119839032,0.00252989854692101,0.00967306758999658,0.00626251717588879,0.0158640320542812,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_hard","sbayesc","ves",TRUE,"",1.01040725115701,0.0280278006208773,1.00917287736068,0.957636409432629,1.06392662699382,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_hard","sbayesc","vgs",TRUE,"",0.421562897099223,0.0321194163286775,0.421665345257609,0.358312335828397,0.488514004574104,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_hard","sbayesc","vld",TRUE,"",-0.000877367687929821,0.0011049034071105,-0.000826317847888003,-0.00304355533350241,0.00113883534859517,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_hard","sbayesc","vle",TRUE,"",0.422440264787153,0.0320799101490541,0.422684726038002,0.360682483174105,0.489090425659132,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_ridge_fixed","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_ridge_fixed","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_ridge_fixed","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_ridge_fixed","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_ridge_fixed","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_ridge_fixed","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_ridge_fixed","sbayesc","global_nonnull_proportion",TRUE,"",0.00100699644586581,4.25763985984919e-05,0.00100540914053963,0.000928435611608448,0.00109077543006299,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_ridge_fixed","sbayesc","heritability",TRUE,"",0.293907266405196,0.018696987820779,0.293552210169775,0.259463857632944,0.331445869699817,0.3,-0.00609273359480378,3.71214026572506e-05,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",1,"block_eigen_ridge_fixed","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_ridge_fixed","sbayesc","vbs",TRUE,"",0.0102303712877832,0.0025343337642269,0.00987038484743211,0.0064097076135537,0.0161431243261847,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_ridge_fixed","sbayesc","ves",TRUE,"",1.01109790229238,0.0305531953264749,1.01087654421955,0.95164081244757,1.07010899876127,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_ridge_fixed","sbayesc","vgs",TRUE,"",0.421180098750298,0.031930423772357,0.419987379653423,0.361923337186688,0.487412417565155,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_ridge_fixed","sbayesc","vld",TRUE,"",-0.000804293307082697,0.00104799031504638,-0.000717541610544215,-0.00291483940457225,0.00102409137370848,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_ridge_fixed","sbayesc","vle",TRUE,"",0.421984392057381,0.0319399689700183,0.420950719469209,0.362129355870122,0.487515351231946,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_unfiltered","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_unfiltered","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_unfiltered","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_unfiltered","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_unfiltered","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_unfiltered","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_unfiltered","sbayesc","global_nonnull_proportion",TRUE,"",0.00100687895756724,4.31315837021792e-05,0.00100628779263761,0.000923323842052842,0.00109139521847731,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_unfiltered","sbayesc","heritability",TRUE,"",0.293253554623494,0.0182373677267229,0.29335001051596,0.260178208825246,0.327932960537238,0.3,-0.00674644537650643,4.55145252181849e-05,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",1,"block_eigen_unfiltered","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"block_eigen_unfiltered","sbayesc","vbs",TRUE,"",0.0101532205931049,0.00254130570065597,0.00972442084926642,0.00630318607133667,0.0160995671859988,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_unfiltered","sbayesc","ves",TRUE,"",1.01131861458945,0.0287384776005653,1.0114394360443,0.955418210035052,1.06565656515422,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_unfiltered","sbayesc","vgs",TRUE,"",0.419954037077505,0.0312792713727236,0.419699327538038,0.36286115692585,0.482929563115599,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_unfiltered","sbayesc","vld",TRUE,"",-0.000874559401398811,0.00107535645093729,-0.000808297618869247,-0.00317768132405488,0.00120529384987172,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"block_eigen_unfiltered","sbayesc","vle",TRUE,"",0.420828596478904,0.0312761973598222,0.420011413870029,0.363122794750243,0.48456332496009,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"full_csr","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"full_csr","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"full_csr","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"full_csr","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"full_csr","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"full_csr","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"full_csr","sbayesc","global_nonnull_proportion",TRUE,"",0.00101065060510269,4.3008785211386e-05,0.00100733951914711,0.000932606709380317,0.00110332931427375,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"full_csr","sbayesc","heritability",TRUE,"",0.293332713072094,0.0178881264196384,0.293066269282788,0.259400332516092,0.328492403294944,0.3,-0.00666728692790597,4.44527149790258e-05,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",1,"full_csr","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",1,"full_csr","sbayesc","vbs",TRUE,"",0.010291299287035,0.00275161415274866,0.00982224504375641,0.00650212730772115,0.0171329703952872,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"full_csr","sbayesc","ves",TRUE,"",1.01085818749421,0.0290504800772186,1.01095004658412,0.957469800320861,1.06855534016379,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"full_csr","sbayesc","vgs",TRUE,"",0.419923111886124,0.0309508252248902,0.419295936343763,0.358831370701551,0.481496200277106,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"full_csr","sbayesc","vld",TRUE,"",-0.000562157838709394,0.000959661119717819,-0.000525589036994345,-0.0023240636419149,0.00136723090242096,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",1,"full_csr","sbayesc","vle",TRUE,"",0.420485269724833,0.0309170177116064,0.420014660565925,0.359913672865127,0.482436035420089,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"bed","bayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"bed","bayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"bed","bayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"bed","bayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"bed","bayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"bed","bayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"bed","bayesc","global_nonnull_proportion",TRUE,"",0.000979172580297157,4.03923235434725e-05,0.000986113254573983,0.000902523586895519,0.00106357296190414,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"bed","bayesc","heritability",TRUE,"",0.248369894403271,0.0143391412082916,0.248479349830089,0.219691265156223,0.276081407146799,0.3,-0.0516301055967285,0.00266566780392934,FALSE,"parameter_recovery",4,250
+"sparse_homogeneous",2,"bed","bayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"bed","bayesc","vbs",TRUE,"",0.0164403494504244,0.00573396990256079,0.0153867787103793,0.00844935519427892,0.0306986755304875,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"bed","bayesc","ves",TRUE,"",1.06359327138038,0.0281465168855452,1.06403594531169,1.00927406260606,1.11957231091275,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"bed","bayesc","vgs",TRUE,"",0.351666336216118,0.0245838735778892,0.350358077169157,0.306779114628919,0.39783217405366,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"bed","bayesc","vld",TRUE,"",-0.00229861223797877,0.00344756354484742,-0.00239551320287174,-0.00918525818363806,0.00436031425201686,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"bed","bayesc","vle",TRUE,"",0.353964948454097,0.0250618276797678,0.352580284397196,0.307580871030817,0.402998470825955,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_csr","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_csr","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_csr","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_csr","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_csr","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_csr","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_csr","sbayesc","global_nonnull_proportion",TRUE,"",0.00100810730711798,4.55240639821215e-05,0.00100819295949373,0.000924419551149992,0.00109914950161409,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_csr","sbayesc","heritability",TRUE,"",0.276646341483391,0.0172646987407391,0.276065028763088,0.241770527110757,0.309008927789351,0.3,-0.0233536585166094,0.000545393366110404,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",2,"block_csr","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_csr","sbayesc","vbs",TRUE,"",0.00960461036375671,0.00269816620547482,0.00911947840292466,0.00588737462337338,0.0157599384951277,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_csr","sbayesc","ves",TRUE,"",1.02332153461529,0.0289787259225732,1.02348918085369,0.966011382916897,1.07613594126414,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_csr","sbayesc","vgs",TRUE,"",0.391628164586697,0.0288794558675446,0.391130297633693,0.335945706037623,0.446993734315433,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_csr","sbayesc","vld",TRUE,"",0.000326879445390371,0.000804587599372808,0.000324130522625726,-0.00130977611994106,0.00190685779141744,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_csr","sbayesc","vle",TRUE,"",0.391301285141307,0.028808149326067,0.390910943860847,0.335495590161378,0.44669224637285,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_hard","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_hard","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_hard","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_hard","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_hard","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_hard","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_hard","sbayesc","global_nonnull_proportion",TRUE,"",0.00100672605218394,4.51043057639899e-05,0.00100701059498107,0.000918838925340183,0.00109418255355555,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_hard","sbayesc","heritability",TRUE,"",0.276619505290807,0.0182378912381459,0.276572515700321,0.241436039850936,0.311585259113293,0.3,-0.0233804947091933,0.000546647532846615,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",2,"block_eigen_hard","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_hard","sbayesc","vbs",TRUE,"",0.00948140024760533,0.00236815794550959,0.00904215286016244,0.00602291161178004,0.0151716849000984,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_hard","sbayesc","ves",TRUE,"",1.02400015000217,0.0292585405600115,1.02284606340677,0.967019596410556,1.0831896997537,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_hard","sbayesc","vgs",TRUE,"",0.391868475390095,0.0304311376812249,0.391553518721709,0.335516267333139,0.452436676280376,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_hard","sbayesc","vld",TRUE,"",0.000287514428635918,0.000803911498140022,0.000292970269982595,-0.00134485949697723,0.00188834722077841,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_hard","sbayesc","vle",TRUE,"",0.391580960961459,0.0303589938758814,0.390855745330871,0.335206634356047,0.45178293402067,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_ridge_fixed","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_ridge_fixed","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_ridge_fixed","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_ridge_fixed","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_ridge_fixed","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_ridge_fixed","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_ridge_fixed","sbayesc","global_nonnull_proportion",TRUE,"",0.00100932162372405,4.45204750624447e-05,0.00100845915216826,0.00092274928541664,0.00109721977553072,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_ridge_fixed","sbayesc","heritability",TRUE,"",0.276229748133547,0.0175794089802148,0.275799106254005,0.242878548597713,0.312419914321769,0.3,-0.0237702518664527,0.000565024873794598,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",2,"block_eigen_ridge_fixed","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_ridge_fixed","sbayesc","vbs",TRUE,"",0.00963096963906108,0.00241811844907919,0.00920226704305375,0.00609991843344791,0.0149656844401705,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_ridge_fixed","sbayesc","ves",TRUE,"",1.02391007770695,0.0305098347267925,1.02336318194288,0.966669055972709,1.08444417652541,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_ridge_fixed","sbayesc","vgs",TRUE,"",0.391017968529465,0.0292326157480744,0.389243970106803,0.336362797749363,0.449369587181811,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_ridge_fixed","sbayesc","vld",TRUE,"",0.00031272351257578,0.000761481379158766,0.000331990718327735,-0.0011810547362592,0.00179264319141381,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_ridge_fixed","sbayesc","vle",TRUE,"",0.390705245016889,0.0292065388956238,0.388779091789635,0.335626143916916,0.449706871907785,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_unfiltered","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_unfiltered","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_unfiltered","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_unfiltered","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_unfiltered","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_unfiltered","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_unfiltered","sbayesc","global_nonnull_proportion",TRUE,"",0.00100737542165653,4.60125936730223e-05,0.00100393083292185,0.000921638574773281,0.00109847602468622,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_unfiltered","sbayesc","heritability",TRUE,"",0.27691061066117,0.0182324508564236,0.276384984790239,0.24117963354243,0.312464507692879,0.3,-0.0230893893388301,0.000533119900040083,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",2,"block_eigen_unfiltered","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"block_eigen_unfiltered","sbayesc","vbs",TRUE,"",0.00965425509639268,0.00258264622922261,0.00937168271598846,0.00589794092704738,0.0156977655628587,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_unfiltered","sbayesc","ves",TRUE,"",1.0229892630292,0.029585613176602,1.02176221685523,0.965052372541587,1.07901533448115,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_unfiltered","sbayesc","vgs",TRUE,"",0.392046679326422,0.0304638368036365,0.389551926812949,0.336906389512523,0.453159539409007,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_unfiltered","sbayesc","vld",TRUE,"",0.000364133510184514,0.000769824474863295,0.000359068205158686,-0.00110363325086217,0.00183210589917784,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"block_eigen_unfiltered","sbayesc","vle",TRUE,"",0.391682545816237,0.0304152784911524,0.389432220138566,0.337687077288145,0.452548435067683,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"full_csr","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"full_csr","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"full_csr","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"full_csr","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"full_csr","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"full_csr","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"full_csr","sbayesc","global_nonnull_proportion",TRUE,"",0.00101008681822646,4.4799539965012e-05,0.0010078023876448,0.000927250606156637,0.00110324478059882,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"full_csr","sbayesc","heritability",TRUE,"",0.277501043295555,0.0179756973508703,0.277065424104795,0.241515369851919,0.313122702555628,0.3,-0.0224989567044454,0.000506203052788509,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",2,"full_csr","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",2,"full_csr","sbayesc","vbs",TRUE,"",0.00950628738407594,0.00248936106295616,0.00907690093026668,0.00580651954193506,0.0152252411660926,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"full_csr","sbayesc","ves",TRUE,"",1.02209260137421,0.0300961204059052,1.02103890298992,0.965967980641284,1.0834072231225,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"full_csr","sbayesc","vgs",TRUE,"",0.392834561601858,0.0298838405452233,0.392862211969971,0.333721910272927,0.45032646562002,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"full_csr","sbayesc","vld",TRUE,"",0.000141402106125695,0.000612420029222426,4.3829669975487e-05,-0.00123225419111737,0.00146499893179677,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",2,"full_csr","sbayesc","vle",TRUE,"",0.392693159495733,0.029846381952923,0.392923497514348,0.333916990388062,0.449901395629249,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"bed","bayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"bed","bayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"bed","bayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"bed","bayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"bed","bayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"bed","bayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"bed","bayesc","global_nonnull_proportion",TRUE,"",0.000979028652790279,4.00743580104921e-05,0.000976013043212881,0.00090986219867475,0.00106180587414565,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"bed","bayesc","heritability",TRUE,"",0.272692695899612,0.0145074763233432,0.272281907259281,0.244678715271203,0.300565975025344,0.3,-0.0273073041003882,0.000745688857231077,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",3,"bed","bayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"bed","bayesc","vbs",TRUE,"",0.0173578902750719,0.00573260863763676,0.0162867296534305,0.00931028721516895,0.0326696705065069,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"bed","bayesc","ves",TRUE,"",1.02975053237678,0.0245143428908751,1.03014884413514,0.983853242933689,1.07889332504854,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"bed","bayesc","vgs",TRUE,"",0.386372392560196,0.0258385343179246,0.385976530294519,0.338200110630401,0.439546003021132,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"bed","bayesc","vld",TRUE,"",-0.00558834376730659,0.00317396158109422,-0.00558328231626648,-0.011913825693062,0.000379109168224469,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"bed","bayesc","vle",TRUE,"",0.391960736327503,0.0261153900321738,0.391172228930225,0.343411826883227,0.44621045507987,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_csr","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_csr","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_csr","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_csr","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_csr","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_csr","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_csr","sbayesc","global_nonnull_proportion",TRUE,"",0.0010092496412731,4.37354370731497e-05,0.00100813371314844,0.00092382701548096,0.00109340581886927,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_csr","sbayesc","heritability",TRUE,"",0.294061657629256,0.017089638728986,0.294299709216817,0.261719765646401,0.326530111726421,0.3,-0.0059383423707442,3.52639101121758e-05,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",3,"block_csr","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_csr","sbayesc","vbs",TRUE,"",0.0100478597349009,0.00262754691832928,0.00969508275622886,0.00614163887726022,0.015770391345941,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_csr","sbayesc","ves",TRUE,"",1.00032895527265,0.027791235468171,0.999579192815314,0.945185448807075,1.05532278053417,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_csr","sbayesc","vgs",TRUE,"",0.416986520705596,0.0294548484451493,0.415907199637345,0.362425835520974,0.477229970729815,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_csr","sbayesc","vld",TRUE,"",0.00201964841701589,0.00108570271651453,0.00204234498652492,-0.00019825246948194,0.00415592030600166,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_csr","sbayesc","vle",TRUE,"",0.41496687228858,0.0293625165020361,0.413739329390014,0.361378787811922,0.474834781929054,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_hard","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_hard","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_hard","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_hard","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_hard","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_hard","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_hard","sbayesc","global_nonnull_proportion",TRUE,"",0.00100874120630645,4.50165725509888e-05,0.00100760313825947,0.000924668863709533,0.0010969048937095,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_hard","sbayesc","heritability",TRUE,"",0.294745951203115,0.016510644655713,0.294047305817277,0.263234648758925,0.33002414419916,0.3,-0.0052540487968854,2.76050287600529e-05,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",3,"block_eigen_hard","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_hard","sbayesc","vbs",TRUE,"",0.0099545652292327,0.00256871326653494,0.00949319182938524,0.00615806022492576,0.0159855366607144,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_hard","sbayesc","ves",TRUE,"",0.998792441538789,0.0279688266538847,0.998720178811313,0.945287776124195,1.05521539204632,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_hard","sbayesc","vgs",TRUE,"",0.417683865400972,0.0283785571061452,0.416377366975142,0.365260587113155,0.472382881734764,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_hard","sbayesc","vld",TRUE,"",0.00204843285827463,0.00109437985166562,0.00210555703237583,-0.000213299987025338,0.00409577910762658,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_hard","sbayesc","vle",TRUE,"",0.415635432542697,0.0283202506192719,0.414799643441713,0.363231871486964,0.469885324557521,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_ridge_fixed","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_ridge_fixed","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_ridge_fixed","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_ridge_fixed","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_ridge_fixed","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_ridge_fixed","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_ridge_fixed","sbayesc","global_nonnull_proportion",TRUE,"",0.0010056587077492,4.52699008442024e-05,0.00100529753145126,0.000919892441604447,0.00109604358837459,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_ridge_fixed","sbayesc","heritability",TRUE,"",0.294265740314103,0.016891966284984,0.294177369810219,0.261594174106324,0.328742256253579,0.3,-0.00573425968589703,3.28817341453038e-05,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",3,"block_eigen_ridge_fixed","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_ridge_fixed","sbayesc","vbs",TRUE,"",0.0101367743274672,0.00256379308765328,0.00976034632177642,0.0062301984861903,0.0163160940666835,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_ridge_fixed","sbayesc","ves",TRUE,"",0.997543249559156,0.0278741812019897,0.99715812904183,0.943159984946654,1.05343879043467,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_ridge_fixed","sbayesc","vgs",TRUE,"",0.416245393033283,0.029408933802208,0.415493518052247,0.359179099889211,0.479250407596274,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_ridge_fixed","sbayesc","vld",TRUE,"",0.00201366165414687,0.00110091140979108,0.00203297572755831,-0.000100759733589581,0.00410024992884835,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_ridge_fixed","sbayesc","vle",TRUE,"",0.414231731379136,0.0292893588165276,0.413042873930413,0.357877567127527,0.477962521867466,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_unfiltered","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_unfiltered","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_unfiltered","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_unfiltered","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_unfiltered","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_unfiltered","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_unfiltered","sbayesc","global_nonnull_proportion",TRUE,"",0.00100935089429857,4.5649605023063e-05,0.00100969130694781,0.00092441710644148,0.00109668325769493,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_unfiltered","sbayesc","heritability",TRUE,"",0.29447618034254,0.0177682345393954,0.294372320797918,0.259078279096467,0.329482208325387,0.3,-0.00552381965746035,3.05125836081454e-05,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",3,"block_eigen_unfiltered","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"block_eigen_unfiltered","sbayesc","vbs",TRUE,"",0.0100633977317561,0.00254632275868039,0.00963807398651541,0.0064174288367108,0.0160495415872534,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_unfiltered","sbayesc","ves",TRUE,"",0.999314810913744,0.0295724024691,0.999328923549468,0.941321704366075,1.05790140296392,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_unfiltered","sbayesc","vgs",TRUE,"",0.417371467630414,0.0300558574772613,0.41673635740463,0.359209722820252,0.47449598902715,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_unfiltered","sbayesc","vld",TRUE,"",0.00209393325197398,0.00107450902183075,0.0020768434942679,0.000157987513657279,0.00421352534747787,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"block_eigen_unfiltered","sbayesc","vle",TRUE,"",0.41527753437844,0.0299707406462674,0.414814399893963,0.356535565240489,0.47274653244544,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"full_csr","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"full_csr","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"full_csr","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"full_csr","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"full_csr","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"full_csr","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"full_csr","sbayesc","global_nonnull_proportion",TRUE,"",0.00100583920731962,4.25754120781027e-05,0.00100597628946359,0.00092261236796794,0.00108983625483691,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"full_csr","sbayesc","heritability",TRUE,"",0.29425212644437,0.0182472490704808,0.294633777395276,0.258464603507847,0.328827742913924,0.3,-0.00574787355562989,3.30380504115094e-05,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",3,"full_csr","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",3,"full_csr","sbayesc","vbs",TRUE,"",0.0101368057943318,0.00262872622493876,0.00962870446861053,0.0062536231608631,0.0166026460241132,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"full_csr","sbayesc","ves",TRUE,"",0.999543507810133,0.0291532420639314,0.999340375835424,0.9444868513074,1.05857600999516,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"full_csr","sbayesc","vgs",TRUE,"",0.417062390124502,0.0310725551505898,0.416609905051382,0.358967202837627,0.480659289810286,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"full_csr","sbayesc","vld",TRUE,"",0.000807965156450034,0.00110801132358048,0.000550195331250392,-0.000951404193995742,0.00324380889519851,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",3,"full_csr","sbayesc","vle",TRUE,"",0.416254424968052,0.0308655771173672,0.415590263233779,0.357389140373798,0.480876554162921,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"bed","bayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"bed","bayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"bed","bayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"bed","bayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"bed","bayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"bed","bayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"bed","bayesc","global_nonnull_proportion",TRUE,"",0.00097609617181589,3.85508428950179e-05,0.000976780893225463,0.000898082303500429,0.00105090471843695,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"bed","bayesc","heritability",TRUE,"",0.272275552168437,0.0149267220922726,0.272737336380299,0.242574326633013,0.301581240021095,0.3,-0.0277244478315626,0.000768645007565038,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",4,"bed","bayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"bed","bayesc","vbs",TRUE,"",0.0179632492735513,0.00599380901188419,0.0167357079009017,0.00990182949506789,0.0322709560323638,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"bed","bayesc","ves",TRUE,"",1.0470303657877,0.0256992496816544,1.04545046032289,0.999385825449134,1.09755187050544,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"bed","bayesc","vgs",TRUE,"",0.392063627833407,0.0272438374596405,0.391029885392831,0.340694839178944,0.446067229797372,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"bed","bayesc","vld",TRUE,"",-0.0035551670234958,0.00318556281212259,-0.00361885611747567,-0.0099053945569793,0.00278348408911008,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"bed","bayesc","vle",TRUE,"",0.395618794856903,0.0278648162411764,0.394647932342513,0.342368174631835,0.452225743424553,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_csr","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_csr","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_csr","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_csr","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_csr","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_csr","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_csr","sbayesc","global_nonnull_proportion",TRUE,"",0.00101153902063228,4.45224062167494e-05,0.00100997804294963,0.000929261524356064,0.00110391719874885,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_csr","sbayesc","heritability",TRUE,"",0.307342389169519,0.0182711926457762,0.307220465641419,0.270770322522611,0.344412759334154,0.3,0.00734238916951924,5.39106787166734e-05,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",4,"block_csr","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_csr","sbayesc","vbs",TRUE,"",0.0102069471569386,0.00245310485562657,0.00986252156726415,0.00625480066698982,0.0156474363046586,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_csr","sbayesc","ves",TRUE,"",0.99723420054141,0.0310075287477303,0.997290325055032,0.935090693442376,1.05624538734834,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_csr","sbayesc","vgs",TRUE,"",0.442716690619844,0.0307880174442891,0.442557995003765,0.378798060043924,0.502392363463654,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_csr","sbayesc","vld",TRUE,"",0.000805890480384349,0.000786403638289549,0.000817208800105496,-0.000678775467066399,0.00234089558291168,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_csr","sbayesc","vle",TRUE,"",0.44191080013946,0.0307557444582771,0.441828050961388,0.377603394959126,0.501928578735739,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_hard","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_hard","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_hard","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_hard","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_hard","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_hard","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_hard","sbayesc","global_nonnull_proportion",TRUE,"",0.00101108716972487,4.479757995634e-05,0.00100859475821057,0.000925533481901566,0.00110113010840259,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_hard","sbayesc","heritability",TRUE,"",0.306805481792466,0.0193661535733974,0.307093402896331,0.269379210709473,0.344604075609728,0.3,0.00680548179246587,4.63145824275845e-05,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",4,"block_eigen_hard","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_hard","sbayesc","vbs",TRUE,"",0.0102795602179358,0.00254892668619678,0.00988175916721547,0.0066431740972395,0.0164135860724784,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_hard","sbayesc","ves",TRUE,"",0.996851466079103,0.0304858367530754,0.997431882107022,0.937068818678918,1.05569989846637,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_hard","sbayesc","vgs",TRUE,"",0.441536988881625,0.0331731795005687,0.441368389876163,0.376741433093006,0.507593963327814,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_hard","sbayesc","vld",TRUE,"",0.000830064761870046,0.000761992592405039,0.000857126285888576,-0.000818991555385597,0.00229546017479585,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_hard","sbayesc","vle",TRUE,"",0.440706924119755,0.0330846553912397,0.440912281183856,0.376363264259124,0.506986958730142,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_ridge_fixed","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_ridge_fixed","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_ridge_fixed","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_ridge_fixed","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_ridge_fixed","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_ridge_fixed","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_ridge_fixed","sbayesc","global_nonnull_proportion",TRUE,"",0.00101323831663166,4.43361621962516e-05,0.00101326555555475,0.000924366231290137,0.0011023975098157,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_ridge_fixed","sbayesc","heritability",TRUE,"",0.30768423221825,0.019970582904988,0.307298537197318,0.267596385417351,0.348478575881774,0.3,0.00768423221825032,5.90474247839962e-05,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",4,"block_eigen_ridge_fixed","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_ridge_fixed","sbayesc","vbs",TRUE,"",0.0100810767584621,0.00250956374659762,0.00966703485042119,0.00637729800821564,0.0160859173549656,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_ridge_fixed","sbayesc","ves",TRUE,"",0.995880448135349,0.0311037988132298,0.996541374362484,0.934565339914719,1.05270826849439,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_ridge_fixed","sbayesc","vgs",TRUE,"",0.442941762376184,0.0340206912685699,0.441681409326753,0.375568234025375,0.512362256134485,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_ridge_fixed","sbayesc","vld",TRUE,"",0.000806440518634973,0.000718406899228689,0.000826062908634961,-0.000594704207476894,0.00225705395530879,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_ridge_fixed","sbayesc","vle",TRUE,"",0.442135321857549,0.0340120501561203,0.440592975983954,0.374684594620049,0.51197798850673,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_unfiltered","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_unfiltered","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_unfiltered","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_unfiltered","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_unfiltered","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_unfiltered","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_unfiltered","sbayesc","global_nonnull_proportion",TRUE,"",0.00101025111362159,4.49107119887197e-05,0.00100878380137089,0.000924450487331161,0.00109916902095505,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_unfiltered","sbayesc","heritability",TRUE,"",0.307452192709556,0.0183139379162921,0.307426414500398,0.272689848188184,0.342021548335632,0.3,0.00745219270955561,5.55351761803537e-05,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",4,"block_eigen_unfiltered","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"block_eigen_unfiltered","sbayesc","vbs",TRUE,"",0.0100114128133769,0.00241082767968514,0.00971418246603156,0.00643789600393276,0.0158444398538569,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_unfiltered","sbayesc","ves",TRUE,"",0.996093599594761,0.0288352114666213,0.99513932977884,0.942953166285113,1.05176146032583,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_unfiltered","sbayesc","vgs",TRUE,"",0.44252459953368,0.0317440794717568,0.440746254583259,0.382940940664769,0.505156752824254,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_unfiltered","sbayesc","vld",TRUE,"",0.000864124085782261,0.000783395624340592,0.000871791981050307,-0.000643598730574149,0.00241718345979581,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"block_eigen_unfiltered","sbayesc","vle",TRUE,"",0.441660475447897,0.03166451803357,0.439558461469626,0.383430081070716,0.504639474966272,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"full_csr","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"full_csr","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"full_csr","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"full_csr","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"full_csr","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"full_csr","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"full_csr","sbayesc","global_nonnull_proportion",TRUE,"",0.00101066936865705,4.4505065261831e-05,0.00101306493200053,0.000926192160302017,0.00109904750628627,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"full_csr","sbayesc","heritability",TRUE,"",0.305898689112557,0.0185492777354197,0.304314143271528,0.270782464192597,0.343620818563135,0.3,0.0058986891125567,3.47945332465949e-05,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",4,"full_csr","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",4,"full_csr","sbayesc","vbs",TRUE,"",0.0102625416804989,0.0027282243626353,0.00984210214137367,0.00643228602014073,0.0169163378659304,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"full_csr","sbayesc","ves",TRUE,"",0.998862113102936,0.0306094388925841,0.998777150665428,0.94351711754286,1.06066923211981,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"full_csr","sbayesc","vgs",TRUE,"",0.44051513910112,0.0320763496429339,0.438261300631386,0.381398170410681,0.506640311492649,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"full_csr","sbayesc","vld",TRUE,"",0.000325316504902698,0.000731235212848416,0.000308138370533062,-0.00108379701248235,0.00186758152296731,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",4,"full_csr","sbayesc","vle",TRUE,"",0.440189822596217,0.0320226828333866,0.43798064715297,0.38150699931434,0.506321181336132,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"bed","bayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"bed","bayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"bed","bayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"bed","bayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"bed","bayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"bed","bayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"bed","bayesc","global_nonnull_proportion",TRUE,"",0.000988257929771335,4.27870666141449e-05,0.000991603177787153,0.000913287504918523,0.00105778926343009,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"bed","bayesc","heritability",TRUE,"",0.291310902728864,0.0156493167664334,0.291556051716021,0.258822503644739,0.32223734909657,0.3,-0.00868909727113631,7.55004113872685e-05,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",5,"bed","bayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"bed","bayesc","vbs",TRUE,"",0.016549172556635,0.0051808754716605,0.0156288154761127,0.00937442329190472,0.0297938817719526,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"bed","bayesc","ves",TRUE,"",1.04738699458712,0.0259397163970666,1.04632767279986,0.99831233048004,1.10185659751079,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"bed","bayesc","vgs",TRUE,"",0.430895030517776,0.0295464882392862,0.430639542494347,0.372091029139932,0.489734972238388,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"bed","bayesc","vld",TRUE,"",0.0013992773535883,0.00291421779689628,0.00147489063188944,-0.00434981477248488,0.00701320339719379,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"bed","bayesc","vle",TRUE,"",0.429495753164187,0.0292451242574787,0.429408838318866,0.369360388743004,0.487716782268539,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_csr","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_csr","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_csr","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_csr","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_csr","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_csr","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_csr","sbayesc","global_nonnull_proportion",TRUE,"",0.00101804039956032,4.52579470322063e-05,0.00101669292534678,0.000927672369083599,0.00110811654591646,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_csr","sbayesc","heritability",TRUE,"",0.332373878646764,0.0178147793396399,0.332322815490811,0.297013449013807,0.36581001083315,0.3,0.0323738786467638,0.00104806801863539,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",5,"block_csr","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_csr","sbayesc","vbs",TRUE,"",0.0104007820208117,0.00254181025341893,0.0100008548536481,0.00664700680997742,0.0171060239342493,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_csr","sbayesc","ves",TRUE,"",0.986993099677697,0.0293337164823175,0.986311049190076,0.932243337303281,1.04587678005579,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_csr","sbayesc","vgs",TRUE,"",0.49166627833075,0.0320533813311808,0.492061249903122,0.427845487394294,0.554449390846267,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_csr","sbayesc","vld",TRUE,"",-0.000377409933934268,0.000895821374089779,-0.000362930247840149,-0.00218175796372119,0.0012608694624579,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_csr","sbayesc","vle",TRUE,"",0.492043688264684,0.0321374578465215,0.492413813999714,0.427651426346848,0.554482872130938,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_hard","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_hard","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_hard","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_hard","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_hard","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_hard","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_hard","sbayesc","global_nonnull_proportion",TRUE,"",0.00101602673247265,4.27855815086984e-05,0.00101654042988261,0.000935275202310841,0.00110456806898405,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_hard","sbayesc","heritability",TRUE,"",0.33194693872328,0.0185255271505935,0.331703689234834,0.294994248482867,0.368949897159054,0.3,0.0319469387232797,0.00102060689378899,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",5,"block_eigen_hard","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_hard","sbayesc","vbs",TRUE,"",0.0104126251089972,0.00239209052233045,0.0100700941499246,0.00674957729537558,0.0157510015513348,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_hard","sbayesc","ves",TRUE,"",0.98747818811912,0.0310083405135473,0.986152636179321,0.928965000545546,1.05263386949957,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_hard","sbayesc","vgs",TRUE,"",0.490954576169607,0.0329876874593204,0.490491165425145,0.426322676771256,0.557504441783503,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_hard","sbayesc","vld",TRUE,"",-0.000373245282302955,0.000905159276531746,-0.000364702129633132,-0.00219326408212348,0.00131374747952814,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_hard","sbayesc","vle",TRUE,"",0.49132782145191,0.033156083229745,0.490848126721556,0.426373789136675,0.557851064962382,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_ridge_fixed","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_ridge_fixed","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_ridge_fixed","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_ridge_fixed","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_ridge_fixed","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_ridge_fixed","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_ridge_fixed","sbayesc","global_nonnull_proportion",TRUE,"",0.00101951966300663,4.40365775609633e-05,0.00101798765334824,0.000935243666583058,0.00111073938874487,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_ridge_fixed","sbayesc","heritability",TRUE,"",0.332428068832241,0.0184395738612724,0.33235223467895,0.2948883247564,0.368272733235821,0.3,0.0324280688322412,0.00105157964818857,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",5,"block_eigen_ridge_fixed","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_ridge_fixed","sbayesc","vbs",TRUE,"",0.0104197780056911,0.00243410884026932,0.0100831605608016,0.00666613557987423,0.0161558215444419,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_ridge_fixed","sbayesc","ves",TRUE,"",0.986794387396667,0.0293942291944079,0.985950044102619,0.927378722909187,1.04669285623941,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_ridge_fixed","sbayesc","vgs",TRUE,"",0.491781244465696,0.0340473483803142,0.491376902715462,0.428207803178925,0.560485594424815,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_ridge_fixed","sbayesc","vld",TRUE,"",-0.000313760813313216,0.000909145010679874,-0.000259185508431931,-0.00208044885813492,0.00139630912086535,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_ridge_fixed","sbayesc","vle",TRUE,"",0.492095005279009,0.0341944936944811,0.491531183094475,0.428689426563378,0.560652181542288,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_unfiltered","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_unfiltered","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_unfiltered","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_unfiltered","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_unfiltered","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_unfiltered","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_unfiltered","sbayesc","global_nonnull_proportion",TRUE,"",0.00102012050129473,4.4423321092779e-05,0.00101968542849036,0.000933428394248099,0.00110599447134651,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_unfiltered","sbayesc","heritability",TRUE,"",0.332572243973745,0.018655122938359,0.331684228975015,0.299219711930598,0.371283873983089,0.3,0.0325722439737448,0.00106095107748515,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",5,"block_eigen_unfiltered","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"block_eigen_unfiltered","sbayesc","vbs",TRUE,"",0.0106085673145872,0.00261885603112506,0.010165629253057,0.00682874760410905,0.0169385671686529,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_unfiltered","sbayesc","ves",TRUE,"",0.988536446641216,0.0292404336790874,0.988771177780719,0.93327930785511,1.043909651698,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_unfiltered","sbayesc","vgs",TRUE,"",0.492962070882687,0.0342100212679996,0.49104805230399,0.428639207984864,0.563970594392179,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_unfiltered","sbayesc","vld",TRUE,"",-0.000365998452238989,0.000897294535820589,-0.000333619205773628,-0.0022433093295309,0.00129667575656242,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"block_eigen_unfiltered","sbayesc","vle",TRUE,"",0.493328069334926,0.0343320179731832,0.491572723973098,0.428795896132074,0.565459828599897,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"full_csr","sbayesc","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"full_csr","sbayesc","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"full_csr","sbayesc","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"full_csr","sbayesc","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"full_csr","sbayesc","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"full_csr","sbayesc","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"full_csr","sbayesc","global_nonnull_proportion",TRUE,"",0.00101700016788332,4.41729072724712e-05,0.00101624569734605,0.00093401630348012,0.00110819351434647,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"full_csr","sbayesc","heritability",TRUE,"",0.330281566452255,0.0179057144411935,0.329497931556895,0.295174794404992,0.364828066503033,0.3,0.0302815664522553,0.000916973266802352,TRUE,"parameter_recovery",4,250
+"sparse_homogeneous",5,"full_csr","sbayesc","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_homogeneous",5,"full_csr","sbayesc","vbs",TRUE,"",0.0104678528821457,0.00260413086714768,0.0100513170850162,0.00673868501212789,0.0167720567702058,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"full_csr","sbayesc","ves",TRUE,"",0.989419538448746,0.030311998885202,0.988221200269518,0.929920297645424,1.05137069313532,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"full_csr","sbayesc","vgs",TRUE,"",0.488268306427566,0.0326945000180452,0.485958981840832,0.42460627112754,0.553020426435332,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"full_csr","sbayesc","vld",TRUE,"",-0.000256174894997584,0.000712203348183455,-0.000228265786639287,-0.00165915415792147,0.00113654779411022,,,,,"posterior_behaviour",4,250
+"sparse_homogeneous",5,"full_csr","sbayesc","vle",TRUE,"",0.488524481322564,0.0327316938920637,0.486452157564907,0.424413463704082,0.554180827181257,,,,,"posterior_behaviour",4,250
+"sparse_mixture",1,"bed","bayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"bed","bayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"bed","bayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"bed","bayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"bed","bayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"bed","bayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"bed","bayesr","global_nonnull_proportion",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"bed","bayesr","heritability",TRUE,"",0.27618940240431,0.0165162208714632,0.276090852658867,0.244304348766914,0.308046289484959,0.3,-0.0238105975956905,0.000566944557863902,TRUE,"parameter_recovery",4,1000
+"sparse_mixture",1,"bed","bayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"bed","bayesr","vbs",TRUE,"",0.00359903973674008,0.000591380062640372,0.00354996368244581,0.00254866474358267,0.00488042654718432,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"bed","bayesr","ves",TRUE,"",1.01098622225939,0.0276433334556708,1.01086793333925,0.958777814685981,1.06602750609543,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"bed","bayesr","vgs",TRUE,"",0.386029925504529,0.0277502875756565,0.384766912170491,0.333210554847468,0.442353593203519,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"bed","bayesr","vld",TRUE,"",-0.00371522234559496,0.00669061419529987,-0.0037270116954442,-0.0171716540039079,0.00928675780529422,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"bed","bayesr","vle",TRUE,"",0.389745147850124,0.0286997808597941,0.388888373699853,0.335970646109912,0.448343854049662,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_csr","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_csr","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_csr","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_csr","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_csr","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_csr","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_csr","sbayesr","global_nonnull_proportion",TRUE,"",0.00996436280989554,0.000139020911464477,0.00996575651624471,0.00969082853783677,0.0102437644725859,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_csr","sbayesr","heritability",TRUE,"",0.376985632665756,0.0233577767766287,0.37695828738999,0.331943688641182,0.423194793564831,0.3,0.0769856326657563,0.00592678763694676,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",1,"block_csr","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_csr","sbayesr","vbs",TRUE,"",0.00440322232343321,0.000711500755240207,0.0043233453738148,0.00324957750126529,0.00604548947144776,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_csr","sbayesr","ves",TRUE,"",0.86991526595435,0.0346229111683318,0.869933510755374,0.803498376034732,0.939225750403587,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_csr","sbayesr","vgs",TRUE,"",0.526703555115587,0.0380715269731578,0.526066910302281,0.454727429068942,0.602174295569759,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_csr","sbayesr","vld",TRUE,"",-0.000800343993759282,0.0015460691121807,-0.000784743814464556,-0.00394327370318546,0.00211312373618811,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_csr","sbayesr","vle",TRUE,"",0.527503899109346,0.0382467197572252,0.526961054809292,0.455201338340583,0.602875277523919,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_hard","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_hard","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_hard","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_hard","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_hard","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_hard","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_hard","sbayesr","global_nonnull_proportion",TRUE,"",0.00995790900496526,0.000142139454944693,0.00995862941357173,0.00968264091002594,0.0102384611734181,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_hard","sbayesr","heritability",TRUE,"",0.377290717243172,0.0229345300451265,0.377011534418063,0.333674034339606,0.423239801797528,0.3,0.0772907172431723,0.00597385497196401,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",1,"block_eigen_hard","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_hard","sbayesr","vbs",TRUE,"",0.00449707498579747,0.000769308688709974,0.004413469325427,0.00326293405135442,0.0062169822966906,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_hard","sbayesr","ves",TRUE,"",0.869717294658522,0.0339625580570104,0.870529107124965,0.801911384862332,0.936024832448496,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_hard","sbayesr","vgs",TRUE,"",0.527275344491342,0.0376693017167911,0.526983424734212,0.456151263057508,0.605531076643425,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_hard","sbayesr","vld",TRUE,"",-0.00078326412452974,0.00154981398597092,-0.00075836135524332,-0.00383661434134423,0.00221077072039718,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_hard","sbayesr","vle",TRUE,"",0.528058608615871,0.0378531466899733,0.527783839802219,0.455930691263348,0.606998296775663,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_ridge_fixed","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_ridge_fixed","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_ridge_fixed","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_ridge_fixed","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_ridge_fixed","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_ridge_fixed","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_ridge_fixed","sbayesr","global_nonnull_proportion",TRUE,"",0.009963326818998,0.000140513573667357,0.00996147541270709,0.00968909442193772,0.0102423476844263,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_ridge_fixed","sbayesr","heritability",TRUE,"",0.377683720411139,0.0240275784637076,0.377448001666454,0.331422544957549,0.426020649879642,0.3,0.077683720411139,0.00603476041691601,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",1,"block_eigen_ridge_fixed","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_ridge_fixed","sbayesr","vbs",TRUE,"",0.00446524783422485,0.000732322307559994,0.00437917973158144,0.00324638890054604,0.00611889546728285,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_ridge_fixed","sbayesr","ves",TRUE,"",0.868910298296874,0.0362674724300482,0.868754134741388,0.796608342511874,0.939323423588158,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_ridge_fixed","sbayesr","vgs",TRUE,"",0.527621018986882,0.038595256839957,0.527354981753825,0.453483208863977,0.604652454129515,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_ridge_fixed","sbayesr","vld",TRUE,"",-0.000773738854340403,0.0015414570966027,-0.000736572227073073,-0.00384594245374505,0.00222126911292687,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_ridge_fixed","sbayesr","vle",TRUE,"",0.528394757841222,0.0387947582056515,0.528062076633716,0.454720319345946,0.605578303085332,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_unfiltered","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_unfiltered","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_unfiltered","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_unfiltered","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_unfiltered","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_unfiltered","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_unfiltered","sbayesr","global_nonnull_proportion",TRUE,"",0.00996327946675156,0.000140684577661566,0.00996532113474696,0.0096851891189252,0.0102361354378425,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_unfiltered","sbayesr","heritability",TRUE,"",0.377716369965411,0.0235960286584029,0.377147142095408,0.332120074377141,0.425869341111706,0.3,0.0777163699654109,0.00603983416060063,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",1,"block_eigen_unfiltered","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"block_eigen_unfiltered","sbayesr","vbs",TRUE,"",0.00447364523871973,0.00070873234178217,0.00439960417873531,0.00326068966710679,0.00604126550621657,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_unfiltered","sbayesr","ves",TRUE,"",0.869173565195513,0.0345147256059186,0.869436423415649,0.801043943001898,0.935970027083784,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_unfiltered","sbayesr","vgs",TRUE,"",0.527919395309585,0.0386573374672058,0.526631860166929,0.45673527091315,0.607512102183405,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_unfiltered","sbayesr","vld",TRUE,"",-0.0008589102142608,0.00156623320956912,-0.000811302732203423,-0.00403785424486222,0.0021617167374878,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"block_eigen_unfiltered","sbayesr","vle",TRUE,"",0.528778305523846,0.038813294854094,0.527197632256999,0.457565577474034,0.608841897411428,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"full_csr","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"full_csr","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"full_csr","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"full_csr","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"full_csr","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"full_csr","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"full_csr","sbayesr","global_nonnull_proportion",TRUE,"",0.00996725391290687,0.000142494919980761,0.00996669315697513,0.00968699115811764,0.0102437448303915,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"full_csr","sbayesr","heritability",TRUE,"",0.376763900631669,0.0235095457623599,0.376352696991911,0.330953994706081,0.424134552318977,0.3,0.0767639006316692,0.00589269644018878,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",1,"full_csr","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",1,"full_csr","sbayesr","vbs",TRUE,"",0.00446818747961074,0.000726722832020544,0.00438287960297515,0.00328529625948248,0.00613783959763648,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"full_csr","sbayesr","ves",TRUE,"",0.870967237635165,0.0348791327856211,0.871190628746099,0.802115544012506,0.938933699853929,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"full_csr","sbayesr","vgs",TRUE,"",0.526831126343324,0.0381288019283139,0.525778516840858,0.454363078006911,0.604408826726759,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"full_csr","sbayesr","vld",TRUE,"",-0.000141863843475642,0.00125640342682911,-0.000115841672202743,-0.00279763288167444,0.00230261694199778,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",1,"full_csr","sbayesr","vle",TRUE,"",0.5269729901868,0.0381842907347692,0.525924398642421,0.454933951662978,0.605040230639876,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"bed","bayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"bed","bayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"bed","bayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"bed","bayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"bed","bayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"bed","bayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"bed","bayesr","global_nonnull_proportion",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"bed","bayesr","heritability",TRUE,"",0.300414699656202,0.016472757885369,0.300217655788337,0.268266960191774,0.332293596868539,0.3,0.000414699656201833,1.71975804853919e-07,TRUE,"parameter_recovery",4,1000
+"sparse_mixture",2,"bed","bayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"bed","bayesr","vbs",TRUE,"",0.00379866290908013,0.000605894145138181,0.00373097468609255,0.00278451149929934,0.00517927710634605,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"bed","bayesr","ves",TRUE,"",0.979000808295745,0.026789591543824,0.978339949497549,0.927471700979476,1.03361353876901,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"bed","bayesr","vgs",TRUE,"",0.420695639887257,0.0285778226014023,0.420498296157424,0.367790070092272,0.479899670760186,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"bed","bayesr","vld",TRUE,"",0.00171270449758626,0.00664614671050765,0.00169645535793586,-0.0112103128884778,0.0149787845576664,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"bed","bayesr","vle",TRUE,"",0.41898293538967,0.0294875859942607,0.418612950835081,0.363926187816041,0.47990037015644,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_csr","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_csr","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_csr","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_csr","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_csr","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_csr","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_csr","sbayesr","global_nonnull_proportion",TRUE,"",0.00995161014381925,0.000142950334534651,0.00995628417859834,0.00967313741286976,0.0102252012856976,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_csr","sbayesr","heritability",TRUE,"",0.415122005480301,0.023859807869179,0.41527572977687,0.369325396419135,0.459943522841279,0.3,0.115122005480301,0.0132530761458065,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",2,"block_csr","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_csr","sbayesr","vbs",TRUE,"",0.00497486586904065,0.000823550671746572,0.00485640829307006,0.00367427401005138,0.00686081686300952,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_csr","sbayesr","ves",TRUE,"",0.820229200732105,0.0345660563444953,0.81992401251584,0.753771020013511,0.887778690091419,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_csr","sbayesr","vgs",TRUE,"",0.582526199417241,0.0397492995319044,0.581952677437158,0.505822479603991,0.658729116343674,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_csr","sbayesr","vld",TRUE,"",-0.000473455228850396,0.00164606119589738,-0.000467248329025616,-0.00369780853048829,0.00272098442108961,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_csr","sbayesr","vle",TRUE,"",0.582999654646091,0.0398336326822671,0.582560880249137,0.506286503957981,0.659794017212142,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_hard","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_hard","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_hard","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_hard","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_hard","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_hard","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_hard","sbayesr","global_nonnull_proportion",TRUE,"",0.00995197261078388,0.000139951740561444,0.0099499356616074,0.00968596695227655,0.0102310842971904,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_hard","sbayesr","heritability",TRUE,"",0.415000722222162,0.0235026516033044,0.415080654910153,0.369896352998697,0.46114666259109,0.3,0.115000722222162,0.0132251661116189,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",2,"block_eigen_hard","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_hard","sbayesr","vbs",TRUE,"",0.00498399015441474,0.000795061960450792,0.00491299568261581,0.00361750543290357,0.00671629985250584,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_hard","sbayesr","ves",TRUE,"",0.819881298879534,0.0340550676469562,0.819931794122205,0.754586042309708,0.887445579958363,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_hard","sbayesr","vgs",TRUE,"",0.58201472630025,0.0396956710469093,0.581362831144706,0.506006188590415,0.661408741492695,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_hard","sbayesr","vld",TRUE,"",-0.000503152566627762,0.00164437923255212,-0.000515177507612652,-0.00377422222708357,0.00274586511671376,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_hard","sbayesr","vle",TRUE,"",0.582517878866878,0.0397768977029461,0.582058446555862,0.506280240625002,0.662635566584623,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_ridge_fixed","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_ridge_fixed","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_ridge_fixed","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_ridge_fixed","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_ridge_fixed","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_ridge_fixed","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_ridge_fixed","sbayesr","global_nonnull_proportion",TRUE,"",0.00995168541786004,0.000139574148270155,0.00994943397293174,0.00967979458011125,0.0102292877502948,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_ridge_fixed","sbayesr","heritability",TRUE,"",0.414450800485752,0.0234467991445175,0.414279714641975,0.369435365411591,0.461078639561677,0.3,0.114450800485752,0.0130989857318295,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",2,"block_eigen_ridge_fixed","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_ridge_fixed","sbayesr","vbs",TRUE,"",0.00492212201470428,0.000814065593594035,0.00483234875098377,0.00358346140019627,0.00675021815042612,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_ridge_fixed","sbayesr","ves",TRUE,"",0.820350368194542,0.0341657348707653,0.8202412172906,0.754180927844735,0.886202820517076,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_ridge_fixed","sbayesr","vgs",TRUE,"",0.58101702413475,0.0394619948008364,0.580350446073214,0.503975747996798,0.66014148348211,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_ridge_fixed","sbayesr","vld",TRUE,"",-0.000486932305286217,0.00162310851589278,-0.000486701804504774,-0.00364909763426712,0.00267791347546118,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_ridge_fixed","sbayesr","vle",TRUE,"",0.581503956440036,0.0395482597806468,0.581027240576665,0.504690578650122,0.661035130816872,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_unfiltered","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_unfiltered","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_unfiltered","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_unfiltered","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_unfiltered","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_unfiltered","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_unfiltered","sbayesr","global_nonnull_proportion",TRUE,"",0.00995501734627985,0.00014123725877427,0.00995521209533751,0.00968310626503921,0.0102301902074101,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_unfiltered","sbayesr","heritability",TRUE,"",0.415018419381022,0.0234614621364987,0.414416044424333,0.370734233087915,0.461880983485518,0.3,0.115018419381022,0.0132292367969087,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",2,"block_eigen_unfiltered","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"block_eigen_unfiltered","sbayesr","vbs",TRUE,"",0.00498323933217171,0.000813010389582496,0.00487872328247952,0.00360956772496963,0.00683334465461801,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_unfiltered","sbayesr","ves",TRUE,"",0.819778972897971,0.0340770848903958,0.820157023307562,0.751285594030412,0.886597198589506,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_unfiltered","sbayesr","vgs",TRUE,"",0.581965483690162,0.0393747713829112,0.581498563635745,0.507697430752061,0.660402751414837,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_unfiltered","sbayesr","vld",TRUE,"",-0.000462413510693694,0.0016349123417601,-0.000425451652038111,-0.00377340400775315,0.00275344777255207,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"block_eigen_unfiltered","sbayesr","vle",TRUE,"",0.582427897200856,0.0395187626723377,0.582106380132819,0.507773978442339,0.660975923884037,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"full_csr","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"full_csr","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"full_csr","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"full_csr","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"full_csr","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"full_csr","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"full_csr","sbayesr","global_nonnull_proportion",TRUE,"",0.0099535275267692,0.000144054990701775,0.00995112910935153,0.00967625327877147,0.0102348985216754,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"full_csr","sbayesr","heritability",TRUE,"",0.416199253210642,0.0234994287613675,0.415891405640066,0.370452436690317,0.462256852312593,0.3,0.116199253210642,0.0135022664467109,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",2,"full_csr","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",2,"full_csr","sbayesr","vbs",TRUE,"",0.00496005939304443,0.00080520054179995,0.00487501400420023,0.00363254431989588,0.00671490440452383,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"full_csr","sbayesr","ves",TRUE,"",0.817548527290722,0.0340106231431158,0.817298462469006,0.752103745304106,0.885266908936374,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"full_csr","sbayesr","vgs",TRUE,"",0.583218860243724,0.0395282540849495,0.582534387465192,0.508340776572429,0.66135090990638,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"full_csr","sbayesr","vld",TRUE,"",-7.58459406211862e-05,0.0012147905555242,-7.04179020082352e-05,-0.00248868615211566,0.00231393761668269,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",2,"full_csr","sbayesr","vle",TRUE,"",0.583294706184345,0.0395692288631928,0.58251124395638,0.508422971952355,0.661705721786125,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"bed","bayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"bed","bayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"bed","bayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"bed","bayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"bed","bayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"bed","bayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"bed","bayesr","global_nonnull_proportion",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"bed","bayesr","heritability",TRUE,"",0.318609933326231,0.0158660654911628,0.318582594518717,0.287325187234214,0.348755515427948,0.3,0.0186099333262308,0.000346329618406755,TRUE,"parameter_recovery",4,1000
+"sparse_mixture",3,"bed","bayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"bed","bayesr","vbs",TRUE,"",0.00403417309271121,0.000626356529767897,0.0039782470781006,0.00298592848814681,0.00543258495971587,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"bed","bayesr","ves",TRUE,"",0.95676386428475,0.0258972638550186,0.956345840185819,0.907017630502543,1.00876263617153,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"bed","bayesr","vgs",TRUE,"",0.447658912968777,0.0281337404382773,0.447346147283149,0.39216182915663,0.501962906247249,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"bed","bayesr","vld",TRUE,"",0.00953752617744151,0.00685481699207885,0.00962198430993752,-0.00432430014259709,0.0224828332262728,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"bed","bayesr","vle",TRUE,"",0.438121386791335,0.0285328140154244,0.437900999298257,0.382641852681981,0.493458073509916,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_csr","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_csr","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_csr","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_csr","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_csr","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_csr","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_csr","sbayesr","global_nonnull_proportion",TRUE,"",0.00994668938767708,0.000143041987156762,0.00994793282960876,0.00966227970867236,0.0102234632192164,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_csr","sbayesr","heritability",TRUE,"",0.447214825299329,0.0227051698703347,0.44706975122157,0.403527773038581,0.492126411987134,0.3,0.147214825299329,0.021672204787912,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",3,"block_csr","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_csr","sbayesr","vbs",TRUE,"",0.00540784322375385,0.000874340573949212,0.00532482330655331,0.00391607536037723,0.00734869232707354,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_csr","sbayesr","ves",TRUE,"",0.77730989232617,0.0329580763719895,0.77741144542997,0.712627149615521,0.841600295834204,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_csr","sbayesr","vgs",TRUE,"",0.629241461354897,0.0393090486773965,0.628413293113232,0.555136958785075,0.705695426437425,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_csr","sbayesr","vld",TRUE,"",0.00213352993623755,0.00167862994620536,0.00212895433140525,-0.00116813265014063,0.0054740814058745,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_csr","sbayesr","vle",TRUE,"",0.62710793141866,0.0392142449231784,0.626044507338346,0.553399506206234,0.70394992791197,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_hard","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_hard","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_hard","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_hard","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_hard","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_hard","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_hard","sbayesr","global_nonnull_proportion",TRUE,"",0.00995382809947242,0.000143055121776083,0.00995344235288714,0.00967995374939054,0.0102377074243332,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_hard","sbayesr","heritability",TRUE,"",0.447986583595601,0.0234518684104387,0.447495315750744,0.402524680374223,0.494481501282131,0.3,0.147986583595601,0.0219000289242979,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",3,"block_eigen_hard","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_hard","sbayesr","vbs",TRUE,"",0.00535279806111563,0.000813384364395686,0.00527058477361365,0.00401099130805417,0.00716863435238253,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_hard","sbayesr","ves",TRUE,"",0.775280294920906,0.0339722651349353,0.774530406453263,0.707054213505751,0.84239074507622,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_hard","sbayesr","vgs",TRUE,"",0.629564005188075,0.0402429493092052,0.627860494203702,0.553447451517621,0.709968206499709,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_hard","sbayesr","vld",TRUE,"",0.00208144112649386,0.00164122123633186,0.0020776326737208,-0.00115469596420315,0.00518901408294647,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_hard","sbayesr","vle",TRUE,"",0.627482564061581,0.0402011898112014,0.625802141415841,0.551795816650424,0.707918375130381,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_ridge_fixed","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_ridge_fixed","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_ridge_fixed","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_ridge_fixed","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_ridge_fixed","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_ridge_fixed","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_ridge_fixed","sbayesr","global_nonnull_proportion",TRUE,"",0.00995017312987817,0.000140796756782793,0.00994880890616473,0.0096771805439062,0.0102235829661996,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_ridge_fixed","sbayesr","heritability",TRUE,"",0.447227918926388,0.0236651887109353,0.446930243060794,0.401223077416665,0.494990383611425,0.3,0.147227918926388,0.021676060111395,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",3,"block_eigen_ridge_fixed","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_ridge_fixed","sbayesr","vbs",TRUE,"",0.00537065018424435,0.000852977816785385,0.00529986997280291,0.0039077900067182,0.00726186741366435,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_ridge_fixed","sbayesr","ves",TRUE,"",0.77636468897971,0.0340621534688981,0.776473115460036,0.710591254484718,0.843185208120837,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_ridge_fixed","sbayesr","vgs",TRUE,"",0.628535578988216,0.0406645791449404,0.627798492626907,0.550383363473079,0.710958386102048,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_ridge_fixed","sbayesr","vld",TRUE,"",0.00213282499159804,0.00164472116071821,0.00210677011321631,-0.000952887193169657,0.00547918509096218,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_ridge_fixed","sbayesr","vle",TRUE,"",0.626402753996618,0.0405727585774661,0.626146262424422,0.548103225339962,0.708748308168818,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_unfiltered","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_unfiltered","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_unfiltered","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_unfiltered","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_unfiltered","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_unfiltered","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_unfiltered","sbayesr","global_nonnull_proportion",TRUE,"",0.00994858203125713,0.00014200250322598,0.00994962347637013,0.00967172611435139,0.0102314095535584,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_unfiltered","sbayesr","heritability",TRUE,"",0.447448727927381,0.02324716592027,0.447168981932019,0.403127502607205,0.495463657536628,0.3,0.147448727927381,0.0217411273674028,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",3,"block_eigen_unfiltered","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"block_eigen_unfiltered","sbayesr","vbs",TRUE,"",0.00540277148618725,0.000869564878652529,0.00530162221137142,0.00396342348015118,0.00734005285030037,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_unfiltered","sbayesr","ves",TRUE,"",0.776730006054276,0.0332132344267839,0.777083037236128,0.711910235145371,0.841481638587294,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_unfiltered","sbayesr","vgs",TRUE,"",0.629400005804534,0.0401392601737137,0.628269300671488,0.552882213346124,0.711127726756898,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_unfiltered","sbayesr","vld",TRUE,"",0.00208678242927174,0.00164024575217807,0.00208414776274363,-0.001298311022615,0.00533676910736788,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"block_eigen_unfiltered","sbayesr","vle",TRUE,"",0.627313223375263,0.0400978936127281,0.626197205611185,0.551113198850866,0.709128695522772,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"full_csr","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"full_csr","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"full_csr","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"full_csr","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"full_csr","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"full_csr","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"full_csr","sbayesr","global_nonnull_proportion",TRUE,"",0.00995140787598691,0.000140234444105141,0.00995105614711955,0.0096787589980175,0.010225106684041,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"full_csr","sbayesr","heritability",TRUE,"",0.453858793924889,0.0239441417829232,0.453807348156646,0.408243561973507,0.500988398534384,0.3,0.153858793924889,0.0236725284680213,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",3,"full_csr","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",3,"full_csr","sbayesr","vbs",TRUE,"",0.00543292840157643,0.000850054472102027,0.00537286826287496,0.00400743682637875,0.00722356875547251,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"full_csr","sbayesr","ves",TRUE,"",0.767358895783549,0.0341193310871496,0.76755059511375,0.701715048984758,0.832693533203061,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"full_csr","sbayesr","vgs",TRUE,"",0.638122399065852,0.0412256211300374,0.637146385838391,0.560599445771846,0.72325135666425,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"full_csr","sbayesr","vld",TRUE,"",-7.89044957828796e-05,0.00126767922923572,-7.35336589372526e-05,-0.00266198218476516,0.00239319127546972,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",3,"full_csr","sbayesr","vle",TRUE,"",0.638201303561635,0.0412515726419522,0.637250927412438,0.560184988148573,0.723056943682776,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"bed","bayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"bed","bayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"bed","bayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"bed","bayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"bed","bayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"bed","bayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"bed","bayesr","global_nonnull_proportion",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"bed","bayesr","heritability",TRUE,"",0.308917229806228,0.0160814432454302,0.308990729883366,0.276673239174564,0.341131508363786,0.3,0.00891722980622828,7.9516987417086e-05,TRUE,"parameter_recovery",4,1000
+"sparse_mixture",4,"bed","bayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"bed","bayesr","vbs",TRUE,"",0.00391338826285525,0.000664409448013544,0.00382462588349373,0.00286035179884258,0.00543538388967151,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"bed","bayesr","ves",TRUE,"",0.989316297409233,0.0272034740194599,0.98906926152017,0.93775048357316,1.0443749653306,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"bed","bayesr","vgs",TRUE,"",0.442511961375198,0.0287059050421201,0.442119598820413,0.386908457947782,0.500547358561533,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"bed","bayesr","vld",TRUE,"",0.00928094413484045,0.00696232158461241,0.00915756103583806,-0.00434462454577331,0.0231301541500738,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"bed","bayesr","vle",TRUE,"",0.433231017240357,0.0290406554637959,0.43241395293763,0.377729925901628,0.492120565148237,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_csr","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_csr","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_csr","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_csr","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_csr","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_csr","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_csr","sbayesr","global_nonnull_proportion",TRUE,"",0.00995098122360508,0.000141400976946594,0.00994903571309602,0.00967567409516303,0.0102359426389927,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_csr","sbayesr","heritability",TRUE,"",0.433037016117579,0.0234390977626856,0.433010324563106,0.387025066482975,0.479605827582274,0.3,0.133037016117579,0.0176988476574691,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",4,"block_csr","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_csr","sbayesr","vbs",TRUE,"",0.00525479431983178,0.000840715286067328,0.00517220406832446,0.00383151633625486,0.00713987956982843,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_csr","sbayesr","ves",TRUE,"",0.81220812496292,0.0348221485338457,0.812076076795351,0.743705016211855,0.879201139653871,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_csr","sbayesr","vgs",TRUE,"",0.620736127144817,0.0407157572920258,0.620224403128425,0.543602331622201,0.703018668451506,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_csr","sbayesr","vld",TRUE,"",0.000261109414658496,0.00161146127158021,0.000209146805723925,-0.00289456218287306,0.00355302848998771,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_csr","sbayesr","vle",TRUE,"",0.620475017730158,0.0407066184622636,0.619875218901768,0.543339918251237,0.703025051713121,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_hard","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_hard","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_hard","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_hard","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_hard","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_hard","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_hard","sbayesr","global_nonnull_proportion",TRUE,"",0.00996028404189977,0.000141505474323413,0.00995793334777223,0.00968556073515963,0.010241447720262,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_hard","sbayesr","heritability",TRUE,"",0.433088948354744,0.0238658630171203,0.432933800665363,0.385901344070901,0.480532321573459,0.3,0.133088948354744,0.0177126681741718,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",4,"block_eigen_hard","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_hard","sbayesr","vbs",TRUE,"",0.00526411865749949,0.000838988787813697,0.00518259230864172,0.0038790983767832,0.00715284642561956,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_hard","sbayesr","ves",TRUE,"",0.812750486052374,0.0350748102369904,0.812552900720117,0.744546671922107,0.883099407569619,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_hard","sbayesr","vgs",TRUE,"",0.62130440642981,0.0414128008702565,0.620025359146333,0.54263734329343,0.704800233533378,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_hard","sbayesr","vld",TRUE,"",0.000269682119335556,0.00165287866891911,0.000252593654614108,-0.00297517079214099,0.00349559207300559,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_hard","sbayesr","vle",TRUE,"",0.621034724310474,0.041412495930701,0.619614082720585,0.541381458244258,0.703769833461307,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_ridge_fixed","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_ridge_fixed","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_ridge_fixed","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_ridge_fixed","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_ridge_fixed","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_ridge_fixed","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_ridge_fixed","sbayesr","global_nonnull_proportion",TRUE,"",0.00995309009652624,0.000140893166291294,0.00995247158646773,0.00968078101552452,0.0102301929460468,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_ridge_fixed","sbayesr","heritability",TRUE,"",0.433046365631535,0.0232760550452003,0.433040191005831,0.387020136275529,0.479483924930771,0.3,0.133046365631535,0.0177013354077601,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",4,"block_eigen_ridge_fixed","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_ridge_fixed","sbayesr","vbs",TRUE,"",0.00526538884734286,0.000846791138744976,0.00518508446230092,0.00386396665412588,0.0071444202583928,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_ridge_fixed","sbayesr","ves",TRUE,"",0.812844405518211,0.03484607601439,0.81337862009341,0.74382054757037,0.881443381669594,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_ridge_fixed","sbayesr","vgs",TRUE,"",0.621215736367551,0.0401639553441731,0.621157654714428,0.544646552700419,0.701356376325818,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_ridge_fixed","sbayesr","vld",TRUE,"",0.000276819013947147,0.00159844766894028,0.00027525090818975,-0.00278932148115957,0.00342645368808059,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_ridge_fixed","sbayesr","vle",TRUE,"",0.620938917353604,0.0401520264261268,0.620729985488267,0.544676554916292,0.70069370062893,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_unfiltered","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_unfiltered","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_unfiltered","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_unfiltered","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_unfiltered","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_unfiltered","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_unfiltered","sbayesr","global_nonnull_proportion",TRUE,"",0.00994986215726943,0.000140978463773535,0.00994866826960111,0.00967661276523562,0.0102216120347767,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_unfiltered","sbayesr","heritability",TRUE,"",0.43294484467394,0.0237925989722521,0.432933817313468,0.386282915099953,0.479792892650213,0.3,0.13294484467394,0.017674331725378,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",4,"block_eigen_unfiltered","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"block_eigen_unfiltered","sbayesr","vbs",TRUE,"",0.00529466163198159,0.000849811663679974,0.00520969513120543,0.00384659437920554,0.00717216091737829,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_unfiltered","sbayesr","ves",TRUE,"",0.813006731572042,0.0351792368696815,0.812919886464785,0.742887329910399,0.881344412842425,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_unfiltered","sbayesr","vgs",TRUE,"",0.621112644555704,0.0410481020582322,0.620266472619471,0.543207846355794,0.704467801464742,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_unfiltered","sbayesr","vld",TRUE,"",0.000284772393815374,0.00159517070303953,0.000300738421272206,-0.00280504219266928,0.00342730616225855,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"block_eigen_unfiltered","sbayesr","vle",TRUE,"",0.620827872161888,0.0410905005773825,0.619936197231634,0.542927276058914,0.704638466916301,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"full_csr","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"full_csr","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"full_csr","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"full_csr","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"full_csr","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"full_csr","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"full_csr","sbayesr","global_nonnull_proportion",TRUE,"",0.00995608116863147,0.000140032685986499,0.00995507479986263,0.00967851487145223,0.0102311779577236,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"full_csr","sbayesr","heritability",TRUE,"",0.436863669560126,0.0243903390257242,0.43662212956215,0.390633954655232,0.48556975719528,0.3,0.136863669560126,0.0187316640454634,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",4,"full_csr","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",4,"full_csr","sbayesr","vbs",TRUE,"",0.00531387328850838,0.00083451391719283,0.00525061827198866,0.00390735103995614,0.00711413932149452,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"full_csr","sbayesr","ves",TRUE,"",0.807148113788987,0.0362227719426007,0.807148240862967,0.736440060076671,0.878684373749948,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"full_csr","sbayesr","vgs",TRUE,"",0.626537309885351,0.0418631363417764,0.625372037838494,0.549410217104207,0.712878536345769,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"full_csr","sbayesr","vld",TRUE,"",-0.000449913202773502,0.00155839836864255,-0.000306332146881139,-0.00399382322424092,0.00228479291853265,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",4,"full_csr","sbayesr","vle",TRUE,"",0.626987223088124,0.0419730684702962,0.625867182149385,0.549996305486322,0.714046417413643,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"bed","bayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"bed","bayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"bed","bayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"bed","bayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"bed","bayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"bed","bayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"bed","bayesr","global_nonnull_proportion",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"bed","bayesr","heritability",TRUE,"",0.290723484056053,0.0158697904893885,0.290803473104376,0.260145205862609,0.321701222430403,0.3,-0.00927651594394685,8.60537480583001e-05,TRUE,"parameter_recovery",4,1000
+"sparse_mixture",5,"bed","bayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"bed","bayesr","vbs",TRUE,"",0.00364545121700901,0.000575590342594491,0.00359920689753894,0.00268638904377881,0.00497430468332912,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"bed","bayesr","ves",TRUE,"",0.996489176168807,0.0267611389552729,0.996459957511831,0.944660176865544,1.04931329286375,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"bed","bayesr","vgs",TRUE,"",0.408713751590251,0.0274348047765314,0.407833870698067,0.357435829143384,0.463162573754306,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"bed","bayesr","vld",TRUE,"",-0.00726993321307356,0.00675119599316364,-0.00727189446180102,-0.0207455004931698,0.00636754938369601,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"bed","bayesr","vle",TRUE,"",0.415983684803325,0.0288060860399222,0.415434774189594,0.361867020708322,0.47374872071697,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_csr","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_csr","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_csr","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_csr","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_csr","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_csr","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_csr","sbayesr","global_nonnull_proportion",TRUE,"",0.00995928319586863,0.000140961860094141,0.00995768555704213,0.00969071379238816,0.0102406021607515,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_csr","sbayesr","heritability",TRUE,"",0.391573636480267,0.0232408323446025,0.391397285169166,0.34500419812928,0.438335849099677,0.3,0.0915736364802668,0.00838573089822006,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",5,"block_csr","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_csr","sbayesr","vbs",TRUE,"",0.00450917477036396,0.000729307779020263,0.00443461615864507,0.00329860362438984,0.0061367657246847,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_csr","sbayesr","ves",TRUE,"",0.85595420980818,0.0343843019998148,0.856000792109553,0.786983140761343,0.923989159246343,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_csr","sbayesr","vgs",TRUE,"",0.551230785001076,0.0388139635864062,0.550073739514985,0.475242494116041,0.629256354898054,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_csr","sbayesr","vld",TRUE,"",0.00156249559149472,0.00167032038777625,0.00153102130640659,-0.00166664417153699,0.00492920953118911,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_csr","sbayesr","vle",TRUE,"",0.549668289409581,0.0386367171601119,0.548620645677168,0.474636499470719,0.626350365647598,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_hard","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_hard","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_hard","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_hard","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_hard","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_hard","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_hard","sbayesr","global_nonnull_proportion",TRUE,"",0.00996162559027273,0.000139681351347269,0.00996247291062069,0.00969099179431122,0.0102363216744576,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_hard","sbayesr","heritability",TRUE,"",0.390699661641456,0.0229918828885052,0.391006811062304,0.346823542905313,0.436076156052455,0.3,0.0906996616414562,0.00822642862187463,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",5,"block_eigen_hard","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_hard","sbayesr","vbs",TRUE,"",0.00444802792771736,0.000705053835376813,0.00438006293558015,0.00326065816098988,0.00598027099156062,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_hard","sbayesr","ves",TRUE,"",0.857086976332679,0.0340249480552844,0.856949192216051,0.790867826655787,0.924510150237654,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_hard","sbayesr","vgs",TRUE,"",0.549938776393525,0.0384858491596837,0.549860001315454,0.476573704739963,0.628249194801856,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_hard","sbayesr","vld",TRUE,"",0.0015043830122388,0.00168211881743776,0.00152697757143649,-0.00185692893014093,0.00485806473959919,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_hard","sbayesr","vle",TRUE,"",0.548434393381286,0.0383814869935525,0.548361165228177,0.475101513686659,0.626741898464531,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_ridge_fixed","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_ridge_fixed","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_ridge_fixed","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_ridge_fixed","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_ridge_fixed","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_ridge_fixed","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_ridge_fixed","sbayesr","global_nonnull_proportion",TRUE,"",0.0099596294538144,0.000141989154929449,0.00995906674593761,0.00968531521942625,0.0102350162701444,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_ridge_fixed","sbayesr","heritability",TRUE,"",0.391249054539713,0.0228907151946269,0.391259943883645,0.345636559777829,0.435749722497691,0.3,0.0912490545397125,0.00832638995439144,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",5,"block_eigen_ridge_fixed","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_ridge_fixed","sbayesr","vbs",TRUE,"",0.00445134881631194,0.00072602577400733,0.00439814592261405,0.00324816116431155,0.00606873379879761,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_ridge_fixed","sbayesr","ves",TRUE,"",0.856173025561949,0.0339897189708412,0.85608058198769,0.788491709271216,0.922018301001166,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_ridge_fixed","sbayesr","vgs",TRUE,"",0.550623489587723,0.0384407085078863,0.550108873445733,0.477205251912055,0.627344159083806,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_ridge_fixed","sbayesr","vld",TRUE,"",0.00159040201638551,0.00163020835163191,0.0015948551019378,-0.00165609581157268,0.00483030433817853,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_ridge_fixed","sbayesr","vle",TRUE,"",0.549033087571337,0.0382732390391928,0.548372230659876,0.475405879711201,0.626469150538531,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_unfiltered","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_unfiltered","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_unfiltered","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_unfiltered","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_unfiltered","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_unfiltered","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_unfiltered","sbayesr","global_nonnull_proportion",TRUE,"",0.00995751258338135,0.000140886301380098,0.00995720673046036,0.00967372062401598,0.0102339287092553,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_unfiltered","sbayesr","heritability",TRUE,"",0.391173773427726,0.0230285126428285,0.39117118175506,0.34616660843578,0.437201673136436,0.3,0.0911737734277261,0.00831265696105034,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",5,"block_eigen_unfiltered","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"block_eigen_unfiltered","sbayesr","vbs",TRUE,"",0.00450047025289795,0.00068461185278177,0.0044464728116473,0.00334581826626497,0.00600936776354764,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_unfiltered","sbayesr","ves",TRUE,"",0.856944939177443,0.0341933778445699,0.856662604858229,0.78994980666529,0.923421043859692,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_unfiltered","sbayesr","vgs",TRUE,"",0.550936237372722,0.0385247688194682,0.54999870971918,0.477838082185314,0.629940733058279,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_unfiltered","sbayesr","vld",TRUE,"",0.00155107585466352,0.0016157600704589,0.00152909364550213,-0.00164880583822809,0.00480943147116859,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"block_eigen_unfiltered","sbayesr","vle",TRUE,"",0.549385161518058,0.0383886594538938,0.548490625048406,0.476391668192233,0.628059523753167,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"full_csr","sbayesr","component_proportion_0",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"full_csr","sbayesr","component_proportion_1",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"full_csr","sbayesr","component_proportion_2",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"full_csr","sbayesr","component_proportion_3",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"full_csr","sbayesr","effect_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"full_csr","sbayesr","genetic_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"full_csr","sbayesr","global_nonnull_proportion",TRUE,"",0.0099616093054646,0.000139707955390138,0.00996094882337217,0.00969105222852267,0.0102389353747862,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"full_csr","sbayesr","heritability",TRUE,"",0.396595376663977,0.0227942250669039,0.39657960739312,0.352763496057302,0.442612015163451,0.3,0.0965953766639769,0.00933066679285558,FALSE,"parameter_recovery",4,1000
+"sparse_mixture",5,"full_csr","sbayesr","residual_variance",FALSE,"not returned as identifiable per-chain draws by installed model",,,,,,,,,,"unavailable",4,0
+"sparse_mixture",5,"full_csr","sbayesr","vbs",TRUE,"",0.00452443537777358,0.000711004681572196,0.00445095338962718,0.00333297227172885,0.00609379113905101,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"full_csr","sbayesr","ves",TRUE,"",0.848780453010793,0.033747229278159,0.848330560849846,0.78315514999888,0.914607453009917,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"full_csr","sbayesr","vgs",TRUE,"",0.558232474571045,0.0384981693950557,0.557125152579398,0.485555208742606,0.63731085762651,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"full_csr","sbayesr","vld",TRUE,"",0.000324357035856762,0.00128008960184613,0.000353702181025484,-0.00229394045325447,0.00271802921084197,,,,,"posterior_behaviour",4,1000
+"sparse_mixture",5,"full_csr","sbayesr","vle",TRUE,"",0.557908117535188,0.0384059143105281,0.556695141298436,0.485370962711271,0.636606468622959,,,,,"posterior_behaviour",4,1000

@@ -12,6 +12,7 @@ project:
     - studies/02_prediction/prediction-development-pilot.qmd
     - studies/03_parameter_estimation/parameter-estimation-development-pilot.qmd
     - studies/04_convergence/convergence-development-pilot.qmd
+    - studies/06_ld_operator/ld-operator-development-pilot.qmd
   resources:
     - results/reference/**
 

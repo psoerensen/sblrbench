@@ -1,0 +1,2 @@
+"shrinkage_weight","eigen_eta","minimum_runtime_diagonal","frobenius_relative_error","maximum_element_error","maximum_matrix_vector_error","maximum_quadratic_form_error","off_diagonal_norm_retained","pass","selection_basis"
+0.01,0.0101010101010101,3264.77270507812,0.00471204103071301,3.21090698242188,88.0261668329003,2228.20987243159,0.989999999998999,TRUE,"frozen 1% off-diagonal shrinkage; not prediction optimized"

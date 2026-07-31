@@ -57,10 +57,31 @@ description: "Ordered catalogue of frozen sblrbench development benchmarks and p
 | Validation | 16/16 chains; retained identities and complete checkpoint grid |
 | Capsule | [Recommendation-generating capsule](../results/reference/04_convergence/st-multichain-convergence-development-v1/README.md); [five-replicate validation capsule](../results/reference/04_convergence/st-multichain-convergence-validation-five-replicate-v1/README.md) |
 
+### Study 05: Single-trait annotation-informed models
+
+| Field | Value |
+|---|---|
+| Status | Interface validated; convergence unsupported under tested pilot design; five-replicate benchmark not started |
+| Study type | Annotation-informed mixture probabilities |
+| Methods | ST-BED BayesR/BayesRC; ST-CSR SBayesR/SBayesRC |
+| Validation | Maximum-history convergence pilot retained locally; prespecified stop condition triggered |
+| Documentation | [Development run record](../docs/dev/study05_annotation_models_run.md) |
+
+### [Study 06: Single-trait LD operator benchmark](06_ld_operator/ld-operator-development-pilot.qmd)
+
+| Field | Value |
+|---|---|
+| Status | Complete five-replicate development benchmark |
+| Study type | BED, full CSR, block CSR, and block-eigen operator comparison |
+| Methods | Matched BayesC/SBayesC and BayesR/SBayesR |
+| Architectures | Sparse homogeneous; sparse variance mixture |
+| Scale | 2 architectures; 5 replicates; 60 four-chain fits |
+| Primary outputs | Operator equivalence, filtering effects, prediction, recovery, convergence, runtime and storage |
+
 ## Planned benchmarks
 
 - Fine-mapping with realistic LD.
 - High-LD causal architecture.
 - Multi-trait prediction after computational optimization.
-- Annotation-informed models.
-- Block-eigen methods.
+- Scientific-scale annotation-informed models after convergence redesign.
+- Multi-trait operator and prediction benchmarks.

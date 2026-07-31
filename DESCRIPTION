@@ -23,7 +23,8 @@ Suggests:
     rmarkdown,
     qgg,
     targets,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    withr
 Remotes:
     psoerensen/qgg,
     psoerensen/sblr@v0.1.2

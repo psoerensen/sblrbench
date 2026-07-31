@@ -1,0 +1,4 @@
+"configuration","policy","tau","eta"
+"block_eigen_hard","hard_truncate",0.1,
+"block_eigen_ridge_fixed","ridge_fixed",,0.0101010101010101
+"block_eigen_unfiltered","ridge_fixed",,0
