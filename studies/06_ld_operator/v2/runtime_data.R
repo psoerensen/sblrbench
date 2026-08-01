@@ -20,7 +20,7 @@
     inspect <- list(
       packed_upper_triangle = lapply(near_full$inspect$factor,
         function(Q) .study06_pack_triangle(crossprod(Q))),
-      block_size = near_full$inspect$block_size)
+      block_size = vapply(near_full$inspect$factor, ncol, integer(1)))
     csr <- .study06_write_runtime_csr(inspect, prefix,
       near_full$marker_ids, zero_tolerance = 0)
   } else {
@@ -69,8 +69,8 @@
     identical(run$method$configuration, method$configuration) &&
     identical(run$input_hash, input_hash) &&
     length(run$fit$chains) == 4L &&
-    identical(sort(vapply(run$fit$chains, `[[`, integer(1),
-      "chain_index")), 1:4) &&
+    identical(unname(sort(vapply(run$fit$chains, `[[`, integer(1),
+      "chain_index"))), 1:4) &&
     (!identical(method$operator_family, "retained_low_rank") ||
       (identical(run$operator_contract, config$operator_contract) &&
        identical(run$representation, "low_rank") &&

@@ -31,6 +31,14 @@ test_that("v2 paths and capsules cannot overwrite v1", {
       study06v2_config$benchmark_capsule)))
 })
 
+test_that("operator-pilot gates are inherited explicitly from v1", {
+  expect_true(is.list(study06v2_config$pilot_gate))
+  expect_true(all(c("maximum_heritability_difference",
+    "maximum_prediction_correlation_difference",
+    "minimum_posterior_effect_correlation") %in%
+    names(study06v2_config$pilot_gate)))
+})
+
 test_that("the exact 60-fit grid has explicit safe low-rank controls", {
   skip_if_not(dir.exists(study06v2_dir))
   grid <- .study06v2_validate_grid(study06v2_config)
@@ -118,4 +126,16 @@ test_that("full-retention validation requires all positive rank", {
   inspect$diagnostics$retained_rank[2] <- 1L
   expect_error(.study06v2_validate_full_positive_rank(inspect,
     study06v2_config$eigen_prop_full), "retain every positive")
+})
+
+test_that("runtime block sizes are defined by retained factor columns", {
+  factors <- list(matrix(0, 3L, 5L), matrix(0, 2L, 4L))
+  expect_identical(vapply(factors, ncol, integer(1)), c(5L, 4L))
+})
+
+test_that("named native chain lists retain identifiable indices", {
+  chains <- setNames(lapply(1:4, function(i) list(chain_index = i)),
+    paste0("task", 1:4))
+  index <- unname(sort(vapply(chains, `[[`, integer(1), "chain_index")))
+  expect_identical(index, 1:4)
 })

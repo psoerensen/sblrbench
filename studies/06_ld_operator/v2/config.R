@@ -46,6 +46,7 @@ list(
   block_sensitivity = c(250L, 500L, 1000L, 2000L),
   operator_tolerance = .study06v2_v1$operator_tolerance,
   operator_probe_count = .study06v2_v1$operator_probe_count,
+  pilot_gate = .study06v2_v1$pilot_gate,
   recommendation_source = .study06v2_v1$recommendation_source,
   convergence = .study06v2_v1$convergence,
   seeds = .study06v2_v1$seeds,

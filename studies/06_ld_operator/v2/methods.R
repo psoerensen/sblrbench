@@ -154,7 +154,8 @@
     warnings = paste(unique(warning_text), collapse = " | ")))
   fit <- result$native_fit
   valid_chains <- !is.null(fit$chains) && length(fit$chains) == 4L &&
-    identical(sort(vapply(fit$chains, `[[`, integer(1), "chain_index")), 1:4)
+    identical(unname(sort(vapply(fit$chains, `[[`, integer(1),
+      "chain_index"))), 1:4)
   if (!valid_chains) return(list(status = "failed",
     reason = "Four identifiable chains were not retained.", method = method,
     architecture = simulation$architecture,

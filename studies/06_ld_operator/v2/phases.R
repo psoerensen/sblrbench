@@ -63,6 +63,16 @@
   reference <- summary[summary$configuration == "block_csr", ]
   full <- summary[summary$configuration == "low_rank_full", ]
   canonical <- summary[summary$configuration == "low_rank_0995", ]
+  reference_run <- runs[[which(vapply(runs, function(x)
+    x$method$configuration == "block_csr", logical(1)))]]
+  full_run <- runs[[which(vapply(runs, function(x)
+    x$method$configuration == "low_rank_full", logical(1)))]]
+  canonical_run <- runs[[which(vapply(runs, function(x)
+    x$method$configuration == "low_rank_0995", logical(1)))]]
+  full_reference_effect_correlation <- .study06_safe_cor(
+    as.numeric(full_run$fit$bm), as.numeric(reference_run$fit$bm))
+  canonical_full_effect_correlation <- .study06_safe_cor(
+    as.numeric(canonical_run$fit$bm), as.numeric(full_run$fit$bm))
   pass <- nrow(reference) == 1L && nrow(full) == 1L && nrow(canonical) == 1L &&
     all(is.finite(unlist(summary[c("posterior_heritability", "vgs",
       "ves", "vbs", "prediction_correlation",
@@ -71,7 +81,9 @@
       config$pilot_gate$maximum_heritability_difference &&
     abs(full$prediction_correlation - reference$prediction_correlation) <=
       config$pilot_gate$maximum_prediction_correlation_difference &&
-    full$marker_effect_correlation >=
+    full_reference_effect_correlation >=
+      config$pilot_gate$minimum_posterior_effect_correlation &&
+    canonical_full_effect_correlation >=
       config$pilot_gate$minimum_posterior_effect_correlation
   gate <- data.frame(
     block_csr_minus_full_rank_h2_absolute = abs(
@@ -80,6 +92,10 @@
       reference$prediction_correlation - full$prediction_correlation),
     full_rank_truth_effect_correlation = full$marker_effect_correlation,
     canonical_truth_effect_correlation = canonical$marker_effect_correlation,
+    full_rank_vs_block_csr_effect_correlation =
+      full_reference_effect_correlation,
+    canonical_vs_full_rank_effect_correlation =
+      canonical_full_effect_correlation,
     pass = pass, stringsAsFactors = FALSE)
   output <- file.path(config$local_dir, "operator_pilot")
   .study06v2_write_csv(summary, file.path(output,
