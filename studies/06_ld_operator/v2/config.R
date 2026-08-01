@@ -47,6 +47,10 @@ list(
   operator_tolerance = .study06v2_v1$operator_tolerance,
   operator_probe_count = .study06v2_v1$operator_probe_count,
   pilot_gate = .study06v2_v1$pilot_gate,
+  readiness_gate = list(
+    maximum_0995_vs_0999_prediction_correlation_difference = 0.05,
+    maximum_0995_vs_0999_heritability_difference = 0.05,
+    minimum_0995_vs_0999_marker_effect_correlation = 0.95),
   recommendation_source = .study06v2_v1$recommendation_source,
   convergence = .study06v2_v1$convergence,
   seeds = .study06v2_v1$seeds,

@@ -27,7 +27,8 @@ pkgload::load_all(root, recompile = FALSE, quiet = TRUE,
   export_all = FALSE, helpers = FALSE)
 for (file in c("source_loader.R", "guard.R", "design_crosswalk.R",
     "operator_validation.R", "deterministic_run.R", "methods.R",
-    "runtime_data.R", "phases.R", "provenance.R"))
+    "runtime_data.R", "phases.R", "provenance.R", "promotion.R",
+    "verification.R"))
   source(file.path("studies", "06_ld_operator", "v2", file), local = TRUE)
 
 local_dir <- config$local_dir
@@ -162,13 +163,23 @@ dispatch <- function(id) switch(id,
   },
   aggregate = {
     output <- file.path(local_dir, "aggregate", "fit_status.csv")
-    if (!already_complete(id, output))
+    if (!already_complete(id, output)) {
       run_phase(id, .study06v2_aggregate, output)
+      .study06v2_promote("convergence", config)
+      readiness <- .study06v2_readiness_decision(config)
+      .study06v2_promote("benchmark", config, readiness)
+    }
   },
-  report = stop("Study 06 v2 report phase is not implemented yet.",
-    call. = FALSE),
-  verify = stop("Study 06 v2 verify phase is not implemented yet.",
-    call. = FALSE),
+  report = {
+    output <- file.path(local_dir, "logs", "report.log")
+    if (!already_complete(id, output))
+      run_phase(id, .study06v2_render_report, output)
+  },
+  verify = {
+    output <- file.path(local_dir, "verification", "verification_summary.txt")
+    if (!already_complete(id, output))
+      run_phase(id, .study06v2_verify, output)
+  },
   audit = NULL)
 
 run_audit()

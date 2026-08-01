@@ -139,3 +139,16 @@ test_that("named native chain lists retain identifiable indices", {
   index <- unname(sort(vapply(chains, `[[`, integer(1), "chain_index")))
   expect_identical(index, 1:4)
 })
+
+test_that("v2 aggregation uses only retained-low-rank comparison labels", {
+  source(file.path(study06v2_dir, "phases.R"), local = TRUE)
+  registry <- .study06v2_comparison_registry()
+  expect_setequal(registry$comparison_id, c(
+    "full_csr_minus_bed", "block_csr_minus_full_csr",
+    "low_rank_full_minus_block_csr",
+    "low_rank_0995_minus_low_rank_full",
+    "low_rank_0995_minus_low_rank_0999",
+    "low_rank_0999_minus_low_rank_full",
+    "low_rank_0995_minus_full_csr"))
+  expect_false(any(grepl("block_eigen|hard|ridge", registry$comparison_id)))
+})

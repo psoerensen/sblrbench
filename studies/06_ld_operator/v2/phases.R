@@ -293,6 +293,62 @@
     stringsAsFactors = FALSE), blocks)
 }
 
+.study06v2_marker_agreement <- function(runs) {
+  registry <- .study06v2_comparison_registry()
+  out <- list()
+  architectures <- unique(vapply(runs, `[[`, "", "architecture"))
+  replicates <- sort(unique(vapply(runs, `[[`, integer(1), "replicate")))
+  for (architecture in architectures) for (replicate in replicates)
+    for (i in seq_len(nrow(registry))) {
+      focal <- Filter(function(x) x$architecture == architecture &&
+        x$replicate == replicate && x$method$configuration ==
+          registry$focal[i], runs)
+      reference <- Filter(function(x) x$architecture == architecture &&
+        x$replicate == replicate && x$method$configuration ==
+          registry$reference[i], runs)
+      if (length(focal) != 1L || length(reference) != 1L) next
+      a <- as.numeric(focal[[1L]]$fit$bm[, 1L])
+      b <- as.numeric(reference[[1L]]$fit$bm[, 1L])
+      da <- if (is.null(focal[[1L]]$fit$dm)) NULL else
+        as.numeric(focal[[1L]]$fit$dm[, 1L])
+      db <- if (is.null(reference[[1L]]$fit$dm)) NULL else
+        as.numeric(reference[[1L]]$fit$dm[, 1L])
+      out[[length(out) + 1L]] <- data.frame(
+        architecture = architecture, replicate = replicate,
+        comparison_id = registry$comparison_id[i],
+        orientation = paste(registry$focal[i], "minus",
+          registry$reference[i]),
+        posterior_mean_effect_correlation = .study06_safe_cor(a, b),
+        posterior_mean_effect_rmse = sqrt(mean((a - b)^2)),
+        posterior_mean_effect_maximum_absolute_difference =
+          max(abs(a - b)),
+        nonnull_probability_correlation =
+          if (is.null(da) || is.null(db)) NA_real_ else
+            .study06_safe_cor(da, db),
+        high_pip_overlap = if (is.null(da) || is.null(db)) NA_real_ else {
+          A <- which(da >= .5); B <- which(db >= .5)
+          if (!length(union(A, B))) 1 else
+            length(intersect(A, B)) / length(union(A, B))
+        }, stringsAsFactors = FALSE)
+    }
+  if (!length(out)) return(data.frame())
+  z <- do.call(rbind, out)
+  z[order(z$comparison_id, z$architecture, z$replicate), , drop = FALSE]
+}
+
+.study06v2_output_availability <- function(runs) do.call(rbind,
+  lapply(runs, function(run) {
+    fields <- c("vgs", "ves", "vbs", "vld", "vle", "pis", "dm",
+      "component_probabilities", "log_cpo", "mean_log_cpo")
+    data.frame(architecture = run$architecture, replicate = run$replicate,
+      configuration = run$method$configuration, output = fields,
+      available = vapply(fields, function(field)
+        !is.null(run$fit[[field]]), logical(1)),
+      unavailable_reason = vapply(fields, function(field)
+        if (is.null(run$fit[[field]])) "not returned by public fit contract"
+        else "", ""), stringsAsFactors = FALSE)
+  }))
+
 .study06v2_aggregate <- function(config) {
   .study06v2_source_analysis_helpers()
   runtime <- .study06v2_load_runtime_data(config)
@@ -340,22 +396,28 @@
     checkpoint_bytes = file.info(.study06v2_checkpoint_path(config,
       "benchmark", run$method, run$replicate))$size,
     immutable_operator_bytes = if (identical(run$method$operator_family,
-      "retained_low_rank")) as.numeric(run$fit$input$eigen_diagnostics$build$immutable_operator_bytes %||% NA_real_) else NA_real_,
+      "retained_low_rank")) as.numeric(run$fit$input$eigen_diagnostics$build$operator_storage_bytes %||% NA_real_) else NA_real_,
     per_chain_state_bytes = if (identical(run$method$operator_family,
-      "retained_low_rank")) as.numeric(run$fit$input$eigen_diagnostics$build$per_chain_residual_bytes %||% NA_real_) else NA_real_,
+      "retained_low_rank")) as.numeric(run$fit$input$eigen_diagnostics$build$chain_residual_storage_bytes %||% NA_real_) else NA_real_,
+    operator_construction_seconds = if (identical(
+      run$method$operator_family, "retained_low_rank"))
+        as.numeric(run$fit$input$eigen_diagnostics$build$construction_time %||%
+          NA_real_) else NA_real_,
     warnings = run$warnings, stringsAsFactors = FALSE)))
   low_rank_metadata <- do.call(rbind, Filter(Negate(is.null),
     lapply(runs, .study06v2_low_rank_fit_metadata)))
   evidence <- do.call(rbind, lapply(runs, .study06_sbayesr_evidence))
-  marker_agreement <- .study06_marker_agreement(runs)
+  marker_agreement <- .study06v2_marker_agreement(runs)
+  availability <- .study06v2_output_availability(runs)
+  variable_combined <- variable[c("architecture", "replicate",
+    "configuration", "metric", "value")]
+  variable_combined$method <- ""
   combined <- rbind(prediction[c("architecture", "replicate",
     "configuration", "method", "metric", "value")],
     marker[c("architecture", "replicate", "configuration", "method",
       "metric", "value")],
-    transform(variable[c("architecture", "replicate", "configuration",
-      "metric", "value")], method = "", stringsAsFactors = FALSE)[
-        c("architecture", "replicate", "configuration", "method",
-          "metric", "value")])
+    variable_combined[c("architecture", "replicate", "configuration",
+      "method", "metric", "value")])
   paired <- .study06v2_paired_differences(combined)
   paired_summary <- .study06v2_paired_summary(paired)
   recovery <- .study06_recovery_summary(parameter)
@@ -377,6 +439,7 @@
     convergence_diagnostics.csv = diagnostics,
     convergence_validation_summary.csv = convergence,
     computational_summary.csv = computational,
+    method_output_availability.csv = availability,
     low_rank_fit_block_diagnostics.csv = low_rank_metadata)
   output <- file.path(config$local_dir, "aggregate")
   vapply(names(outputs), function(name)
