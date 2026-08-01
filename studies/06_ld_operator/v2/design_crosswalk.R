@@ -1,0 +1,18 @@
+.study06v2_design_crosswalk <- function(config) data.frame(
+  field = c("architectures", "replicates", "sample_marker_resource",
+    "training_test_split", "simulation_truth", "simulation_seeds",
+    "block_boundaries", "bed", "full_csr", "block_csr",
+    "block_eigen_policies", "operator_contract", "residual_state"),
+  v1 = c("sparse_homogeneous; sparse_mixture", "5 paired",
+    "5000 x 37991 qgdata chromosome 1", "70/30; seed 3101",
+    "50 causal; realized h2 0.30", "base 61000; frozen strides",
+    "38 contiguous blocks; target 1000", "packed BED", "full CSR",
+    "runtime-matched block CSR", "unfiltered; hard; fixed ridge",
+    "block_dense_reconstructed_v1", "marker-space dense"),
+  v2 = c("identical", "identical", "identical", "identical", "identical",
+    "identical", "identical", "retained", "retained", "retained",
+    "removed; historical only", "block_low_rank_v1",
+    "retained Q/w residual"),
+  disposition = c(rep("held_identical", 10L), "no_longer_relevant",
+    "intentionally_changed", "intentionally_changed"),
+  stringsAsFactors = FALSE)

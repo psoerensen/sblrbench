@@ -1,0 +1,65 @@
+.study06v2_candidates <- c(".", file.path("..", ".."),
+  file.path("..", "..", ".."))
+.study06v2_hit <- vapply(.study06v2_candidates, function(path)
+  file.exists(file.path(path, "studies", "06_ld_operator", "config.R")),
+  logical(1))
+if (!any(.study06v2_hit)) stop("Cannot locate the sblrbench root for Study 06 v2.")
+.study06v2_root <- .study06v2_candidates[which(.study06v2_hit)[1L]]
+.study06v2_v1 <- source(file.path(.study06v2_root, "studies",
+  "06_ld_operator", "config.R"), local = TRUE)$value
+
+list(
+  study = "06_low_rank_operator_v2",
+  task = "single_trait_retained_low_rank_operator_validation",
+  title = "Study 06 v2: retained low-rank LD operator validation",
+  design_revision = "retained_low_rank_v2",
+  required_sblr_version = "0.2.0",
+  required_sblr_sha = "96487b3194fc1f8c6789060da5f2e2a0eea89974",
+  operator_contract = "block_low_rank_v1",
+  representation = "low_rank",
+  eigen_policy = "cumulative_positive_mass",
+  eigen_prop_full = 1 - .Machine$double.eps,
+  eigen_props = c(low_rank_0999 = 0.999, low_rank_0995 = 0.995),
+  chr = .study06v2_v1$chr,
+  trait = .study06v2_v1$trait,
+  sample_limit = .study06v2_v1$sample_limit,
+  example_data = .study06v2_v1$example_data,
+  qc = .study06v2_v1$qc,
+  sparse_ld = .study06v2_v1$sparse_ld,
+  split = .study06v2_v1$split,
+  architectures = .study06v2_v1$architectures,
+  architecture_specs = .study06v2_v1$architecture_specs,
+  replicate_count = .study06v2_v1$replicate_count,
+  simulation = .study06v2_v1$simulation,
+  configurations = c("bed", "full_csr", "block_csr",
+    "low_rank_full", "low_rank_0999", "low_rank_0995"),
+  configuration_labels = c(
+    bed = "Individual-level BED",
+    full_csr = "Full sparse-LD CSR",
+    block_csr = "Block CSR",
+    low_rank_full = "Retained low rank: near-full positive rank",
+    low_rank_0999 = "Retained low rank: 0.999 mass",
+    low_rank_0995 = "Retained low rank: 0.995 mass"),
+  expected_fit_count = 60L,
+  convergence_fit_count = 10L,
+  block_size = .study06v2_v1$selected_block_size,
+  block_sensitivity = c(250L, 500L, 1000L, 2000L),
+  operator_tolerance = .study06v2_v1$operator_tolerance,
+  operator_probe_count = .study06v2_v1$operator_probe_count,
+  recommendation_source = .study06v2_v1$recommendation_source,
+  convergence = .study06v2_v1$convergence,
+  seeds = .study06v2_v1$seeds,
+  local_dir = file.path("results", "local",
+    "study06_low_rank_operator_v2"),
+  source_snapshot = file.path("results", "local",
+    "study06_low_rank_operator_v2", "preflight", "sblr_source_96487b3"),
+  convergence_capsule = file.path("results", "reference", "06_ld_operator",
+    "st-low-rank-operator-convergence-development-v2"),
+  benchmark_capsule = file.path("results", "reference", "06_ld_operator",
+    "st-low-rank-operator-five-replicate-development-v2"),
+  historical_capsules = c(
+    file.path("results", "reference", "06_ld_operator",
+      "st-ld-operator-convergence-development-v1"),
+    file.path("results", "reference", "06_ld_operator",
+      "st-ld-operator-five-replicate-development-v1"))
+)
