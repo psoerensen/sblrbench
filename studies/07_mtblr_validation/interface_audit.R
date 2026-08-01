@@ -1,0 +1,65 @@
+.study07_interface_audit <- function(config) {
+  exports <- getNamespaceExports("sblr")
+  required <- c("mtblr_bed", "mtblr_csr", "mtblr_block_eigen")
+  if (!all(required %in% exports))
+    stop("A required public MTBLR interface is unavailable.", call. = FALSE)
+  rows <- list(
+    data.frame(interface = "mtblr_bed", method = "bayesc",
+      data_level = "individual", operator = "packed_bed",
+      residual_covariance = "full_or_diagonal; Study07 uses diagonal",
+      sample_overlap = "identical individuals in phenotype matrix",
+      trait_specific_ld = FALSE, sampled_maf_s = FALSE,
+      annotation_support = TRUE, bayesr_support = TRUE,
+      chain_retention = "compact per-chain records",
+      covariance_history = "extended convergence covariance group",
+      probability_history = "extended convergence probability group",
+      marker_joint_state_probability = "unavailable for BayesC",
+      stringsAsFactors = FALSE),
+    data.frame(interface = "mtblr_csr", method = "sbayesc",
+      data_level = "summary_statistics", operator = "sparse_ld_csr",
+      residual_covariance = "diagonal_only",
+      sample_overlap = "not_modeled; marginal yy only",
+      trait_specific_ld = TRUE, sampled_maf_s = FALSE,
+      annotation_support = TRUE, bayesr_support = TRUE,
+      chain_retention = "compact per-chain records",
+      covariance_history = "extended convergence covariance group",
+      probability_history = "extended convergence probability group",
+      marker_joint_state_probability = "unavailable for BayesC",
+      stringsAsFactors = FALSE),
+    data.frame(interface = "mtblr_block_eigen", method = "sbayesc",
+      data_level = "summary_statistics", operator = "packed_dense_block",
+      residual_covariance = "diagonal_only",
+      sample_overlap = "not_modeled; marginal yy only",
+      trait_specific_ld = TRUE, sampled_maf_s = FALSE,
+      annotation_support = TRUE, bayesr_support = TRUE,
+      chain_retention = "compact per-chain records",
+      covariance_history = "extended convergence covariance group",
+      probability_history = "extended convergence probability group",
+      marker_joint_state_probability = "unavailable for BayesC",
+      stringsAsFactors = FALSE))
+  do.call(rbind, rows)
+}
+
+.study07_output_semantics <- function() data.frame(
+  field = c("bm", "dm", "b", "d", "pi_mean", "pi_final",
+    "cov_g_mean", "cov_e_mean", "cov_b_mean", "vgs", "ves", "vbs",
+    "vld", "vle", "bm_chain_mean_sd", "dm_chain_mean_sd",
+    "convergence_traces", "chains"),
+  meaning = c("pooled retained-draw posterior mean marker effect",
+    "pooled retained-draw trait-specific inclusion probability",
+    "primary-chain final marker effect", "primary-chain final binary state",
+    "pooled retained-draw global joint-pattern probabilities",
+    "primary-chain final global joint-pattern probabilities",
+    "pooled retained-draw genetic covariance mean",
+    "pooled retained-draw residual covariance mean",
+    "pooled retained-draw marker-effect covariance mean",
+    "iterationwise genetic variance trace", "iterationwise residual variance trace",
+    "iterationwise marker-effect variance trace",
+    "iterationwise LD variance decomposition", "iterationwise effect variance decomposition",
+    "SD among chain posterior marker means; not posterior SD",
+    "SD among chain posterior PIP means; not posterior SD",
+    "unpooled post-burn per-chain diagnostic histories",
+    "compact identifiable per-chain records when keep_chains=TRUE"),
+  posterior_uncertainty = c(TRUE, TRUE, FALSE, FALSE, TRUE, FALSE,
+    TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE,
+    TRUE, FALSE), stringsAsFactors = FALSE)
