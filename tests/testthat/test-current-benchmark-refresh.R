@@ -4,7 +4,8 @@ test_that("current refresh paths and package pin are explicit", {
   expect_match(runner, "02e8c74baa906e83c4a08d42a9cc6339b4e81072", fixed = TRUE)
   expect_match(runner, "current_benchmark_refresh", fixed = TRUE)
   expect_match(runner, "current-selection", fixed = TRUE)
-  expect_false(grepl("pkgload::load_all", runner, fixed = TRUE))
+  expect_match(runner, "pkgload::load_all(root", fixed = TRUE)
+  expect_match(runner, "library(\"sblr\", lib.loc = rlib", fixed = TRUE)
 })
 
 test_that("five-replicate recommendations resolve to the current capsule", {
@@ -18,4 +19,13 @@ test_that("five-replicate recommendations resolve to the current capsule", {
   Sys.setenv(SBLR_BENCH_RECOMMENDATIONS = "custom/recommendations.csv")
   expect_identical(env$.five_replicate_recommendation_path(),
     "custom/recommendations.csv")
+})
+
+test_that("Study 02 compacts simulation branches before aggregation", {
+  source <- paste(readLines(test_path("..", "..", "studies", "02_prediction",
+    "targets.R"), warn = FALSE), collapse = "\n")
+  expect_match(source, "prediction_simulation_summary_branch")
+  expect_match(source, "pattern = map(prediction_simulation_bundle)", fixed = TRUE)
+  expect_false(grepl("lapply(prediction_simulation_bundle, function", source,
+    fixed = TRUE))
 })

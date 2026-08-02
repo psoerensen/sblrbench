@@ -150,6 +150,11 @@ write_prior_impact <- function() {
 
 run_targets <- function(study, profile, output_dir, store_name, script = "_targets.R") {
   preflight()
+  # The benchmark package under development is loaded from this committed source tree so
+  # targets that call sblrbench:: APIs see the matching namespace. The scientific backend
+  # remains the ordinary installed sblr package from the frozen isolated library.
+  pkgload::load_all(root, quiet = TRUE, helpers = FALSE, export_all = FALSE)
+  verify_package()
   vars <- c(SBLR_BENCH_STUDY = study, SBLR_BENCH_PROFILE = profile,
     SBLR_BENCH_OUTPUT_DIR = output_dir,
     SBLR_BENCH_RECOMMENDATIONS = recommendations,

@@ -101,8 +101,9 @@ list(
     z$expected_fit_count <- nrow(expected)
     z
   }),
-  targets::tar_target(prediction_simulation_summary,
-    do.call(rbind, lapply(prediction_simulation_bundle, function(x) data.frame(
+  targets::tar_target(prediction_simulation_summary_branch, {
+    x <- prediction_simulation_bundle
+    data.frame(
       architecture = x$simulation$scenario$architecture,
       replicate = x$simulation$scenario$replicate,
       simulation_seed = x$simulation$provenance$seed,
@@ -113,7 +114,10 @@ list(
       component_counts = paste(names(table(x$simulation$extras$effect_components$component)),
         as.integer(table(x$simulation$extras$effect_components$component)), sep = ":", collapse = ";"),
       oracle_ok = x$oracle$ok, oracle_max_abs_error = x$oracle$max_abs_error,
-      stringsAsFactors = FALSE)))),
+      stringsAsFactors = FALSE)
+  }, pattern = map(prediction_simulation_bundle), iteration = "list"),
+  targets::tar_target(prediction_simulation_summary,
+    do.call(rbind, prediction_simulation_summary_branch)),
   targets::tar_target(prediction_seed_registry, do.call(rbind,
     lapply(prediction_method_run, function(x) do.call(rbind,
       lapply(seq_along(x$fit$chain_seeds), function(chain) data.frame(
