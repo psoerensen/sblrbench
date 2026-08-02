@@ -16,7 +16,7 @@ implemented in `sblr`.
 | Study 03 | Single-trait parameter estimation | Complete five-replicate development benchmark | 2 architectures; 5 replicates; 40 fits | [Parameter estimation](studies/03_parameter_estimation/parameter-estimation-development-pilot.qmd) |
 | Study 04 | Multichain convergence diagnostics | Complete development benchmark with five-replicate validation | 20 fits; 80 chains | [Convergence](studies/04_convergence/convergence-development-pilot.qmd) |
 | Study 05 | Annotation-informed single-trait models | Interface validated; convergence unsupported in the tested pilot | Main benchmark not started | [Development record](docs/dev/study05_annotation_models_run.md) |
-| Study 06 | Single-trait LD operators | Complete five-replicate development benchmark | 2 architectures; 5 replicates; 60 four-chain fits | [LD operators](studies/06_ld_operator/ld-operator-development-pilot.qmd) |
+| Study 06 v2 | Retained low-rank LD operators | Complete five-replicate development benchmark | 2 architectures; 5 paired replicates; 60 four-chain fits | [Retained low rank](studies/06_ld_operator/retained-low-rank-operator-development-v2.qmd) |
 
 ::: {.callout-warning .callout-development}
 ## Development benchmarks—not final method-performance claims.

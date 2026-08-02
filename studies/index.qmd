@@ -67,16 +67,26 @@ description: "Ordered catalogue of frozen sblrbench development benchmarks and p
 | Validation | Maximum-history convergence pilot retained locally; prespecified stop condition triggered |
 | Documentation | [Development run record](../docs/dev/study05_annotation_models_run.md) |
 
-### [Study 06: Single-trait LD operator benchmark](06_ld_operator/ld-operator-development-pilot.qmd)
+### [Study 06 v2: Retained low-rank LD operator validation](06_ld_operator/retained-low-rank-operator-development-v2.qmd)
 
 | Field | Value |
 |---|---|
 | Status | Complete five-replicate development benchmark |
-| Study type | BED, full CSR, block CSR, and block-eigen operator comparison |
-| Methods | Matched BayesC/SBayesC and BayesR/SBayesR |
+| Study type | Retained-low-rank LD operator validation |
+| Package | `sblr` 0.2.0 at commit `bd8e2c8148a0d9540dc20716455706beeb16fa86` |
 | Architectures | Sparse homogeneous; sparse variance mixture |
-| Scale | 2 architectures; 5 replicates; 60 four-chain fits |
-| Primary outputs | Operator equivalence, filtering effects, prediction, recovery, convergence, runtime and storage |
+| Scale | 2 architectures; 5 paired replicates; 6 configurations; 60 four-chain fits |
+| Configurations | Packed BED; full CSR; runtime-matched block CSR; near-full retained low rank; retained mass 0.999; retained mass 0.995 |
+| Primary outputs | Deterministic operator validation; prediction; parameter recovery; marker-effect agreement; variable selection; convergence; runtime; storage; retained rank and mass; residual-drift diagnostics |
+| Validation | 60/60 canonical fits; 14/14 pilot fits; 10/10 convergence fits; no reconstructed-dense fit in the primary grid; maximum residual drift approximately `2.4869e-14` |
+| Readiness decision | **READY FOR MTBLR LOW-RANK EXTENSION** |
+| Capsules | [Convergence capsule](../results/reference/06_ld_operator/st-low-rank-operator-convergence-development-v2/README.md); [five-replicate capsule](../results/reference/06_ld_operator/st-low-rank-operator-five-replicate-development-v2/README.md) |
+
+### [Historical Study 06 v1: Reconstructed-dense block-eigen benchmark](06_ld_operator/ld-operator-development-pilot.qmd)
+
+This immutable historical benchmark used the reconstructed-dense block-eigen
+operator. It remains available as historical evidence and must not be confused
+with the retained-low-rank Study 06 v2 benchmark.
 
 ## Planned benchmarks
 
