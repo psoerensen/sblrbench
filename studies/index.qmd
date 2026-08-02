@@ -26,9 +26,9 @@ description: "Ordered catalogue of frozen sblrbench development benchmarks and p
 | Study type | Held-out single-trait prediction |
 | Methods | ST-BED BayesC; ST-BED BayesR; ST-CSR SBayesC; ST-CSR SBayesR |
 | Architectures | Sparse homogeneous; sparse variance mixture |
-| Replicates or chains | One replicate per architecture |
+| Replicates or chains | Five paired replicates per architecture |
 | Primary outputs | Prediction correlation, NMSE, calibration, paired differences |
-| Validation | 8/8 fits; training-only scaling, LD and summary statistics |
+| Validation | 40/40 fits; four identifiable chains per fit; training-only scaling, LD and summary statistics |
 | Capsule | [Five-replicate capsule](../results/reference/02_prediction/st-bayesc-bayesr-five-replicate-development-v1/README.md); [historical one-replicate capsule](../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/README.md) |
 
 ### [Study 03: Single-trait parameter estimation](03_parameter_estimation/parameter-estimation-development-pilot.qmd)
@@ -39,9 +39,9 @@ description: "Ordered catalogue of frozen sblrbench development benchmarks and p
 | Study type | Posterior parameter estimation |
 | Methods | ST-BED BayesC; ST-BED BayesR; ST-CSR SBayesC; ST-CSR SBayesR |
 | Architectures | Sparse homogeneous; sparse variance mixture |
-| Replicates or chains | One replicate per architecture |
+| Replicates or chains | Five replicates per architecture |
 | Primary outputs | Effect, genetic and residual variance; heritability; posterior intervals |
-| Validation | 8/8 fits; simulation oracles and posterior contracts passed |
+| Validation | 40/40 fits; four identifiable chains per fit; simulation oracles and posterior contracts passed |
 | Capsule | [Five-replicate capsule](../results/reference/03_parameter_estimation/st-parameter-estimation-five-replicate-development-v1/README.md); [historical one-replicate capsule](../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/README.md) |
 
 ### [Study 04: Multichain convergence](04_convergence/convergence-development-pilot.qmd)
@@ -52,19 +52,21 @@ description: "Ordered catalogue of frozen sblrbench development benchmarks and p
 | Study type | Operational multichain convergence diagnostics |
 | Methods | Matched ST-BED/CSR BayesC and BayesR |
 | Architectures | Sparse homogeneous; sparse variance mixture |
-| Replicates or chains | Four chains per method; 16 total |
+| Recommendation-generating run | One replicate per matched architecture; 4 method fits; 16 chains |
+| Fixed-setting validation | Five replicates per matched combination; 20 method fits; 80 chains |
 | Primary outputs | R-hat, bulk/tail ESS, relative MCSE, burn-in stability, recommendations |
-| Validation | 16/16 chains; retained identities and complete checkpoint grid |
+| Validation | Recommendation run: 4/4 fits and 16/16 chains; fixed-setting validation: 20/20 fits and 80/80 chains, with recommendations supported in all five replicates |
 | Capsule | [Recommendation-generating capsule](../results/reference/04_convergence/st-multichain-convergence-development-v1/README.md); [five-replicate validation capsule](../results/reference/04_convergence/st-multichain-convergence-validation-five-replicate-v1/README.md) |
 
 ### Study 05: Single-trait annotation-informed models
 
 | Field | Value |
 |---|---|
-| Status | Interface validated; convergence unsupported under tested pilot design; five-replicate benchmark not started |
+| Status | Interface and maximum-history convergence pilot completed; prespecified convergence stop condition triggered |
 | Study type | Annotation-informed mixture probabilities |
 | Methods | ST-BED BayesR/BayesRC; ST-CSR SBayesR/SBayesRC |
-| Validation | Maximum-history convergence pilot retained locally; prespecified stop condition triggered |
+| Validation | Both maximum-history annotation-model fits completed; no candidate setting passed all unchanged Study 04 thresholds |
+| Scientific results | No five-replicate benchmark was started and no frozen scientific result capsule was produced |
 | Documentation | [Development run record](../docs/dev/study05_annotation_models_run.md) |
 
 ### [Study 06 v2: Retained low-rank LD operator validation](06_ld_operator/retained-low-rank-operator-development-v2.qmd)

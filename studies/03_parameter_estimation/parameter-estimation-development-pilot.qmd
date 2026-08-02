@@ -87,14 +87,25 @@ heritability rescaling means the simulations are only approximately prior-like.
 
 ## Configuration
 
-Development fits use 500 retained iterations after 250 burn-in iterations,
-thinning 1, one chain and one core. Study 04 recommendations have not been
-adopted retroactively.
+The primary five-replicate fits use the frozen Study 04 operational settings:
+250 burn-in iterations, thinning 1, four identifiable chains and four cores.
+BayesC and SBayesC retain 250 post-burn-in draws per chain; BayesR and SBayesR
+retain 1,000. The original one-replicate capsule remains unchanged at 500
+retained iterations, 250 burn-in iterations, one chain and one core; Study 04
+recommendations were not adopted retroactively into that historical capsule.
+
+```{r}
+#| echo: false
+knitr::kable(manifest$mcmc[, c(
+  "method", "recommended_nburn", "recommended_post_burnin_draws",
+  "recommended_nthin", "recommended_nchains", "recommended_ncores"
+)], caption = "MCMC controls recorded in the primary five-replicate capsule.")
+```
 
 ## Validation checks
 
-All eight architecture–method fits completed; simulation oracles passed; BED
-and CSR analyses use the same 5,000 samples, phenotype and canonical markers.
+All 40 architecture–replicate–method fits completed; simulation oracles passed;
+BED and CSR analyses use the same 5,000 samples, phenotype and canonical markers.
 
 ## Results
 
@@ -177,25 +188,28 @@ knitr::kable(runtime[, c("architecture", "method", "runtime", "status",
   "nit", "nburn", "nchains", "posterior_draw_count")], digits = 2)
 ```
 
-Runtimes are descriptive for this single run. The development settings use 500
-iterations after 250 burn-in iterations, one chain and one core; they are not
-convergence recommendations.
+Runtimes are descriptive across five simulations. The primary capsule records
+the Study 04 operational settings shown above; these remain development
+recommendations rather than universal convergence guarantees.
 
 ## Interpretation
 
-All eight workflows produced finite, aligned posterior summaries and the report
-contract joins them to explicit generating or realized truths. The observed
-one-replicate recovery differences are descriptive only; they do not establish
-unbiasedness or interval calibration. Study 04 now provides separate provisional
-convergence recommendations, but Study 03 retains its original frozen settings.
+All 40 fits produced finite, aligned posterior summaries and the report contract
+joins them to explicit generating or realized truths. Five-replicate recovery
+differences and coarse coverage are descriptive only; they do not establish
+unbiasedness or interval calibration. The five-replicate extension uses Study 04
+operational recommendations, while the original one-replicate capsule retains
+its historical settings unchanged.
 
 ## Limitations
 
-One replicate cannot establish unbiasedness or interval calibration. Short
-single-chain MCMC does not establish convergence. The public example genotype
-resource has limited LD, and results do not support general method rankings.
+Five replicates cannot establish unbiasedness or precise interval calibration.
+Four-chain operational settings do not establish universal convergence. The
+public example genotype resource has limited LD, and results do not support
+general method rankings.
 The separate [Study 04 convergence benchmark](../04_convergence/convergence-development-pilot.qmd)
-addresses operational multichain diagnostics; its settings have not been adopted here.
+provides the operational settings used by the primary five-replicate extension;
+they were not retroactively applied to the historical one-replicate capsule.
 
 ## Code and reproduction
 
@@ -245,10 +259,10 @@ display_capsule_script(file.path(historical_capsule,"run_parameter_estimation_be
 
 | Resource | Download |
 |---|---|
-| Capsule | [README](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/README.md); [manifest](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/benchmark_manifest.json) |
-| Primary results | [Parameter estimates](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/parameter_estimates.csv); [recovery summary](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/parameter_recovery_summary.csv); [paired differences](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/paired_parameter_differences.csv) |
-| Reproduction | [Configuration](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/config.R); [worked example](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/worked_parameter_estimation_example.R); [smoke test](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/parameter_estimation_contract_smoke_test.R); [run script](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/run_parameter_estimation_benchmark.R) |
-| Provenance | [Example data](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/example_data_manifest.csv); [source inventory](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/source_files.csv); [session information](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/session_info.txt); [checksums](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/checksums.csv) |
+| Primary capsule | [README](../../results/reference/03_parameter_estimation/st-parameter-estimation-five-replicate-development-v1/README.md); [manifest](../../results/reference/03_parameter_estimation/st-parameter-estimation-five-replicate-development-v1/benchmark_manifest.json) |
+| Primary results | [Parameter estimates](../../results/reference/03_parameter_estimation/st-parameter-estimation-five-replicate-development-v1/parameter_estimates.csv); [recovery summary](../../results/reference/03_parameter_estimation/st-parameter-estimation-five-replicate-development-v1/parameter_recovery_summary.csv); [paired differences](../../results/reference/03_parameter_estimation/st-parameter-estimation-five-replicate-development-v1/paired_parameter_differences.csv) |
+| Historical reproduction material | [Configuration](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/config.R); [worked example](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/worked_parameter_estimation_example.R); [smoke test](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/parameter_estimation_contract_smoke_test.R); [run script](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/run_parameter_estimation_benchmark.R) |
+| Primary provenance | [Example data](../../results/reference/03_parameter_estimation/st-parameter-estimation-five-replicate-development-v1/example_data_manifest.csv); [source inventory](../../results/reference/03_parameter_estimation/st-parameter-estimation-five-replicate-development-v1/source_files.csv); [session information](../../results/reference/03_parameter_estimation/st-parameter-estimation-five-replicate-development-v1/session_info.txt); [checksums](../../results/reference/03_parameter_estimation/st-parameter-estimation-five-replicate-development-v1/checksums.csv) |
 
 The [five-replicate capsule](../../results/reference/03_parameter_estimation/st-parameter-estimation-five-replicate-development-v1/README.md)
 is the primary result source. The [original one-replicate capsule](../../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/README.md)
