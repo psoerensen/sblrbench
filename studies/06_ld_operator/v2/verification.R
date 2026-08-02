@@ -28,7 +28,9 @@
     "--exclude-standard"), stdout = TRUE)
   files <- unique(c(tracked, untracked))
   files <- files[file.exists(files) & !dir.exists(files)]
-  files[!grepl("^(results/local|_targets|_site|fit_checkpoints|\\.git)(/|$)",
+  files[!grepl(paste0(
+    "^(results/local|_targets|_site|fit_checkpoints|\\.git)(/|$)|",
+    "(^|/)retained-low-rank-operator-development-v2(_files/|[.]html$)"),
     files)]
 }
 
@@ -55,10 +57,9 @@
 }
 
 .study06v2_free_disk_bytes <- function(path) {
-  command <- sprintf("(Get-PSDrive -Name %s).Free",
-    substr(normalizePath(path, winslash = "\\", mustWork = TRUE), 1L, 1L))
-  value <- suppressWarnings(as.numeric(system2("powershell",
-    c("-NoProfile", "-Command", shQuote(command)), stdout = TRUE)))
+  if (!requireNamespace("ps", quietly = TRUE)) return(NA_real_)
+  value <- suppressWarnings(ps::ps_disk_usage(
+    normalizePath(path, winslash = "/", mustWork = TRUE))$available)
   if (length(value) == 1L && is.finite(value)) value else NA_real_
 }
 

@@ -11,11 +11,15 @@ source(file.path(.study06v2_promotion_root, "studies", "02_prediction",
     "v1_to_v2_design_crosswalk.csv", "deterministic_identity_summary.csv",
     "low_rank_block_diagnostics.csv", "deterministic_validation_manifest.json")
   if (type == "convergence") c(common,
-    "historical_v1_inventory.md", "repin_hash_comparison.csv",
-    "one_replicate_operator_pilot.csv", "pilot_gate.csv", "fit_status.csv",
+    "historical_v1_inventory.md", "optimized_hash_inventory.csv",
+    "one_replicate_operator_pilot.csv", "pilot_gate.csv",
+    "pilot_paired_comparisons.csv", "pilot_runtime_comparison.csv",
+    "projected_complete_grid_runtime.csv", "historical_runtime_context.csv",
+    "fit_status.csv",
     "candidate_settings.csv", "convergence_diagnostics.csv",
     "method_recommendations.csv")
   else c(common, "block_definitions.csv", "seed_registry.csv",
+    "checkpoint_validation.csv",
     "simulation_summary.csv", "fit_status.csv", "prediction_metrics.csv",
     "parameter_estimates.csv", "parameter_recovery_summary.csv",
     "marker_effect_metrics.csv", "variable_selection_metrics.csv",
@@ -76,22 +80,81 @@ source(file.path(.study06v2_promotion_root, "studies", "02_prediction",
       any(status$status != "ok") || any(status$chain_count != 4L))
     stop("Study 06 v2 capsule provenance or fit-grid validation failed.",
       call. = FALSE)
+  status_key <- paste(status$architecture, status$replicate,
+    status$configuration, sep = "::")
+  expected_grid <- if (type == "convergence")
+    expand.grid(architecture = config$architectures, replicate = 1L,
+      configuration = setdiff(config$configurations, "bed"),
+      KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE) else
+    expand.grid(architecture = config$architectures,
+      replicate = seq_len(config$replicate_count),
+      configuration = config$configurations, KEEP.OUT.ATTRS = FALSE,
+      stringsAsFactors = FALSE)
+  expected_key <- paste(expected_grid$architecture, expected_grid$replicate,
+    expected_grid$configuration, sep = "::")
+  if (anyDuplicated(status_key) || !setequal(status_key, expected_key))
+    stop("Study 06 v2 capsule fit coordinates are incomplete or duplicated.",
+      call. = FALSE)
   if (type == "benchmark") {
     paired <- read.csv(file.path(path, "paired_comparison_summary.csv"),
       stringsAsFactors = FALSE)
     low <- read.csv(file.path(path, "low_rank_fit_block_diagnostics.csv"),
       stringsAsFactors = FALSE)
+    checkpoint <- read.csv(file.path(path, "checkpoint_validation.csv"),
+      stringsAsFactors = FALSE)
+    recommendations <- read.csv(file.path(path, "method_recommendations.csv"),
+      stringsAsFactors = FALSE)
+    checkpoint_key <- paste(checkpoint$architecture, checkpoint$replicate,
+      checkpoint$configuration, sep = "::")
+    prediction <- read.csv(file.path(path, "prediction_metrics.csv"),
+      stringsAsFactors = FALSE)
+    low_checkpoint <- checkpoint$operator_representation == "low_rank"
+    recommended_checkpoint <- checkpoint[checkpoint$configuration != "bed",
+      , drop = FALSE]
+    recommended_checkpoint <- merge(recommended_checkpoint,
+      recommendations[c("architecture", "configuration", "nburn", "nit",
+        "nthin", "nchains", "ncores")],
+      by = c("architecture", "configuration"), all.x = TRUE,
+      suffixes = c("_observed", "_recommended"))
+    controls_match <- nrow(recommended_checkpoint) ==
+      config$expected_fit_count - config$replicate_count *
+        length(config$architectures) &&
+      all(with(recommended_checkpoint,
+        nburn_observed == nburn_recommended &
+        retained_iterations == nit & nthin_observed == nthin_recommended &
+        chain_count == nchains & ncores_observed == ncores_recommended))
     if (manifest$replicate_count != 5L ||
         any(paired$complete_paired_replicates != 5L) ||
+        nrow(checkpoint) != config$expected_fit_count ||
+        anyDuplicated(checkpoint_key) || !setequal(checkpoint_key, expected_key) ||
+        any(checkpoint$status != "ok") ||
+        any(checkpoint$package_version != config$required_sblr_version) ||
+        any(checkpoint$package_commit != config$required_sblr_sha) ||
+        !controls_match ||
+        any(!is.finite(prediction$value)) ||
         !setequal(unique(low$configuration),
           c("low_rank_full", "low_rank_0999", "low_rank_0995")) ||
         any(low$representation != "low_rank") ||
+        any(checkpoint$operator_representation == "dense_reconstructed") ||
+        any(!is.finite(checkpoint$maximum_residual_drift[low_checkpoint])) ||
+        any(checkpoint$maximum_residual_drift[low_checkpoint] >
+          config$operator_tolerance$product_absolute) ||
+        any(checkpoint$retained_rank[low_checkpoint] >
+          checkpoint$positive_rank[low_checkpoint]) ||
         !readLines(file.path(path, "readiness_decision.txt"), warn = FALSE)[1L] %in%
           c("READY FOR MTBLR LOW-RANK EXTENSION",
             "NOT READY FOR MTBLR LOW-RANK EXTENSION"))
       stop("Study 06 v2 benchmark capsule semantic validation failed.",
         call. = FALSE)
   }
+  text_files <- list.files(path, pattern = "\\.(csv|json|md|txt|R)$",
+    full.names = TRUE)
+  leaked <- vapply(text_files, function(file) any(grepl(
+    "[A-Za-z]:[/\\\\](Users|Documents|AppData)[/\\\\]",
+    readLines(file, warn = FALSE), ignore.case = TRUE)), logical(1L))
+  if (any(leaked))
+    stop("Study 06 v2 capsule contains an absolute local path: ",
+      paste(basename(text_files[leaked]), collapse = ", "), call. = FALSE)
   invisible(TRUE)
 }
 
@@ -128,7 +191,7 @@ source(file.path(.study06v2_promotion_root, "studies", "02_prediction",
     thread_controls = list(OMP_NUM_THREADS = 4L, OMP_THREAD_LIMIT = 4L,
       OPENBLAS_NUM_THREADS = 1L, MKL_NUM_THREADS = 1L,
       VECLIB_MAXIMUM_THREADS = 1L),
-    source_status = "pinned_local_source_snapshot_offline",
+    source_status = "pinned_local_installed_package_offline",
     validation_status = "complete_grid_validated",
     failures = unname(status$error_message[status$status != "ok"]))
 }
@@ -136,9 +199,18 @@ source(file.path(.study06v2_promotion_root, "studies", "02_prediction",
 .study06v2_copy_unique <- function(name, source_dirs, destination) {
   candidates <- file.path(source_dirs, name)
   existing <- candidates[file.exists(candidates)]
-  if (length(existing) != 1L ||
-      !file.copy(existing, file.path(destination, name), overwrite = FALSE))
+  if (!length(existing))
     stop("Study 06 v2 promotion source missing or ambiguous: ", name,
+      call. = FALSE)
+  if (length(existing) > 1L) {
+    hashes <- unname(.study02_canonical_md5(existing))
+    if (length(unique(hashes)) != 1L)
+      stop("Study 06 v2 promotion sources disagree: ", name,
+        call. = FALSE)
+  }
+  if (!file.copy(existing[1L], file.path(destination, name),
+      overwrite = FALSE))
+    stop("Study 06 v2 promotion source copy failed: ", name,
       call. = FALSE)
 }
 
@@ -198,8 +270,7 @@ source(file.path(.study06v2_promotion_root, "studies", "02_prediction",
     file.path(local, "deterministic"), file.path(local, "operator_pilot"),
     file.path(local, "convergence"),
     file.path(local, "historical_v1_inventory")) else c(
-      file.path(local, "deterministic"), file.path(local, "aggregate"),
-      file.path(local, "convergence"))
+      file.path(local, "deterministic"), file.path(local, "aggregate"))
   required <- .study06v2_capsule_required(type)
   staging <- file.path(local, "promotion_staging",
     paste0(basename(destination), "-", Sys.getpid()))
@@ -211,7 +282,12 @@ source(file.path(.study06v2_promotion_root, "studies", "02_prediction",
     "config.R", "example_data_manifest.csv", "source_files.csv",
     "session_info.txt", "reproduce.R", "contract_smoke_test.R",
     "checksums.csv", "historical_v1_inventory.md", "readiness_decision.txt"))
-  for (name in generated) .study06v2_copy_unique(name, source_dirs, staging)
+  for (name in generated) {
+    dirs <- if (type == "benchmark" &&
+        identical(name, "method_recommendations.csv"))
+      file.path(local, "convergence") else source_dirs
+    .study06v2_copy_unique(name, dirs, staging)
+  }
   file.copy(file.path("studies", "06_ld_operator", "v2", "config.R"),
     file.path(staging, "config.R"))
   file.copy("scripts/run_study06_low_rank_operator_v2.R",

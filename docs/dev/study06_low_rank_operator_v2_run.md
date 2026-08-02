@@ -1,18 +1,48 @@
 # Study 06 v2: retained low-rank LD operator validation
 
+## Finalization control gate (2026-08-02)
+
+Final checkpoint validation found that all five `sparse_mixture / full_csr`
+benchmark fits retained 1,000 iterations. The frozen v2 convergence evidence
+requires 2,000 retained iterations after 250 burn-in iterations. This was an
+execution-dispatch defect: `full_csr` incorrectly inherited the Study 04
+baseline controls instead of its Study 06 v2 convergence recommendation.
+
+The five checkpoints, all other checkpoints, aggregates, and generated report
+were preserved. The rejected benchmark capsule and report remain in ignored
+local quarantine and are not valid frozen reference evidence. Benchmark
+dispatch now reads the v2 recommendation for `full_csr`, and capsule validation
+requires exact agreement with every non-BED recommendation.
+
+Only the five rejected `sparse_mixture / full_csr` coordinates were rerun,
+using their original deterministic fit and chain seeds with `nburn = 250`,
+`nit = 2000`, `nthin = 1`, `nchains = 4`, and `ncores = 4`. All 55 unaffected
+checkpoint SHA-256 hashes, sizes, and modification times were unchanged. The
+corrected 60-fit grid passed final validation and was reaggregated into a new
+benchmark capsule; quarantined evidence was excluded.
+
 ## Status and provenance
 
 Study 06 v2 is a new validation study. The completed Study 06 v1 capsules and
 their reconstructed-dense results are immutable historical evidence. V2 uses
 the scalar retained low-rank operator from `sblr` 0.2.0 at source revision
-`96487b3194fc1f8c6789060da5f2e2a0eea89974` (Correct BayesR prior
-variance calibration).
+`bd8e2c8148a0d9540dc20716455706beeb16fa86` (Optimize retained low-rank
+scalar sampling).
 
-The ordinary user library still contains `sblr` 0.1.2. V2 does not install or
-update it. Each v2 R session loads a compiled, generated `git archive` snapshot
-of the pinned clean sibling source from the v2 local preflight directory and
-verifies its version, API, and source path before work begins. The sibling
-repository remains read-only.
+The ordinary shared user library still contains `sblr` 0.1.2 because a
+long-lived unrelated RStudio process holds that DLL. The optimized package is
+built and installed normally from the clean local sibling into the isolated
+Study 06 library `results/local/study06_low_rank_operator_v2/rlib`. Each fresh
+runner prepends that library and verifies version, `RemoteSha`, API, and
+namespace path before work begins. `pkgload::load_all()` is not used for
+`sblr`, and the sibling repository remains read-only.
+
+The pre-optimization v2 run is preserved at
+`results/local/study06_low_rank_operator_v2_pre_optimization_bd8e2c8` and is
+ineligible for combination with optimized checkpoints. The optimized backend
+uses the unchanged statistical model and retained-rank policy, explicitly
+records `low_rank_residual_rebuild_every = 100`, and returns rebuild-count and
+maximum-drift diagnostics.
 
 ## Historical reconstructed-dense Study 06 v1
 
@@ -45,10 +75,13 @@ and v1 values are never labelled retained low rank.
 ## V2 execution policy
 
 Every low-rank fit must pass `representation = "low_rank"` and an explicit
-`eigen_prop`. Model specifications containing `dense_reconstructed`,
-`eigen_filter`, `eigen_tau`, or `eigen_eta` fail before dispatch. Direct
-`crossprod(Q)` and `crossprod(Q, w)` calculations are the only dense
-eigenspace oracle. The reconstructed-dense sampler is never called.
+`eigen_prop`. Canonical model specifications containing `dense_reconstructed`,
+`eigen_filter`, `eigen_tau`, or `eigen_eta` fail before dispatch. A single
+unfiltered reconstructed-dense configuration is permitted only in the
+post-optimization two-architecture pilot as a labelled implementation
+comparator; it cannot enter convergence or the primary 60-fit grid. Direct
+`crossprod(Q)` and `crossprod(Q, w)` calculations remain the deterministic
+dense eigenspace oracle.
 
 The six primary configurations are packed BED, full CSR, block CSR, retained
 near-full positive rank, retained 0.999, and retained 0.995. The exact v1 block

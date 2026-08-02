@@ -1,23 +1,27 @@
 .study06v2_method_for <- function(architecture, configuration, config) {
   stopifnot(architecture %in% config$architectures,
-    configuration %in% config$configurations)
+    configuration %in% config$pilot_configurations)
   bayesr <- identical(architecture, "sparse_mixture")
   low_rank <- startsWith(configuration, "low_rank_")
+  dense_validation <- identical(configuration,
+    "dense_reconstructed_unfiltered")
   data.frame(
     method_id = paste(architecture, configuration, sep = "__"),
     architecture = architecture,
     configuration = configuration,
     interface = if (configuration == "bed") "stblr_bed" else
-      if (low_rank) "stblr_block_eigen" else "stblr_csr",
+      if (low_rank || dense_validation) "stblr_block_eigen" else "stblr_csr",
     native_method = if (configuration == "bed") {
       if (bayesr) "bayesr" else "bayesc"
     } else if (bayesr) "sbayesr" else "sbayesc",
     model_family = if (bayesr) "BayesR/SBayesR" else "BayesC/SBayesC",
     operator_family = if (configuration == "bed") "packed_bed" else
       if (configuration == "full_csr") "full_csr" else
-        if (configuration == "block_csr") "block_csr" else
-          "retained_low_rank",
-    representation = if (low_rank) "low_rank" else NA_character_,
+        if (configuration == "block_csr") "block_csr" else if (
+          dense_validation) "historical_dense_validation" else
+            "retained_low_rank",
+    representation = if (low_rank) "low_rank" else if (dense_validation)
+      "dense_reconstructed" else NA_character_,
     eigen_prop = if (configuration == "low_rank_full")
       config$eigen_prop_full else if (configuration == "low_rank_0999")
         config$eigen_props[["low_rank_0999"]] else if (
@@ -26,15 +30,18 @@
     stringsAsFactors = FALSE)
 }
 
-.study06v2_method_grid <- function(config) do.call(rbind,
+.study06v2_method_grid <- function(config,
+                                    configurations = config$configurations)
+  do.call(rbind,
   lapply(config$architectures, function(a) do.call(rbind,
-    lapply(config$configurations, function(k)
+    lapply(configurations, function(k)
       .study06v2_method_for(a, k, config)))))
 
 .study06v2_seed <- function(config, architecture, replicate,
                             configuration = NULL, chain = NULL) {
   a <- match(architecture, config$architectures)
-  k <- if (is.null(configuration)) 0L else
+  k <- if (is.null(configuration)) 0L else if (identical(configuration,
+      "dense_reconstructed_unfiltered")) length(config$configurations) + 1L else
     match(configuration, config$configurations)
   if (is.na(a) || is.na(k) || !replicate %in% seq_len(config$replicate_count))
     stop("Invalid Study 06 v2 seed coordinates.", call. = FALSE)
@@ -69,7 +76,7 @@
   if (phase == "convergence")
     return(list(nit = config$convergence$maximum_nit,
       nburn = 0L, nthin = 1L, nchains = 4L, ncores = 4L))
-  if (method$configuration %in% c("bed", "full_csr"))
+  if (method$configuration == "bed")
     return(.study06v2_baseline_controls(method, config))
   if (is.null(recommendations))
     stop("Validated v2 convergence recommendations are required.",
@@ -120,8 +127,19 @@
   if (low_rank) {
     controls$representation <- "low_rank"
     controls$eigen_prop <- as.numeric(method$eigen_prop)
+    controls$low_rank_residual_rebuild_every <-
+      config$low_rank_residual_rebuild_every
+  } else if (identical(method$operator_family,
+      "historical_dense_validation")) {
+    if (!identical(phase, "operator-pilot"))
+      stop("The reconstructed-dense comparator is validation-only.",
+        call. = FALSE)
+    controls$representation <- "dense_reconstructed"
+    controls$eigen_policy <- "ridge_fixed"
+    controls$eigen_tau <- 0
+    controls$eigen_eta <- 0
   }
-  .study06v2_assert_fit_spec(method$configuration, controls, config)
+  .study06v2_assert_fit_spec(method$configuration, controls, config, phase)
   input <- if (method$configuration == "bed") {
     list(y = simulation$phenotype[split$train_ids, , drop = FALSE],
       Glist = Glist, rows = split$train_rows)
@@ -174,6 +192,15 @@
       result = result, fit = fit, started_at = started,
       finished_at = Sys.time(), runtime = runtime,
       warnings = paste(unique(warning_text), collapse = " | ")))
+  if (identical(method$operator_family, "historical_dense_validation") &&
+      !identical(fit$input$operator_representation, "dense_reconstructed"))
+    return(list(status = "failed",
+      reason = "Validation-only dense fit metadata is inconsistent.",
+      method = method, architecture = simulation$architecture,
+      replicate = simulation$replicate, controls = controls,
+      result = result, fit = fit, started_at = started,
+      finished_at = Sys.time(), runtime = runtime,
+      warnings = paste(unique(warning_text), collapse = " | ")))
   list(status = "ok", reason = "", method = method,
     architecture = simulation$architecture,
     replicate = simulation$replicate, controls = controls,
@@ -182,7 +209,9 @@
     source_sha = config$required_sblr_sha,
     package_version = config$required_sblr_version,
     operator_contract = if (low_rank) config$operator_contract else NA_character_,
-    representation = if (low_rank) "low_rank" else NA_character_,
+    representation = if (low_rank) "low_rank" else if (identical(
+      method$operator_family, "historical_dense_validation"))
+        "dense_reconstructed" else NA_character_,
     eigen_prop = if (low_rank) method$eigen_prop else NA_real_,
     started_at = started, finished_at = Sys.time(), runtime = runtime,
     warnings = paste(unique(c(warning_text,

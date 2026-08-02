@@ -5,7 +5,14 @@ description: "Five-replicate validation of the retained low-rank scalar LD opera
 
 ```{r}
 #| echo: false
-root <- file.path("results", "reference", "06_ld_operator")
+repo_root <- normalizePath(getwd(), winslash = "/", mustWork = TRUE)
+while (!file.exists(file.path(repo_root, "DESCRIPTION"))) {
+  parent <- dirname(repo_root)
+  if (identical(parent, repo_root))
+    stop("Cannot locate the sblrbench repository root.")
+  repo_root <- parent
+}
+root <- file.path(repo_root, "results", "reference", "06_ld_operator")
 conv_dir <- file.path(root, "st-low-rank-operator-convergence-development-v2")
 bench_dir <- file.path(root, "st-low-rank-operator-five-replicate-development-v2")
 required <- c(file.path(conv_dir, "benchmark_manifest.json"),
@@ -30,6 +37,7 @@ variable <- read_table(bench_dir, "variable_selection_metrics.csv")
 paired <- read_table(bench_dir, "paired_comparison_summary.csv")
 convergence <- read_table(bench_dir, "convergence_validation_summary.csv")
 runtime <- read_table(bench_dir, "computational_summary.csv")
+checkpoint_validation <- read_table(bench_dir, "checkpoint_validation.csv")
 low_rank <- read_table(bench_dir, "low_rank_fit_block_diagnostics.csv")
 low_rank$block_id <- ave(low_rank$block_start,
   interaction(low_rank$architecture, low_rank$replicate,
@@ -39,6 +47,9 @@ readiness <- readLines(file.path(bench_dir, "readiness_decision.txt"),
   warn = FALSE)[1L]
 complete <- isTRUE(bench_manifest$successful_fit_count == 60L) &&
   isTRUE(bench_manifest$failed_fit_count == 0L)
+checkpoint_validation$seconds_per_chain_iteration <-
+  checkpoint_validation$mcmc_wall_seconds /
+  (checkpoint_validation$chain_count * checkpoint_validation$total_iterations)
 summarize_metric <- function(x) {
   groups <- split(x, interaction(x$architecture, x$configuration, x$metric,
     drop = TRUE))
@@ -65,6 +76,12 @@ Study 06 v2 evaluates whether retained factors produce coherent scalar BLR
 inference and prediction, and whether the canonical 99.5% positive-eigenvalue
 mass rule is stable relative to 99.9% and near-full positive rank. The final
 implementation decision is **`r readiness`**.
+
+Across all five paired replicates, near-full retained factors closely tracked
+runtime-matched block CSR. The canonical 0.995 route also remained close to
+near-full and 0.999 retention for prediction and marker effects. BED and full
+CSR were broadly comparable, with the larger implementation difference in the
+sparse-mixture architecture. These are descriptive five-replicate findings.
 
 ## Historical Study 06 v1
 
@@ -185,6 +202,20 @@ universal convergence validation.
 The frozen capsule contains `r if (complete) "60/60 validated four-chain fits" else "an incomplete fit grid"`.
 Failures remain in denominators and prevent capsule promotion.
 
+Finalization detected and repaired an initial control mismatch in the five
+`sparse_mixture / full_csr` fits. Only those five fits were rerun. The final
+capsule requires exact agreement between every non-BED checkpoint and its
+frozen convergence recommendation; the corrected full-CSR fits use 250 burn-in
+iterations and 2,000 retained iterations.
+
+```{r}
+#| echo: false
+controls <- unique(checkpoint_validation[c("architecture", "configuration",
+  "nburn", "retained_iterations", "nthin", "chain_count", "ncores")])
+controls <- controls[order(controls$architecture, controls$configuration), ]
+knitr::kable(controls)
+```
+
 ## Prediction
 
 ```{r}
@@ -253,6 +284,30 @@ on deterministic identities, projected SSE, convergence, scientific
 coherence, and prespecified 0.995-versus-0.999 sensitivity gates—not on a
 required speed improvement.
 
+The optimized sampler records the residual rebuild interval, rebuild count,
+and maximum absolute residual drift for every retained-low-rank fit. These
+diagnostics are validated against direct rebuilds before results are accepted.
+
+```{r}
+#| echo: false
+drift <- checkpoint_validation[
+  checkpoint_validation$operator_representation == "low_rank",
+  c("architecture", "replicate", "configuration",
+    "residual_rebuild_interval", "residual_rebuild_count",
+    "maximum_residual_drift")]
+drift_summary <- aggregate(cbind(residual_rebuild_count,
+  maximum_residual_drift) ~ architecture + configuration, drift,
+  function(x) c(mean = mean(x), maximum = max(x)))
+knitr::kable(drift_summary, digits = 6)
+```
+
+## MTBLR readiness decision
+
+The capsule decision is reported verbatim as either **READY FOR MTBLR
+LOW-RANK EXTENSION** or **NOT READY FOR MTBLR LOW-RANK EXTENSION**. For this
+completed capsule the decision is **`r readiness`**; it is not inferred from
+runtime alone.
+
 ## SBayesR variance-component evidence
 
 ```{r}
@@ -273,6 +328,22 @@ runtime_summary <- aggregate(cbind(mcmc_runtime_seconds,
   configuration, runtime, function(x) mean(x, na.rm = TRUE))
 knitr::kable(runtime_summary, digits = 3)
 ```
+
+```{r}
+#| echo: false
+timing <- aggregate(cbind(mcmc_wall_seconds, construction_seconds,
+  eigendecomposition_seconds, transformation_seconds,
+  seconds_per_chain_iteration) ~ architecture + configuration,
+  checkpoint_validation, function(x) mean(x, na.rm = TRUE), na.action = na.pass)
+knitr::kable(timing, digits = 5)
+```
+
+Operator construction, eigendecomposition, transformation, and sampler wall
+time are reported separately where the backend exposes them. Missing
+preprocessing components for BED or CSR are not folded into fabricated values.
+Seconds per chain-iteration use the recorded wall time, chain count, and total
+iterations and should be interpreted as a normalized wall-time measure rather
+than summed CPU time.
 
 Measured rank, runtime, and storage—not theoretical complexity alone—support
 the computational conclusions. The capsule excludes full (Q) matrices and

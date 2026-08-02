@@ -1,13 +1,15 @@
 .study06v2_source_analysis_helpers <- function() {
-  for (file in c("chain_extraction.R", "diagnostics.R", "metrics.R"))
-    source(file.path("studies", "06_ld_operator", file), local = parent.frame())
+  target <- environment(.study06v2_source_analysis_helpers)
+  for (file in c("chain_extraction.R", "diagnostics.R", "metrics.R",
+      "simulation.R"))
+    source(file.path("studies", "06_ld_operator", file), local = target)
 }
 
 .study06v2_run_phase_grid <- function(configurations, architectures,
                                       replicates, phase, config,
                                       recommendations = NULL) {
   runtime <- .study06v2_load_runtime_data(config)
-  grid <- .study06v2_method_grid(config)
+  grid <- .study06v2_method_grid(config, configurations)
   grid <- grid[grid$configuration %in% configurations &
     grid$architecture %in% architectures, , drop = FALSE]
   runs <- list()
@@ -28,21 +30,99 @@
   runs
 }
 
+.study06v2_low_rank_residual <- function(run) {
+  if (!identical(run$method$operator_family, "retained_low_rank"))
+    return(data.frame(rebuild_every = NA_integer_, rebuild_count = NA_real_,
+      maximum_drift = NA_real_, available = FALSE))
+  native <- run$fit$diagnostics$native$low_rank_residual
+  if (is.null(native)) stop("Low-rank residual diagnostics are absent.",
+    call. = FALSE)
+  data.frame(
+    rebuild_every = as.integer(max(native$low_rank_residual_rebuild_every)),
+    rebuild_count = as.numeric(max(native$low_rank_residual_rebuild_count)),
+    maximum_drift = as.numeric(max(native$low_rank_residual_max_abs_drift)),
+    available = TRUE)
+}
+
+.study06v2_native_timing <- function(run) {
+  native <- run$fit$diagnostics$native
+  reported <- as.numeric(native$seconds_mean %||% NA_real_)
+  construction <- as.numeric(run$fit$input$eigen_diagnostics$build$
+    construction_time %||% 0)
+  usable <- length(reported) == 1L && is.finite(reported) && reported > 0
+  chain_elapsed <- if (usable) reported else
+    max(as.numeric(run$runtime) - construction, 0)
+  data.frame(
+    chain_elapsed_seconds = chain_elapsed,
+    chain_timing_source = if (usable) "native_seconds_mean" else
+      "wall_minus_construction_estimate",
+    chain_seconds_max = as.numeric(native$seconds_max %||% NA_real_),
+    seconds_per_chain_iteration = chain_elapsed /
+      (run$controls$nit + run$controls$nburn))
+}
+
+.study06v2_build_timing <- function(run) {
+  build <- run$fit$input$eigen_diagnostics$build %||% list()
+  data.frame(operator_construction_seconds = as.numeric(
+      build$construction_time %||% NA_real_),
+    cross_product_seconds = as.numeric(build$cross_product_time %||% NA_real_),
+    eigendecomposition_seconds = as.numeric(
+      build$eigendecomposition_time %||% NA_real_),
+    transformation_seconds = as.numeric(build$transformation_time %||%
+      NA_real_),
+    operator_storage_bytes = as.numeric(build$operator_storage_bytes %||%
+      NA_real_),
+    chain_residual_storage_bytes = as.numeric(
+      build$chain_residual_storage_bytes %||% NA_real_))
+}
+
+.study06v2_preoptimization_pilot <- function(config) {
+  path <- file.path(config$preoptimization_archive, "operator_pilot",
+    "one_replicate_operator_pilot.csv")
+  if (!file.exists(path)) return(data.frame())
+  read.csv(path, stringsAsFactors = FALSE)
+}
+
+.study06v2_historical_runtime_context <- function(config) {
+  v1 <- read.csv(file.path(config$historical_capsules[1L],
+    "computational_summary.csv"), stringsAsFactors = FALSE)
+  v1$evidence_source <- "historical_v1_maximum_history"
+  old_paths <- list.files(file.path(config$preoptimization_archive,
+    "fit_checkpoints", "convergence"), pattern = "[.]rds$",
+    full.names = TRUE)
+  old <- do.call(rbind, lapply(old_paths, function(path) {
+    x <- readRDS(path)
+    data.frame(architecture = x$architecture, replicate = x$replicate,
+      configuration = x$method$configuration,
+      method = x$method$native_method, status = x$status,
+      error_message = x$reason, chain_count = length(x$fit$chains),
+      elapsed_seconds = x$runtime, warnings = x$warnings,
+      evidence_source = "interrupted_preoptimization_v2_convergence",
+      stringsAsFactors = FALSE)
+  }))
+  common <- Reduce(intersect, list(names(v1), names(old)))
+  rbind(v1[common], old[common])
+}
+
 .study06v2_pilot <- function(config) {
-  runs <- .study06v2_run_phase_grid(config$configurations,
-    config$architectures[1L], 1L, "operator-pilot", config)
+  runs <- .study06v2_run_phase_grid(config$pilot_configurations,
+    config$architectures, 1L, "operator-pilot", config)
   .study06v2_source_analysis_helpers()
   runtime <- .study06v2_load_runtime_data(config)
-  simulation <- .study06v2_simulation(config$architectures[1L], 1L,
-    runtime, config)
+  simulations <- setNames(lapply(config$architectures, function(a)
+    .study06v2_simulation(a, 1L, runtime, config)), config$architectures)
   rows <- lapply(runs, function(run) {
+    simulation <- simulations[[run$architecture]]
     prediction <- .study06_prediction_metrics(run, simulation,
       runtime$design$study06_scaled_genotypes$test, runtime$split)
     marker <- .study06_marker_metrics(run, simulation,
       runtime$design$study06_scaled_genotypes$all)
     evidence <- .study06_sbayesr_evidence(run)
     metric <- function(x, id) x$value[x$metric == id][1L]
-    data.frame(architecture = run$architecture,
+    residual <- .study06v2_low_rank_residual(run)
+    timing <- .study06v2_native_timing(run)
+    build <- .study06v2_build_timing(run)
+    cbind(data.frame(architecture = run$architecture,
       replicate = run$replicate,
       configuration = run$method$configuration,
       posterior_heritability = evidence$benchmark_heritability,
@@ -54,53 +134,132 @@
       pis = evidence$pis_posterior_mean,
       prediction_correlation = metric(prediction,
         "phenotype_prediction_correlation"),
+      prediction_rmse = metric(prediction, "phenotype_prediction_rmse"),
+      prediction_slope = metric(prediction, "prediction_regression_slope"),
+      genetic_value_correlation = metric(prediction,
+        "genetic_value_correlation"),
+      genetic_value_rmse = metric(prediction, "genetic_value_rmse"),
       marker_effect_correlation = metric(marker,
         "marker_effect_correlation"),
+      marker_effect_rmse = metric(marker, "marker_effect_rmse"),
       runtime_seconds = run$runtime,
-      warnings = run$warnings, stringsAsFactors = FALSE)
+      fit_object_bytes = as.numeric(object.size(run$fit)),
+      representation = run$representation,
+      eigen_prop = run$eigen_prop,
+      operator_contract = run$operator_contract,
+      source_sha = run$source_sha,
+      package_version = run$package_version,
+      warnings = run$warnings, stringsAsFactors = FALSE), timing, build,
+      residual)
   })
   summary <- do.call(rbind, rows)
-  reference <- summary[summary$configuration == "block_csr", ]
-  full <- summary[summary$configuration == "low_rank_full", ]
-  canonical <- summary[summary$configuration == "low_rank_0995", ]
-  reference_run <- runs[[which(vapply(runs, function(x)
-    x$method$configuration == "block_csr", logical(1)))]]
-  full_run <- runs[[which(vapply(runs, function(x)
-    x$method$configuration == "low_rank_full", logical(1)))]]
-  canonical_run <- runs[[which(vapply(runs, function(x)
-    x$method$configuration == "low_rank_0995", logical(1)))]]
-  full_reference_effect_correlation <- .study06_safe_cor(
-    as.numeric(full_run$fit$bm), as.numeric(reference_run$fit$bm))
-  canonical_full_effect_correlation <- .study06_safe_cor(
-    as.numeric(canonical_run$fit$bm), as.numeric(full_run$fit$bm))
-  pass <- nrow(reference) == 1L && nrow(full) == 1L && nrow(canonical) == 1L &&
+  comparisons <- list(); gate_rows <- list()
+  pairs <- list(c("full_csr", "bed"), c("block_csr", "full_csr"),
+    c("low_rank_full", "block_csr"),
+    c("low_rank_0999", "low_rank_full"),
+    c("low_rank_0995", "low_rank_full"),
+    c("dense_reconstructed_unfiltered", "low_rank_full"))
+  for (architecture in config$architectures) for (pair in pairs) {
+    focal <- Filter(function(x) x$architecture == architecture &&
+      x$method$configuration == pair[1L], runs)[[1L]]
+    reference <- Filter(function(x) x$architecture == architecture &&
+      x$method$configuration == pair[2L], runs)[[1L]]
+    sf <- summary[summary$architecture == architecture &
+      summary$configuration == pair[1L], ]
+    sr <- summary[summary$architecture == architecture &
+      summary$configuration == pair[2L], ]
+    comparisons[[length(comparisons) + 1L]] <- data.frame(
+      architecture = architecture,
+      comparison = paste(pair[1L], "minus", pair[2L]),
+      heritability_difference = sf$posterior_heritability -
+        sr$posterior_heritability,
+      prediction_correlation_difference = sf$prediction_correlation -
+        sr$prediction_correlation,
+      posterior_effect_correlation = .study06_safe_cor(
+        as.numeric(focal$fit$bm), as.numeric(reference$fit$bm)),
+      posterior_effect_rmse = sqrt(mean((as.numeric(focal$fit$bm) -
+        as.numeric(reference$fit$bm))^2)),
+      pip_correlation = if (is.null(focal$fit$dm) ||
+        is.null(reference$fit$dm)) NA_real_ else .study06_safe_cor(
+          as.numeric(focal$fit$dm), as.numeric(reference$fit$dm)),
+      stringsAsFactors = FALSE)
+  }
+  comparisons <- do.call(rbind, comparisons)
+  low_rank <- summary[startsWith(summary$configuration, "low_rank_"), ]
+  science_pairs <- comparisons[comparisons$comparison %in% c(
+    "low_rank_full minus block_csr",
+    "low_rank_0999 minus low_rank_full",
+    "low_rank_0995 minus low_rank_full",
+    "dense_reconstructed_unfiltered minus low_rank_full"), ]
+  old <- .study06v2_preoptimization_pilot(config)
+  old_low_rank <- old[old$configuration %in% low_rank$configuration, ]
+  timing <- merge(low_rank[c("architecture", "configuration",
+    "runtime_seconds", "seconds_per_chain_iteration")],
+    old_low_rank[c("architecture", "configuration", "runtime_seconds")],
+    by = c("architecture", "configuration"), all.x = TRUE,
+    suffixes = c("_optimized", "_preoptimization"))
+  timing$runtime_ratio <- timing$runtime_seconds_optimized /
+    timing$runtime_seconds_preoptimization
+  comparable_timing <- timing[is.finite(timing$runtime_ratio), , drop = FALSE]
+  canonical <- summary[summary$configuration %in% config$configurations, ]
+  canonical$target_total_iterations <- vapply(seq_len(nrow(canonical)),
+    function(i) {
+      method <- as.list(.study06v2_method_for(canonical$architecture[i],
+        canonical$configuration[i], config))
+      controls <- .study06v2_baseline_controls(method, config)
+      controls$nit + controls$nburn
+    }, numeric(1))
+  construction <- ifelse(is.finite(canonical$operator_construction_seconds),
+    canonical$operator_construction_seconds, 0)
+  canonical$projected_fit_seconds <- construction +
+    canonical$seconds_per_chain_iteration * canonical$target_total_iterations
+  projected_grid_hours <- sum(canonical$projected_fit_seconds) * 5 / 3600
+  pass <- nrow(summary) == length(config$architectures) *
+      length(config$pilot_configurations) &&
+    all(summary$source_sha == config$required_sblr_sha) &&
     all(is.finite(unlist(summary[c("posterior_heritability", "vgs",
       "ves", "vbs", "prediction_correlation",
       "marker_effect_correlation")]))) &&
-    abs(full$posterior_heritability - reference$posterior_heritability) <=
-      config$pilot_gate$maximum_heritability_difference &&
-    abs(full$prediction_correlation - reference$prediction_correlation) <=
-      config$pilot_gate$maximum_prediction_correlation_difference &&
-    full_reference_effect_correlation >=
-      config$pilot_gate$minimum_posterior_effect_correlation &&
-    canonical_full_effect_correlation >=
-      config$pilot_gate$minimum_posterior_effect_correlation
-  gate <- data.frame(
-    block_csr_minus_full_rank_h2_absolute = abs(
-      reference$posterior_heritability - full$posterior_heritability),
-    block_csr_minus_full_rank_prediction_absolute = abs(
-      reference$prediction_correlation - full$prediction_correlation),
-    full_rank_truth_effect_correlation = full$marker_effect_correlation,
-    canonical_truth_effect_correlation = canonical$marker_effect_correlation,
-    full_rank_vs_block_csr_effect_correlation =
-      full_reference_effect_correlation,
-    canonical_vs_full_rank_effect_correlation =
-      canonical_full_effect_correlation,
+    all(low_rank$rebuild_every == config$low_rank_residual_rebuild_every) &&
+    all(is.finite(low_rank$maximum_drift)) &&
+    all(low_rank$maximum_drift <=
+      config$optimized_pilot_gate$maximum_residual_drift) &&
+    all(abs(science_pairs$heritability_difference) <=
+      config$pilot_gate$maximum_heritability_difference) &&
+    all(abs(science_pairs$prediction_correlation_difference) <=
+      config$pilot_gate$maximum_prediction_correlation_difference) &&
+    all(science_pairs$posterior_effect_correlation >=
+      config$pilot_gate$minimum_posterior_effect_correlation) &&
+    nrow(comparable_timing) > 0L &&
+    all(comparable_timing$runtime_ratio <=
+      config$optimized_pilot_gate$maximum_preoptimization_runtime_ratio) &&
+    projected_grid_hours <=
+      config$optimized_pilot_gate$maximum_projected_grid_hours
+  gate <- data.frame(expected_fit_count = length(config$architectures) *
+      length(config$pilot_configurations), completed_fit_count = nrow(summary),
+    maximum_low_rank_residual_drift = max(low_rank$maximum_drift),
+    maximum_absolute_heritability_difference = max(abs(
+      science_pairs$heritability_difference)),
+    minimum_posterior_effect_correlation = min(
+      science_pairs$posterior_effect_correlation),
+    comparable_preoptimization_timing_count = nrow(comparable_timing),
+    maximum_preoptimization_runtime_ratio = max(
+      comparable_timing$runtime_ratio),
+    projected_complete_grid_hours = projected_grid_hours,
     pass = pass, stringsAsFactors = FALSE)
   output <- file.path(config$local_dir, "operator_pilot")
   .study06v2_write_csv(summary, file.path(output,
     "one_replicate_operator_pilot.csv"))
   .study06v2_write_csv(gate, file.path(output, "pilot_gate.csv"))
+  .study06v2_write_csv(comparisons, file.path(output,
+    "pilot_paired_comparisons.csv"))
+  .study06v2_write_csv(timing, file.path(output,
+    "pilot_runtime_comparison.csv"))
+  .study06v2_write_csv(canonical[c("architecture", "configuration",
+    "target_total_iterations", "projected_fit_seconds")], file.path(output,
+      "projected_complete_grid_runtime.csv"))
+  .study06v2_write_csv(.study06v2_historical_runtime_context(config),
+    file.path(output, "historical_runtime_context.csv"))
   if (!isTRUE(pass)) stop("Study 06 v2 operator pilot gate failed.",
     call. = FALSE)
   invisible(TRUE)
@@ -351,6 +510,7 @@
 
 .study06v2_aggregate <- function(config) {
   .study06v2_source_analysis_helpers()
+  final_inventory <- .study06v2_write_final_validation(config)
   runtime <- .study06v2_load_runtime_data(config)
   runs <- .study06v2_read_benchmark_runs(config)
   simulations <- list()
@@ -425,6 +585,7 @@
   simulation_summary <- do.call(rbind, lapply(simulations,
     .study06_simulation_summary))
   outputs <- list(seed_registry.csv = .study06v2_seed_registry(config),
+    checkpoint_validation.csv = final_inventory,
     simulation_summary.csv = simulation_summary,
     block_definitions.csv = runtime$blocks,
     fit_status.csv = status, prediction_metrics.csv = prediction,

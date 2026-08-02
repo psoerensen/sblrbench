@@ -3,7 +3,7 @@ param(
     'convergence','benchmark','aggregate','report','verify','all')]
   [string]$Phase = 'all',
   [switch]$Resume,
-  [switch]$ValidateOnly,
+  [Alias('validate-only')][switch]$ValidateOnly,
   [switch]$Foreground
 )
 
@@ -22,6 +22,11 @@ $env:OMP_THREAD_LIMIT = '4'
 $env:OPENBLAS_NUM_THREADS = '1'
 $env:MKL_NUM_THREADS = '1'
 $env:VECLIB_MAXIMUM_THREADS = '1'
+$studyLib = Join-Path $local 'rlib'
+if (-not (Test-Path (Join-Path $studyLib 'sblr/DESCRIPTION'))) {
+  throw "Pinned Study 06 v2 installed sblr library is unavailable."
+}
+$env:R_LIBS_USER = "$studyLib;$env:LOCALAPPDATA\R\win-library\4.4"
 
 if ($Foreground -or $ValidateOnly -or $Phase -in @('audit','deterministic')) {
   & $rscript @arguments

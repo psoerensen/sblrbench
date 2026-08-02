@@ -8,15 +8,17 @@ if (dir.exists(study06v2_dir)) {
   source(file.path(study06v2_dir, "design_crosswalk.R"), local = TRUE)
   source(file.path(study06v2_dir, "operator_validation.R"), local = TRUE)
   source(file.path(study06v2_dir, "methods.R"), local = TRUE)
+  source(file.path(study06v2_dir, "final_validation.R"), local = TRUE)
   source(file.path(study06v2_dir, "provenance.R"), local = TRUE)
 }
 
-test_that("v2 pins the committed BayesR-calibration source revision", {
+test_that("v2 pins the optimized installed-package source revision", {
   skip_if_not(dir.exists(study06v2_dir))
   expect_identical(study06v2_config$required_sblr_sha,
-    "96487b3194fc1f8c6789060da5f2e2a0eea89974")
+    "bd8e2c8148a0d9540dc20716455706beeb16fa86")
   expect_identical(study06v2_config$required_sblr_version, "0.2.0")
-  expect_match(study06v2_config$source_snapshot, "96487b3$")
+  expect_match(study06v2_config$installed_library, "rlib$")
+  expect_identical(study06v2_config$low_rank_residual_rebuild_every, 100L)
 })
 
 test_that("v2 paths and capsules cannot overwrite v1", {
@@ -32,6 +34,7 @@ test_that("v2 paths and capsules cannot overwrite v1", {
 })
 
 test_that("operator-pilot gates are inherited explicitly from v1", {
+  skip_if_not(dir.exists(study06v2_dir))
   expect_true(is.list(study06v2_config$pilot_gate))
   expect_true(all(c("maximum_heritability_difference",
     "maximum_prediction_correlation_difference",
@@ -65,6 +68,22 @@ test_that("production methods explicitly carry retained-low-rank controls", {
     names(low)))
 })
 
+test_that("benchmark full CSR uses its v2 convergence recommendation", {
+  skip_if_not(dir.exists(study06v2_dir))
+  method <- as.list(.study06v2_method_grid(study06v2_config)[
+    .study06v2_method_grid(study06v2_config)$architecture ==
+      "sparse_mixture" &
+    .study06v2_method_grid(study06v2_config)$configuration == "full_csr",
+    , drop = FALSE])
+  recommendations <- data.frame(architecture = "sparse_mixture",
+    configuration = "full_csr", recommendation_status = "available",
+    nit = 2000L, nburn = 250L, nthin = 1L, nchains = 4L, ncores = 4L)
+  controls <- .study06v2_controls(method, study06v2_config, "benchmark",
+    recommendations)
+  expect_identical(controls$nit, 2000L)
+  expect_identical(controls$nburn, 250L)
+})
+
 test_that("legacy and reconstructed-dense controls fail statically", {
   skip_if_not(dir.exists(study06v2_dir))
   expect_error(.study06v2_assert_fit_spec("low_rank_0995",
@@ -76,6 +95,27 @@ test_that("legacy and reconstructed-dense controls fail statically", {
     expect_error(.study06v2_assert_fit_spec("low_rank_0995", controls,
       study06v2_config), "prohibit legacy eigen controls")
   }
+})
+
+test_that("dense reconstruction is restricted to the validation pilot", {
+  skip_if_not(dir.exists(study06v2_dir))
+  method <- .study06v2_method_for("sparse_homogeneous",
+    "dense_reconstructed_unfiltered", study06v2_config)
+  controls <- list(representation = "dense_reconstructed",
+    eigen_policy = "ridge_fixed", eigen_tau = 0, eigen_eta = 0)
+  expect_no_error(.study06v2_assert_fit_spec(method$configuration,
+    controls, study06v2_config, phase = "operator-pilot"))
+  expect_error(.study06v2_assert_fit_spec(method$configuration,
+    controls, study06v2_config, phase = "convergence"),
+    "validation-only")
+})
+
+test_that("optimized checkpoints require drift diagnostics", {
+  skip_if_not(dir.exists(study06v2_dir))
+  expect_identical(study06v2_config$optimized_pilot_gate$
+    maximum_preoptimization_runtime_ratio, 0.75)
+  expect_true(is.finite(study06v2_config$optimized_pilot_gate$
+    maximum_residual_drift))
 })
 
 test_that("v1-to-v2 crosswalk preserves the scientific design", {
@@ -141,6 +181,7 @@ test_that("named native chain lists retain identifiable indices", {
 })
 
 test_that("v2 aggregation uses only retained-low-rank comparison labels", {
+  skip_if_not(dir.exists(study06v2_dir))
   source(file.path(study06v2_dir, "phases.R"), local = TRUE)
   registry <- .study06v2_comparison_registry()
   expect_setequal(registry$comparison_id, c(
@@ -151,4 +192,16 @@ test_that("v2 aggregation uses only retained-low-rank comparison labels", {
     "low_rank_0999_minus_low_rank_full",
     "low_rank_0995_minus_full_csr"))
   expect_false(any(grepl("block_eigen|hard|ridge", registry$comparison_id)))
+})
+
+test_that("v2 report is frozen-capsule-only and records optimized diagnostics", {
+  skip_if_not(dir.exists(study06v2_dir))
+  report <- readLines(file.path(study06v2_root, "studies",
+    "06_ld_operator", "retained-low-rank-operator-development-v2.qmd"),
+    warn = FALSE)
+  text <- paste(report, collapse = "\n")
+  expect_match(text, "frozen reference capsules")
+  expect_false(grepl("stblr_block_eigen\\(|tar_make\\(|simulate\\(", text))
+  expect_match(text, "block_low_rank_v1")
+  expect_match(text, "READY FOR MTBLR LOW-RANK EXTENSION")
 })

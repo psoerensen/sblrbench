@@ -74,7 +74,12 @@
     (!identical(method$operator_family, "retained_low_rank") ||
       (identical(run$operator_contract, config$operator_contract) &&
        identical(run$representation, "low_rank") &&
-       isTRUE(all.equal(run$eigen_prop, method$eigen_prop))))
+       isTRUE(all.equal(run$eigen_prop, method$eigen_prop)) &&
+       identical(run$controls$low_rank_residual_rebuild_every,
+         config$low_rank_residual_rebuild_every) &&
+       !is.null(run$fit$diagnostics$native$low_rank_residual) &&
+       all(is.finite(run$fit$diagnostics$native$low_rank_residual$
+         low_rank_residual_max_abs_drift))))
 }
 
 .study06v2_cached_fit <- function(method, simulation, stats, runtime, config,
@@ -82,7 +87,12 @@
   controls <- .study06v2_controls(method, config, phase, recommendations)
   if (identical(method$operator_family, "retained_low_rank")) controls <-
     c(controls, list(representation = "low_rank",
-      eigen_prop = method$eigen_prop))
+      eigen_prop = method$eigen_prop,
+      low_rank_residual_rebuild_every =
+        config$low_rank_residual_rebuild_every))
+  if (identical(method$operator_family, "historical_dense_validation"))
+    controls <- c(controls, list(representation = "dense_reconstructed",
+      eigen_policy = "ridge_fixed", eigen_tau = 0, eigen_eta = 0))
   input_hash <- .study06v2_input_hash(simulation, stats, method, controls,
     config)
   path <- .study06v2_checkpoint_path(config, phase, method,
@@ -116,5 +126,10 @@
   if (!identical(run$status, "ok"))
     stop("Study 06 v2 fit failed: ", run$reason, call. = FALSE)
   .study06v2_atomic_rds(run, path)
-  run
+  reloaded <- readRDS(path)
+  if (!.study06v2_validate_checkpoint(reloaded, method, simulation,
+      input_hash, config))
+    stop("Atomic Study 06 v2 checkpoint reload validation failed: ", path,
+      call. = FALSE)
+  reloaded
 }
