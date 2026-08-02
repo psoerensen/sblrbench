@@ -17,9 +17,9 @@ test_that("active pipelines do not require tarchetypes", {
 test_that("frozen recommendations drive exact four-chain settings", {
   skip_if_not(study_sources_available, "repository-only study files are excluded from package builds")
   rec <- .five_replicate_recommendations(file.path(root,
-    "results/reference/04_convergence/st-multichain-convergence-development-v1/method_recommendations.csv"))
+    "results/reference/04_convergence/current-selection/method_recommendations.csv"))
   expect_equal(rec$recommended_nburn, rep(250L, 4L))
-  expect_equal(rec$recommended_post_burnin_draws, c(250L, 1000L, 250L, 1000L))
+  expect_equal(rec$recommended_post_burnin_draws, c(250L, 2000L, 250L, 2000L))
   expect_equal(rec$recommended_nchains, rep(4L, 4L))
   expect_equal(rec$recommended_nthin, rep(1L, 4L))
 })

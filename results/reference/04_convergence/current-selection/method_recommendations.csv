@@ -1,0 +1,5 @@
+"method","architecture","recommendation_status","recommended_nchains","recommended_ncores","recommended_nburn","recommended_post_burnin_draws","recommended_nit_argument","recommended_nthin","limiting_estimand","limiting_diagnostic","maximum_rhat","minimum_ess_bulk","minimum_ess_tail","maximum_relative_mcse","reason"
+"st_bed_bayesc","sparse_homogeneous","available",4,4,250,250,250,1,"residual_variance","maximum_rhat",1.00649278331029,801.418968578185,845.819861234185,0.0353836018962169,"earliest stable operational pass"
+"st_bed_bayesr","sparse_mixture","available",4,4,250,2000,2000,1,"effect_variance","maximum_rhat",1.00211810334748,1427.70966027705,2630.10401203019,0.0264868614658993,"earliest stable operational pass"
+"st_csr_sbayesc","sparse_homogeneous","available",4,4,250,250,250,1,"genetic_variance","maximum_rhat",1.00361410470049,673.848107797624,730.02757348132,0.0381691947555943,"earliest stable operational pass"
+"st_csr_sbayesr","sparse_mixture","available",4,4,250,2000,2000,1,"effect_variance","maximum_rhat",1.00298152844194,1000.06258379762,1927.14317938503,0.0320960357244321,"earliest stable operational pass"

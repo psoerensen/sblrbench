@@ -1,0 +1,17 @@
+"architecture","method","chain","simulation_seed","fit_seed"
+"sparse_homogeneous","st_bed_bayesc",1,6002,1051100
+"sparse_homogeneous","st_bed_bayesc",2,6002,1051200
+"sparse_homogeneous","st_bed_bayesc",3,6002,1051300
+"sparse_homogeneous","st_bed_bayesc",4,6002,1051400
+"sparse_homogeneous","st_csr_sbayesc",1,6002,1053100
+"sparse_homogeneous","st_csr_sbayesc",2,6002,1053200
+"sparse_homogeneous","st_csr_sbayesc",3,6002,1053300
+"sparse_homogeneous","st_csr_sbayesc",4,6002,1053400
+"sparse_mixture","st_bed_bayesr",1,7002,2052100
+"sparse_mixture","st_bed_bayesr",2,7002,2052200
+"sparse_mixture","st_bed_bayesr",3,7002,2052300
+"sparse_mixture","st_bed_bayesr",4,7002,2052400
+"sparse_mixture","st_csr_sbayesr",1,7002,2054100
+"sparse_mixture","st_csr_sbayesr",2,7002,2054200
+"sparse_mixture","st_csr_sbayesr",3,7002,2054300
+"sparse_mixture","st_csr_sbayesr",4,7002,2054400

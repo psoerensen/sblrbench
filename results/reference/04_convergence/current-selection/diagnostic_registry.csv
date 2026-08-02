@@ -1,0 +1,7 @@
+"estimand","source","classification","required","lower_bound","upper_bound"
+"effect_variance","vbs","core",TRUE,0,Inf
+"genetic_variance","vgs","core",TRUE,0,Inf
+"residual_variance","ves","core",TRUE,0,Inf
+"heritability","vgs/(vgs+ves)","core",TRUE,0,1
+"causal_proportion","pi_trace","unavailable",FALSE,0,1
+"total_marker_effect_variance","vbs*pi_trace*marker_count","unavailable",FALSE,0,Inf

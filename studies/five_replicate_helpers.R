@@ -17,8 +17,8 @@
   expected <- data.frame(
     method = c("st_bed_bayesc", "st_bed_bayesr", "st_csr_sbayesc", "st_csr_sbayesr"),
     recommended_nburn = c(250L, 250L, 250L, 250L),
-    recommended_post_burnin_draws = c(250L, 1000L, 250L, 1000L),
-    recommended_nit_argument = c(250L, 1000L, 250L, 1000L),
+    recommended_post_burnin_draws = c(250L, 2000L, 250L, 2000L),
+    recommended_nit_argument = c(250L, 2000L, 250L, 2000L),
     recommended_nthin = rep(1L, 4L), recommended_nchains = rep(4L, 4L),
     recommended_ncores = rep(4L, 4L), stringsAsFactors = FALSE
   )
