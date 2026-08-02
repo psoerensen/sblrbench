@@ -137,7 +137,7 @@ source(file.path("studies", "02_prediction", "promotion.R"), local = TRUE)
   missing <- output_files[!file.exists(file.path(source_dir, output_files))]
   if (length(missing) || !file.exists(file.path(source_dir, manifest_name)))
     stop("Promotion source outputs are incomplete: ", paste(missing, collapse = ", "), call. = FALSE)
-  staging <- file.path("results", "local", "five_replicate_overnight", "promotion_staging",
+  staging <- file.path(.current_refresh_local_root(), "promotion_staging",
     paste0(basename(destination), "-", Sys.getpid()))
   if (dir.exists(staging)) stop("Promotion staging directory already exists.", call. = FALSE)
   dir.create(staging, recursive = TRUE, showWarnings = FALSE)
@@ -169,8 +169,7 @@ source(file.path("studies", "02_prediction", "promotion.R"), local = TRUE)
 }
 
 .five_promote_study02 <- function(source_dir) .five_promote("study02", source_dir,
-  file.path("results", "reference", "02_prediction",
-    "st-bayesc-bayesr-five-replicate-development-v1"),
+  file.path("results", "reference", "02_prediction", "current"),
   c("studies/five_replicate_helpers.R", "studies/five_replicate_promotion.R",
     "studies/02_prediction/config.R", "studies/02_prediction/pilot.R",
     "studies/02_prediction/targets.R", "studies/02_prediction/promotion.R"),
@@ -178,8 +177,7 @@ source(file.path("studies", "02_prediction", "promotion.R"), local = TRUE)
   .five_validate_study02_capsule)
 
 .five_promote_study03 <- function(source_dir) .five_promote("study03", source_dir,
-  file.path("results", "reference", "03_parameter_estimation",
-    "st-parameter-estimation-five-replicate-development-v1"),
+  file.path("results", "reference", "03_parameter_estimation", "current"),
   c("studies/five_replicate_helpers.R", "studies/five_replicate_promotion.R",
     "studies/03_parameter_estimation/config.R", "studies/03_parameter_estimation/simulation.R",
     "studies/03_parameter_estimation/methods.R", "studies/03_parameter_estimation/metrics.R",
@@ -188,8 +186,7 @@ source(file.path("studies", "02_prediction", "promotion.R"), local = TRUE)
   .five_validate_study03_capsule)
 
 .five_promote_study04 <- function(source_dir) .five_promote("study04", source_dir,
-  file.path("results", "reference", "04_convergence",
-    "st-multichain-convergence-validation-five-replicate-v1"),
+  file.path("results", "reference", "04_convergence", "current-validation"),
   c("studies/five_replicate_helpers.R", "studies/five_replicate_promotion.R",
     "studies/04_convergence/config.R", "studies/04_convergence/methods.R",
     "studies/04_convergence/chain_extraction.R", "studies/04_convergence/diagnostics.R",

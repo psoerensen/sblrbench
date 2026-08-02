@@ -16,7 +16,7 @@ RoxygenNote: 7.3.3
 Config/testthat/edition: 3
 Imports:
     jsonlite,
-    sblr (>= 0.1.2)
+    sblr (>= 0.2.0)
 Suggests:
     knitr,
     posterior,
@@ -27,6 +27,6 @@ Suggests:
     withr
 Remotes:
     psoerensen/qgg,
-    psoerensen/sblr@v0.1.2
+    psoerensen/sblr@02e8c74baa906e83c4a08d42a9cc6339b4e81072
 URL: https://github.com/psoerensen/sblrbench
 BugReports: https://github.com/psoerensen/sblrbench/issues

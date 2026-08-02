@@ -1,7 +1,8 @@
 source(file.path("studies", "04_convergence", "promotion.R"))
-source_dir <- file.path("results", "local", "04_convergence")
-destination <- file.path("results", "reference", "04_convergence",
-  "st-multichain-convergence-development-v1")
+source_dir <- Sys.getenv("SBLR_BENCH_OUTPUT_DIR",
+  file.path("results", "local", "04_convergence"))
+destination <- Sys.getenv("SBLR_BENCH_CAPSULE_DESTINATION",
+  file.path("results", "reference", "04_convergence", "current-selection"))
 if (dir.exists(destination)) stop("Reference capsule already exists.", call. = FALSE)
 
 result_files <- c("benchmark_manifest.json", "diagnostic_registry.csv",

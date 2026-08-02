@@ -53,7 +53,8 @@ list(
     z <- merge(expected, computational_summary[, c("replicate", "method", "status", "reason")], by = c("replicate", "method"), all.x = TRUE, sort = TRUE)
     z$status[is.na(z$status)] <- "missing"; z$reason[is.na(z$reason)] <- "required method branch is absent"; z
   }),
-  targets::tar_target(output_dir, file.path("results", "local", "01_finemapping", "separated")),
+  targets::tar_target(output_dir, Sys.getenv("SBLR_BENCH_OUTPUT_DIR",
+    file.path("results", "local", "01_finemapping", "separated"))),
   targets::tar_target(marker_metrics_file, .study01_write_csv(marker_metrics, file.path(output_dir, "marker_metrics.csv")), format = "file"),
   targets::tar_target(credible_set_metrics_file, .study01_write_csv(credible_set_metrics, file.path(output_dir, "credible_set_metrics.csv")), format = "file"),
   targets::tar_target(credible_set_summary_file, .study01_write_csv(credible_set_summary, file.path(output_dir, "credible_set_summary.csv")), format = "file"),

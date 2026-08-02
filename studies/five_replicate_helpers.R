@@ -1,7 +1,15 @@
-.five_replicate_recommendation_path <- function() file.path(
-  "results", "reference", "04_convergence",
-  "st-multichain-convergence-development-v1", "method_recommendations.csv"
-)
+.five_replicate_recommendation_path <- function() {
+  configured <- Sys.getenv("SBLR_BENCH_RECOMMENDATIONS", "")
+  if (nzchar(configured)) return(configured)
+  file.path("results", "reference", "04_convergence", "current-selection",
+    "method_recommendations.csv")
+}
+
+.current_refresh_local_root <- function() {
+  configured <- Sys.getenv("SBLR_BENCH_REFRESH_ROOT", "")
+  if (nzchar(configured)) return(configured)
+  file.path("results", "local", "current_benchmark_refresh")
+}
 
 .five_replicate_recommendations <- function(path = .five_replicate_recommendation_path()) {
   if (!file.exists(path)) stop("Frozen Study 04 recommendations are unavailable.", call. = FALSE)
