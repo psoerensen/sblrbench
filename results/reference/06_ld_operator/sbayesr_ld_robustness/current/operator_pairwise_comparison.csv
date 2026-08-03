@@ -1,0 +1,7 @@
+"reference","operator","relative_frobenius_error","maximum_absolute_error","diagonal_maximum_error","trace_difference"
+"exact","exact",0,0,0,0
+"exact","hard_sparse",0.442181213864433,309.249622397765,0,0
+"exact","block_eigen_full_rank",0.442740369387671,360.867891676563,0.000593139364355011,0.00459977984428406
+"exact","block_eigen_retained",0.444902425999446,360.867891676563,190.632717603314,-30594.2872054568
+"configured_block_target","block_eigen_full_rank",4.42100709710878e-08,0.000593139364355011,0.000593139364355011,0.00459977984428406
+"configured_block_target","block_eigen_retained",0.0488573338221013,190.632717603314,190.632717603314,-30594.2872054568

@@ -1,0 +1,6 @@
+"variant","label","status","chains","draws_per_chain","elapsed_seconds","checkpoint_reused","warnings","fit_origin"
+"bed_exact_data","BED exact data","ok",4,1000,38.86,TRUE,0,"reused_completed_checkpoint"
+"csr_exact_ld","CSR exact LD","ok",4,1000,4.36,TRUE,0,"reused_completed_checkpoint"
+"csr_sparse_ld","CSR hard sparse","ok",4,1000,4.03999999999999,TRUE,0,"reused_completed_checkpoint"
+"block_eigen_full_rank","Block eigen full rank","ok",4,1000,7.66,TRUE,0,"supplemental_validation_checkpoint"
+"block_eigen_retained","Block eigen retained 0.995","ok",4,1000,4.1,TRUE,0,"supplemental_validation_checkpoint"

@@ -1,0 +1,6 @@
+"variant","label","effect_rmse","effect_correlation","pip_gt_001","pip_gt_005","pip_gt_010","pip_gt_050"
+"bed_exact_data","BED exact data",0.00250472332937608,0.989122739026668,74,10,8,6
+"csr_exact_ld","CSR exact LD",0.00249114233575929,0.989260770618179,76,10,8,6
+"csr_sparse_ld","CSR hard sparse",0.00263917989330773,0.987485501121665,130,24,16,6
+"block_eigen_full_rank","Block eigen full rank",0.00253659783205611,0.988470611690361,126,26,13,6
+"block_eigen_retained","Block eigen retained 0.995",0.0025256676182488,0.988592364047923,124,24,15,6

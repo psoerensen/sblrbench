@@ -1,0 +1,15 @@
+"operator","metric","value"
+"exact_full","max_abs",2.8421516446997e-05
+"exact_full","mean_abs",2.04832801322225e-06
+"exact_full","rel_frob",1.95318100718563e-08
+"exact_full","above_tol",0
+"exact_full","diag_max",9.09494701772928e-13
+"exact_full","symmetry",0
+"study03_sparse","max_abs",309.249622397765
+"study03_sparse","mean_abs",52.2982250452684
+"study03_sparse","rel_frob",0.442181213864433
+"study03_sparse","diag_max",9.09494701772928e-13
+"study03_sparse","retained_offdiag_prop",0.0229521903491216
+"study03_sparse","omitted_abs_mass",58835503.1759269
+"study03_sparse","omitted_sq_mass",4768742866.50082
+"study03_sparse","max_omitted_abs",309.249622397765

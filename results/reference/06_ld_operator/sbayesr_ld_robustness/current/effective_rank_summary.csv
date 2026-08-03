@@ -1,0 +1,5 @@
+"operator","effective_rank","positive_condition_number","positive","near_zero","below_negative_tolerance"
+"exact",1290.35723858647,11.8518589692414,1500,0,0
+"hard_sparse",1464.77164385473,2.58378523318952,1500,0,0
+"block_eigen_full_rank",1465.72109911027,2.53493402167067,1500,0,0
+"block_eigen_retained",1456.6713723039,2.42835785120387,1490,10,0

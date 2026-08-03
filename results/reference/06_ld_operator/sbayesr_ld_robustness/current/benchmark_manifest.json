@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "study": "06_ld_operator_sbayesr_ld_robustness",
+  "source_head": "39c8596ddd810d6fee43bd7f7906d20cbbe52440",
+  "sblr_version": "0.2.0",
+  "sblr_sha": "02e8c74baa906e83c4a08d42a9cc6339b4e81072",
+  "qgdata_sha": "6cca5819e711d326cfb2614d7e9d9f34942612cd",
+  "coordinate": {
+    "samples": 5000,
+    "markers": 1500,
+    "qc_start": 13392,
+    "qc_end": 14891,
+    "simulation_seed": 17002,
+    "chain_seeds": [150104, 250104, 350104, 450104]
+  },
+  "fits": {
+    "reused": ["bed_exact_data", "csr_exact_ld", "csr_sparse_ld"],
+    "newly_checkpointed": ["block_eigen_full_rank", "block_eigen_retained"]
+  },
+  "ld": {
+    "exact": {
+      "max_distance_variants": 0,
+      "r2_threshold": 0
+    },
+    "sparse": {
+      "max_distance_variants": 1000,
+      "r2_threshold": 0.001
+    }
+  },
+  "blocks": {
+    "policy": "fixed contiguous 250-marker starts plus chromosome boundary splits",
+    "starts": [1, 251, 501, 624, 751, 1001, 1251]
+  },
+  "eigen": {
+    "full": {
+      "representation": "dense_reconstructed",
+      "policy": "ridge_fixed",
+      "eta": 0
+    },
+    "retained": {
+      "representation": "low_rank",
+      "policy": "cumulative_positive_mass",
+      "proportion": 0.995,
+      "residual_rebuild_every": 100,
+      "total_rank": 1490,
+      "block_ranks": [248, 248, 123, 127, 248, 248, 248]
+    }
+  },
+  "interpretation_gate": {
+    "full_rank_global_equivalent": false,
+    "full_rank_block_target_relative_error": 4.4210070971087797e-08,
+    "full_rank_global_relative_error": 0.44274036938767114
+  }
+}

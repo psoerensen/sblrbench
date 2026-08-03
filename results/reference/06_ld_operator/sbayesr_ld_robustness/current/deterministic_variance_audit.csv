@@ -1,0 +1,4 @@
+"effect_state","direct_bXtXb","exact_csr_quadratic","sparse_csr_quadratic","exact_minus_direct","sparse_minus_direct"
+"all_zero",0,0,0,0,0
+"truth",2142.42857142857,2142.42857114504,2102.98172311363,-2.835295163095e-07,-39.4468483149444
+"csr_sparse_posterior_mean",2083.5727639359,2083.57276381913,2020.87618634952,-1.16769570013275e-07,-62.6965775863785

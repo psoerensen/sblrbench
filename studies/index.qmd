@@ -45,6 +45,10 @@ The fits retain their original compatible package SHA; deterministic validation
 against the current refresh SHA proves unchanged resolved priors and scalar
 sampler transitions. [Current capsule](../results/reference/06_ld_operator/current/README.md).
 
+A focused [supplemental SBayesR LD-operator robustness validation](06_ld_operator/sbayesr_ld_robustness/report.qmd)
+tests exact, hard-sparse, and block-eigen operators in one deterministic LD-rich
+window. [Supplemental capsule](../results/reference/06_ld_operator/sbayesr_ld_robustness/current/README.md).
+
 ## Planned and paused
 
 ### Study 07: Multivariate implementation validation

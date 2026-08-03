@@ -1,0 +1,21 @@
+"variant","label","component","posterior_expected_count"
+"bed_exact_data","BED exact data","component_0",1487.1575
+"bed_exact_data","BED exact data","component_1",4.29725
+"bed_exact_data","BED exact data","component_2",3.9015
+"bed_exact_data","BED exact data","component_3",4.64375
+"csr_exact_ld","CSR exact LD","component_0",1487.0995
+"csr_exact_ld","CSR exact LD","component_1",4.33
+"csr_exact_ld","CSR exact LD","component_2",3.903
+"csr_exact_ld","CSR exact LD","component_3",4.6675
+"csr_sparse_ld","CSR hard sparse","component_0",1484.46075
+"csr_sparse_ld","CSR hard sparse","component_1",5.26275
+"csr_sparse_ld","CSR hard sparse","component_2",5.101
+"csr_sparse_ld","CSR hard sparse","component_3",5.1755
+"block_eigen_full_rank","Block eigen full rank","component_0",1484.2725
+"block_eigen_full_rank","Block eigen full rank","component_1",5.3035
+"block_eigen_full_rank","Block eigen full rank","component_2",5.19625
+"block_eigen_full_rank","Block eigen full rank","component_3",5.22775
+"block_eigen_retained","Block eigen retained 0.995","component_0",1484.41775
+"block_eigen_retained","Block eigen retained 0.995","component_1",5.2535
+"block_eigen_retained","Block eigen retained 0.995","component_2",5.21425
+"block_eigen_retained","Block eigen retained 0.995","component_3",5.1145

@@ -62,6 +62,9 @@ All `r manifest$successful_fit_count` of `r manifest$expected_fit_count` four-ch
 
 The question is whether retained low-rank block operators implement their stated projected model correctly and behave stably enough, relative to explicit CSR and BED references, to support a later multivariate extension.
 
+A focused [supplemental SBayesR LD-operator robustness validation](sbayesr_ld_robustness/report.qmd)
+provides additional evidence without changing this benchmark or its capsule.
+
 ## Configurations
 
 1. **BED**: packed individual-level genotype reference.

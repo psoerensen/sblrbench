@@ -1,0 +1,13 @@
+"basis","effect","squared_effect_lowest_one_percent","squared_effect_lowest_five_percent","squared_effect_negative_sparse"
+"exact","truth",0.00342088800875321,0.0213799694816727,0
+"exact","bed_exact_data",0.00332159899924183,0.0193099471529553,0
+"exact","csr_exact_ld",0.00330931619624499,0.019293242540234,0
+"exact","csr_sparse_ld",0.00317316973567331,0.0187191700766862,0
+"exact","block_eigen_full_rank",0.00313851988933109,0.0186716681101622,0
+"exact","block_eigen_retained",0.00314671290351359,0.0186702432898918,0
+"hard_sparse","truth",0.00517291911694517,0.0137162057374274,0
+"hard_sparse","bed_exact_data",0.00412622101209653,0.0112613932153004,0
+"hard_sparse","csr_exact_ld",0.00413114461811248,0.0112670712162191,0
+"hard_sparse","csr_sparse_ld",0.00438972784328638,0.011844305228968,0
+"hard_sparse","block_eigen_full_rank",0.00427198508897903,0.0115821190757803,0
+"hard_sparse","block_eigen_retained",0.00427090742153262,0.0114970944326411,0

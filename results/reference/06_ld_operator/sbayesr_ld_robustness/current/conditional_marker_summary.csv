@@ -1,0 +1,7 @@
+"effect_state","parameter_set","max_score_exact_difference","max_score_sparse_difference","max_probability_exact_difference","max_probability_sparse_difference","max_mean_exact_difference","max_mean_sparse_difference"
+"all_zero","csr_sparse_posterior_scalars",0,0,0,0,0,0
+"csr_sparse_posterior_mean","csr_sparse_posterior_scalars",4.30708277576741e-06,79.8716605034416,7.44284217590874e-09,0.170777139526815,8.51900966436503e-10,0.0159895956735216
+"truth","csr_sparse_posterior_scalars",5.34174148469901e-06,82.9933567800624,7.08613945299419e-09,0.169281048882769,1.05654684653955e-09,0.0166145314888544
+"all_zero","initial",0,0,0,0,0,0
+"csr_sparse_posterior_mean","initial",4.30708277576741e-06,79.8716605034416,7.46678596730277e-09,0.171527549046187,8.5176468656023e-10,0.0159870067328478
+"truth","initial",5.34174148469901e-06,82.9933567800624,7.05951874735433e-09,0.168716736667789,1.05637783243129e-09,0.0166118413622729
