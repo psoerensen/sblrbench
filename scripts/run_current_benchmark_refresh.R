@@ -148,7 +148,8 @@ write_prior_impact <- function() {
   path
 }
 
-run_targets <- function(study, profile, output_dir, store_name, script = "_targets.R") {
+run_targets <- function(study, profile, output_dir, store_name, script = "_targets.R",
+    extra_vars = character()) {
   preflight()
   # The benchmark package under development is loaded from this committed source tree so
   # targets that call sblrbench:: APIs see the matching namespace. The scientific backend
@@ -160,7 +161,7 @@ run_targets <- function(study, profile, output_dir, store_name, script = "_targe
     SBLR_BENCH_RECOMMENDATIONS = recommendations,
     SBLR_BENCH_REFRESH_ROOT = refresh_root,
     OMP_NUM_THREADS = "4", OMP_THREAD_LIMIT = "4", OPENBLAS_NUM_THREADS = "1",
-    MKL_NUM_THREADS = "1", VECLIB_MAXIMUM_THREADS = "1")
+    MKL_NUM_THREADS = "1", VECLIB_MAXIMUM_THREADS = "1", extra_vars)
   old <- Sys.getenv(names(vars), unset = NA_character_)
   do.call(Sys.setenv, as.list(vars))
   on.exit({
@@ -183,8 +184,19 @@ run_phase <- function(x) switch(x,
     file.path(refresh_root, "study03"), "study03"),
   `study02` = run_targets("02_prediction", "five_replicate_development",
     file.path(refresh_root, "study02"), "study02"),
-  `study01` = run_targets("01_finemapping", "pilot",
-    file.path(refresh_root, "study01"), "study01"),
+  `study01` = {
+    run_targets("01_finemapping", "pilot",
+      file.path(refresh_root, "study01"), "study01",
+      extra_vars = c(SBLR_BENCH_REPLICATES = "10"))
+    source(file.path(root, "studies", "01_finemapping", "promotion.R"), local = TRUE)
+    .study01_write_target_warnings(
+      file.path(refresh_root, "targets", "study01"),
+      file.path(refresh_root, "study01", "target_warnings.csv"))
+    .study01_validate_sparse_warning_loci(
+      file.path(refresh_root, "targets", "study01"),
+      file.path(refresh_root, "study01", "ld_warning_validation.csv"))
+    .study01_promote_current(file.path(refresh_root, "study01"))
+  },
   stop("Phase is declared but not implemented yet: ", x, call. = FALSE))
 
 if (phase == "all") {

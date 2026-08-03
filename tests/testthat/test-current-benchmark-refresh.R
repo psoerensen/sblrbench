@@ -4,6 +4,7 @@ test_that("current refresh paths and package pin are explicit", {
   expect_match(runner, "02e8c74baa906e83c4a08d42a9cc6339b4e81072", fixed = TRUE)
   expect_match(runner, "current_benchmark_refresh", fixed = TRUE)
   expect_match(runner, "current-selection", fixed = TRUE)
+  expect_match(runner, "SBLR_BENCH_REPLICATES = \"10\"", fixed = TRUE)
   expect_match(runner, "pkgload::load_all(root", fixed = TRUE)
   expect_match(runner, "library(\"sblr\", lib.loc = rlib", fixed = TRUE)
 })
@@ -28,4 +29,27 @@ test_that("Study 02 compacts simulation branches before aggregation", {
   expect_match(source, "pattern = map(prediction_simulation_bundle)", fixed = TRUE)
   expect_false(grepl("lapply(prediction_simulation_bundle, function", source,
     fixed = TRUE))
+})
+
+test_that("Study 01 current capsule contract is exact and current", {
+  promotion <- paste(readLines(test_path("..", "..", "studies", "01_finemapping",
+    "promotion.R"), warn = FALSE), collapse = "\n")
+  targets <- paste(readLines(test_path("..", "..", "studies", "01_finemapping",
+    "targets.R"), warn = FALSE), collapse = "\n")
+  expect_match(promotion, "results.*reference.*01_finemapping.*current")
+  expect_match(promotion, "exact successful 40-fit grid", fixed = TRUE)
+  expect_match(promotion, "target_warnings.csv", fixed = TRUE)
+  expect_match(promotion, "warning_target_count", fixed = TRUE)
+  expect_match(promotion, "ld_warning_validation.csv", fixed = TRUE)
+  expect_match(promotion, "threshold_consistent", fixed = TRUE)
+  expect_match(promotion, "02e8c74baa906e83c4a08d42a9cc6339b4e81072", fixed = TRUE)
+  expect_match(targets, "sblr_source_commit")
+  expect_match(targets, "simulation_summary")
+  expect_match(targets, "seed_registry")
+  expect_match(targets, "benchmark_summary")
+  expect_match(targets, "computational_summary_branch")
+  expect_match(targets, "marker_metrics_branch")
+  expect_match(targets, "credible_set_metrics_branch")
+  expect_match(targets, "credible_set_summary_branch")
+  expect_false(grepl("lapply(method_run, `\\[\\[`, \"marker_metrics\")", targets))
 })

@@ -181,6 +181,23 @@ evaluate_credible_sets <- function(credible_sets, simulation, positions, LD, met
 
 .study01_write_csv <- function(x, path) { dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE); utils::write.csv(x, path, row.names = FALSE); path }
 
+.study01_metric_summary <- function(marker_metrics, credible_set_summary) {
+  metric_rows <- rbind(
+    marker_metrics[, c("method", "metric", "value")],
+    credible_set_summary[, c("method", "metric", "value")]
+  )
+  metric_rows <- metric_rows[is.finite(metric_rows$value), , drop = FALSE]
+  split_rows <- split(metric_rows, interaction(metric_rows$method,
+    metric_rows$metric, drop = TRUE, lex.order = TRUE))
+  out <- do.call(rbind, lapply(split_rows, function(x) data.frame(
+    method = x$method[[1]], metric = x$metric[[1]], n = nrow(x),
+    mean = mean(x$value), sd = if (nrow(x) > 1L) stats::sd(x$value) else NA_real_,
+    median = stats::median(x$value), min = min(x$value), max = max(x$value),
+    stringsAsFactors = FALSE)))
+  rownames(out) <- NULL
+  out[order(out$method, out$metric), , drop = FALSE]
+}
+
 .study01_evaluate_cs <- function(cs, fit_record, simulation, Z, Glist, config) {
   causals <- simulation$truth$causal$all
   members <- unique(unlist(lapply(.study01_cs_members(cs$native), `[[`, "members"), use.names = FALSE))
