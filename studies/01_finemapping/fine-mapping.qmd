@@ -1,64 +1,203 @@
 ---
 title: "Study 01: Separated-locus fine-mapping"
-description: "Current ten-replicate fine-mapping and credible-set benchmark."
+description: "Ten-replicate marker-recovery and credible-set benchmark."
 ---
 
 ```{r}
 #| echo: false
+source("studies/reporting_helpers.R")
 capsule <- "results/reference/01_finemapping/current"
-manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"),
-  simplifyVector = TRUE)
-summary <- read.csv(file.path(capsule, "benchmark_summary.csv"),
-  check.names = FALSE)
-status <- read.csv(file.path(capsule, "replicate_status.csv"),
-  check.names = FALSE)
-warnings <- read.csv(file.path(capsule, "target_warnings.csv"),
-  check.names = FALSE)
+read_capsule_csv <- function(name) read.csv(file.path(capsule, name), check.names = FALSE)
+manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), simplifyVector = TRUE)
+benchmark <- read_capsule_csv("benchmark_summary.csv")
+marker <- read_capsule_csv("marker_metrics.csv")
+credible <- read_capsule_csv("credible_set_summary.csv")
+credible_loci <- read_capsule_csv("credible_set_metrics.csv")
+computational <- read_capsule_csv("computational_summary.csv")
+fit_status <- read_capsule_csv("replicate_status.csv")
+simulations <- read_capsule_csv("simulation_summary.csv")
+ld_audit <- read_capsule_csv("ld_warning_validation.csv")
+target_warnings <- read_capsule_csv("target_warnings.csv")
+marker$method <- factor(marker$method, levels = sblrbench_method_levels())
+credible$method <- factor(credible$method, levels = sblrbench_method_levels())
+computational$method <- factor(computational$method, levels = sblrbench_method_levels())
+
+plot_metric <- function(data, metric, label, lower_better = FALSE) {
+  z <- data[data$metric == metric, ]
+  p <- prepare_sblrbench_replicates(z, "method")
+  ggplot2::ggplot(p$observations, ggplot2::aes(method, value, colour = method, shape = method)) +
+    ggplot2::geom_point(position = ggplot2::position_jitter(width = .08), alpha = .65) +
+    ggplot2::geom_pointrange(data = p$summary,
+      ggplot2::aes(method, mean, ymin = minimum, ymax = maximum), inherit.aes = FALSE,
+      shape = 18, linewidth = .45) +
+    sblrbench_method_scales() + theme_sblrbench() +
+    ggplot2::scale_x_discrete(labels = sblrbench_method_labels()) +
+    ggplot2::labs(x = NULL, y = label,
+      caption = paste("Points are ten deterministic replicates; diamonds show mean and observed range.",
+        if (lower_better) "Lower is better." else "Higher is better.")) +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 25, hjust = 1), legend.position = "none")
+}
 ```
 
 ::: {.callout-warning}
-This is a focused development benchmark. Ten simulations support structural
-validation and descriptive comparison, not a universal method ranking.
+This is a complete *development* benchmark. Ten deterministic simulations can expose implementation failures and show replicate variation, but they do not support universal method rankings or formal uncertainty statements.
 :::
 
-## Design and completion
+## Benchmark status and scientific question
 
-The current benchmark uses one separated-locus architecture, ten deterministic
-replicates, ten causal markers per replicate, and four scalar methods: ST-BED
-BayesC/BayesR and ST-CSR SBayesC/SBayesR. All `r nrow(status)` fits completed.
-Each fit used 250 burn-in and 500 retained iterations in one chain, with no
-thinning. This explicit Study 01 policy is independent of the multichain
-recommendations selected in Study 04.
+All `r manifest$successful_fit_count` of `r manifest$expected_fit_count` expected fits completed and the capsule is marked `r manifest$validation_status`. The question is deliberately narrow: under separated causal loci, how do individual-level BED BayesC/BayesR and summary-data CSR SBayesC/SBayesR recover marker effects, rank causal markers, and construct marginal-PIP credible sets?
 
-The run used `sblr` 0.2.0 at
-`r manifest$sblr_source_commit`. Data and effects are paired across methods within
-each replicate. Causal selection preserves the MAF and distance constraints,
-marker identities, and canonical chromosome order.
+## Methods compared
 
-## Marker and credible-set outcomes
+The four methods cross two prior classes with two input representations. BayesC/SBayesC use a common non-zero variance class; BayesR/SBayesR use a variance mixture. BED methods fit individual-level packed genotypes, whereas CSR methods fit training summary statistics and sparse LD. Comparisons therefore describe the complete tested workflows, not just interchangeable storage formats.
+
+## Data and simulation design
+
+The pinned public qgdata genotype panel contains `r format(manifest$sample_count, big.mark=",")` samples and `r format(manifest$canonical_marker_count, big.mark=",")` canonical markers. Each of `r manifest$replicate_count` deterministic replicates simulates a trait at target heritability `r manifest$simulation$h2`.
+
+Ten causal markers are selected separately in every replicate. Eligible markers have MAF in [`r manifest$causal_selection$min_maf`, `r manifest$causal_selection$max_maf`] and selected markers must be at least `r format(manifest$causal_selection$min_distance_bp, big.mark=",")` bp apart. Frozen causal-selection, simulation, method and chain seeds pair the same truth and inputs across methods. The capsule’s oracle comparison checks the generated phenotype against the intended linear predictor.
 
 ```{r}
 #| echo: false
-keep <- c("average_precision", "causal_top_10_recall", "effect_rmse",
-  "pip_brier", "exact_coverage_fraction", "ld_proxy_coverage_fraction",
-  "mean_set_size")
-knitr::kable(summary[summary$metric %in% keep,
-  c("method", "metric", "n", "mean", "sd", "min", "max")],
-  digits = 4)
+design <- data.frame(
+  Item = c("Replicates", "Samples", "Canonical markers", "Causal markers per replicate", "Target heritability", "Minimum causal-marker distance"),
+  Value = c(manifest$replicate_count, manifest$sample_count, manifest$canonical_marker_count,
+    manifest$simulation$n_causal, manifest$simulation$h2,
+    paste(format(manifest$causal_selection$min_distance_bp, big.mark=","), "bp")))
+knitr::kable(design)
 ```
 
-Credible sets are cumulative marginal-PIP sets, not per-effect causal
-configurations. The sparse-LD warning audit found `r nrow(warnings)` recorded
-target warnings. Direct genotype correlations confirmed that every zero-edge
-warning was consistent with the frozen LD threshold rather than marker-order or
-indexing failure.
+## MCMC controls and provenance
 
-## Reproducibility
+Study 01 retains its explicit one-chain policy: `r manifest$mcmc$nburn` burn-in iterations, `r manifest$mcmc$nit` retained iterations, no thinning (`nthin = `r manifest$mcmc$nthin`), one chain and one core. This policy is intentionally separate from Study 04’s later multichain recommendations.
+
+The fits used `sblr` `r manifest$package_versions$sblr` at exact source commit `r manifest$sblr_source_commit` (`r manifest$sblr_source_status`). The benchmark source commit recorded by the numerical capsule is `r manifest$sblrbench_source_commit`.
+
+## Validation checks
+
+```{r}
+#| echo: false
+checks <- data.frame(
+  Check = c("Expected fits", "Successful fits", "Failed fits", "Oracle-valid replicates",
+    "Causal-count checks", "Marker/sample alignment", "LD warning targets",
+    "Threshold-consistent zero-edge regions", "LD audit mismatches"),
+  Result = c(manifest$expected_fit_count, manifest$successful_fit_count, manifest$failed_fit_count,
+    sum(simulations$oracle_ok), sum(simulations$causal_count == manifest$simulation$n_causal),
+    paste(manifest$canonical_marker_count, "markers /", manifest$sample_count, "samples"),
+    length(unique(target_warnings$target)), sum(ld_audit$threshold_consistent),
+    sum(!ld_audit$threshold_consistent)))
+knitr::kable(checks)
+```
+
+The sparse-LD audit is substantive rather than cosmetic: direct genotype correlations were recomputed for every recorded zero-edge warning. All `r nrow(ld_audit)` audited regions were consistent with the frozen $r^2$ threshold; none indicated marker reordering, sample mismatch, or sparse-index corruption. The full fit-status table remains visible so failed branches could not disappear from a summary.
+
+```{r}
+#| echo: false
+knitr::kable(fit_status)
+```
+
+## Main marker-level results
+
+```{r}
+#| echo: false
+marker_table <- benchmark[benchmark$metric %in% c("effect_rmse", "pip_brier", "average_precision", "causal_top_10_recall"),
+  c("method", "metric", "n", "mean", "sd", "median", "min", "max")]
+knitr::kable(marker_table, digits = 4)
+```
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 5
+plot_metric(marker, "effect_rmse", "Marker-effect RMSE", TRUE)
+```
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 5
+plot_metric(marker, "pip_brier", "PIP Brier score", TRUE)
+```
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 5
+plot_metric(marker, "average_precision", "Average precision")
+```
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 5
+plot_metric(marker, "causal_top_10_recall", "Causal top-10 recall")
+```
+
+## Credible-set results
+
+Credible sets accumulate marginal PIP to `r manifest$credible_sets$coverage` within detected loci. They are not per-effect posterior configurations. Exact coverage requires the causal marker itself; LD-proxy coverage additionally accepts a qualifying proxy at the frozen $r^2$ threshold. Coverage is conditional on constructed sets, while `causal_loci_detected` answers the separate detection question.
+
+```{r}
+#| echo: false
+cs_table <- benchmark[benchmark$metric %in% c("exact_coverage_fraction", "ld_proxy_coverage_fraction", "mean_set_size", "causal_loci_detected"),
+  c("method", "metric", "n", "mean", "sd", "median", "min", "max")]
+knitr::kable(cs_table, digits = 4)
+```
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 5
+plot_metric(credible, "exact_coverage_fraction", "Exact credible-set coverage")
+```
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 5
+plot_metric(credible, "ld_proxy_coverage_fraction", "LD-proxy credible-set coverage")
+```
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 5
+plot_metric(credible, "mean_set_size", "Mean credible-set size", TRUE)
+```
+
+## Runtime comparison
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 5
+p <- prepare_sblrbench_replicates(transform(computational, value = runtime), "method")
+ggplot2::ggplot(p$observations, ggplot2::aes(method, value, colour=method, shape=method)) +
+  ggplot2::geom_point(position=ggplot2::position_jitter(width=.08), alpha=.65) +
+  ggplot2::geom_pointrange(data=p$summary, ggplot2::aes(method,mean,ymin=minimum,ymax=maximum), inherit.aes=FALSE, shape=18) +
+  sblrbench_method_scales() + theme_sblrbench() +
+  ggplot2::scale_x_discrete(labels=sblrbench_method_labels()) +
+  ggplot2::labs(x=NULL, y="Fit runtime (seconds)", caption="Points are replicates; diamonds show mean and observed range.") +
+  ggplot2::theme(axis.text.x=ggplot2::element_text(angle=25,hjust=1), legend.position="none")
+```
+
+## Interpretation
+
+The tables and replicate plots should be read together: mean performance can conceal replicate-specific failures, and credible-set coverage can look favorable simply because sets are large. Marker recovery, causal ranking, locus detection, exact/proxy coverage, set size and runtime therefore form a joint descriptive profile. No single metric licenses an overall winner.
+
+## Limitations
+
+Only one separated-locus architecture, one public genotype panel, ten replicates and short one-chain fits were studied. Marginal-PIP credible sets do not represent full multi-effect posterior configurations. LD-proxy coverage depends on the chosen threshold, and observed min/max ranges are descriptive—not confidence intervals. Convergence cannot be established from the one-chain Study 01 policy.
+
+## Reproducibility and downloads
+
+Rendering reads the compact capsule only; it does not run simulation, LD construction or a sampler. The readable [analysis entry point](analysis.R) explains how to invoke the current study separately.
 
 - [Current capsule](../../results/reference/01_finemapping/current/README.md)
 - [Manifest](../../results/reference/01_finemapping/current/benchmark_manifest.json)
-- [Benchmark summary](../../results/reference/01_finemapping/current/benchmark_summary.csv)
-- [LD warning validation](../../results/reference/01_finemapping/current/ld_warning_validation.csv)
+- [Marker metrics](../../results/reference/01_finemapping/current/marker_metrics.csv)
+- [Credible-set metrics](../../results/reference/01_finemapping/current/credible_set_metrics.csv)
+- [Credible-set summary](../../results/reference/01_finemapping/current/credible_set_summary.csv)
+- [Computational summary](../../results/reference/01_finemapping/current/computational_summary.csv)
+- [LD warning audit](../../results/reference/01_finemapping/current/ld_warning_validation.csv)
 - [Checksums](../../results/reference/01_finemapping/current/checksums.csv)
-
-Earlier development versions remain available through Git history.

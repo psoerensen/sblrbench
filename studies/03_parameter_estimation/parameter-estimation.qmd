@@ -1,69 +1,204 @@
 ---
 title: "Study 03: Single-trait parameter estimation"
-description: "Current five-replicate posterior recovery benchmark."
+description: "Five-replicate posterior recovery, interval, and prior-class benchmark."
 ---
 
 ```{r}
 #| echo: false
+source("studies/reporting_helpers.R")
 capsule <- "results/reference/03_parameter_estimation/current"
-manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"),
-  simplifyVector = TRUE)
-recovery <- read.csv(file.path(capsule, "parameter_recovery_summary.csv"),
-  check.names = FALSE)
-paired <- read.csv(file.path(capsule, "paired_comparison_summary.csv"),
-  check.names = FALSE)
-status <- read.csv(file.path(capsule, "replicate_status.csv"),
-  check.names = FALSE)
+rcsv <- function(x) read.csv(file.path(capsule,x),check.names=FALSE)
+manifest <- jsonlite::read_json(file.path(capsule,"benchmark_manifest.json"),simplifyVector=TRUE)
+estimates <- rcsv("parameter_estimates.csv")
+recovery <- rcsv("parameter_recovery_summary.csv")
+paired_rep <- rcsv("paired_parameter_differences.csv")
+paired <- rcsv("paired_comparison_summary.csv")
+registry <- rcsv("estimand_registry.csv")
+truth <- rcsv("simulation_truth.csv")
+computation <- rcsv("computational_summary.csv")
+status <- rcsv("replicate_status.csv")
+estimates$method <- factor(estimates$method,levels=sblrbench_method_levels())
+estimates$architecture_label <- sblrbench_architecture_factor(estimates$architecture)
+estimates$specification_label <- factor(estimates$model_specification,
+  levels=c("matched","misspecified"),labels=sblrbench_model_specification_labels())
+primary <- c("effect_variance","genetic_variance","residual_variance","heritability",
+  "causal_proportion","total_marker_effect_variance")
 ```
 
 ::: {.callout-warning}
-Five simulations per architecture make interval coverage coarse: each miss
-changes observed coverage by 20 percentage points.
+Observed coverage is exceptionally coarse with five replicates: one interval changes a proportion by 20 percentage points. Coverage results are descriptive audit counts, not calibrated frequentist estimates.
 :::
 
-## Design and controls
+## Benchmark status and scientific question
 
-The current benchmark contains two architectures, five deterministic replicates,
-and four methods for `r nrow(status)` total fits. It evaluates matched and
-misspecified BayesC/SBayesC and BayesR/SBayesR priors using paired truth and
-inputs. Unlike the earlier development snapshot, this fresh run deliberately
-adopts the current Study 04 recommendations: 250 burn-in plus 250 retained draws
-for BayesC/SBayesC and 250 burn-in plus 2,000 retained draws for BayesR/SBayesR,
-with four chains and no thinning.
+All `r manifest$successful_fit_count` of `r manifest$expected_fit_count` fits completed. Study 03 asks whether posterior summaries recover scalar generating and realized quantities, whether nominal intervals contain the relevant truth, and how recovery changes under matched versus deliberately misspecified prior classes and BED versus CSR inputs.
 
-The exact package source is `r manifest$sblr_commit`. Truth, estimand
-availability, interval definitions, and matched/misspecified classifications are
-frozen in the capsule.
+## Methods and design
 
-## Recovery
+The same ST-BED BayesC/BayesR and ST-CSR SBayesC/SBayesR workflows are evaluated under sparse homogeneous and sparse variance-mixture architectures. Five deterministic replicates per architecture pair truth and inputs across methods. The design uses `r manifest$analysis_sample_count` samples, `r format(manifest$canonical_marker_count,big.mark=",")` markers, `r manifest$causal_marker_count` causal markers and target heritability `r manifest$target_h2`.
+
+BayesC/SBayesC are matched to the homogeneous architecture and misspecified for the variance mixture; BayesR/SBayesR have the reverse classification. “Misspecified” here names a known simulation/prior-class mismatch, not a failed fit.
+
+## MCMC controls and provenance
+
+The current run adopts the Study 04 settings: four chains, no thinning, 250 burn-in and 250 retained draws for BayesC/SBayesC, versus 250 burn-in and 2,000 retained draws for BayesR/SBayesR. The manifest is authoritative:
 
 ```{r}
 #| echo: false
-shown <- recovery[recovery$estimand_id %in%
-  c("heritability", "genetic_variance", "residual_variance",
-    "effect_variance") & recovery$successful_replicates > 0,
-  c("architecture", "method", "model_specification", "estimand_id",
-    "successful_replicates", "mean_truth", "mean_posterior_mean",
-    "mean_bias", "rmse", "observed_coverage_proportion")]
-knitr::kable(shown, digits = 4)
+mcmc <- manifest$mcmc
+if (is.data.frame(mcmc)) knitr::kable(mcmc) else knitr::kable(as.data.frame(mcmc))
 ```
 
-## Paired contrasts
+The exact package source is `sblr` `r manifest$sblr_version` at `r manifest$sblr_commit` (`r manifest$sblr_source_status`).
+
+## Validation checks and complete fit status
+
+The study validates the complete method grid, seed pairing, truth availability, posterior draw counts, chain counts, finite interval endpoints and method-specific estimand availability. Unavailable quantities remain explicit instead of being dropped or assigned fabricated truth.
 
 ```{r}
 #| echo: false
-knitr::kable(utils::head(paired, 24), digits = 4)
+knitr::kable(status)
 ```
 
-Unavailable estimands remain explicit in the full tables rather than being
-dropped or assigned artificial truth values.
+## Estimand registry
 
-## Reproducibility
+```{r}
+#| echo: false
+knitr::kable(registry[,c("estimand_id","label","description","truth_type","posterior_source","truth_source","available_methods","primary")])
+```
+
+Generating truth is a simulation input (for example the target residual model or causal inclusion proportion). Realized truth is computed from the selected sample and realized genetic values (for example realized genetic variance and heritability). These need not coincide in finite data. Every estimate is joined to the registry’s stated truth type before bias, RMSE or coverage is computed.
+
+## Parameter-recovery results
+
+```{r}
+#| echo: false
+shown <- recovery[recovery$estimand_id %in% primary & recovery$successful_replicates>0,
+ c("architecture","method","model_specification","estimand_id","successful_replicates",
+ "mean_truth","mean_posterior_mean","mean_bias","rmse","mae","observed_coverage_count",
+ "observed_coverage_proportion","mean_interval_width_95")]
+knitr::kable(shown,digits=4)
+```
+
+The inclusion-related estimands (`causal_proportion` and `total_marker_effect_variance`) are displayed only for methods that expose the required posterior quantity under the frozen extraction contract.
+
+## Truth versus posterior estimate
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 8
+z <- estimates[estimates$estimand_id %in% primary & estimates$status=="ok" & is.finite(estimates$truth),]
+ggplot2::ggplot(z,ggplot2::aes(truth,posterior_mean,colour=method,shape=method))+
+  ggplot2::geom_abline(slope=1,intercept=0,linetype=2,colour="#6B7280")+
+  ggplot2::geom_point(alpha=.7)+ggplot2::facet_grid(estimand_label~architecture_label,scales="free")+
+  sblrbench_method_scales()+theme_sblrbench()+ggplot2::labs(x="Registered truth",y="Posterior mean",
+  caption="Points are replicate-level estimates; the dashed line is equality.")
+```
+
+## Bias and RMSE
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 6
+z <- recovery[recovery$estimand_id %in% primary & recovery$successful_replicates>0,]
+long <- rbind(transform(z,statistic="Mean bias",value=mean_bias),transform(z,statistic="RMSE",value=rmse))
+long$method <- factor(long$method,levels=sblrbench_method_levels())
+ggplot2::ggplot(long,ggplot2::aes(method,value,colour=method,shape=method))+
+  ggplot2::geom_hline(data=long[long$statistic=="Mean bias",],yintercept=0,linetype=2,colour="#9CA3AF")+
+  ggplot2::geom_point(size=2)+ggplot2::facet_grid(statistic~estimand_id,scales="free_y")+
+  sblrbench_method_scales()+theme_sblrbench()+ggplot2::scale_x_discrete(labels=sblrbench_method_labels())+
+  ggplot2::labs(x=NULL,y=NULL,caption="Each point summarizes five replicate-level errors; lower RMSE is better.")+
+  ggplot2::theme(axis.text.x=ggplot2::element_text(angle=30,hjust=1),legend.position="none")
+```
+
+## Coverage and interval width
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 6
+z <- recovery[recovery$estimand_id %in% primary & recovery$successful_replicates>0,]
+z$method <- factor(z$method,levels=sblrbench_method_levels())
+ggplot2::ggplot(z,ggplot2::aes(method,observed_coverage_proportion,colour=method,shape=method))+
+  ggplot2::geom_hline(yintercept=.95,linetype=2,colour="#6B7280")+ggplot2::geom_point(size=2)+
+  ggplot2::facet_grid(model_specification~estimand_id)+sblrbench_method_scales()+theme_sblrbench()+
+  ggplot2::scale_x_discrete(labels=sblrbench_method_labels())+ggplot2::scale_y_continuous(limits=c(0,1))+
+  ggplot2::labs(x=NULL,y="Observed 95% interval coverage",caption="Five-replicate proportions are coarse audit summaries; dashed line marks 0.95.")+
+  ggplot2::theme(axis.text.x=ggplot2::element_text(angle=30,hjust=1),legend.position="none")
+```
+
+```{r}
+#| echo: false
+widths <- recovery[recovery$estimand_id %in% primary & recovery$successful_replicates>0,
+ c("architecture","method","model_specification","estimand_id","observed_coverage_count",
+ "successful_replicates","observed_coverage_proportion","mean_interval_width_95")]
+knitr::kable(widths,digits=4)
+```
+
+## Matched versus misspecified comparisons
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+z <- paired[paired$comparison_type=="prior-class",]
+ggplot2::ggplot(z,ggplot2::aes(estimand_id,mean_absolute_error_difference,colour=comparison_id))+
+  ggplot2::geom_hline(yintercept=0,linetype=2)+ggplot2::geom_point()+
+  ggplot2::facet_wrap(~architecture,scales="free_y")+ggplot2::coord_flip()+theme_sblrbench()+
+  ggplot2::labs(x=NULL,y="Paired absolute-error difference",colour="Comparison",
+    caption="Signs follow the focal-minus-comparison definition in the capsule.")
+```
+
+## BED versus CSR paired contrasts
+
+```{r}
+#| echo: false
+bed_csr <- paired[paired$comparison_type=="BED-versus-CSR",
+ c("architecture","comparison_id","estimand_id","successful_replicates","mean_estimate_difference",
+ "mean_absolute_error_difference","mean_interval_width_difference","coverage_agreement_observation")]
+knitr::kable(bed_csr,digits=4)
+```
+
+This complete display replaces the former arbitrary `head(..., 24)` truncation. The downloadable replicate table preserves every paired observation.
+
+## Runtime
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+computation$method <- factor(computation$method,levels=sblrbench_method_levels())
+computation$architecture_label <- sblrbench_architecture_factor(computation$architecture)
+ggplot2::ggplot(computation,ggplot2::aes(method,runtime,colour=method,shape=method))+
+ ggplot2::geom_point(position=ggplot2::position_jitter(width=.08),alpha=.7)+
+ ggplot2::stat_summary(fun=mean,geom="point",shape=18,size=3,colour="black")+
+ ggplot2::facet_wrap(~architecture_label)+sblrbench_method_scales()+theme_sblrbench()+
+ ggplot2::scale_x_discrete(labels=sblrbench_method_labels())+ggplot2::scale_y_log10()+
+ ggplot2::labs(x=NULL,y="Runtime (seconds, log scale)",caption="Points are fits; diamonds are means.")+
+ ggplot2::theme(axis.text.x=ggplot2::element_text(angle=30,hjust=1),legend.position="none")
+```
+
+## Interpretation
+
+Recovery must be interpreted estimand by estimand. Small bias does not guarantee narrow or well-calibrated intervals; high coverage can result from wide intervals; and matched-prior benefits may differ between generating and realized quantities. BED/CSR contrasts include representation and likelihood differences and are not an equivalence test.
+
+## Limitations
+
+Five replicates make coverage especially coarse. Only two sparse architectures, one sample/marker scale, one genotype panel and one nominal interval level are examined. MCMC lengths are operational settings supported by Study 04 for its tested scalar quantities, not proof that every inclusion-related posterior functional has converged. The study is descriptive and not powered for formal matched-versus-misspecified inference.
+
+## Reproducibility and downloads
+
+The report reads compact outputs only. The [analysis entry point](analysis.R) documents the separate current runner.
 
 - [Current capsule](../../results/reference/03_parameter_estimation/current/README.md)
 - [Manifest](../../results/reference/03_parameter_estimation/current/benchmark_manifest.json)
+- [Estimand registry](../../results/reference/03_parameter_estimation/current/estimand_registry.csv)
 - [Parameter estimates](../../results/reference/03_parameter_estimation/current/parameter_estimates.csv)
 - [Recovery summary](../../results/reference/03_parameter_estimation/current/parameter_recovery_summary.csv)
+- [Paired replicate differences](../../results/reference/03_parameter_estimation/current/paired_parameter_differences.csv)
+- [Paired summary](../../results/reference/03_parameter_estimation/current/paired_comparison_summary.csv)
+- [Simulation truth](../../results/reference/03_parameter_estimation/current/simulation_truth.csv)
+- [Computational summary](../../results/reference/03_parameter_estimation/current/computational_summary.csv)
 - [Checksums](../../results/reference/03_parameter_estimation/current/checksums.csv)
-
-Earlier development snapshots remain available through Git history.

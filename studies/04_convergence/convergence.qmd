@@ -1,69 +1,247 @@
 ---
 title: "Study 04: Multichain convergence"
-description: "Current recommendation selection and five-replicate validation."
+description: "Recommendation selection and independent five-replicate fixed-setting validation."
 ---
 
 ```{r}
 #| echo: false
+source("studies/reporting_helpers.R")
 selection <- "results/reference/04_convergence/current-selection"
 validation <- "results/reference/04_convergence/current-validation"
-selection_manifest <- jsonlite::read_json(file.path(selection,
-  "benchmark_manifest.json"), simplifyVector = TRUE)
-recommendations <- read.csv(file.path(selection, "method_recommendations.csv"),
-  check.names = FALSE)
-validation_summary <- read.csv(file.path(validation,
-  "method_validation_summary.csv"), check.names = FALSE)
-selection_status <- read.csv(file.path(selection, "chain_status.csv"),
-  check.names = FALSE)
-validation_status <- read.csv(file.path(validation, "chain_status.csv"),
-  check.names = FALSE)
+scsv <- function(x) read.csv(file.path(selection,x),check.names=FALSE)
+vcsv <- function(x) read.csv(file.path(validation,x),check.names=FALSE)
+smanifest <- jsonlite::read_json(file.path(selection,"benchmark_manifest.json"),simplifyVector=TRUE)
+vmanifest <- jsonlite::read_json(file.path(validation,"benchmark_manifest.json"),simplifyVector=TRUE)
+recommendations <- scsv("method_recommendations.csv")
+thresholds <- scsv("diagnostic_thresholds.csv")
+registry <- scsv("diagnostic_registry.csv")
+sdiag <- scsv("convergence_diagnostics.csv")
+stability <- scsv("burnin_stability.csv")
+sagreement <- scsv("chain_agreement.csv")
+scompute <- scsv("computational_summary.csv")
+sstatus <- scsv("chain_status.csv")
+vdiag <- vcsv("convergence_diagnostics.csv")
+vrep <- vcsv("replicate_diagnostic_summary.csv")
+vsummary <- vcsv("method_validation_summary.csv")
+vagreement <- vcsv("chain_agreement.csv")
+vcompute <- vcsv("computational_summary.csv")
+vstatus <- vcsv("chain_status.csv")
+draws <- scsv("scalar_chain_draws.csv")
+for(nm in c("draws","sdiag","vdiag","vrep","scompute","vcompute")) {
+ x<-get(nm); if("method"%in%names(x)) x$method_label<-sblrbench_method_factor(x$method);
+ if("architecture"%in%names(x)) x$architecture_label<-sblrbench_architecture_factor(x$architecture); assign(nm,x)
+}
 ```
 
 ::: {.callout-warning}
-Operational support in five simulations is not universal convergence
-validation. Recommendations apply to the tested package, data, priors, and
-diagnostic registry.
+Operational support in five validation replicates is not universal convergence validation. Recommendations apply to the tested package source, data scale, priors, scalar registry and thresholds.
 :::
 
-## Selection and validation stages
+## Benchmark status and scientific question
 
-The recommendation-generating stage used four maximum-history fits—one matched
-method for each architecture/representation combination—and 16 identifiable
-chains. Candidate burn-in and retained-draw windows were assessed with the
-unchanged R-hat, bulk ESS, tail ESS, relative-MCSE, and burn-in-stability rules.
+Study 04 has two intentionally separate stages. Selection uses `r smanifest$expected_method_fit_count` maximum-history fits and `r smanifest$expected_chain_count` independently seeded chains to choose the least costly candidate satisfying every core diagnostic. Validation freezes those settings and evaluates `r vmanifest$expected_method_fit_count` new fits and `r vmanifest$expected_chain_count` chains across five deterministic replicates. Selection generates recommendations; validation measures their replicate-level support.
 
-The separate fixed-setting stage then used 20 fits and 80 chains: five paired
-replicates for each recommendation. All four recommendations were supported in
-all five validation replicates. Both stages used `sblr` 0.2.0 at
-`r selection_manifest$sblr_commit`.
+The question is operational: how much burn-in and retained history are required for the principal scalar quantities of each matched method/architecture workflow under an explicit four-chain contract?
 
-## Current recommendations
+## Methods, matched architectures, and iteration contract
 
-```{r}
-#| echo: false
-knitr::kable(recommendations[, c("method", "architecture",
-  "recommendation_status", "recommended_nchains", "recommended_nburn",
-  "recommended_post_burnin_draws", "recommended_nthin",
-  "limiting_estimand", "limiting_diagnostic")], digits = 4)
-```
+BayesC and SBayesC are assessed under sparse homogeneous effects; BayesR and SBayesR under the sparse variance mixture. Each fit has four identifiable chains. Raw chains are saved from the maximum-history run, and candidate windows are sliced after fitting. `nit` denotes post-burn-in retained draws per chain, `nburn` discarded iterations, and `nthin = 1`; chain identities and effective seeds remain explicit.
 
-## Five-replicate support
+Selection used `sblr` at `r smanifest$sblr_commit`; validation records `r vmanifest$sblr_commit`. Reports never reconstruct a chain or run a sampler.
+
+## Diagnostic registry and thresholds
+
+The core scalar registry contains effect variance, genetic variance, residual variance and heritability. A candidate must have four finite, non-constant chains and pass all thresholds for every required scalar.
 
 ```{r}
 #| echo: false
-knitr::kable(validation_summary[, c("architecture", "method",
-  "replicate_count", "replicates_passing_all_core_estimands",
-  "maximum_rhat", "minimum_bulk_ess", "minimum_tail_ess",
-  "maximum_relative_mcse", "recommendation_validation_status")], digits = 4)
+knitr::kable(registry)
+knitr::kable(thresholds)
 ```
 
-## Reproducibility
+R-hat must not exceed 1.01; bulk and tail ESS must each be at least 400; relative MCSE must not exceed 0.05. Burn-in stability additionally limits the standardized mean shift relative to the reference window to 0.1.
+
+## Validation checks
+
+```{r}
+#| echo: false
+checks <- data.frame(Stage=c("Selection","Validation"),
+ Expected_fits=c(smanifest$expected_method_fit_count,vmanifest$expected_method_fit_count),
+ Successful_fits=c(smanifest$successful_method_fit_count,vmanifest$successful_method_fit_count),
+ Expected_chains=c(smanifest$expected_chain_count,vmanifest$expected_chain_count),
+ Successful_chains=c(smanifest$successful_chain_count,vmanifest$successful_chain_count),
+ Failed_chains=c(smanifest$failed_chain_count,vmanifest$failed_chain_count))
+knitr::kable(checks)
+```
+
+## Selection evidence
+
+### Trace plots
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 8
+z <- draws[draws$raw_iteration %% 10 == 0,]
+long <- reshape(z,varying=c("effect_variance","genetic_variance","residual_variance","heritability"),
+ v.names="value",timevar="estimand",times=c("Effect variance","Genetic variance","Residual variance","Heritability"),
+ direction="long")
+ggplot2::ggplot(long,ggplot2::aes(raw_iteration,value,colour=factor(chain),group=chain))+
+ ggplot2::geom_line(linewidth=.35,alpha=.75)+ggplot2::facet_grid(estimand~method_label,scales="free_y")+
+ theme_sblrbench()+ggplot2::labs(x="Raw iteration",y=NULL,colour="Chain",
+ caption="Every tenth stored draw is shown; all diagnostics use the complete frozen histories.")
+```
+
+### Running means
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 8
+long <- long[order(long$method,long$chain,long$estimand,long$raw_iteration),]
+key <- interaction(long$method,long$chain,long$estimand,drop=TRUE)
+long$running_mean <- ave(long$value,key,FUN=function(x)cumsum(x)/seq_along(x))
+ggplot2::ggplot(long,ggplot2::aes(raw_iteration,running_mean,colour=factor(chain),group=chain))+
+ ggplot2::geom_line(linewidth=.45)+ggplot2::facet_grid(estimand~method_label,scales="free_y")+
+ theme_sblrbench()+ggplot2::labs(x="Raw iteration",y="Running mean",colour="Chain",
+ caption="Running means use the displayed every-tenth-draw series and visualize stabilization, not a formal pass rule.")
+```
+
+### R-hat trajectories
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+ggplot2::ggplot(sdiag,ggplot2::aes(retained_draw_candidate,rhat,colour=estimand,group=estimand))+
+ ggplot2::geom_hline(yintercept=1.01,linetype=2)+ggplot2::geom_line()+ggplot2::geom_point()+
+ ggplot2::facet_grid(burnin_candidate~method_label)+theme_sblrbench()+
+ ggplot2::labs(x="Retained draws per chain",y="R-hat",colour="Estimand",
+ caption="Dashed line is the prespecified maximum; lower is better.")
+```
+
+### Bulk and tail ESS trajectories
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 7
+ess <- rbind(transform(sdiag,diagnostic="Bulk ESS",value=ess_bulk),transform(sdiag,diagnostic="Tail ESS",value=ess_tail))
+ggplot2::ggplot(ess,ggplot2::aes(retained_draw_candidate,value,colour=estimand,group=estimand))+
+ ggplot2::geom_hline(yintercept=400,linetype=2)+ggplot2::geom_line()+ggplot2::geom_point()+
+ ggplot2::facet_grid(diagnostic+burnin_candidate~method_label,scales="free_y")+theme_sblrbench()+
+ ggplot2::labs(x="Retained draws per chain",y="Effective sample size",colour="Estimand",
+ caption="Dashed line is the prespecified minimum; higher is better.")
+```
+
+### Relative-MCSE trajectories
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+ggplot2::ggplot(sdiag,ggplot2::aes(retained_draw_candidate,relative_mcse,colour=estimand,group=estimand))+
+ ggplot2::geom_hline(yintercept=.05,linetype=2)+ggplot2::geom_line()+ggplot2::geom_point()+
+ ggplot2::facet_grid(burnin_candidate~method_label)+theme_sblrbench()+
+ ggplot2::labs(x="Retained draws per chain",y="Relative MCSE",colour="Estimand",
+ caption="Dashed line is the prespecified maximum; lower is better.")
+```
+
+### Burn-in stability
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+stability$method_label <- sblrbench_method_factor(stability$method)
+ggplot2::ggplot(stability,ggplot2::aes(burnin_candidate,abs(standardized_mean_shift),colour=estimand,group=estimand))+
+ ggplot2::geom_hline(yintercept=.1,linetype=2)+ggplot2::geom_line()+ggplot2::geom_point()+
+ ggplot2::facet_wrap(~method_label)+theme_sblrbench()+
+ ggplot2::labs(x="Burn-in candidate",y="Absolute standardized mean shift",colour="Estimand",
+ caption="Dashed line is the stability maximum; lower is better.")
+```
+
+## Current recommendations and limiting diagnostics
+
+```{r}
+#| echo: false
+knitr::kable(recommendations[,c("method","architecture","recommendation_status","recommended_nchains",
+ "recommended_nburn","recommended_post_burnin_draws","recommended_nthin","limiting_estimand",
+ "limiting_diagnostic","maximum_rhat","minimum_ess_bulk","minimum_ess_tail","maximum_relative_mcse")],digits=4)
+```
+
+The limiting columns identify the quantity and diagnostic closest to failure at the selected setting. A recommendation is a minimum supported candidate in this finite grid, not an estimate of an optimal universal chain length.
+
+## Five-replicate fixed-setting validation
+
+```{r}
+#| echo: false
+knitr::kable(vrep,digits=4)
+knitr::kable(vsummary,digits=4)
+```
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 7
+vd <- rbind(transform(vdiag,diagnostic="R-hat",value=rhat,threshold=1.01,direction="maximum"),
+ transform(vdiag,diagnostic="Bulk ESS",value=ess_bulk,threshold=400,direction="minimum"),
+ transform(vdiag,diagnostic="Tail ESS",value=ess_tail,threshold=400,direction="minimum"),
+ transform(vdiag,diagnostic="Relative MCSE",value=relative_mcse,threshold=.05,direction="maximum"))
+ggplot2::ggplot(vd,ggplot2::aes(method_label,value,colour=estimand,shape=estimand))+
+ ggplot2::geom_point(position=ggplot2::position_jitter(width=.12),alpha=.7)+
+ ggplot2::facet_wrap(~diagnostic,scales="free_y")+theme_sblrbench()+
+ ggplot2::labs(x=NULL,y=NULL,caption="Points are replicate × estimand outcomes at frozen settings; thresholds are reported above.")+
+ ggplot2::theme(axis.text.x=ggplot2::element_text(angle=30,hjust=1))
+```
+
+All method-level support statements are based on the five replicate rows, not on pooling scalar diagnostics into pseudo-replicates.
+
+## BED/CSR agreement
+
+Chain-agreement tables record marker-effect correlation/RMSE, PIP correlation and top-50 overlap for chain pairs. They assess within-fit chain agreement; they are not evidence that BED and CSR likelihoods are identical.
+
+```{r}
+#| echo: false
+agreement_summary <- aggregate(cbind(effect_correlation,effect_rmse,pip_correlation,top50_pip_overlap)~method,
+ data=vagreement,FUN=mean,na.rm=TRUE)
+knitr::kable(agreement_summary,digits=4)
+```
+
+## Runtime
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+ggplot2::ggplot(vcompute,ggplot2::aes(method_label,runtime,colour=method,shape=method))+
+ ggplot2::geom_point(position=ggplot2::position_jitter(width=.08),alpha=.7)+
+ ggplot2::stat_summary(fun=mean,geom="point",shape=18,size=3,colour="black")+
+ sblrbench_method_scales()+theme_sblrbench()+ggplot2::scale_y_log10()+
+ ggplot2::labs(x=NULL,y="Validation fit runtime (seconds, log scale)",caption="Points are five fits per matched workflow; diamonds are means.")+
+ ggplot2::theme(axis.text.x=ggplot2::element_text(angle=30,hjust=1),legend.position="none")
+```
+
+## Interpretation
+
+The evidence supports the frozen settings for all five tested validation replicates, while revealing which scalar/diagnostic combinations determined the cost. Trace and running-mean plots are qualitative context; pass/fail comes from the registered numerical rules. More retained draws can improve ESS and MCSE without repairing inadequate burn-in, hence the separate stability check.
+
+## Limitations
+
+The selection stage has one maximum-history fit per matched workflow, and validation has only five replicates. Only four scalar quantities are core; marker-wise mixing and rare mixture allocations may be slower. Candidate windows are discrete, diagnostics are estimated, and thresholds are operational conventions. Findings do not automatically transfer to other sample sizes, LD structures, priors, thread settings, annotation models or multivariate samplers.
+
+## Reproducibility and downloads
+
+The report reads tracked selection and validation capsules. The [analysis entry point](analysis.R) documents the separate runners.
 
 - [Selection capsule](../../results/reference/04_convergence/current-selection/README.md)
 - [Validation capsule](../../results/reference/04_convergence/current-validation/README.md)
+- [Selection draws](../../results/reference/04_convergence/current-selection/scalar_chain_draws.csv)
+- [Selection diagnostics](../../results/reference/04_convergence/current-selection/convergence_diagnostics.csv)
+- [Burn-in stability](../../results/reference/04_convergence/current-selection/burnin_stability.csv)
 - [Recommendations](../../results/reference/04_convergence/current-selection/method_recommendations.csv)
-- [Validation summary](../../results/reference/04_convergence/current-validation/method_validation_summary.csv)
+- [Validation diagnostics](../../results/reference/04_convergence/current-validation/convergence_diagnostics.csv)
+- [Replicate support](../../results/reference/04_convergence/current-validation/replicate_diagnostic_summary.csv)
+- [Method support](../../results/reference/04_convergence/current-validation/method_validation_summary.csv)
 - [Selection checksums](../../results/reference/04_convergence/current-selection/checksums.csv)
 - [Validation checksums](../../results/reference/04_convergence/current-validation/checksums.csv)
-
-Earlier recommendation snapshots remain available through Git history.

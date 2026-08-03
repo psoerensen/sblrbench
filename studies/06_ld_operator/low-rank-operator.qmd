@@ -1,108 +1,347 @@
 ---
 title: "Study 06: Retained low-rank LD operators"
-description: "Current five-replicate LD-operator validation and compatibility audit."
+description: "Five-replicate deterministic, numerical, scientific, and compatibility validation."
 ---
 
 ```{r}
 #| echo: false
+source("studies/reporting_helpers.R")
 capsule <- "results/reference/06_ld_operator/current"
-manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"),
-  simplifyVector = TRUE)
-compatibility <- jsonlite::read_json(file.path(capsule,
-  "compatibility_manifest.json"), simplifyVector = TRUE)
-prediction <- read.csv(file.path(capsule, "prediction_metrics.csv"),
-  check.names = FALSE)
-paired <- read.csv(file.path(capsule, "paired_comparison_summary.csv"),
-  check.names = FALSE)
-checkpoint <- read.csv(file.path(capsule, "checkpoint_validation.csv"),
-  check.names = FALSE)
-rank <- read.csv(file.path(capsule, "low_rank_fit_block_diagnostics.csv"),
-  check.names = FALSE)
-runtime <- read.csv(file.path(capsule, "computational_summary.csv"),
-  check.names = FALSE)
+rcsv <- function(x) read.csv(file.path(capsule,x),check.names=FALSE)
+manifest <- jsonlite::read_json(file.path(capsule,"benchmark_manifest.json"),simplifyVector=TRUE)
+compatibility <- jsonlite::read_json(file.path(capsule,"compatibility_manifest.json"),simplifyVector=TRUE)
+identity <- rcsv("deterministic_identity_summary.csv")
+blocks <- rcsv("block_definitions.csv")
+rank_design <- rcsv("low_rank_block_diagnostics.csv")
+rank_fit <- rcsv("low_rank_fit_block_diagnostics.csv")
+checkpoint <- rcsv("checkpoint_validation.csv")
+convergence <- rcsv("convergence_validation_summary.csv")
+recommendations <- rcsv("method_recommendations.csv")
+prediction <- rcsv("prediction_metrics.csv")
+parameters <- rcsv("parameter_estimates.csv")
+recovery <- rcsv("parameter_recovery_summary.csv")
+marker <- rcsv("marker_effect_metrics.csv")
+agreement <- rcsv("marker_effect_agreement.csv")
+selection <- rcsv("variable_selection_metrics.csv")
+paired_rep <- rcsv("paired_replicate_differences.csv")
+paired <- rcsv("paired_comparison_summary.csv")
+runtime <- rcsv("computational_summary.csv")
+sbayesr <- rcsv("sbayesr_diagnostic_evidence.csv")
+priors <- rcsv("prior_compatibility.csv")
+sources <- rcsv("source_compatibility.csv")
+fit_status <- rcsv("fit_status.csv")
+config_levels <- c("bed","full_csr","block_csr","low_rank_full","low_rank_0999","low_rank_0995")
+config_labels <- c(bed="BED",full_csr="Full CSR",block_csr="Block CSR",low_rank_full="Near-full low rank",
+ low_rank_0999="Low rank 0.999",low_rank_0995="Low rank 0.995")
+config_colours <- c(bed="#0072B2",full_csr="#009E73",block_csr="#56B4E9",low_rank_full="#E69F00",
+ low_rank_0999="#D55E00",low_rank_0995="#CC79A7")
+config_factor <- function(x) factor(x,levels=config_levels,labels=config_labels[config_levels])
+plot_config_metric <- function(data,metric_id,ylab,lower=FALSE,reference=NULL) {
+ keep <- data$metric == metric_id
+ if ("available" %in% names(data)) keep <- keep & data$available
+ z<-data[keep,]
+ z$configuration_label<-config_factor(z$configuration); z$architecture_label<-sblrbench_architecture_factor(z$architecture)
+ p<-ggplot2::ggplot(z,ggplot2::aes(configuration_label,value,colour=configuration))
+ if(!is.null(reference)) p<-p+ggplot2::geom_hline(yintercept=reference,linetype=2,colour="#6B7280")
+ p+ggplot2::geom_point(position=ggplot2::position_jitter(width=.08),alpha=.7)+
+  ggplot2::stat_summary(fun=mean,geom="point",shape=18,size=3,colour="black")+
+  ggplot2::facet_wrap(~architecture_label,scales="free_y")+
+  ggplot2::scale_colour_manual(values=config_colours)+theme_sblrbench()+
+  ggplot2::labs(x=NULL,y=ylab,caption=paste("Points are five paired replicates; diamonds are means.",if(lower)"Lower is better." else "Higher is better."))+
+  ggplot2::theme(axis.text.x=ggplot2::element_text(angle=30,hjust=1),legend.position="none")
+}
 ```
 
 ::: {.callout-warning}
-This is a five-replicate development benchmark of operator implementations,
-not a comparison of different BLR prior models or a universal performance
-ranking.
+This is a five-replicate development benchmark of LD-operator implementations. It does not compare unrelated prior models and does not establish a universal speed, accuracy or storage ranking.
 :::
 
-## Scope and provenance
+## Benchmark status and scope
 
-Two architectures, five paired replicates, and six configurations produced 60
-validated four-chain fits: packed BED, full CSR, block CSR, near-full retained
-low rank, 0.999 retained mass, and 0.995 retained mass. Reconstructed-dense
-eigen fits were excluded from the primary grid.
+All `r manifest$successful_fit_count` of `r manifest$expected_fit_count` four-chain fits completed across two architectures, five paired replicates and six configurations. The benchmark combines deterministic operator identities, checkpoint/residual validation, convergence support, prediction and recovery metrics, marker-level agreement, runtime/storage measurement, and a current-source compatibility audit.
 
-The numerical fits retain their truthful `sblr` source provenance at
-`r manifest$numerical_fit_source_sha`. Compatibility with the current refresh
-SHA `r manifest$refresh_validation_sha` was established without sampler reruns:
-all resolved BayesC and BayesR priors are identical and all compiled scalar
-sampler and retained-low-rank transition sources are byte-identical.
+The question is whether retained low-rank block operators implement their stated projected model correctly and behave stably enough, relative to explicit CSR and BED references, to support a later multivariate extension.
 
-## Deterministic and numerical validation
+## Configurations
 
-The `block_low_rank_v1` contract stores retained factors and transformed scores. Its global
-projected residual-variance identity is
+1. **BED**: packed individual-level genotype reference.
+2. **Full CSR**: summary-data model with the full sparse LD operator.
+3. **Block CSR**: explicit block-diagonal sparse LD; comparison with full CSR measures omitted cross-block LD.
+4. **Near-full retained low rank**: retains all numerically positive block eigenmodes.
+5. **0.999 retained mass**: smallest per-block rank reaching 0.999 positive eigenvalue mass.
+6. **0.995 retained mass**: analogous canonical compression at 0.995.
+
+Reconstructed-dense eigen fits are not active configurations and are not restored as a report.
+
+## Data and simulation design
+
+The two frozen sparse architectures each have `r manifest$replicate_count` paired simulations. Every configuration receives the same marker order, phenotype truth and replicate seed. Configuration-specific chain seeds are registered. The capsule records `r nrow(unique(blocks[c("block_id","start","end")]))` genomic blocks and the exact qgdata revision `r manifest$qgdata_commit`.
+
+```{r}
+#| echo: false
+knitr::kable(rcsv("simulation_summary.csv"),digits=4)
+```
+
+## Blocks and retained-rank policy
+
+Blocks are contiguous marker intervals frozen in `block_definitions.csv`. Each low-rank block eigendecomposes the matching block-CSR matrix, discards non-positive numerical modes, and chooses the minimum rank meeting the requested positive-eigenvalue mass. Near-full means all positive modes, not an arbitrary dense reconstruction.
+
+```{r}
+#| echo: false
+rank_summary <- aggregate(cbind(positive_rank,retained_rank,positive_eigenvalue_mass,retained_eigenvalue_mass)~configuration,
+ data=rank_fit,FUN=sum)
+rank_summary$retained_rank_fraction <- rank_summary$retained_rank/rank_summary$positive_rank
+rank_summary$retained_mass_fraction <- rank_summary$retained_eigenvalue_mass/rank_summary$positive_eigenvalue_mass
+knitr::kable(rank_summary,digits=6)
+```
+
+## Deterministic operator validation
+
+The `block_low_rank_v1` representation (confirmed against `r manifest$operator_contract`) stores retained factors $Q_b$, transformed scores $w_b$, and projected residual coordinates $r_b$. Deterministic tests validate construction, diagonal recovery, score transformation, residual updates, corrected marker scores and quadratic forms against explicit source matrices.
+
+```{r}
+#| echo: false
+identity_cols <- c("configuration","representation","positive_rank","retained_rank","retained_mass_fraction",
+ "maximum_score_error","maximum_diagonal_error","maximum_residual_update_error","quadratic_form_error",
+ "projected_sse_identity_error","maximum_source_matrix_error","pass")
+knitr::kable(identity[,identity_cols],digits=6)
+```
+
+## Projected residual/SSE identity
+
+For block scores and residual coordinates, the frozen projected variance identity is
 
 $$
 SSE = yy - \sum_b w_b^\top w_b + \sum_b r_b^\top r_b.
 $$
 
-Deterministic Q/w identities, rank selection, score transforms, residual
-updates, and projected SSE passed. The maximum observed residual drift in the
-60-fit grid was `r format(max(checkpoint$maximum_residual_drift, na.rm = TRUE),
-scientific = TRUE, digits = 4)`.
+The deterministic table reports both residual- and quadratic-form routes and their discrepancy. Passing this identity is required because a low-rank sampler can update marker scores correctly yet still report a wrong residual variance if discarded spectral mass is mishandled.
 
-The whole-marker retained ranks were 37,991/37,991 near-full,
-37,839/37,991 at 0.999, and 37,231/37,991 at 0.995. Retained rank is not assumed
-to guarantee a speed or memory advantage; measured timing and storage determine
-the practical trade-off.
+## Residual-drift validation
 
-## Prediction
+Checkpoint validation independently rebuilds residual state and records the maximum drift from incremental updates.
 
 ```{r}
 #| echo: false
-shown <- prediction[prediction$metric %in% c(
-  "phenotype_prediction_correlation", "genetic_value_correlation",
-  "prediction_rmse", "prediction_calibration_slope"), ]
-cols <- intersect(c("architecture", "replicate", "configuration", "metric",
-  "value"), names(shown))
-knitr::kable(utils::head(shown[cols], 48), digits = 4)
+#| fig-width: 10
+#| fig-height: 5
+checkpoint$configuration_label<-config_factor(checkpoint$configuration)
+checkpoint$architecture_label<-sblrbench_architecture_factor(checkpoint$architecture)
+ggplot2::ggplot(checkpoint,ggplot2::aes(configuration_label,maximum_residual_drift,colour=configuration))+
+ ggplot2::geom_point(position=ggplot2::position_jitter(width=.08),alpha=.7)+
+ ggplot2::facet_wrap(~architecture_label)+ggplot2::scale_colour_manual(values=config_colours)+theme_sblrbench()+
+ ggplot2::scale_y_log10()+ggplot2::labs(x=NULL,y="Maximum residual drift (log scale)",
+ caption=paste("Largest observed drift:",format(max(checkpoint$maximum_residual_drift,na.rm=TRUE),scientific=TRUE,digits=4)))+
+ ggplot2::theme(axis.text.x=ggplot2::element_text(angle=30,hjust=1),legend.position="none")
 ```
+
+## Convergence settings and support
+
+Each fit uses four chains with Study 04-informed, method-specific settings. Recommendations and five-replicate support remain visible; convergence is not inferred from successful completion alone.
+
+```{r}
+#| echo: false
+knitr::kable(recommendations,digits=4)
+knitr::kable(convergence,digits=4)
+```
+
+## Prediction results
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 5
+plot_config_metric(prediction,"genetic_value_correlation","Genetic-value prediction correlation")
+```
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 5
+plot_config_metric(prediction,"phenotype_prediction_correlation","Phenotype prediction correlation")
+```
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 5
+plot_config_metric(prediction,"genetic_value_rmse","Genetic-value prediction RMSE",TRUE)
+```
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 5
+plot_config_metric(prediction,"prediction_regression_slope","Prediction regression slope",FALSE,1)
+```
+
+## Parameter recovery
+
+```{r}
+#| echo: false
+knitr::kable(recovery,digits=4)
+```
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 7
+z<-parameters[parameters$available & parameters$estimand %in% c("heritability","genetic_variance","residual_variance"),]
+z$configuration_label<-config_factor(z$configuration); z$architecture_label<-sblrbench_architecture_factor(z$architecture)
+ggplot2::ggplot(z,ggplot2::aes(truth,posterior_mean,colour=configuration))+
+ ggplot2::geom_abline(slope=1,intercept=0,linetype=2,colour="#6B7280")+ggplot2::geom_point(alpha=.7)+
+ ggplot2::facet_grid(estimand~architecture_label,scales="free")+ggplot2::scale_colour_manual(values=config_colours,labels=config_labels)+
+ theme_sblrbench()+ggplot2::labs(x="Truth",y="Posterior mean",colour="Configuration",
+ caption="Points are replicate-level estimates; the dashed line is equality.")
+```
+
+## Marker-effect agreement
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 5
+plot_config_metric(marker,"marker_effect_rmse","Marker-effect RMSE",TRUE)
+```
+
+```{r}
+#| echo: false
+agreement_summary<-aggregate(cbind(posterior_mean_effect_correlation,posterior_mean_effect_rmse,
+ nonnull_probability_correlation,high_pip_overlap)~architecture+comparison_id+orientation,data=agreement,FUN=mean,na.rm=TRUE)
+knitr::kable(agreement_summary,digits=4)
+```
+
+Agreement is reported for explicit oriented comparisons. High correlation can coexist with scale bias; RMSE and high-PIP overlap therefore remain alongside correlation.
+
+## Variable-selection metrics
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 5
+plot_config_metric(selection,"pip_auprc","PIP area under precision-recall curve")
+```
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 5
+plot_config_metric(selection,"pip_causal_mean","Mean causal-marker PIP")
+```
+
+Availability flags are respected; unsupported outputs remain recorded in the capsule rather than silently removed.
 
 ## Paired operator contrasts
 
+The contrasts have different interpretation levels: block CSR minus full CSR measures block approximation; near-full low rank minus block CSR isolates retained-factor implementation most closely; 0.999/0.995 versus near-full measures spectral truncation; full CSR minus BED is the broader summary-data versus individual-data workflow difference.
+
 ```{r}
 #| echo: false
-shown <- paired[paired$metric %in% c("phenotype_prediction_correlation",
-  "genetic_value_correlation", "prediction_rmse", "heritability"), ]
-knitr::kable(shown, digits = 4)
+#| fig-width: 11
+#| fig-height: 7
+z<-paired[paired$metric %in% c("genetic_value_correlation","genetic_value_rmse","heritability",
+ "marker_effect_rmse","pip_auprc"),]
+ggplot2::ggplot(z,ggplot2::aes(metric,mean_difference,colour=comparison_id))+
+ ggplot2::geom_hline(yintercept=0,linetype=2)+ggplot2::geom_pointrange(
+  ggplot2::aes(ymin=minimum_difference,ymax=maximum_difference),position=ggplot2::position_dodge(width=.5))+
+ ggplot2::facet_wrap(~architecture,scales="free_y")+ggplot2::coord_flip()+theme_sblrbench()+
+ ggplot2::labs(x=NULL,y="Mean focal-minus-reference difference (observed range)",colour="Comparison")
 ```
 
-Block CSR versus full CSR describes omitted cross-block LD. Near-full retained
-low rank versus block CSR isolates retained-factor implementation as closely as
-the frozen operators allow. Near-full versus 0.999 and 0.995 describes spectral
-retention. BED versus summary data is a broader likelihood and representation
-comparison, not an equivalence requirement.
+## Rank and spectral-retention diagnostics
 
-## Current decision
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+rs<-rank_summary[rank_summary$configuration %in% c("low_rank_full","low_rank_0999","low_rank_0995"),]
+rs$configuration_label<-config_factor(rs$configuration)
+rl<-rbind(transform(rs,diagnostic="Retained rank fraction",value=retained_rank_fraction),
+ transform(rs,diagnostic="Retained positive spectral mass",value=retained_mass_fraction))
+ggplot2::ggplot(rl,ggplot2::aes(configuration_label,value,fill=configuration))+
+ ggplot2::geom_col()+ggplot2::facet_wrap(~diagnostic,scales="free_y")+
+ ggplot2::scale_fill_manual(values=config_colours)+theme_sblrbench()+
+ ggplot2::labs(x=NULL,y="Fraction",caption="Fractions are summed over frozen blocks; spectral mass and rank are not interchangeable.")+
+ ggplot2::theme(axis.text.x=ggplot2::element_text(angle=25,hjust=1),legend.position="none")
+```
 
-The scalar result is **READY FOR MTBLR LOW-RANK EXTENSION**: deterministic
-identities and projected SSE are valid, chains are supported under the frozen
-recommendations, retention sensitivity is not pathological, and numerical
-stability, runtime, and storage are characterized. This does not itself validate
-an MT implementation.
+## Runtime and storage
 
-## Reproducibility
+Retained rank alone does not guarantee speed or memory savings. Immutable operator bytes, per-chain state, fit/checkpoint size, construction time and MCMC time are measured separately.
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 7
+runtime$configuration_label<-config_factor(runtime$configuration);runtime$architecture_label<-sblrbench_architecture_factor(runtime$architecture)
+rl<-rbind(transform(runtime,resource="MCMC runtime (s)",value=mcmc_runtime_seconds),
+ transform(runtime,resource="Immutable operator (bytes)",value=immutable_operator_bytes),
+ transform(runtime,resource="Per-chain state (bytes)",value=per_chain_state_bytes),
+ transform(runtime,resource="Fit object (bytes)",value=fit_object_bytes))
+ggplot2::ggplot(rl,ggplot2::aes(configuration_label,value,colour=configuration))+
+ ggplot2::geom_point(position=ggplot2::position_jitter(width=.08),alpha=.65)+
+ ggplot2::stat_summary(fun=mean,geom="point",shape=18,size=2.8,colour="black")+
+ ggplot2::facet_grid(resource~architecture_label,scales="free_y")+ggplot2::scale_y_log10()+
+ ggplot2::scale_colour_manual(values=config_colours)+theme_sblrbench()+
+ ggplot2::labs(x=NULL,y="Measured value (log scale)",caption="Points are fits; diamonds are means.")+
+ ggplot2::theme(axis.text.x=ggplot2::element_text(angle=30,hjust=1),legend.position="none")
+```
+
+## SBayesR diagnostic evidence
+
+The capsule preserves package-reported variance components, benchmark heritability, marker-effect variance, operator diagonals and log-CPO summaries for SBayesR configurations. This guards against an apparently stable operator comparison masking a model-output pathology.
+
+```{r}
+#| echo: false
+sbayes_vars <- c("vgs_posterior_mean","ves_posterior_mean","benchmark_heritability",
+ "package_reported_heritability","marker_effect_variance","operator_diagonal_mean","mean_log_cpo")
+sbayes_summary<-aggregate(sbayesr[sbayes_vars],sbayesr[c("architecture","configuration")],
+ FUN=function(x) if(all(is.na(x))) NA_real_ else mean(x,na.rm=TRUE))
+knitr::kable(sbayes_summary,digits=5)
+```
+
+## Current-source compatibility audit
+
+The 60 numerical fits truthfully retain source SHA `r manifest$numerical_fit_source_sha`. The refresh validation used `r manifest$refresh_validation_sha` without sampler reruns. The audit established identical resolved BayesC/BayesR priors and byte-identical scalar sampler-transition and retained-low-rank sources, yielding status `r manifest$compatibility_status`.
+
+```{r}
+#| echo: false
+compat_table<-data.frame(Check=c("Numerical provenance preserved","Sampler transition sources identical",
+ "Retained-low-rank sources identical","Resolved priors identical","Rerun required"),
+ Value=c(compatibility$numerical_fit_provenance_preserved,compatibility$sampler_transition_sources_identical,
+ compatibility$retained_low_rank_sources_identical,compatibility$resolved_priors_identical,compatibility$rerun_required))
+knitr::kable(compat_table)
+knitr::kable(priors[,c("model","configuration","identical_resolved_prior")])
+knitr::kable(sources)
+```
+
+## Readiness decision for MTBLR
+
+The frozen decision is **READY FOR MTBLR LOW-RANK EXTENSION** (confirmed against `r manifest$readiness_decision`). Deterministic identities and projected SSE pass, residual drift is characterized, all fits and convergence checks meet the frozen support contract, retention sensitivity is not pathological in the tested grid, and runtime/storage costs are measured. This is permission to begin a separate multivariate implementation effort—not evidence that an MT sampler already exists or is scientifically validated.
+
+## Interpretation
+
+Block-CSR differences from full CSR quantify the cost of omitting cross-block LD. Near-full low rank versus block CSR is the closest implementation comparison; 0.999 and 0.995 contrasts add spectral approximation. BED versus CSR is intentionally broader. Scientific metrics, numerical identities and resource measurements must agree before compression can be judged useful.
+
+## Limitations
+
+Only two sparse architectures, five replicates, one genotype/LD panel, one block scheme and two compressed mass targets were tested. Observed ranges are not inferential uncertainty. Near-full positive rank can approach the original dimension, and decomposition cost may dominate. Scalar compatibility does not validate annotation or multivariate transitions; those are explicitly outside scope.
+
+## Reproducibility and downloads
+
+Rendering reads the current capsule only and performs no sampler or checkpoint work. The [analysis entry point](analysis.R) documents the deterministic/current workflow separately.
 
 - [Current capsule](../../results/reference/06_ld_operator/current/README.md)
-- [Manifest](../../results/reference/06_ld_operator/current/benchmark_manifest.json)
-- [Compatibility evidence](../../results/reference/06_ld_operator/current/compatibility_manifest.json)
+- [Benchmark manifest](../../results/reference/06_ld_operator/current/benchmark_manifest.json)
+- [Compatibility manifest](../../results/reference/06_ld_operator/current/compatibility_manifest.json)
+- [Deterministic identities](../../results/reference/06_ld_operator/current/deterministic_identity_summary.csv)
+- [Checkpoint validation](../../results/reference/06_ld_operator/current/checkpoint_validation.csv)
+- [Prediction metrics](../../results/reference/06_ld_operator/current/prediction_metrics.csv)
+- [Parameter estimates](../../results/reference/06_ld_operator/current/parameter_estimates.csv)
+- [Marker-effect agreement](../../results/reference/06_ld_operator/current/marker_effect_agreement.csv)
+- [Variable-selection metrics](../../results/reference/06_ld_operator/current/variable_selection_metrics.csv)
+- [Paired replicate differences](../../results/reference/06_ld_operator/current/paired_replicate_differences.csv)
+- [Computational summary](../../results/reference/06_ld_operator/current/computational_summary.csv)
 - [Prior compatibility](../../results/reference/06_ld_operator/current/prior_compatibility.csv)
-- [Paired comparisons](../../results/reference/06_ld_operator/current/paired_replicate_differences.csv)
+- [Source compatibility](../../results/reference/06_ld_operator/current/source_compatibility.csv)
 - [Checksums](../../results/reference/06_ld_operator/current/checksums.csv)
-
-Earlier reconstructed-dense and versioned low-rank benchmark presentations remain
-available through Git history, not as duplicate active result trees.

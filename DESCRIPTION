@@ -6,6 +6,8 @@ Authors@R: person(
     email = "peter.sorensen@r-qgg.org",
     role = c("aut", "cre")
   )
+Author: Peter Sørensen [aut, cre]
+Maintainer: Peter Sørensen <peter.sorensen@r-qgg.org>
 Description: Tools for simulation-based evaluation, benchmarking,
     robustness analysis, and comparison of scalable Bayesian linear
     regression methods implemented in or compared with sblr.

@@ -1,68 +1,209 @@
 ---
 title: "Study 02: Single-trait prediction"
-description: "Current five-replicate held-out prediction benchmark."
+description: "Five-replicate held-out prediction benchmark across two architectures."
 ---
 
 ```{r}
 #| echo: false
+source("studies/reporting_helpers.R")
 capsule <- "results/reference/02_prediction/current"
-manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"),
-  simplifyVector = TRUE)
-summary <- read.csv(file.path(capsule, "benchmark_summary.csv"),
-  check.names = FALSE)
-paired <- read.csv(file.path(capsule, "paired_comparison_summary.csv"),
-  check.names = FALSE)
-status <- read.csv(file.path(capsule, "replicate_status.csv"),
-  check.names = FALSE)
+rcsv <- function(x) read.csv(file.path(capsule, x), check.names = FALSE)
+manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), simplifyVector = TRUE)
+metrics <- rcsv("prediction_metrics.csv")
+summary <- rcsv("benchmark_summary.csv")
+paired_replicates <- rcsv("paired_method_differences.csv")
+paired <- rcsv("paired_comparison_summary.csv")
+computation <- rcsv("computational_summary.csv")
+status <- rcsv("replicate_status.csv")
+simulations <- rcsv("simulation_summary.csv")
+for (nm in c("metrics", "computation")) {
+  x <- get(nm); x$method <- factor(x$method, levels=sblrbench_method_levels());
+  x$architecture_label <- sblrbench_architecture_factor(x$architecture); assign(nm,x)
+}
+plot_prediction_metric <- function(metric_id, ylab, lower_better=FALSE, reference=NULL) {
+  z <- metrics[metrics$metric == metric_id, ]
+  p <- ggplot2::ggplot(z, ggplot2::aes(method, value, colour=method, shape=method))
+  if (!is.null(reference)) p <- p + ggplot2::geom_hline(yintercept=reference, linetype=2, colour="#6B7280")
+  p + ggplot2::geom_point(position=ggplot2::position_jitter(width=.08), alpha=.7) +
+    ggplot2::stat_summary(fun=mean, geom="point", shape=18, size=3, colour="black") +
+    ggplot2::facet_wrap(~architecture_label, scales="free_y") + sblrbench_method_scales() + theme_sblrbench() +
+    ggplot2::scale_x_discrete(labels=sblrbench_method_labels()) +
+    ggplot2::labs(x=NULL,y=ylab,caption=paste("Points are five paired replicates; diamonds are means.",
+      if(lower_better) "Lower is better." else "Higher is better.")) +
+    ggplot2::theme(axis.text.x=ggplot2::element_text(angle=30,hjust=1),legend.position="none")
+}
 ```
 
 ::: {.callout-warning}
-This complete five-replicate development benchmark provides descriptive paired
-evidence. It does not establish a universal prediction ranking.
+This complete five-replicate development benchmark provides descriptive paired evidence. Five points per architecture do not justify universal rankings or formal uncertainty claims.
 :::
 
-## Design and execution contract
+## Benchmark status and scientific question
 
-Two architectures—sparse homogeneous and sparse variance mixture—were evaluated
-in five paired replicates with ST-BED BayesC/BayesR and ST-CSR SBayesC/SBayesR.
-All `r nrow(status)` fits completed with four identifiable chains. The current
-run uses the validated Study 04 recommendations: 250 burn-in plus 250 retained
-draws for BayesC/SBayesC, and 250 burn-in plus 2,000 retained draws for
-BayesR/SBayesR; no thinning was used.
+All `r manifest$successful_fit_count` of `r manifest$expected_fit_count` fits completed. The study asks how four single-trait workflows predict held-out genetic values and phenotypes under homogeneous sparse effects and a sparse variance mixture, while also tracking calibration, marker-effect recovery and runtime.
 
-The deterministic 70/30 split is shared within replicate. Allele frequencies,
-genotype scaling, summary statistics, and sparse LD use training individuals
-only. Test phenotypes enter evaluation only. The exact package source is
-`r manifest$versions$sblr_source_commit`.
+## Methods and genetic architectures
 
-## Held-out results
+ST-BED BayesC and BayesR operate on individual-level packed genotypes; ST-CSR SBayesC and SBayesR operate on training-derived summary statistics and sparse LD. BayesC/SBayesC use one non-zero effect-variance class, while BayesR/SBayesR use a variance mixture. The *sparse homogeneous* architecture is naturally matched to the C prior class; the *sparse variance mixture* architecture is naturally matched to the R class. Other combinations are deliberate prior-class misspecifications.
+
+## Data, simulation, and leakage controls
+
+Each of two architectures has `r manifest$replicate_count` deterministic replicates, `r manifest$causal_count` causal markers among `r format(manifest$canonical_marker_count,big.mark=",")`, and target heritability `r manifest$target_h2`. A single deterministic `r manifest$train_fraction*100`/`r (1-manifest$train_fraction)*100` split yields `r manifest$training_sample_count` training and `r manifest$test_sample_count` test individuals. Truth and seeds are paired across methods within architecture and replicate.
+
+Allele frequencies, genotype centering/scaling, summary statistics and sparse LD are computed from training individuals only. Test phenotypes are excluded from every fitting and preprocessing step and enter only the final evaluation. Oracle checks verify the simulation before fitting.
 
 ```{r}
 #| echo: false
-keep <- c("phenotype_prediction_correlation", "prediction_correlation",
-  "prediction_nmse", "prediction_calibration_slope", "effect_rmse")
-knitr::kable(summary[summary$metric %in% keep,
-  c("architecture", "method_label", "metric", "successful_replicates",
-    "mean", "sd", "minimum", "maximum")], digits = 4)
+design <- data.frame(
+  Architecture=sblrbench_architecture_factor(simulations$architecture), Replicate=simulations$replicate,
+  Causal_markers=simulations$causal_count, Target_h2=simulations$target_h2,
+  Realized_h2=simulations$realized_h2, Oracle=simulations$oracle_ok)
+knitr::kable(design, digits=4)
 ```
 
-## Paired method contrasts
+## MCMC controls and provenance
+
+The current Study 04-informed contract uses four chains and no thinning. BayesC/SBayesC use 250 burn-in plus 250 retained draws per chain; BayesR/SBayesR use 250 burn-in plus 2,000 retained draws per chain.
 
 ```{r}
 #| echo: false
-shown <- paired[paired$metric %in%
-  c("phenotype_prediction_correlation", "prediction_correlation",
-    "prediction_nmse"), ]
-knitr::kable(shown, digits = 4)
+mcmc <- manifest$mcmc_controls
+knitr::kable(mcmc[, intersect(c("method","nburn","nit","retained_draws","nthin","nchains","ncores"),names(mcmc))])
 ```
 
-## Reproducibility
+The capsule records `sblr` `r manifest$versions$sblr` at `r manifest$versions$sblr_source_commit`; the benchmark source is `r manifest$sblrbench_source_commit`.
+
+## Validation checks and fit status
+
+The expected grid is two architectures × five replicates × four methods. Completion, oracle validity, deterministic splits, paired seeds, canonical marker order, and absence of test-phenotype leakage are frozen validation requirements.
+
+```{r}
+#| echo: false
+knitr::kable(status)
+```
+
+## Main prediction results
+
+```{r}
+#| echo: false
+main <- summary[summary$metric %in% c("prediction_correlation","phenotype_prediction_correlation",
+  "prediction_nmse","prediction_calibration_slope","effect_rmse"),
+  c("architecture","method_label","metric","successful_replicates","mean","sd","median","minimum","maximum")]
+knitr::kable(main,digits=4)
+```
+
+### Genetic-value prediction correlation
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+plot_prediction_metric("prediction_correlation","Correlation with true held-out genetic value")
+```
+
+### Phenotype prediction correlation
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+plot_prediction_metric("phenotype_prediction_correlation","Correlation with held-out phenotype")
+```
+
+### Prediction NMSE
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+plot_prediction_metric("prediction_nmse","Genetic-value prediction NMSE",TRUE)
+```
+
+### Calibration slope
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+plot_prediction_metric("prediction_calibration_slope","Calibration slope",FALSE,1)
+```
+
+Calibration regresses true held-out genetic value on predicted genetic value. A slope near one is desirable; below one indicates predictions are too dispersed on this scale, and above one indicates insufficient dispersion. Because direction alone is not an advantage, paired comparisons use absolute distance from one.
+
+### Marker-effect RMSE
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+plot_prediction_metric("effect_rmse","Marker-effect RMSE",TRUE)
+```
+
+## BayesR versus BayesC paired contrasts
+
+Positive `advantage` is defined to favor the named focal method: focal minus comparison for correlations, and comparison minus focal for losses and absolute calibration errors.
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+z <- paired[paired$comparison_id %in% c("bayesr_vs_bayesc_bed","sbayesr_vs_sbayesc_csr"),]
+ggplot2::ggplot(z,ggplot2::aes(paired_metric,mean_advantage,colour=comparison_id))+
+  ggplot2::geom_hline(yintercept=0,linetype=2)+ggplot2::geom_pointrange(
+    ggplot2::aes(ymin=minimum_advantage,ymax=maximum_advantage),position=ggplot2::position_dodge(width=.35))+
+  ggplot2::facet_wrap(~architecture,scales="free_y")+ggplot2::coord_flip()+theme_sblrbench()+
+  ggplot2::labs(x=NULL,y="Mean paired advantage (observed range)",colour="Comparison")
+```
+
+## CSR versus BED paired contrasts
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+z <- paired[paired$comparison_id %in% c("csr_vs_bed_bayesc","csr_vs_bed_bayesr"),]
+ggplot2::ggplot(z,ggplot2::aes(paired_metric,mean_advantage,colour=comparison_id))+
+  ggplot2::geom_hline(yintercept=0,linetype=2)+ggplot2::geom_pointrange(
+    ggplot2::aes(ymin=minimum_advantage,ymax=maximum_advantage),position=ggplot2::position_dodge(width=.35))+
+  ggplot2::facet_wrap(~architecture,scales="free_y")+ggplot2::coord_flip()+theme_sblrbench()+
+  ggplot2::labs(x=NULL,y="Mean paired advantage (observed range)",colour="Comparison")
+```
+
+The full replicate-level paired table is downloadable below; no comparison is truncated to a convenient first page.
+
+## Runtime
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+ggplot2::ggplot(computation,ggplot2::aes(method,runtime,colour=method,shape=method))+
+  ggplot2::geom_point(position=ggplot2::position_jitter(width=.08),alpha=.7)+
+  ggplot2::stat_summary(fun=mean,geom="point",shape=18,size=3,colour="black")+
+  ggplot2::facet_wrap(~architecture_label)+sblrbench_method_scales()+theme_sblrbench()+
+  ggplot2::scale_x_discrete(labels=sblrbench_method_labels())+ggplot2::scale_y_log10()+
+  ggplot2::labs(x=NULL,y="Runtime (seconds, log scale)",caption="Points are fits; diamonds are means.")+
+  ggplot2::theme(axis.text.x=ggplot2::element_text(angle=30,hjust=1),legend.position="none")
+```
+
+## Interpretation
+
+Genetic-value correlation, phenotype correlation, NMSE and calibration answer different questions and need not agree. Effect RMSE is a secondary diagnostic because accurate aggregate predictions can coexist with non-identifiable individual marker effects in LD. Paired contrasts isolate changes within the same simulated data, but BED-versus-CSR still compares distinct likelihood/input workflows rather than claiming mathematical equivalence.
+
+## Limitations
+
+There are only five replicates per architecture, one genotype panel, one train/test split proportion and short method-specific chains. Min/max bars are observed ranges, not inferential intervals. The benchmark does not cover polygenic architectures, ancestry shift, alternative LD thresholds, tuning on validation data, or external cohorts.
+
+## Reproducibility and downloads
+
+The site reads frozen CSV/JSON only. The [analysis entry point](analysis.R) documents the separate current runner and never executes during rendering.
 
 - [Current capsule](../../results/reference/02_prediction/current/README.md)
 - [Manifest](../../results/reference/02_prediction/current/benchmark_manifest.json)
 - [Prediction metrics](../../results/reference/02_prediction/current/prediction_metrics.csv)
+- [Summary](../../results/reference/02_prediction/current/benchmark_summary.csv)
 - [Paired replicate differences](../../results/reference/02_prediction/current/paired_method_differences.csv)
+- [Paired comparison summary](../../results/reference/02_prediction/current/paired_comparison_summary.csv)
+- [Computational summary](../../results/reference/02_prediction/current/computational_summary.csv)
+- [Fit status](../../results/reference/02_prediction/current/replicate_status.csv)
 - [Checksums](../../results/reference/02_prediction/current/checksums.csv)
-
-The report reads one canonical capsule; earlier one-replicate and versioned
-development snapshots remain accessible through Git history.
