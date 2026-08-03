@@ -1,0 +1,9 @@
+"scenario","replicate","method","data_selection_seed","annotation_seed","component_allocation_seed","effect_generation_seed","phenotype_residual_seed","fit_seed","chain","chain_seed","effective_chain_seed"
+"informative_annotations",1,"st_bed_bayesrc",3101,5201,105412,105424,105438,701020,1,701121,1701124
+"informative_annotations",1,"st_bed_bayesrc",3101,5201,105412,105424,105438,701020,2,701222,1701225
+"informative_annotations",1,"st_bed_bayesrc",3101,5201,105412,105424,105438,701020,3,701323,1701326
+"informative_annotations",1,"st_bed_bayesrc",3101,5201,105412,105424,105438,701020,4,701424,1701427
+"informative_annotations",1,"st_csr_sbayesrc",3101,5201,105412,105424,105438,701040,1,701141,1701144
+"informative_annotations",1,"st_csr_sbayesrc",3101,5201,105412,105424,105438,701040,2,701242,1701245
+"informative_annotations",1,"st_csr_sbayesrc",3101,5201,105412,105424,105438,701040,3,701343,1701346
+"informative_annotations",1,"st_csr_sbayesrc",3101,5201,105412,105424,105438,701040,4,701444,1701447

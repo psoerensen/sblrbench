@@ -1,0 +1,9 @@
+"scenario","annotation_name","step_1","step_2","step_3"
+"informative_annotations","continuous_signal",0.25,0,0.2
+"informative_annotations","enriched_binary",0.98,0.2,0
+"informative_annotations","Intercept",-3.41710371283276,-0.2533471031358,-0.674489750196082
+"informative_annotations","null_annotation",0,0,0
+"uninformative_annotations","continuous_signal",0,0,0
+"uninformative_annotations","enriched_binary",0,0,0
+"uninformative_annotations","Intercept",-3.0077145661015,-0.115408806411931,-0.521676130505728
+"uninformative_annotations","null_annotation",0,0,0

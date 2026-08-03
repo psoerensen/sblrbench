@@ -1,0 +1,3 @@
+"scenario","marker_count","annotation_count","enriched_count","enriched_prevalence","continuous_signal_mean","continuous_signal_sd","null_annotation_mean","null_annotation_sd","design_rank","expected_nonnull","enriched_expected_nonnull_share"
+"informative_annotations",37991,4,3799,0.0999973677976363,-2.09743991528588e-17,1,-1.76636057014053e-17,1,4,50,0.686677833397276
+"uninformative_annotations",37991,4,3799,0.0999973677976363,-2.09743991528588e-17,1,-1.76636057014053e-17,1,4,50.0000000000005,0.0999973677976363

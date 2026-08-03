@@ -1,0 +1,3 @@
+"method","scenario","replicate","status","reason","runtime","chain_count"
+"st_bed_bayesrc","informative_annotations",1,"ok","",1924.86,4
+"st_csr_sbayesrc","informative_annotations",1,"ok","",585.92,4

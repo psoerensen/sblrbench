@@ -197,6 +197,24 @@ run_phase <- function(x) switch(x,
       file.path(refresh_root, "study01", "ld_warning_validation.csv"))
     .study01_promote_current(file.path(refresh_root, "study01"))
   },
+  `study05` = {
+    output <- file.path(refresh_root, "study05", "convergence")
+    run_targets("05_annotation_models", "current_convergence", output,
+      "study05-convergence",
+      script = file.path("studies", "05_annotation_models", "targets.R"),
+      extra_vars = c(SBLR_BENCH_STUDY05_PHASE = "convergence",
+        SBLR_BENCH_STUDY05_LOCAL = file.path(refresh_root, "study05"),
+        SBLR_BENCH_LD_DIR = file.path(refresh_root, "study05", "genotype_setup")))
+    source(file.path(root, "studies", "05_annotation_models", "promotion.R"),
+      local = TRUE)
+    decision <- .study05_promote_current_decision(output,
+      source(file.path(root, "studies", "05_annotation_models", "config.R"),
+        local = TRUE)$value)
+    atomic_write(c(paste("supported:", decision$supported),
+      paste("capsule:", decision$destination),
+      "full_benchmark_started: false"),
+      file.path(refresh_root, "study05", "decision.txt"))
+  },
   stop("Phase is declared but not implemented yet: ", x, call. = FALSE))
 
 if (phase == "all") {

@@ -53,3 +53,25 @@ test_that("Study 01 current capsule contract is exact and current", {
   expect_match(targets, "credible_set_summary_branch")
   expect_false(grepl("lapply(method_run, `\\[\\[`, \"marker_metrics\")", targets))
 })
+
+test_that("Study 05 refresh promotes an explicit convergence decision only", {
+  runner <- paste(readLines(test_path("..", "..", "scripts",
+    "run_current_benchmark_refresh.R"), warn = FALSE), collapse = "\n")
+  config <- paste(readLines(test_path("..", "..", "studies",
+    "05_annotation_models", "config.R"), warn = FALSE), collapse = "\n")
+  promotion <- paste(readLines(test_path("..", "..", "studies",
+    "05_annotation_models", "promotion.R"), warn = FALSE), collapse = "\n")
+  expect_match(runner, "SBLR_BENCH_STUDY05_PHASE = \"convergence\"", fixed = TRUE)
+  expect_match(runner, "full_benchmark_started: false", fixed = TRUE)
+  expect_match(config, "current-selection", fixed = TRUE)
+  expect_match(promotion, "current-convergence", fixed = TRUE)
+  expect_match(promotion, "current-stop", fixed = TRUE)
+  expect_match(promotion, "prespecified_convergence_stop_triggered", fixed = TRUE)
+  expect_match(promotion, "full_benchmark_started")
+  diagnostics <- paste(readLines(test_path("..", "..", "studies",
+    "05_annotation_models", "diagnostics.R"), warn = FALSE), collapse = "\n")
+  expect_match(diagnostics, "recommendation_status = if (supported)", fixed = TRUE)
+  expect_match(diagnostics, "\"unsupported\"", fixed = TRUE)
+  expect_false(grepl("No supported annotation-model MCMC setting", diagnostics,
+    fixed = TRUE))
+})

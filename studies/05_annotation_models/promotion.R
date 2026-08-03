@@ -73,6 +73,8 @@ source(file.path(.study05_promotion_root, "studies", "02_prediction",
   expected <- c("st_bed_bayesrc", "st_csr_sbayesrc")
   if (!identical(manifest$task, "annotation_model_convergence_selection") ||
       !identical(manifest$benchmark_status, "complete") ||
+      !identical(manifest$installed_sblr_commit,
+        "02e8c74baa906e83c4a08d42a9cc6339b4e81072") ||
       manifest$expected_fit_count != 2L ||
       nrow(status) != 2L || !setequal(status$method, expected) ||
       any(status$status != "ok") || any(status$chain_count != 4L) ||
@@ -94,6 +96,37 @@ source(file.path(.study05_promotion_root, "studies", "02_prediction",
       !identical(sort(unique(draws$chain)), 1:4))
     stop("Study 05 convergence capsule semantic validation failed.",
       call. = FALSE)
+  invisible(TRUE)
+}
+
+.study05_validate_stop_capsule <- function(path) {
+  required <- .study05_required("convergence")
+  if (!dir.exists(path) || length(setdiff(required, list.files(path))))
+    stop("Study 05 stop capsule is incomplete.", call. = FALSE)
+  .study05_validate_checksums(path, required)
+  manifest <- jsonlite::read_json(file.path(path, "benchmark_manifest.json"),
+    simplifyVector = TRUE)
+  status <- read.csv(file.path(path, "fit_status.csv"), stringsAsFactors = FALSE)
+  rec <- read.csv(file.path(path, "method_recommendations.csv"), stringsAsFactors = FALSE)
+  diagnostics <- read.csv(file.path(path, "convergence_diagnostics.csv"),
+    stringsAsFactors = FALSE)
+  seeds <- read.csv(file.path(path, "seed_registry.csv"), stringsAsFactors = FALSE)
+  expected <- c("st_bed_bayesrc", "st_csr_sbayesrc")
+  if (!identical(manifest$benchmark_status, "stopped") ||
+      !identical(manifest$validation_status,
+        "prespecified_convergence_stop_triggered") ||
+      !identical(manifest$installed_sblr_commit,
+        "02e8c74baa906e83c4a08d42a9cc6339b4e81072") ||
+      nrow(status) != 2L || !setequal(status$method, expected) ||
+      any(status$status != "ok") || any(status$chain_count != 4L) ||
+      nrow(rec) != 2L || !setequal(rec$method, expected) ||
+      all(rec$recommendation_status == "available") ||
+      nrow(seeds) != 8L || anyDuplicated(seeds[c("method", "chain")]) ||
+      any(!is.finite(diagnostics$rhat)) ||
+      any(!is.finite(diagnostics$ess_bulk)) ||
+      any(!is.finite(diagnostics$ess_tail)) ||
+      any(!is.finite(diagnostics$relative_mcse)))
+    stop("Study 05 stop capsule semantic validation failed.", call. = FALSE)
   invisible(TRUE)
 }
 
@@ -169,9 +202,10 @@ source(file.path(.study05_promotion_root, "studies", "02_prediction",
   sibling_modified = FALSE, stringsAsFactors = FALSE)
 
 .study05_promote <- function(type = c("convergence", "benchmark"),
-                             source_dir, destination, config) {
+                             source_dir, destination, config,
+                             validator_override = NULL) {
   type <- match.arg(type)
-  validator <- if (type == "convergence")
+  validator <- if (!is.null(validator_override)) validator_override else if (type == "convergence")
     .study05_validate_convergence_capsule else
       .study05_validate_benchmark_capsule
   if (dir.exists(destination)) {
@@ -186,7 +220,8 @@ source(file.path(.study05_promotion_root, "studies", "02_prediction",
   missing <- generated[!file.exists(file.path(source_dir, generated))]
   if (length(missing)) stop("Study 05 promotion source is incomplete: ",
     paste(missing, collapse = ", "), call. = FALSE)
-  staging <- file.path("results", "local", "study05_annotation_models",
+  staging <- file.path(Sys.getenv("SBLR_BENCH_STUDY05_LOCAL",
+    file.path("results", "local", "study05_annotation_models")),
     "promotion_staging", paste0(basename(destination), "-", Sys.getpid()))
   if (dir.exists(staging)) stop("Study 05 promotion staging already exists.",
     call. = FALSE)
@@ -195,12 +230,15 @@ source(file.path(.study05_promotion_root, "studies", "02_prediction",
     overwrite = FALSE))) stop("Study 05 output copy failed.", call. = FALSE)
   file.copy("studies/05_annotation_models/config.R",
     file.path(staging, "config.R"))
-  file.copy("scripts/run_study05_annotation_models.R",
+  reproduce_source <- if (nzchar(Sys.getenv("SBLR_BENCH_REFRESH_ROOT", "")))
+    "scripts/run_current_benchmark_refresh.R" else
+      "scripts/run_study05_annotation_models.R"
+  file.copy(reproduce_source,
     file.path(staging, "reproduce.R"))
   file.copy("studies/05_annotation_models/contract_smoke_test.R",
     file.path(staging, "contract_smoke_test.R"))
   file.copy(file.path("results", "reference", "02_prediction",
-    "st-bayesc-bayesr-one-replicate-development-v1",
+    "current",
     "example_data_manifest.csv"), file.path(staging,
       "example_data_manifest.csv"))
   source_files <- c("studies/05_annotation_models/config.R",
@@ -214,13 +252,13 @@ source(file.path(.study05_promotion_root, "studies", "02_prediction",
     "studies/05_annotation_models/targets.R",
     "studies/05_annotation_models/promotion.R",
     "studies/05_annotation_models/interface_fit_smoke_test.R",
-    "scripts/run_study05_annotation_models.R")
+    reproduce_source)
   write.csv(data.frame(file = source_files,
     md5 = unname(.study02_canonical_md5(source_files))),
     file.path(staging, "source_files.csv"), row.names = FALSE)
   write.csv(.study05_interface_audit_table(config),
     file.path(staging, "interface_audit_sources.csv"), row.names = FALSE)
-  writeLines(capture.output(utils::sessionInfo()),
+  writeLines(sub("[[:space:]]+$", "", capture.output(utils::sessionInfo())),
     file.path(staging, "session_info.txt"))
   writeLines(c(
     paste0("# Study 05: ", if (type == "convergence")
@@ -246,3 +284,26 @@ source(file.path(.study05_promotion_root, "studies", "02_prediction",
 
 .study05_promote_benchmark <- function(source_dir, config) .study05_promote(
   "benchmark", source_dir, config$benchmark_capsule, config)
+
+.study05_promote_current_decision <- function(source_dir, config) {
+  rec <- utils::read.csv(file.path(source_dir, "method_recommendations.csv"),
+    stringsAsFactors = FALSE)
+  supported <- nrow(rec) == 2L && all(rec$recommendation_status == "available")
+  destination <- file.path("results", "reference", "05_annotation_models",
+    if (supported) "current-convergence" else "current-stop")
+  manifest_path <- file.path(source_dir, "benchmark_manifest.json")
+  manifest <- jsonlite::read_json(manifest_path, simplifyVector = FALSE)
+  manifest$benchmark_status <- if (supported) "complete" else "stopped"
+  manifest$validation_status <- if (supported) "complete_grid_validated" else
+    "prespecified_convergence_stop_triggered"
+  manifest$full_benchmark_started <- FALSE
+  jsonlite::write_json(manifest, manifest_path, pretty = TRUE,
+    auto_unbox = TRUE, null = "null")
+  config$convergence_capsule <- destination
+  .study05_promote("convergence", source_dir, destination, config,
+    validator_override = if (supported) .study05_validate_convergence_capsule else
+      .study05_validate_stop_capsule)
+  if (supported) .study05_validate_convergence_capsule(destination) else
+    .study05_validate_stop_capsule(destination)
+  list(destination = destination, supported = supported)
+}

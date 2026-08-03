@@ -72,15 +72,17 @@
   candidates <- candidates[order(candidates$burnin + candidates$retained_draws,
     candidates$burnin, candidates$retained_draws), ]
   pass <- candidates[candidates$all_estimands_pass, , drop = FALSE]
-  if (!nrow(pass)) stop("No supported annotation-model MCMC setting within 3,000 draws.",
-    call. = FALSE)
-  selected <- pass[1L, , drop = FALSE]
+  supported <- nrow(pass) > 0L
+  selected <- if (supported) pass[1L, , drop = FALSE] else
+    candidates[nrow(candidates), , drop = FALSE]
   recommendation <- data.frame(method = selected$method,
-    recommendation_status = "available", nchains = 4L, ncores = 4L,
+    recommendation_status = if (supported) "available" else "unsupported",
+    nchains = 4L, ncores = 4L,
     nburn = selected$burnin, nit = selected$retained_draws, nthin = 1L,
     limiting_estimand = selected$limiting_estimand,
     limiting_diagnostic = selected$limiting_diagnostic,
-    source = "Study 05 maximum-history convergence pilot",
+    source = if (supported) "Study 05 maximum-history convergence pilot" else
+      "Study 05 maximum-history convergence pilot; no candidate passed",
     stringsAsFactors = FALSE)
   list(diagnostics = diagnostics, candidates = candidates,
     recommendation = recommendation)
