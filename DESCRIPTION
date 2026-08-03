@@ -17,6 +17,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Config/testthat/edition: 3
 Imports:
+    digest,
     jsonlite,
     sblr (>= 0.2.0)
 Suggests:

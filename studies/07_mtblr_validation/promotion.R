@@ -1,7 +1,7 @@
-.study07_promotion_root <- if (file.exists(file.path("studies",
-  "02_prediction", "promotion.R"))) "." else file.path("..", "..")
-source(file.path(.study07_promotion_root, "studies", "02_prediction",
-  "promotion.R"), local = TRUE)
+.study07_promotion_root <- if (file.exists(file.path("R",
+  "benchmark-provenance.R"))) "." else file.path("..", "..")
+source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
+  local = TRUE)
 
 .study07_optional_flag <- function(x, default = FALSE) {
   if (is.null(x) || !length(x) || is.na(x[[1L]])) isTRUE(default) else
@@ -37,7 +37,7 @@ source(file.path(.study07_promotion_root, "studies", "02_prediction",
   files <- sort(setdiff(list.files(path, recursive = FALSE), "checksums.csv"))
   info <- file.info(file.path(path, files))
   data.frame(file = files, size_bytes = info$size,
-    md5 = unname(.study02_canonical_md5(file.path(path, files))),
+    md5 = unname(benchmark_canonical_md5(file.path(path, files))),
     stringsAsFactors = FALSE)
 }
 
@@ -47,7 +47,7 @@ source(file.path(.study07_promotion_root, "studies", "02_prediction",
   if (anyDuplicated(x$file) || any(x$file != basename(x$file)) ||
       any(grepl("(^[A-Za-z]:|^[/\\\\]|(^|[/\\\\])\\.\\.([/\\\\]|$))",
         x$file)) || !setequal(x$file, setdiff(required, "checksums.csv")) ||
-      any(unname(.study02_canonical_md5(file.path(path, x$file))) != x$md5))
+      any(unname(benchmark_canonical_md5(file.path(path, x$file))) != x$md5))
     stop("Study 07 canonical checksum validation failed.", call. = FALSE)
   invisible(TRUE)
 }
@@ -164,7 +164,7 @@ source(file.path(.study07_promotion_root, "studies", "02_prediction",
     "scripts/run_study07_mtblr_validation.R",
     "scripts/run_study07_mtblr_validation.ps1")
   write.csv(data.frame(file = sources,
-    md5 = unname(.study02_canonical_md5(sources))),
+    md5 = unname(benchmark_canonical_md5(sources))),
     file.path(staging, "source_files.csv"), row.names = FALSE)
   write.csv(data.frame(installed_commit = packageDescription("sblr")$RemoteSha,
     consulted_path = config$consulted_sblr_sources,

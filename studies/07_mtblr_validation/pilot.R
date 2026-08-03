@@ -79,9 +79,7 @@
 .study07_working_glist <- function(base_glist, marker_ids, af, config) {
   source(file.path("studies", "01_finemapping", "setup_example_data.R"),
     local = .GlobalEnv)
-  source(file.path("studies", "02_prediction", "pilot.R"),
-    local = .GlobalEnv)
-  .study02_set_training_af(.study01_set_rsids_ld(base_glist,
+  sblrbench:::benchmark_set_training_af(.study01_set_rsids_ld(base_glist,
     config$chr, marker_ids), config$chr, marker_ids, af)
 }
 

@@ -3,7 +3,6 @@ targets::tar_option_set(packages = c("sblrbench", "sblr", "qgg",
 
 source(file.path("studies", "01_finemapping",
   "setup_example_data.R"), local = TRUE)
-source(file.path("studies", "02_prediction", "pilot.R"), local = TRUE)
 for (f in c("blocks.R", "operators.R", "operator_validation.R",
             "simulation.R", "methods.R", "chain_extraction.R",
             "diagnostics.R", "metrics.R", "pilot.R"))
@@ -35,15 +34,17 @@ list(
       study06_config$chr, study06_sample_ids,
       study06_filtered_markers$marker_ids, study06_split)),
   targets::tar_target(study06_working_glist,
-    .study02_set_training_af(.study01_set_rsids_ld(
+    sblrbench:::benchmark_set_training_af(.study01_set_rsids_ld(
       study06_base_glist, study06_config$chr,
       study06_filtered_markers$marker_ids),
       study06_config$chr, study06_filtered_markers$marker_ids,
       study06_scaled_genotypes$allele_frequency)),
   targets::tar_target(study06_ld_bundle, {
     started <- proc.time()[["elapsed"]]
-    x <- .study02_make_ld(study06_working_glist, study06_split,
-      study06_filtered_markers$marker_ids, study06_config,
+    x <- sblrbench:::benchmark_make_training_ld(study06_working_glist,
+      study06_split,
+      study06_filtered_markers$marker_ids, list(
+        chromosome = study06_config$chr, sparse_ld = study06_config$sparse_ld),
       study06_paths$genotype_output_dir)
     list(Glist = x,
       elapsed_seconds = proc.time()[["elapsed"]] - started)

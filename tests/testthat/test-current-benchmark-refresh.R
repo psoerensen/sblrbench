@@ -29,15 +29,14 @@ test_that("five-replicate recommendations resolve to the current capsule", {
     "custom/recommendations.csv")
 })
 
-test_that("Study 02 compacts simulation branches before aggregation", {
+test_that("Study 02 refresh uses the shared execution entry point", {
   skip_if_not(refresh_repository_only,
     "repository-only refresh sources are excluded from package builds")
-  source <- paste(readLines(test_path("..", "..", "studies", "02_prediction",
-    "targets.R"), warn = FALSE), collapse = "\n")
-  expect_match(source, "prediction_simulation_summary_branch")
-  expect_match(source, "pattern = map(prediction_simulation_bundle)", fixed = TRUE)
-  expect_false(grepl("lapply(prediction_simulation_bundle, function", source,
-    fixed = TRUE))
+  runner <- paste(readLines(test_path("..", "..", "scripts",
+    "run_current_benchmark_refresh.R"), warn = FALSE), collapse = "\n")
+  expect_match(runner, "read_benchmark_spec")
+  expect_match(runner, "run_benchmark")
+  expect_false(grepl("SBLR_BENCH_STUDY='02_prediction'", runner, fixed = TRUE))
 })
 
 test_that("Study 01 current capsule contract is exact and current", {

@@ -119,7 +119,6 @@ cfg <- source(file.path(root, "studies", "05_annotation_models", "config.R"),
   local = TRUE)$value
 source(file.path(root, "studies", "01_finemapping",
   "setup_example_data.R"), local = TRUE)
-source(file.path(root, "studies", "02_prediction", "pilot.R"), local = TRUE)
 for (f in c("annotation_design.R", "simulation.R", "methods.R",
             "chain_extraction.R", "diagnostics.R", "metrics.R", "pilot.R",
             "promotion.R"))

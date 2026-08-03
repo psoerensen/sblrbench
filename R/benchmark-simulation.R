@@ -1,0 +1,100 @@
+# Deterministic prediction simulation mechanics moved intact from Study 02.
+
+benchmark_prediction_simulation_coordinates <- function(spec,
+                                                         profile = "benchmark") {
+  coordinates <- unique(benchmark_seeds(spec, profile)[c("scenario",
+    "replicate", "architecture_seed", "simulation_seed")])
+  rownames(coordinates) <- NULL
+  coordinates
+}
+
+simulate_prediction_architecture <- function(coordinate, scaled_genotypes,
+                                             spec) {
+  validate_benchmark_spec(spec)
+  scenario <- .benchmark_scalar_string(coordinate$scenario, "coordinate$scenario")
+  if (!scenario %in% names(spec$scenarios))
+    stop("Unknown prediction scenario: ", scenario, call. = FALSE)
+  architecture <- spec$scenarios[[scenario]]
+  marker_ids <- colnames(scaled_genotypes)
+  sample_ids <- rownames(scaled_genotypes)
+  if (is.null(marker_ids) || is.null(sample_ids))
+    stop("scaled_genotypes must have canonical sample and marker names.",
+      call. = FALSE)
+  n_causal <- as.integer(spec$controls$simulation$n_causal)
+  if (n_causal > length(marker_ids))
+    stop("n_causal exceeds the marker count.", call. = FALSE)
+  set.seed(as.integer(coordinate$simulation_seed))
+  causal_index <- sort(sample.int(length(marker_ids), n_causal,
+    replace = FALSE))
+  causal_ids <- marker_ids[causal_index]
+  if (identical(architecture$effect_distribution, "single_normal")) {
+    component <- rep("single_normal", length(causal_index))
+    raw_effect <- stats::rnorm(length(causal_index))
+  } else if (identical(architecture$effect_distribution,
+      "variance_mixture")) {
+    component_index <- sample.int(length(architecture$mixture_var),
+      length(causal_index), replace = TRUE, prob = architecture$mixture_prob)
+    component <- paste0("variance_", architecture$mixture_var[component_index])
+    raw_effect <- stats::rnorm(length(causal_index),
+      sd = sqrt(architecture$mixture_var[component_index]))
+  } else {
+    stop("Unknown effect distribution for scenario `", scenario, "`.",
+      call. = FALSE)
+  }
+  trait <- spec$data$trait
+  effects <- matrix(0, nrow = length(marker_ids), ncol = 1L,
+    dimnames = list(marker_ids, trait))
+  effects[causal_index, 1L] <- raw_effect
+  genetic_values <- scaled_genotypes %*% effects
+  h2 <- spec$controls$simulation$h2
+  target_vg <- h2 / (1 - h2)
+  effect_scale <- sqrt(target_vg / stats::var(genetic_values[, 1L]))
+  effects[, 1L] <- effects[, 1L] * effect_scale
+  genetic_values <- scaled_genotypes %*% effects
+  residual <- stats::rnorm(nrow(scaled_genotypes))
+  residual <- residual - mean(residual)
+  residual <- residual / stats::sd(residual)
+  residuals <- matrix(residual, ncol = 1L,
+    dimnames = list(sample_ids, trait))
+  phenotypes <- genetic_values + residuals
+  observed_h2 <- stats::var(genetic_values[, 1L]) /
+    (stats::var(genetic_values[, 1L]) + stats::var(residuals[, 1L]))
+  raw <- list(y = phenotypes, W = scaled_genotypes, B = effects,
+    G = genetic_values, E = residuals,
+    causal = list(shared = causal_ids,
+      specific = stats::setNames(list(character()), trait), all = causal_ids),
+    rsids = marker_ids, ids = sample_ids, h2_target = h2,
+    h2_observed = observed_h2, shared_idx = causal_index,
+    specific_idx = stats::setNames(list(integer()), trait),
+    causal_rsids = causal_ids)
+  simulation <- as_sblrbench_simulation(raw, study = spec$study,
+    architecture = scenario, replicate = as.integer(coordinate$replicate),
+    seed = as.integer(coordinate$simulation_seed))
+  simulation$extras$effect_components <- data.frame(marker = causal_ids,
+    component = component, raw_effect = raw_effect,
+    final_effect = effects[causal_ids, 1L], stringsAsFactors = FALSE)
+  simulation$extras$effect_distribution <- architecture$effect_distribution
+  simulation$extras$effect_scale <- effect_scale
+  validate_sblrbench_simulation(simulation)
+  simulation
+}
+
+prepare_prediction_simulations <- function(spec, profile, data) {
+  coordinates <- benchmark_prediction_simulation_coordinates(spec, profile)
+  lapply(seq_len(nrow(coordinates)), function(i) {
+    coordinate <- as.list(coordinates[i, , drop = FALSE])
+    simulation <- simulate_prediction_architecture(coordinate,
+      data$scaled$all, spec)
+    simulation$data$train_ids <- data$split$train_ids
+    simulation$data$test_ids <- data$split$test_ids
+    validate_sblrbench_simulation(simulation)
+    oracle <- check_oracle_genetic_values(simulation,
+      tolerance = spec$validation$oracle_tolerance)
+    test_simulation <- subset_sblrbench_simulation_samples(simulation,
+      data$split$test_ids)
+    stats <- benchmark_summary_stats(simulation, data$ld_glist, data$split,
+      spec$data)
+    list(coordinate = coordinate, simulation = simulation,
+      test_simulation = test_simulation, oracle = oracle, stats = stats)
+  })
+}

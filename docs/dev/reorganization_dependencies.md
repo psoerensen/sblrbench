@@ -11,24 +11,25 @@ reuses the Study 06 target store. No target graph is run or rewritten here.
 
 - Studies 01--06 use `studies/01_finemapping/setup_example_data.R` for the
   pinned qgdata panel. The data setup is shared code living inside Study 01.
-- Studies 02, 05, 06, and paused Study 07 use parts of
-  `studies/02_prediction/pilot.R` for splits, scaled genotypes, or summary data.
+- Study 02 and mechanical callers in Studies 05--07 now use
+  `R/benchmark-data.R` for splits, scaling, summary statistics, and training LD;
+  no study sources Study 02 internals.
 - Study 04 sources Study 03 `estimands.R`, `simulation.R`, and `pilot.R`; its
   configuration also loads the Study 03 configuration.
-- Study 05 targets and launcher source both Study 01 setup and Study 02 pilot.
-- Study 06 targets and launcher source both Study 01 setup and Study 02 pilot.
+- Study 05 and Study 06 retain Study 01 example-data setup but use shared data
+  helpers instead of Study 02 internals.
 - Study 06 v2 sources Study 06 methods, operators, blocks, simulation, and
   pilot helpers and reads the Study 06 target store.
-- Paused Study 07 sources Study 06 operator helpers and uses Study 01/02 data
-  setup. This is preserved but not resumed.
+- Paused Study 07 sources Study 06 operator helpers and uses Study 01 plus the
+  shared data helpers. Its scientific workflow remains paused and unmigrated.
 - Before Phase 2, Studies 01 and 03--07 sourced Study 02 promotion solely to
   obtain canonical text-aware MD5 behavior. Active Studies 01 and 03--06 now
-  load shared provenance and capsule mechanics directly; Study 02 retains a
-  compatibility alias. Paused Study 07 remains unchanged and retains the old
-  dependency until that work explicitly resumes.
+  load shared provenance and capsule mechanics directly. Study 02 and paused
+  Study 07 now need no compatibility alias.
 
-These dependencies show why data, simulation, method, and full extraction
-interfaces should wait for an actual study migration.
+Study 02's migration supplied the evidence for prediction-only data,
+simulation, method, extraction, metric, and execution interfaces. Other task
+types remain deferred.
 
 ## Duplicated helper families
 
@@ -63,6 +64,8 @@ inventory, and capsule-validation functions remove it from active Studies 01
 and 03--06. Paused Study 07 still sources Study 02 promotion because this phase
 does not resume or modify it. Study-specific required outputs, manifests,
 README text, semantic checks, and destinations remain in each promotion file.
+The final paused Study 07 caller now uses shared provenance without resuming or
+changing its scientific design.
 
 ## Reports and package functions
 
@@ -78,7 +81,8 @@ designs and is not executable dependency evidence.
 
 ## Concrete problems left for migration phases
 
-- Shared data setup remains owned by Study 01 and Study 02 files.
+- Example-data acquisition remains owned by Study 01; Study 02 mechanics are
+  shared, but later data interfaces await their own migrations.
 - Study 04 directly depends on Study 03 simulation and pilot internals.
 - Study 05 and Study 06 launchers depend on both Study 01 and Study 02.
 - Trace extraction schemas differ and remain duplicated around study-specific

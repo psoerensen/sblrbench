@@ -24,7 +24,7 @@ was not used.
 
 - [Study 01](../../studies/01_finemapping/fine-mapping.qmd): completed
   separated-locus fine-mapping benchmark.
-- [Study 02](../../studies/02_prediction/prediction.qmd): completed held-out
+- [Study 02](../../studies/02_prediction/report.qmd): completed held-out
   single-trait prediction benchmark.
 - [Study 03](../../studies/03_parameter_estimation/parameter-estimation.qmd):
   completed single-trait parameter-estimation benchmark.

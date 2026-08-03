@@ -1,7 +1,31 @@
-# Shared benchmark helpers after Phases 0–2
+# Shared benchmark helpers after Phase 3
 
 All helpers are ordinary internal R functions. They introduce no class system,
 registry, plugin interface, workflow language, or replacement execution engine.
+
+## Study 02 prediction framework
+
+- `R/benchmark-spec.R`: reads and validates ordinary-list specifications,
+  resolves profiles, and constructs coordinates and exact seeds.
+- `R/benchmark-data.R`: validates/aligned example data, fixed splits, training
+  scaling, LD, summary statistics, and `Glist` structure.
+- `R/benchmark-simulation.R`: deterministic Study 02-compatible sparse and
+  mixture effects, heritability scaling, phenotypes, truth, and oracle checks.
+- `R/benchmark-methods.R`: translates the four Study 02 method lists into exact
+  BED/CSR calls and controls; it is not a registry.
+- `R/benchmark-extraction.R`: extracts effects, probabilities, variance
+  components, runtime, metadata, and honest chain information.
+- `R/metrics-prediction.R`: prediction/effect metrics, runtime, summaries, and
+  paired comparisons as data frames.
+- `R/benchmark-execution.R`: authoritative prediction-only `run_benchmark()`;
+  validation, standard output paths, science-identity checkpoints, dispatch,
+  extraction, metrics, and provenance. Unsupported task types fail explicitly.
+
+Current callers are Study 02's analysis and CLI, the reusable prediction
+template, focused tests, and narrowly updated Study 05--07 data callers.
+Parameter-estimation, fine-mapping, annotation, operator, and MTBLR interfaces
+remain deferred until those studies migrate. There are no Study 02
+compatibility wrappers; removal is complete because all callers are internal.
 
 ## `R/benchmark-reporting.R`
 
@@ -28,7 +52,6 @@ registry, plugin interface, workflow language, or replacement execution engine.
   `benchmark_canonical_md5()`, `benchmark_file_sha256()`, and
   `benchmark_session_information()`.
 - Compatibility: public `sblrbench_git_commit()` delegates to the Git helper;
-  `.study02_canonical_md5` remains a direct alias for unmigrated Study 02 code;
   `.five_replicate_sblr_provenance()` adapts the generic record to its existing
   field names.
 - Current callers: package provenance, active Studies 01--06 promotion, and

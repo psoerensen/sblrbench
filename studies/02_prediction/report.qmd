@@ -5,7 +5,7 @@ description: "Five-replicate held-out prediction benchmark across two architectu
 
 ```{r}
 #| echo: false
-source("studies/reporting_helpers.R")
+source("R/benchmark-reporting.R")
 capsule <- "results/reference/02_prediction/current"
 rcsv <- function(x) read.csv(file.path(capsule, x), check.names = FALSE)
 manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), simplifyVector = TRUE)
@@ -196,7 +196,7 @@ There are only five replicates per architecture, one genotype panel, one train/t
 
 ## Reproducibility and downloads
 
-The site reads frozen CSV/JSON only. The [analysis entry point](analysis.R) documents the separate current runner and never executes during rendering.
+The site reads frozen CSV/JSON only. The exact [analysis entry point](analysis.R), [scientific specification](spec.R), and [reusable prediction template](../../inst/templates/prediction-analysis.R) are separate from rendering and are never executed by this page. Relevant backend contracts are documented for [`stblr_bed()`](https://github.com/psoerensen/sblr/blob/02e8c74baa906e83c4a08d42a9cc6339b4e81072/man/stblr_bed.Rd) and [`stblr_csr()`](https://github.com/psoerensen/sblr/blob/02e8c74baa906e83c4a08d42a9cc6339b4e81072/man/stblr_csr.Rd).
 
 - [Current capsule](../../results/reference/02_prediction/current/README.md)
 - [Manifest](../../results/reference/02_prediction/current/benchmark_manifest.json)

@@ -1,5 +1,4 @@
 source(file.path("studies", "01_finemapping", "setup_example_data.R"), local = TRUE)
-source(file.path("studies", "02_prediction", "pilot.R"), local = TRUE)
 for (f in c("annotation_design.R", "simulation.R", "methods.R",
             "chain_extraction.R", "diagnostics.R", "metrics.R", "pilot.R"))
   source(file.path("studies", "05_annotation_models", f), local = TRUE)
@@ -24,15 +23,18 @@ for (f in c("annotation_design.R", "simulation.R", "methods.R",
   targets::tar_target(study05_scaled_genotypes,
     .study05_load_scaled_genotypes(study05_base_glist, study05_config$chr,
       study05_sample_ids, study05_filtered_markers$marker_ids, study05_split)),
-  targets::tar_target(study05_working_glist, .study02_set_training_af(
+  targets::tar_target(study05_working_glist,
+    sblrbench:::benchmark_set_training_af(
     .study01_set_rsids_ld(study05_base_glist, study05_config$chr,
       study05_filtered_markers$marker_ids), study05_config$chr,
     study05_filtered_markers$marker_ids,
     study05_scaled_genotypes$allele_frequency)),
   targets::tar_target(study05_ld_bundle, {
     started <- proc.time()[["elapsed"]]
-    x <- .study02_make_ld(study05_working_glist, study05_split,
-      study05_filtered_markers$marker_ids, study05_config,
+    x <- sblrbench:::benchmark_make_training_ld(study05_working_glist,
+      study05_split,
+      study05_filtered_markers$marker_ids, list(
+        chromosome = study05_config$chr, sparse_ld = study05_config$sparse_ld),
       study05_paths$genotype_output_dir)
     list(Glist = x, elapsed_seconds = proc.time()[["elapsed"]] - started)
   }),

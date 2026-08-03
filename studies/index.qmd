@@ -11,7 +11,7 @@ Ten replicates and 40 fits evaluate marker recovery, causal ranks, and
 credible-set coverage under an explicit one-chain development contract.
 [Current capsule](../results/reference/01_finemapping/current/README.md).
 
-### [Study 02: Single-trait prediction](02_prediction/prediction.qmd)
+### [Study 02: Single-trait prediction](02_prediction/report.qmd)
 
 Two architectures, five paired replicates, four methods, and 40 four-chain fits
 evaluate held-out prediction using training-only scaling, summary statistics,

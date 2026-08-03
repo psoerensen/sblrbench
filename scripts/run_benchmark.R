@@ -1,30 +1,38 @@
-# ============================================================
-# Complete 10-replicate benchmark reproduction
-# ============================================================
-# Study 01 uses simulated genotype data that are publicly accessible from a
-# pinned psoerensen/qgdata revision. The setup downloads and checksum-validates
-# the five files automatically, then caches them under results/local/, which is
-# ignored by Git. Set SBLR_BENCH_GLIST to use an existing compatible Glist.
-#
-# targets::tar_make() runs only missing or outdated work. Do not normally delete
-# _targets/: it contains the cache that prevents expensive recomputation.
-# Exact numerical reproduction depends on the pinned files and checksums,
-# package versions, seeds, platform, compiler, and numerical libraries.
+args <- commandArgs(trailingOnly = TRUE)
 
-Sys.setenv(
-  SBLR_BENCH_STUDY = "01_finemapping",
-  SBLR_BENCH_REPLICATES = "10"
-)
+find_repository_root <- function(path = getwd()) {
+  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+  repeat {
+    if (file.exists(file.path(path, "DESCRIPTION")) &&
+        file.exists(file.path(path, "studies", "02_prediction", "spec.R")))
+      return(path)
+    parent <- dirname(path)
+    if (identical(parent, path))
+      stop("Could not locate the sblrbench repository root.", call. = FALSE)
+    path <- parent
+  }
+}
 
-targets::tar_make()
+root <- find_repository_root()
+isolated <- file.path(root, "results", "local", "current_benchmark_refresh",
+  "rlib")
+if (!dir.exists(isolated))
+  stop("Validated isolated benchmark library is unavailable: ", isolated,
+    call. = FALSE)
+.libPaths(c(normalizePath(isolated, winslash = "/"), .libPaths()))
+if (!requireNamespace("devtools", quietly = TRUE))
+  stop("The CLI requires devtools to load the current sblrbench source tree.",
+    call. = FALSE)
+devtools::load_all(root, quiet = TRUE)
 
-# Inspect compact implemented summary targets.
-targets::tar_read(marker_metrics)
-targets::tar_read(credible_set_summary)
-targets::tar_read(credible_set_metrics)
-targets::tar_read(computational_summary)
-targets::tar_read(replicate_status)
-
-# Optional cache and provenance inspection.
-targets::tar_outdated()
-targets::tar_meta()
+options <- sblrbench:::parse_benchmark_cli_arguments(args)
+spec <- read_benchmark_spec(file.path(root, "studies", "02_prediction",
+  "spec.R"))
+result <- run_benchmark(spec = spec, output_dir = options$output_dir,
+  profile = options$profile, resume = options$resume,
+  validate_only = options$validate_only)
+cat("Study:", spec$study, "\n")
+cat("Profile:", options$profile, "\n")
+cat("Validate only:", options$validate_only, "\n")
+cat("Coordinates:", nrow(result$status), "\n")
+cat("Manifest:", result$paths$manifest, "\n")

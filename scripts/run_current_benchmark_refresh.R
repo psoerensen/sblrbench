@@ -172,6 +172,17 @@ run_targets <- function(study, profile, output_dir, store_name, script = "_targe
   targets::tar_make(script = script, store = store, callr_function = NULL)
 }
 
+run_prediction <- function(output_dir) {
+  preflight()
+  devtools::load_all(root, quiet = TRUE, helpers = FALSE,
+    export_all = FALSE)
+  verify_package()
+  spec <- read_benchmark_spec(file.path(root, "studies", "02_prediction",
+    "spec.R"))
+  run_benchmark(spec, output_dir = output_dir, profile = "benchmark",
+    resume = resume, validate_only = FALSE)
+}
+
 run_phase <- function(x) switch(x,
   preflight = preflight(),
   audit = { preflight(); write_inventory(); write_prior_impact() },
@@ -182,8 +193,7 @@ run_phase <- function(x) switch(x,
     script = file.path("studies", "04_convergence", "validation_targets.R")),
   `study03` = run_targets("03_parameter_estimation", "five_replicate_development",
     file.path(refresh_root, "study03"), "study03"),
-  `study02` = run_targets("02_prediction", "current",
-    file.path(refresh_root, "study02"), "study02"),
+  `study02` = run_prediction(file.path(refresh_root, "study02")),
   `study01` = {
     run_targets("01_finemapping", "pilot",
       file.path(refresh_root, "study01"), "study01",

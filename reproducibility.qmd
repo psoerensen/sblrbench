@@ -35,9 +35,8 @@ Git history is the archive for earlier benchmark versions.
 Study-specific runners and target declarations validate package provenance and
 checkpoint identity before reuse. For the general target entry point:
 
-```r
-Sys.setenv(SBLR_BENCH_STUDY = "02_prediction")
-targets::tar_make()
+```powershell
+Rscript scripts/run_benchmark.R --study 02_prediction --profile benchmark --output-dir results/local/02_prediction --resume true --validate-only false
 ```
 
 The current refresh was run against a local isolated installation of `sblr`

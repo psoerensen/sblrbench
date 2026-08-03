@@ -51,9 +51,23 @@ The following approved names are deliberately not created:
 
 No empty placeholder or speculative abstraction is created for these items.
 
+## Phase 3: Study 02 migration
+
+Study 02 is the first migrated study. Its scientific contract now lives in
+`studies/02_prediction/spec.R`; its exact readable entry point is
+`studies/02_prediction/analysis.R`; and its frozen-capsule report is
+`studies/02_prediction/report.qmd`. Shared data, simulation, method translation,
+extraction, prediction metrics, specification, and execution mechanics now live
+under `R/benchmark-*.R` and `R/metrics-prediction.R`.
+
+The former `config.R`, `pilot.R`, `targets.R`, `promotion.R`, README, dedicated
+launcher, and worked-example script were removed after repository callers were
+updated. This is an internal clean break: the historical `_targets` store is
+left untouched, while the new runner uses science-identity checkpoints.
+
 ## Obsolete candidates
 
-Names such as `scripts/run_benchmark.R` and v1/v2 Study 06 files are not removed
+Study 06 v1/v2 files are not removed
 or classified as obsolete solely from their names. They remain inventory items
 until callers, reproducibility roles, and migration replacements are verified.
 Git history is the archive; no legacy directory is introduced.

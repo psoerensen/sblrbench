@@ -31,7 +31,8 @@ source(file.path(.sblrbench_root, "R", "benchmark-checkpoints.R"), local = TRUE)
         identical(rownames(cached$test), split$test_ids))
       return(cached)
   }
-  raw <- .study02_extract_raw(base_glist, chr, sample_ids, marker_ids)
+  raw <- sblrbench:::benchmark_extract_raw_genotypes(base_glist, chr,
+    sample_ids, marker_ids)
   sblrbench::training_scaled_genotypes(raw, split$train_rows)
 }
 

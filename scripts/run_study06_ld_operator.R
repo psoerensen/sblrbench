@@ -146,8 +146,6 @@ cfg <- source(file.path("studies", "06_ld_operator", "config.R"),
   local = TRUE)$value
 source(file.path("studies", "01_finemapping",
   "setup_example_data.R"), local = TRUE)
-source(file.path("studies", "02_prediction", "pilot.R"),
-  local = TRUE)
 for (f in c("blocks.R", "operators.R", "operator_validation.R",
             "simulation.R", "methods.R", "chain_extraction.R",
             "diagnostics.R", "metrics.R", "pilot.R",

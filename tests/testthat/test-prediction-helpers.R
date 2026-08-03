@@ -14,7 +14,7 @@ test_that("prediction split is deterministic, complete, and ordered", {
 
 test_that("genotype scaling is learned only from training rows", {
   x <- matrix(c(0, 0, 1, 1, 2, 2, 0, 1, 2, 1, 0, 2), 4, 3,
-              dimnames = list(paste0("s", 1:4), paste0("m", 1:3)))
+    dimnames = list(paste0("s", 1:4), paste0("m", 1:3)))
   a <- training_scaled_genotypes(x, 1:3)
   changed <- x
   changed[4, ] <- c(2, 0, 1)
@@ -32,9 +32,10 @@ test_that("simulation views and prediction attachment preserve contracts", {
   expect_identical(view$data$sample_ids, rev(s$data$sample_ids[1:2]))
   expect_identical(view$truth$effects, s$truth$effects)
   expect_error(subset_sblrbench_simulation_samples(s, c("absent")), "missing")
-  expect_error(subset_sblrbench_simulation_samples(s, rep(s$data$sample_ids[[1]], 2)), "unique")
+  expect_error(subset_sblrbench_simulation_samples(s,
+    rep(s$data$sample_ids[[1]], 2)), "unique")
   base <- new_sblrbench_result("method", effects = s$truth$effects,
-                               provenance = list(note = "kept"))
+    provenance = list(note = "kept"))
   p <- s$truth$genetic_values[view$data$sample_ids, , drop = FALSE]
   out <- add_sblrbench_predictions(base, p, view)
   expect_identical(out$predictions$genetic_value, p)
@@ -44,15 +45,17 @@ test_that("simulation views and prediction attachment preserve contracts", {
 test_that("prediction metrics are hand calculable and reject zero variance", {
   s <- bench_fixture()
   delta <- matrix(seq_len(length(s$truth$genetic_values)) / 10,
-                  nrow(s$truth$genetic_values), ncol(s$truth$genetic_values))
+    nrow(s$truth$genetic_values), ncol(s$truth$genetic_values))
   predicted <- s$truth$genetic_values + delta
   r <- new_sblrbench_result("method", genetic_value = predicted)
   mse <- metric_prediction_mse(s, r)
   nmse <- metric_prediction_nmse(s, r)
   phen <- metric_phenotype_prediction_correlation(s, r)
   cal <- metric_prediction_calibration(s, r)
-  expect_equal(mse$value, unname(colMeans((predicted - s$truth$genetic_values)^2)))
-  expect_equal(nmse$value, unname(mse$value / apply(s$truth$genetic_values, 2, var)))
+  expect_equal(mse$value,
+    unname(colMeans((predicted - s$truth$genetic_values)^2)))
+  expect_equal(nmse$value,
+    unname(mse$value / apply(s$truth$genetic_values, 2, var)))
   expect_equal(phen$value, vapply(seq_len(ncol(predicted)), function(j)
     cor(predicted[, j], s$truth$phenotypes[, j]), numeric(1)))
   for (j in seq_along(s$data$trait_names)) {
@@ -60,10 +63,14 @@ test_that("prediction metrics are hand calculable and reject zero variance", {
     z <- cal[cal$trait == s$data$trait_names[[j]], ]
     expect_equal(z$value, unname(expected))
   }
-  flat <- predicted; flat[, 1] <- 1
-  failed <- metric_prediction_calibration(s, new_sblrbench_result("method", genetic_value = flat))
-  expect_true(all(failed$status[failed$trait == s$data$trait_names[[1]]] == "failed"))
-  zero <- s; zero$truth$genetic_values[, 1] <- 1
+  flat <- predicted
+  flat[, 1] <- 1
+  failed <- metric_prediction_calibration(s,
+    new_sblrbench_result("method", genetic_value = flat))
+  expect_true(all(failed$status[failed$trait ==
+    s$data$trait_names[[1]]] == "failed"))
+  zero <- s
+  zero$truth$genetic_values[, 1] <- 1
   expect_identical(metric_prediction_nmse(zero, r)$status[[1]], "failed")
 })
 
@@ -86,196 +93,176 @@ test_that("calibration advantages use absolute error", {
   metrics <- data.frame(architecture = "a", replicate = 1L,
     method = rep(c("bed", "csr"), each = 2), trait = "t",
     metric = rep(c("prediction_calibration_intercept",
-      "prediction_calibration_slope"), 2), value = c(.2, 1.3, .1, .9), status = "ok")
+      "prediction_calibration_slope"), 2), value = c(.2, 1.3, .1, .9),
+    status = "ok")
   cmp <- data.frame(comparison_id = "csr_vs_bed", focal_method = "csr",
     comparison_method = "bed")
   z <- paired_method_advantages(metrics, cmp)
-  expect_equal(z$advantage[z$paired_metric == "absolute_calibration_intercept_error"], .1)
-  expect_equal(z$advantage[z$paired_metric == "absolute_calibration_slope_error"], .2)
+  expect_equal(z$advantage[
+    z$paired_metric == "absolute_calibration_intercept_error"], .1)
+  expect_equal(z$advantage[
+    z$paired_metric == "absolute_calibration_slope_error"], .2)
 })
 
-test_that("single-trait architectures are deterministic and calibrated", {
-  pilot_path <- testthat::test_path("..", "..", "studies", "02_prediction", "pilot.R")
-  config_path <- testthat::test_path("..", "..", "studies", "02_prediction", "config.R")
-  skip_if_not(file.exists(pilot_path) && file.exists(config_path),
-    "repository-only Study 02 helpers are excluded from package builds")
-  source(pilot_path, local = TRUE)
-  config <- source(config_path, local = TRUE)$value
-  Z <- matrix(stats::rnorm(3000), 100, 30,
+.study02_spec_path <- function() testthat::test_path("..", "..", "studies",
+  "02_prediction", "spec.R")
+
+test_that("Study 02 spec and profiles validate with actionable failures", {
+  path <- .study02_spec_path()
+  skip_if_not(file.exists(path), "repository Study 02 spec is unavailable")
+  spec <- read_benchmark_spec(path)
+  expect_invisible(validate_benchmark_spec(spec))
+  expect_identical(resolve_benchmark_profile(spec, "workshop")$replicate_count,
+    1L)
+  expect_identical(resolve_benchmark_profile(spec, "benchmark")$replicate_count,
+    5L)
+  incomplete <- spec
+  incomplete$seeds <- NULL
+  expect_error(validate_benchmark_spec(incomplete), "seeds")
+  unsupported <- spec
+  unsupported$task <- "parameter_estimation"
+  expect_error(validate_benchmark_spec(unsupported), "Unsupported benchmark task")
+})
+
+test_that("Study 02 coordinates and all seed mappings are preserved", {
+  spec <- read_benchmark_spec(.study02_spec_path())
+  coordinates <- benchmark_seeds(spec, "benchmark")
+  expect_equal(nrow(coordinates), 40L)
+  expect_identical(unique(coordinates$scenario),
+    c("sparse_homogeneous", "sparse_mixture"))
+  expect_identical(unique(coordinates$replicate), 1:5)
+  expect_identical(unique(coordinates$method), names(spec$methods))
+  first <- coordinates[1, ]
+  expect_identical(first$architecture_seed, 5001L)
+  expect_identical(first$simulation_seed, 5002L)
+  expect_identical(first$fit_seed, 20101L)
+  expect_identical(first$chain_seeds[[1]],
+    c(120101L, 220101L, 320101L, 420101L))
+  last <- coordinates[nrow(coordinates), ]
+  expect_identical(last$simulation_seed, 6006L)
+  expect_identical(last$fit_seed, 30504L)
+  expect_equal(nrow(benchmark_coordinates(spec, "workshop")), 8L)
+})
+
+test_that("migrated simulation kernel matches the old deterministic fixture", {
+  spec <- read_benchmark_spec(.study02_spec_path())
+  spec$controls$simulation$n_causal <- 10L
+  set.seed(9182L)
+  z <- matrix(rnorm(3000), 100, 30,
     dimnames = list(paste0("s", 1:100), paste0("m", 1:30)))
-  config$simulation$n_causal <- 10L
-  for (architecture in names(config$simulation$architectures)) {
-    spec <- list(architecture = architecture, replicate = 1L,
-      simulation_seed = 5001L + match(architecture, names(config$simulation$architectures)))
-    a <- .study02_simulate(spec, Z, config)
-    b <- .study02_simulate(spec, Z, config)
-    expect_identical(a$truth$effects, b$truth$effects)
-    expect_length(a$truth$causal$all, 10L)
-    expect_equal(a$truth$parameters$h2_observed, config$simulation$h2,
+  expected <- c(
+    sparse_homogeneous = "b88f71bf594303ad79d7b7f8924d5116ba3ceeb304bd836a300c1b3a1f873401",
+    sparse_mixture = "0cfef6247c447a95ba0ee94c1728d1197965db74d278296a393c861e07150671")
+  for (scenario in names(spec$scenarios)) {
+    coordinate <- list(scenario = scenario, replicate = 1L,
+      simulation_seed = 5001L + match(scenario, names(spec$scenarios)))
+    simulation <- simulate_prediction_architecture(coordinate, z, spec)
+    value <- digest::digest(list(effects = simulation$truth$effects,
+      phenotypes = simulation$truth$phenotypes,
+      causal = simulation$truth$causal, extras = simulation$extras),
+      algo = "sha256")
+    expect_identical(value, unname(expected[[scenario]]))
+    expect_equal(simulation$truth$parameters$h2_observed, .30,
       tolerance = 1e-12)
-    expect_true(check_oracle_genetic_values(a)$ok)
-    expect_equal(nrow(a$extras$effect_components), 10L)
-    if (architecture == "sparse_mixture")
-      expect_true(all(grepl("^variance_", a$extras$effect_components$component)))
+    expect_true(check_oracle_genetic_values(simulation)$ok)
   }
 })
 
-test_that("active Study 02 method set is exactly the four ST methods", {
-  pilot_path <- testthat::test_path("..", "..", "studies", "02_prediction", "pilot.R")
-  config_path <- testthat::test_path("..", "..", "studies", "02_prediction", "config.R")
-  skip_if_not(file.exists(pilot_path) && file.exists(config_path),
-    "repository-only Study 02 helpers are excluded from package builds")
-  source(pilot_path, local = TRUE)
-  config <- source(config_path, local = TRUE)$value
-  specs <- .study02_method_specs(config)
-  expect_identical(vapply(specs, `[[`, character(1), "id"), config$methods)
-  expect_false(any(grepl("^mt_", config$methods)))
-  expect_false("multitrait" %in% names(config))
-  expect_identical(config$reference_profiles$current$replicate_count, 5L)
-  expect_identical(config$mcmc$policy, "current_study04_recommendations")
+test_that("Study 02 methods, priors, and controls are exact", {
+  spec <- read_benchmark_spec(.study02_spec_path())
+  methods <- resolve_prediction_methods(spec)
+  expect_identical(vapply(methods, `[[`, character(1), "id"),
+    names(spec$methods))
+  coordinates <- benchmark_seeds(spec, "benchmark")
+  for (method_id in names(spec$methods)) {
+    row <- coordinates[coordinates$scenario == "sparse_homogeneous" &
+      coordinates$replicate == 1L & coordinates$method == method_id, ]
+    controls <- prediction_method_controls(spec, method_id, "benchmark",
+      row$fit_seed, row$chain_seeds[[1]])
+    expect_identical(controls$nburn, 250L)
+    expect_identical(controls$nchains, 4L)
+    expect_identical(controls$ncores, 4L)
+    expect_identical(controls$nit,
+      if (grepl("bayesr", method_id)) 2000L else 250L)
+    if (grepl("bayesr", method_id)) {
+      expect_equal(controls$pi, c(.99, rep(.01 / 3, 3)))
+      expect_identical(controls$mixture_var, c(0, .01, .1, 1))
+    } else expect_identical(controls$pi_init, .01)
+  }
 })
 
-test_that("promotion validation rejects active MT rows and partial grids", {
-  promotion_path <- testthat::test_path("..", "..", "studies", "02_prediction", "promotion.R")
-  config_path <- testthat::test_path("..", "..", "studies", "02_prediction", "config.R")
-  skip_if_not(file.exists(promotion_path) && file.exists(config_path),
-    "repository-only Study 02 helpers are excluded from package builds")
-  source(promotion_path, local = TRUE)
-  config <- source(config_path, local = TRUE)$value
-  status <- expand.grid(architecture = names(config$simulation$architectures),
-    replicate = 1:5, method = config$methods, stringsAsFactors = FALSE)
-  status$status <- "ok"; status$reason <- ""
-  computation <- status; computation$runtime <- 1
-  metrics <- merge(status[, c("architecture", "replicate", "method")],
-    data.frame(metric = c("prediction_correlation", "prediction_mse",
-      "prediction_nmse", "phenotype_prediction_correlation",
-      "prediction_calibration_intercept", "prediction_calibration_slope",
-      "effect_rmse")), by = NULL)
-  metrics$trait <- "trait1"; metrics$value <- 1; metrics$status <- "ok"
-  simulations <- expand.grid(
-    architecture = names(config$simulation$architectures), replicate = 1:5,
-    stringsAsFactors = FALSE)
-  simulations$causal_count <- 50L; simulations$realized_h2 <- .3
-  simulations$oracle_ok <- TRUE
-  paired <- expand.grid(architecture = names(config$simulation$architectures),
-    comparison_id = c("bayesr_vs_bayesc_bed", "sbayesr_vs_sbayesc_csr",
-      "csr_vs_bed_bayesc", "csr_vs_bed_bayesr"),
-    paired_metric = paste0("metric", 1:7), stringsAsFactors = FALSE)
-  paired <- merge(paired, data.frame(replicate = 1:5), by = NULL)
-  paired$focal_method <- "focal"
-  paired$comparison_method <- "comparison"; paired$complete_pair <- TRUE
-  paired$advantage <- 0
-  manifest <- list(task = "single_trait_prediction", replicate_count = 5L,
-    benchmark_scope = "current", benchmark_status = "complete",
-    active_methods = config$methods, training_sample_count = 3500L,
-    test_sample_count = 1500L, canonical_marker_count = 37991L,
-    expected_fit_count = 40L, successful_fit_count = 40L, failed_fit_count = 0L,
-    qgdata = list(commit = config$example_data$commit, files = config$example_data$files))
-  expect_invisible(.study02_validate_promotion_tables(config, metrics, paired,
-    computation, status, simulations, manifest))
-  bad <- status; bad$method[[1]] <- "mt_bed_bayesr"
-  expect_error(.study02_validate_promotion_tables(config, metrics, paired,
-    computation, bad, simulations, manifest), "MT rows")
-  expect_error(.study02_validate_promotion_tables(config, metrics, paired,
-    computation, status[-1, ], simulations, manifest), "40 complete")
-  bad_manifest <- manifest; bad_manifest$replicate_count <- 10L
-  expect_error(.study02_validate_promotion_tables(config, metrics, paired,
-    computation, status, simulations, bad_manifest), "exactly five")
-})
-
-test_that("one-replicate summaries retain NA uncertainty", {
-  promotion_path <- testthat::test_path("..", "..", "studies", "02_prediction", "promotion.R")
-  skip_if_not(file.exists(promotion_path),
-    "repository-only Study 02 helpers are excluded from package builds")
-  source(promotion_path, local = TRUE)
+test_that("prediction summaries preserve one-replicate schemas", {
   metrics <- data.frame(architecture = "sparse_homogeneous", replicate = 1L,
     method = "st_bed_bayesc", metric = "prediction_correlation",
     value = .8, status = "ok")
-  summary <- .study02_benchmark_summary(metrics)
+  summary <- prediction_metric_summary(metrics)
   expect_equal(summary$value, .8)
-  expect_equal(summary$mean, .8)
   expect_true(is.na(summary$sd))
-  expect_equal(summary$replicate_count, 1L)
   paired <- data.frame(architecture = "sparse_homogeneous", replicate = 1L,
-    comparison_id = "bayesr_vs_bayesc_bed", focal_method = "st_bed_bayesr",
-    comparison_method = "st_bed_bayesc", paired_metric = "prediction_correlation",
-    advantage = .1, complete_pair = TRUE)
-  paired_summary <- .study02_paired_summary(paired)
+    comparison_id = "bayesr_vs_bayesc_bed",
+    focal_method = "st_bed_bayesr", comparison_method = "st_bed_bayesc",
+    paired_metric = "prediction_correlation", advantage = .1,
+    complete_pair = TRUE)
+  paired_summary <- prediction_paired_summary(paired)
   expect_true(is.na(paired_summary$sd_advantage))
   expect_equal(paired_summary$complete_pairs, 1L)
 })
 
-test_that("canonical checksums normalize only text newlines", {
-  promotion_path <- testthat::test_path("..", "..", "studies", "02_prediction", "promotion.R")
-  skip_if_not(file.exists(promotion_path),
-    "repository-only Study 02 helpers are excluded from package builds")
-  source(promotion_path, local = TRUE)
-  write_raw <- function(path, bytes) {
-    con <- file(path, "wb"); on.exit(close(con)); writeBin(bytes, con)
-  }
-  lf <- tempfile(fileext = ".txt"); crlf <- tempfile(fileext = ".txt")
-  cr <- tempfile(fileext = ".txt"); changed <- tempfile(fileext = ".txt")
-  write_raw(lf, charToRaw("line one\nline two\nline three\n"))
-  write_raw(crlf, charToRaw("line one\r\nline two\r\nline three\r\n"))
-  write_raw(cr, charToRaw("line one\rline two\rline three\r"))
-  write_raw(changed, charToRaw("line one\nline TWO\nline three\n"))
-  expect_identical(unname(.study02_canonical_md5(lf)),
-    unname(.study02_canonical_md5(crlf)))
-  expect_identical(unname(.study02_canonical_md5(lf)),
-    unname(.study02_canonical_md5(cr)))
-  expect_false(identical(unname(.study02_canonical_md5(lf)),
-    unname(.study02_canonical_md5(changed))))
-  final_newline <- tempfile(fileext = ".txt")
-  no_final_newline <- tempfile(fileext = ".txt")
-  write_raw(final_newline, charToRaw("a\n")); write_raw(no_final_newline, charToRaw("a"))
-  expect_false(identical(unname(.study02_canonical_md5(final_newline)),
-    unname(.study02_canonical_md5(no_final_newline))))
-  binary <- tempfile(fileext = ".bin")
-  write_raw(binary, as.raw(c(0, 13, 10, 13, 255, 10)))
-  expect_identical(unname(.study02_canonical_md5(binary)),
-    unname(tools::md5sum(binary)))
+test_that("validate-only execution cannot call the fit dispatch", {
+  spec <- read_benchmark_spec(.study02_spec_path())
+  output <- tempfile("study02-validation-")
+  withr::local_options(list(sblrbench.fit_dispatch = function(...)
+    stop("FIT DISPATCH MUST NOT RUN")))
+  result <- run_benchmark(spec, output, profile = "benchmark",
+    resume = TRUE, validate_only = TRUE)
+  expect_equal(nrow(result$status), 40L)
+  expect_true(all(result$status$status == "not_run_validate_only"))
+  expect_true(file.exists(file.path(output, "manifest.json")))
+  expect_true(file.exists(file.path(output, "tables", "fit_status.csv")))
+  expect_length(list.files(file.path(output, "checkpoints"), recursive = TRUE),
+    0L)
 })
 
-test_that("capsule validator gives strict checksum diagnostics", {
-  promotion_path <- testthat::test_path("..", "..", "studies", "02_prediction", "promotion.R")
-  skip_if_not(file.exists(promotion_path),
-    "repository-only Study 02 helpers are excluded from package builds")
-  source(promotion_path, local = TRUE)
-  capsule <- tempfile("capsule-"); dir.create(capsule)
-  required <- c("README.md", "benchmark_summary.csv", "paired_comparison_summary.csv",
-    "paired_method_differences.csv", "computational_summary.csv", "replicate_status.csv",
-    "simulation_summary.csv", "seed_registry.csv", "example_data_manifest.csv",
-    "source_files.csv", "session_info.txt")
-  invisible(lapply(file.path(capsule, required), function(path) writeLines("fixture", path)))
-  methods <- .study02_expected_methods()
-  write.csv(data.frame(method = methods, value = 1),
-    file.path(capsule, "prediction_metrics.csv"), row.names = FALSE)
-  status <- expand.grid(architecture = c("sparse_homogeneous", "sparse_mixture"),
-    replicate = 1:5, method = methods, stringsAsFactors = FALSE)
-  status$status <- "ok"
-  write.csv(status, file.path(capsule, "replicate_status.csv"), row.names = FALSE)
-  jsonlite::write_json(list(replicate_count = 5L, successful_fit_count = 40L,
-    active_methods = methods), file.path(capsule, "benchmark_manifest.json"), auto_unbox = TRUE)
-  files <- sort(setdiff(list.files(capsule), "checksums.csv"))
-  make_checks <- function() data.frame(file = files,
-    size_bytes = file.info(file.path(capsule, files))$size,
-    md5 = unname(.study02_canonical_md5(file.path(capsule, files))))
-  checks <- make_checks()
-  write.csv(checks, file.path(capsule, "checksums.csv"), row.names = FALSE)
-  expect_invisible(.study02_validate_capsule(capsule))
-  writeLines("changed", file.path(capsule, "README.md"))
-  expect_error(.study02_validate_capsule(capsule), "README.md")
-  writeLines("fixture", file.path(capsule, "README.md"))
-  checks <- make_checks(); checks <- rbind(checks, checks[1, ])
-  write.csv(checks, file.path(capsule, "checksums.csv"), row.names = FALSE)
-  expect_error(.study02_validate_capsule(capsule), "duplicate")
-  checks <- make_checks(); checks$md5[[1]] <- "not-a-hash"
-  write.csv(checks, file.path(capsule, "checksums.csv"), row.names = FALSE)
-  expect_error(.study02_validate_capsule(capsule), "malformed")
-  extra <- file.path(capsule, "extra.txt"); writeLines("extra", extra)
-  checks <- rbind(make_checks(), data.frame(file = "extra.txt", size_bytes = 6,
-    md5 = unname(.study02_canonical_md5(extra))))
-  write.csv(checks, file.path(capsule, "checksums.csv"), row.names = FALSE)
-  unlink(extra)
-  expect_error(.study02_validate_capsule(capsule), "listed.*missing")
+test_that("CLI arguments are strict and default only booleans", {
+  args <- c("--study", "02_prediction", "--profile", "benchmark",
+    "--output-dir", "out")
+  parsed <- sblrbench:::parse_benchmark_cli_arguments(args)
+  expect_true(parsed$resume)
+  expect_false(parsed$validate_only)
+  expect_error(sblrbench:::parse_benchmark_cli_arguments(c(args,
+    "--unknown", "x")), "Unknown")
+  expect_error(sblrbench:::parse_benchmark_cli_arguments(c("--study",
+    "03_parameter_estimation", "--profile", "benchmark", "--output-dir",
+    "out")), "Unsupported --study")
+  expect_error(sblrbench:::parse_benchmark_cli_arguments(c(args,
+    "--resume", "yes")), "true.*false")
+})
+
+test_that("frozen Study 02 capsule validates against the migrated spec", {
+  path <- testthat::test_path("..", "..", "results", "reference",
+    "02_prediction", "current")
+  skip_if_not(dir.exists(path), "frozen capsule is unavailable")
+  spec <- read_benchmark_spec(.study02_spec_path())
+  expect_invisible(sblrbench:::validate_prediction_capsule(path, spec))
+})
+
+test_that("removed Study 02 internals have no executable callers", {
+  root <- testthat::test_path("..", "..")
+  removed <- file.path(root, "studies", "02_prediction",
+    c("config.R", "pilot.R", "targets.R", "promotion.R"))
+  expect_false(any(file.exists(removed)))
+  files <- list.files(root, pattern = "\\.(R|qmd)$", recursive = TRUE,
+    full.names = TRUE)
+  files <- files[!grepl("results[/\\\\](reference|local)|_freeze|_targets",
+    files)]
+  files <- files[basename(files) != "test-prediction-helpers.R"]
+  text <- paste(unlist(lapply(files, readLines, warn = FALSE)), collapse = "\n")
+  expect_false(grepl("studies[/\\\\]02_prediction[/\\\\](config|pilot|targets|promotion)\\.R",
+    text))
+  report <- readLines(file.path(root, "studies", "02_prediction", "report.qmd"),
+    warn = FALSE)
+  executable <- paste(report[!grepl("^```|^#|^The |^This |^A ", report)],
+    collapse = "\n")
+  expect_false(grepl("results/local|readRDS|run_benchmark|targets::|tar_read|stblr_(bed|csr)\\(",
+    executable))
 })
