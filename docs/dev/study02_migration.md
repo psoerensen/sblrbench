@@ -36,6 +36,13 @@ The report reads only its frozen capsule. It does not load checkpoints, invoke
 targets, prepare data, simulate, construct LD, call `run_benchmark()`, or call
 an `sblr` sampler.
 
+The downloadable exact `analysis.R` now exposes the validated data design,
+scenarios, coordinate/seed grid, methods and resolved controls, provenance,
+fit-status and oracle checks, tidy result summaries, named prediction,
+calibration, effect-recovery, and runtime plots, and the output inventory. It
+continues to delegate all preparation, simulation, fitting, checkpointing, and
+extraction mechanics to the shared runner.
+
 ## Checkpoint decision
 
 The historical Study 02 fits are targets-store internals rather than a stable
@@ -49,7 +56,6 @@ makes zero sampler calls.
 ## Validation and deferred work
 
 Focused tests, parsing, package loading, CLI validation-only execution, capsule
-hash comparison, and direct report rendering are recorded in the Phase 3 handoff.
-The framework intentionally supports only prediction. Study 03 must define its
-parameter-estimation specification, estimands, extraction, and metrics during
-its own migration; no speculative interface was added here.
+hash comparison, and direct report rendering are recorded in the handoffs.
+Study 03 subsequently added the explicit parameter-estimation task without
+changing Study 02 behavior.

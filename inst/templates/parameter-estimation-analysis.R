@@ -12,6 +12,12 @@ spec <- read_benchmark_spec(file.path("studies","03_parameter_estimation",
 # Extend spec$scenarios or supported spec$methods explicitly.
 # Select existing scalar parameters in spec$estimands and metrics in spec$metrics.
 # Change output_dir above; do not hide scientific settings inside the runner.
+print(benchmark_scenario_table(spec,profile))
+print(benchmark_estimand_table(spec))
 results <- run_benchmark(spec,output_dir,profile=profile,resume=TRUE)
 print(results$status)
 print(results$estimates)
+heritability_plot <- plot_parameter_recovery(results$estimates,"heritability")
+runtime_plot <- plot_benchmark_runtime(results$runtime)
+print(heritability_plot)
+print(runtime_plot)

@@ -120,6 +120,15 @@ parse_benchmark_cli_arguments <- function(args) {
   paste(scenario, as.integer(replicate), sep = "::")
 }
 
+.benchmark_oracle_table <- function(bundles, study) {
+  .benchmark_bind_rows(lapply(bundles, function(bundle) data.frame(
+    study = study, scenario = bundle$coordinate$scenario,
+    replicate = bundle$coordinate$replicate,
+    status = if (isTRUE(bundle$oracle$ok)) "passed" else "failed",
+    max_abs_error = bundle$oracle$max_abs_error,
+    tolerance = bundle$oracle$tolerance, stringsAsFactors = FALSE)))
+}
+
 .run_parameter_estimation <- function(spec,profile,resolved,coordinates,
                                       methods,paths,resume) {
   data <- prepare_parameter_estimation_data(spec,paths$root)
@@ -188,12 +197,15 @@ parse_benchmark_cli_arguments <- function(args) {
   marker_results <- .benchmark_bind_rows(marker_rows)
   convergence <- .benchmark_bind_rows(convergence_rows)
   truth <- .benchmark_bind_rows(lapply(bundles,`[[`,"truth"))
+  oracle <- .benchmark_oracle_table(bundles, spec$study)
   metrics <- if(is.null(estimates)) NULL else parameter_recovery_summary(estimates)
   paired <- if(is.null(estimates)) NULL else parameter_paired_differences(estimates)
   paired_summary <- if(is.null(paired)) NULL else parameter_paired_summary(paired)
   files <- list(
     fit_status=.benchmark_write_csv(status,file.path(paths$tables,"fit_status.csv")),
     simulation_truth=.benchmark_write_csv(truth,file.path(paths$tables,"simulation_truth.csv")),
+    simulation_oracle=.benchmark_write_csv(oracle,
+      file.path(paths$tables,"simulation_oracle.csv")),
     estimates=.benchmark_write_csv(estimates,file.path(paths$tables,"estimates.csv")),
     parameter_metrics=.benchmark_write_csv(metrics,file.path(paths$tables,"parameter_metrics.csv")),
     marker_results=.benchmark_write_csv(marker_results,file.path(paths$tables,"marker_results.csv")),
@@ -206,7 +218,7 @@ parse_benchmark_cli_arguments <- function(args) {
   writeLines(benchmark_session_information(),paths$session_info)
   list(spec=spec,paths=c(paths,files),status=status,truth=truth,
     estimates=estimates,marker_results=marker_results,metrics=metrics,
-    convergence=convergence,runtime=runtime)
+    convergence=convergence,runtime=runtime,oracle=oracle)
 }
 
 .prediction_checkpoint_identity <- function(spec, coordinate, controls,
@@ -302,7 +314,7 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
     return(list(spec = spec, paths = c(paths, fit_status = status_path),
       status = status, truth = NULL, estimates = NULL,
       marker_results = NULL, metrics = NULL, convergence = NULL,
-      runtime = NULL))
+      runtime = NULL, oracle = NULL))
   }
 
   if(identical(spec$task,"parameter_estimation"))
@@ -392,12 +404,15 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
   metrics <- .benchmark_bind_rows(metric_rows)
   convergence <- .benchmark_bind_rows(convergence_rows)
   truth <- .benchmark_bind_rows(lapply(bundles, .prediction_truth_table))
+  oracle <- .benchmark_oracle_table(bundles, spec$study)
   paired <- if (is.null(metrics)) NULL else prediction_paired_metrics(metrics)
   files <- list(
     fit_status = .benchmark_write_csv(status,
       file.path(paths$tables, "fit_status.csv")),
     simulation_truth = .benchmark_write_csv(truth,
       file.path(paths$tables, "simulation_truth.csv")),
+    simulation_oracle = .benchmark_write_csv(oracle,
+      file.path(paths$tables, "simulation_oracle.csv")),
     estimates = .benchmark_write_csv(estimates,
       file.path(paths$tables, "estimates.csv")),
     marker_results = .benchmark_write_csv(marker_results,
@@ -416,5 +431,5 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
   writeLines(benchmark_session_information(), paths$session_info)
   list(spec = spec, paths = c(paths, files), status = status, truth = truth,
     estimates = estimates, marker_results = marker_results, metrics = metrics,
-    convergence = convergence, runtime = runtime)
+    convergence = convergence, runtime = runtime, oracle = oracle)
 }

@@ -13,6 +13,12 @@ benchmark_git_sha <- function(path = ".", warn = TRUE) {
   NA_character_
 }
 
+#' Inspect installed package provenance
+#'
+#' @param package Package name.
+#' @param lib.loc Optional library location.
+#' @return A list containing package, version, source SHA, path, and status.
+#' @export
 benchmark_package_provenance <- function(package, lib.loc = NULL) {
   description <- utils::packageDescription(package, lib.loc = lib.loc)
   sha <- description[["RemoteSha"]]

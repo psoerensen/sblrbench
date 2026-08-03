@@ -65,6 +65,11 @@ prediction_comparison_labels <- function() c(
   csr_vs_bed_bayesc = "CSR versus BED BayesC class",
   csr_vs_bed_bayesr = "CSR versus BED BayesR class")
 
+#' Summarize prediction metrics across replicates
+#'
+#' @param metrics Tidy prediction metric rows.
+#' @return A scenario, method, and metric summary data frame.
+#' @export
 prediction_metric_summary <- function(metrics) {
   architecture <- if ("architecture" %in% names(metrics))
     metrics$architecture else metrics$scenario
@@ -118,12 +123,5 @@ prediction_paired_summary <- function(paired) {
 }
 
 prediction_runtime_summary <- function(runtime) {
-  key <- interaction(runtime$scenario, runtime$method, drop = TRUE,
-    lex.order = TRUE)
-  do.call(rbind, lapply(split(runtime, key), function(x)
-    data.frame(study = x$study[[1L]], scenario = x$scenario[[1L]],
-      method = x$method[[1L]], successful_fits = sum(x$status == "ok"),
-      mean_seconds = mean(x$elapsed_seconds[x$status == "ok"]),
-      median_seconds = stats::median(x$elapsed_seconds[x$status == "ok"]),
-      stringsAsFactors = FALSE)))
+  benchmark_runtime_summary(runtime)
 }

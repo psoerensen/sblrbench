@@ -115,3 +115,340 @@ display_capsule_script_collapsed <- function(path, summary = "Show developer con
     .sblrbench_script_text(path), "\n```\n\n</details>\n", sep = "")
   invisible(path)
 }
+
+.benchmark_collapse_values <- function(x) {
+  if (is.null(x) || !length(x)) return(NA_character_)
+  paste(format(x, trim = TRUE, scientific = FALSE), collapse = "; ")
+}
+
+.benchmark_scenario_name <- function(data) {
+  if ("scenario" %in% names(data)) "scenario" else if (
+    "architecture" %in% names(data)) "architecture" else
+      stop("Data require a scenario or architecture column.", call. = FALSE)
+}
+
+.benchmark_require_columns <- function(data, columns, label) {
+  if (!is.data.frame(data)) stop(label, " must be a data frame.", call. = FALSE)
+  missing <- setdiff(columns, names(data))
+  if (length(missing)) stop(label, " is missing columns: ",
+    paste(missing, collapse = ", "), ".", call. = FALSE)
+  invisible(data)
+}
+
+.benchmark_ok_rows <- function(data) {
+  if (!"status" %in% names(data)) rep(TRUE, nrow(data)) else
+    !is.na(data$status) & data$status == "ok"
+}
+
+#' Summarize benchmark data design
+#'
+#' @param spec A validated benchmark specification.
+#' @param profile A supported profile name.
+#' @return A one-row data frame describing data preparation without loading it.
+#' @export
+benchmark_data_summary <- function(spec, profile = "benchmark") {
+  validate_benchmark_spec(spec)
+  resolved <- resolve_benchmark_profile(spec, profile)
+  split <- spec$split
+  sample_count <- spec$validation$benchmark_sample_count
+  training_count <- if (is.null(split)) sample_count else
+    spec$validation$benchmark_training_count
+  test_count <- if (is.null(split)) NA_integer_ else
+    spec$validation$benchmark_test_count
+  data.frame(study = spec$study, profile = profile,
+    data_source = paste0(spec$data$source, " at ",
+      spec$data$example_data$commit),
+    sample_count = sample_count, training_count = training_count,
+    test_count = test_count,
+    split = if (is.null(split)) "all samples used for estimation" else
+      paste0(format(100 * split$train_fraction, trim = TRUE),
+        "/", format(100 * (1 - split$train_fraction), trim = TRUE),
+        " train/test; seed ", split$seed),
+    marker_count = spec$validation$benchmark_marker_count,
+    marker_selection = paste0("chromosome ", spec$data$chromosome,
+      "; QC: MAF >= ", spec$markers$qc$excludeMAF,
+      ", missingness <= ", spec$markers$qc$excludeMISS,
+      ", canonical QC order retained"),
+    alignment_policy = "strict sample, marker, and trait identifiers; requested order preserved",
+    preparation_rule = if (is.null(split))
+      "full-sample genotype scaling, sparse LD, and summary statistics" else
+      "training-only allele frequencies, scaling, sparse LD, and summary statistics",
+    replicate_count = resolved$replicate_count, stringsAsFactors = FALSE)
+}
+
+#' Tabulate benchmark scenarios
+#'
+#' @inheritParams benchmark_data_summary
+#' @return A tidy data frame with one row per scenario.
+#' @export
+benchmark_scenario_table <- function(spec, profile = "benchmark") {
+  validate_benchmark_spec(spec)
+  replicate_count <- resolve_benchmark_profile(spec, profile)$replicate_count
+  do.call(rbind, lapply(names(spec$scenarios), function(id) {
+    scenario <- spec$scenarios[[id]]
+    data.frame(scenario = id,
+      target_heritability = spec$controls$simulation$h2,
+      causal_markers = spec$controls$simulation$n_causal,
+      effect_distribution = scenario$effect_distribution,
+      mixture_probabilities = .benchmark_collapse_values(
+        scenario$mixture_prob),
+      mixture_multipliers = .benchmark_collapse_values(
+        scenario$mixture_var),
+      replicate_count = replicate_count, stringsAsFactors = FALSE)
+  }))
+}
+
+#' Tabulate benchmark coordinates and seeds
+#'
+#' @inheritParams benchmark_data_summary
+#' @return A tidy coordinate table with chain seeds collapsed for display.
+#' @export
+benchmark_coordinate_table <- function(spec, profile = "benchmark") {
+  coordinates <- benchmark_seeds(spec, profile)
+  data.frame(scenario = coordinates$scenario,
+    replicate = coordinates$replicate, method = coordinates$method,
+    simulation_seed = coordinates$simulation_seed,
+    method_seed = coordinates$fit_seed,
+    chain_seeds = vapply(coordinates$chain_seeds,
+      .benchmark_collapse_values, character(1)), stringsAsFactors = FALSE)
+}
+
+#' Tabulate benchmark methods and resolved controls
+#'
+#' @inheritParams benchmark_data_summary
+#' @return A tidy data frame with one row per method.
+#' @export
+benchmark_method_table <- function(spec, profile = "benchmark") {
+  coordinates <- benchmark_seeds(spec, profile)
+  do.call(rbind, lapply(names(spec$methods), function(id) {
+    method <- spec$methods[[id]]
+    coordinate <- coordinates[coordinates$method == id, , drop = FALSE][1L, ]
+    controls <- benchmark_method_controls(spec, id, profile,
+      coordinate$fit_seed, coordinate$chain_seeds[[1L]])
+    data.frame(method = id, label = method$label,
+      interface = method$interface, model = method$native_method,
+      representation = method$representation,
+      prior_class = method$prior_class, nburn = controls$nburn,
+      nit = controls$nit, nthin = controls$nthin,
+      nchains = controls$nchains, ncores = controls$ncores,
+      inclusion_prior = if (!is.null(controls$pi_init))
+        paste0("pi_init=", controls$pi_init) else
+        paste0("pi=", .benchmark_collapse_values(controls$pi)),
+      mixture_multipliers = .benchmark_collapse_values(controls$mixture_var),
+      update_flags = "backend defaults, recorded in fit metadata",
+      scheduler_policy = if (identical(method$representation, "BED"))
+        "validated sblr BED scheduler defaults" else "not applicable",
+      ld_policy = if (identical(method$representation, "CSR"))
+        paste0("max variants ", spec$data$sparse_ld$max_distance_variants,
+          "; r2 >= ", spec$data$sparse_ld$r2_threshold,
+          "; block size ", spec$data$sparse_ld$block_size) else
+        "individual-level BED genotype operator",
+      stringsAsFactors = FALSE)
+  }))
+}
+
+#' Tabulate parameter-estimation estimands
+#'
+#' @param spec A parameter-estimation benchmark specification.
+#' @return The authoritative estimand definitions in display-ready form.
+#' @export
+benchmark_estimand_table <- function(spec) {
+  validate_benchmark_spec(spec)
+  if (is.null(spec$estimands))
+    stop("The benchmark specification does not define estimands.",
+      call. = FALSE)
+  data.frame(estimand = spec$estimands$estimand_id,
+    label = spec$estimands$label,
+    formula_or_fit_field = spec$estimands$posterior_source,
+    required_fit_fields = vapply(spec$estimands$posterior_source,
+      function(x) paste(unique(regmatches(x,
+        gregexpr("vbs|vgs|ves|pi_trace", x))[[1L]]), collapse = "; "),
+      character(1)),
+    truth_definition = spec$estimands$truth_source,
+    available_methods = spec$estimands$available_methods,
+    primary = spec$estimands$primary, stringsAsFactors = FALSE)
+}
+
+#' Inventory benchmark output paths
+#'
+#' @param results A result index returned by `run_benchmark()`.
+#' @return A data frame of named output paths and current existence status.
+#' @export
+benchmark_output_inventory <- function(results) {
+  if (!is.list(results) || !is.list(results$paths))
+    stop("results must contain a named paths list.", call. = FALSE)
+  paths <- results$paths
+  keep <- vapply(paths, function(x) is.character(x) && length(x) == 1L,
+    logical(1))
+  paths <- paths[keep]
+  data.frame(output = names(paths), path = unname(unlist(paths)),
+    exists = file.exists(unname(unlist(paths))), stringsAsFactors = FALSE)
+}
+
+#' Summarize benchmark runtime
+#'
+#' @param runtime Tidy runtime rows from `run_benchmark()`.
+#' @return A data frame summarized by scenario and method.
+#' @export
+benchmark_runtime_summary <- function(runtime) {
+  .benchmark_require_columns(runtime, c("study", "scenario", "method",
+    "elapsed_seconds", "status"), "runtime")
+  key <- interaction(runtime$scenario, runtime$method, drop = TRUE,
+    lex.order = TRUE)
+  out <- do.call(rbind, lapply(split(runtime, key), function(x) {
+    values <- x$elapsed_seconds[x$status == "ok" &
+      is.finite(x$elapsed_seconds)]
+    data.frame(study = x$study[[1L]], scenario = x$scenario[[1L]],
+      method = x$method[[1L]], successful_fits = length(values),
+      mean_seconds = if (length(values)) mean(values) else NA_real_,
+      median_seconds = if (length(values)) stats::median(values) else NA_real_,
+      stringsAsFactors = FALSE)
+  }))
+  rownames(out) <- NULL
+  out
+}
+
+.benchmark_plot_data <- function(data) {
+  scenario <- .benchmark_scenario_name(data)
+  data$scenario_display <- sblrbench_architecture_factor(data[[scenario]])
+  data$method_display <- sblrbench_method_factor(data$method)
+  data
+}
+
+#' Plot prediction performance metrics
+#'
+#' @param metrics Tidy prediction metric rows.
+#' @param metric_ids Metrics to include.
+#' @return A `ggplot2` plot.
+#' @export
+plot_prediction_metrics <- function(metrics, metric_ids = c(
+    "prediction_correlation", "prediction_nmse")) {
+  .benchmark_require_columns(metrics, c("method", "metric", "value"),
+    "metrics")
+  data <- metrics[metrics$metric %in% metric_ids &
+    .benchmark_ok_rows(metrics), , drop = FALSE]
+  if (!nrow(data)) stop("No requested prediction metrics are available.",
+    call. = FALSE)
+  data <- .benchmark_plot_data(data)
+  ggplot2::ggplot(data, ggplot2::aes(method_display, value,
+      colour = method)) +
+    ggplot2::geom_boxplot(outlier.shape = NA, show.legend = FALSE) +
+    ggplot2::geom_point(position = ggplot2::position_jitter(width = .08),
+      alpha = .7, show.legend = FALSE) +
+    ggplot2::facet_grid(metric ~ scenario_display, scales = "free_y") +
+    ggplot2::labs(x = NULL, y = "Metric value",
+      title = "Prediction performance") + theme_sblrbench()
+}
+
+#' Plot prediction calibration
+#'
+#' @inheritParams plot_prediction_metrics
+#' @return A `ggplot2` plot.
+#' @export
+plot_prediction_calibration <- function(metrics) {
+  plot_prediction_metrics(metrics, c("prediction_calibration_intercept",
+    "prediction_calibration_slope")) +
+    ggplot2::labs(title = "Prediction calibration")
+}
+
+#' Plot prediction effect recovery
+#'
+#' @inheritParams plot_prediction_metrics
+#' @return A `ggplot2` plot.
+#' @export
+plot_effect_recovery <- function(metrics) {
+  plot_prediction_metrics(metrics, c("effect_rmse",
+    "genetic_value_correlation", "genetic_value_rmse")) +
+    ggplot2::labs(title = "Effect and genetic-value recovery")
+}
+
+#' Plot parameter recovery against truth
+#'
+#' @param estimates Tidy parameter-estimate rows.
+#' @param estimand_id One estimand identifier.
+#' @return A `ggplot2` plot.
+#' @export
+plot_parameter_recovery <- function(estimates, estimand_id) {
+  .benchmark_require_columns(estimates, c("method", "estimand_id", "truth",
+    "posterior_mean"), "estimates")
+  data <- estimates[estimates$estimand_id == estimand_id &
+    .benchmark_ok_rows(estimates), , drop = FALSE]
+  if (!nrow(data)) stop("No estimates are available for `", estimand_id,
+    "`.", call. = FALSE)
+  data <- .benchmark_plot_data(data)
+  ggplot2::ggplot(data, ggplot2::aes(truth, posterior_mean,
+      colour = method, shape = method)) +
+    ggplot2::geom_abline(slope = 1, intercept = 0, linetype = 2,
+      colour = "grey45") + ggplot2::geom_point(size = 2.2) +
+    ggplot2::facet_wrap(~scenario_display, scales = "free") +
+    sblrbench_method_scales() +
+    ggplot2::labs(x = "Realized truth", y = "Posterior mean",
+      title = paste("Recovery:", estimand_id), colour = NULL, shape = NULL) +
+    theme_sblrbench()
+}
+
+#' Plot parameter bias
+#'
+#' @param estimates Tidy parameter-estimate rows.
+#' @return A `ggplot2` plot.
+#' @export
+plot_parameter_bias <- function(estimates) {
+  .benchmark_require_columns(estimates,
+    c("method", "estimand_id", "bias"), "estimates")
+  data <- estimates[.benchmark_ok_rows(estimates), , drop = FALSE]
+  data <- .benchmark_plot_data(data)
+  ggplot2::ggplot(data, ggplot2::aes(method_display, bias,
+      colour = method)) + ggplot2::geom_hline(yintercept = 0,
+      linetype = 2, colour = "grey45") +
+    ggplot2::geom_boxplot(outlier.shape = NA, show.legend = FALSE) +
+    ggplot2::geom_point(position = ggplot2::position_jitter(width = .08),
+      alpha = .65, show.legend = FALSE) +
+    ggplot2::facet_grid(estimand_id ~ scenario_display, scales = "free_y") +
+    ggplot2::labs(x = NULL, y = "Posterior mean minus truth",
+      title = "Parameter bias") + theme_sblrbench()
+}
+
+#' Plot active or component probabilities
+#'
+#' @param estimates Tidy parameter-estimate rows.
+#' @return A `ggplot2` plot.
+#' @export
+plot_component_probabilities <- function(estimates) {
+  .benchmark_require_columns(estimates,
+    c("method", "estimand_id", "truth", "posterior_mean"), "estimates")
+  ids <- grepl("causal_proportion|active_probability|component.*probability",
+    estimates$estimand_id)
+  data <- estimates[ids & .benchmark_ok_rows(estimates), , drop = FALSE]
+  if (!nrow(data)) stop("No active/component probability estimates are available.",
+    call. = FALSE)
+  data <- .benchmark_plot_data(data)
+  ggplot2::ggplot(data, ggplot2::aes(method_display, posterior_mean,
+      colour = method)) +
+    ggplot2::geom_point(position = ggplot2::position_jitter(width = .08),
+      alpha = .75, show.legend = FALSE) +
+    ggplot2::facet_grid(estimand_id ~ scenario_display, scales = "free_y") +
+    ggplot2::labs(x = NULL, y = "Posterior mean probability",
+      title = "Active-marker probability recovery") + theme_sblrbench()
+}
+
+#' Plot benchmark runtime
+#'
+#' @param runtime Tidy runtime rows.
+#' @return A `ggplot2` plot.
+#' @export
+plot_benchmark_runtime <- function(runtime) {
+  .benchmark_require_columns(runtime,
+    c("method", "elapsed_seconds"), "runtime")
+  data <- runtime[.benchmark_ok_rows(runtime), , drop = FALSE]
+  if (!nrow(data)) stop("No successful runtime rows are available.",
+    call. = FALSE)
+  data <- .benchmark_plot_data(data)
+  ggplot2::ggplot(data, ggplot2::aes(method_display, elapsed_seconds,
+      colour = method)) +
+    ggplot2::geom_boxplot(outlier.shape = NA, show.legend = FALSE) +
+    ggplot2::geom_point(position = ggplot2::position_jitter(width = .08),
+      alpha = .65, show.legend = FALSE) +
+    ggplot2::facet_wrap(~scenario_display, scales = "free_y") +
+    ggplot2::labs(x = NULL, y = "Elapsed seconds", title = "Runtime") +
+    theme_sblrbench()
+}

@@ -1,7 +1,9 @@
 # Shared benchmark helpers after Phase 3
 
-All helpers are ordinary internal R functions. They introduce no class system,
-registry, plugin interface, workflow language, or replacement execution engine.
+All helpers are ordinary R functions. The small design-table and plotting
+surface used by downloadable workflows is exported; lower-level mechanics stay
+internal. They introduce no class system, registry, plugin interface, workflow
+language, or replacement execution engine.
 
 ## Study 02 prediction framework
 
@@ -17,7 +19,8 @@ registry, plugin interface, workflow language, or replacement execution engine.
   components, runtime, metadata, and honest chain information.
 - `R/metrics-prediction.R`: prediction/effect metrics, runtime, summaries, and
   paired comparisons as data frames.
-- `R/benchmark-execution.R`: authoritative prediction-only `run_benchmark()`;
+- `R/benchmark-execution.R`: authoritative `run_benchmark()` for prediction
+  and parameter estimation;
   validation, standard output paths, science-identity checkpoints, dispatch,
   extraction, metrics, and provenance. Unsupported task types fail explicitly.
 
@@ -39,16 +42,20 @@ bias, error, coverage, RMSE, MAE, and paired-comparison definitions.
 
 - Responsibilities: method/architecture labels and order, factors, plot
   scales/theme, number/runtime/interval/status formatting, replicate summaries,
-  and display of compact capsule scripts.
+  compact design/coordinate/method/estimand/output tables, tidy prediction and
+  parameter plots, and display of compact capsule scripts.
 - Authoritative functions: `sblrbench_method_*`,
   `sblrbench_architecture_*`, `format_sblrbench_*`, `theme_sblrbench()`,
-  `prepare_sblrbench_replicates()`, and `display_capsule_script*()`.
+  `prepare_sblrbench_replicates()`, `benchmark_*_table()`,
+  `benchmark_data_summary()`, `benchmark_output_inventory()`, the focused
+  `plot_*()` workflow helpers, and `display_capsule_script*()`.
 - Compatibility: `studies/reporting_helpers.R` sources this file and contains
   no implementation.
-- Current callers: Studies 01--06 standard reports and reporting tests.
+- Current callers: Studies 01--06 standard reports, the Study 02 and Study 03
+  exact workflows and templates, and reporting/workflow tests.
 - Deferred callers: future reports after individual study migration.
-- Limitation: table-only presentation; native fits are intentionally rejected
-  by convention rather than accepted as inputs.
+- Limitation: plotting consumes extracted tidy tables only; native fits are
+  intentionally not accepted.
 - Wrapper removal: after every report loads package/shared helpers directly.
 
 ## `R/benchmark-provenance.R`

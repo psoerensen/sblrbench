@@ -4,6 +4,13 @@ Study 03 now uses the common ordinary-R runner. Its complete scientific list is
 `studies/03_parameter_estimation/spec.R`, its exact workflow is `analysis.R`,
 and `report.qmd` continues to read the unchanged frozen capsule.
 
+The downloadable exact workflow now prints the data and scenario design,
+coordinate/seed grid, methods and resolved controls, and the authoritative
+estimand formulas before calling the shared runner. It then validates fit and
+oracle coverage, summarizes convergence and extracted results, assigns and
+saves named recovery/bias/probability/runtime plots, and inventories outputs.
+No low-level execution or fit-object parsing was moved back into the study.
+
 ## Responsibility mapping
 
 The old targets graph is replaced by parameter task dispatch in

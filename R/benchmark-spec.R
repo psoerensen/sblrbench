@@ -145,6 +145,12 @@ validate_benchmark_spec <- function(spec) {
   invisible(spec)
 }
 
+#' Resolve a benchmark profile
+#'
+#' @param spec A validated benchmark specification.
+#' @param profile A supported profile name.
+#' @return The resolved profile list.
+#' @export
 resolve_benchmark_profile <- function(spec, profile = "benchmark") {
   validate_benchmark_spec(spec)
   .benchmark_scalar_string(profile, "profile")

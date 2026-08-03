@@ -2,7 +2,7 @@
 % Please edit documentation in R/benchmark-spec.R
 \name{benchmark_seeds}
 \alias{benchmark_seeds}
-\title{Add deterministic Study 02 seeds to benchmark coordinates}
+\title{Add deterministic benchmark seeds to coordinates}
 \usage{
 benchmark_seeds(spec, profile = "benchmark")
 }
@@ -15,5 +15,5 @@ benchmark_seeds(spec, profile = "benchmark")
 The coordinate grid with simulation, fit, and chain seeds.
 }
 \description{
-Add deterministic Study 02 seeds to benchmark coordinates
+Add deterministic benchmark seeds to coordinates
 }

@@ -18,9 +18,15 @@ spec <- read_benchmark_spec(file.path("studies", "02_prediction", "spec.R"))
 # Add methods: extend the supported plain method lists and dispatch explicitly.
 # Choose metrics: edit spec$metrics using supported prediction metric names.
 # Change output paths: edit output_dir above.
+print(benchmark_scenario_table(spec, profile))
+print(benchmark_method_table(spec, profile))
 
 results <- run_benchmark(spec = spec, output_dir = output_dir,
   profile = profile, resume = TRUE, validate_only = FALSE)
 
 print(results$status)
 print(results$metrics)
+prediction_plot <- plot_prediction_metrics(results$metrics)
+runtime_plot <- plot_benchmark_runtime(results$runtime)
+print(prediction_plot)
+print(runtime_plot)
