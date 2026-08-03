@@ -1,5 +1,5 @@
 # Study specifications are ordinary lists. Validation is deliberately scoped to
-# fields required by the currently supported prediction task.
+# fields required by the currently supported prediction and parameter tasks.
 
 .benchmark_scalar_string <- function(x, field) {
   if (!is.character(x) || length(x) != 1L || is.na(x) || !nzchar(x))
@@ -54,20 +54,28 @@ benchmark_spec_path <- function(spec, path) {
 #' @export
 validate_benchmark_spec <- function(spec) {
   if (!is.list(spec)) stop("spec must be an ordinary R list.", call. = FALSE)
-  required <- c("study", "task", "supported_profiles", "data", "split",
+  required <- c("study", "task", "supported_profiles", "data",
     "markers", "replicate_count", "scenarios", "methods", "controls",
     "seeds", "metrics", "validation", "frozen_capsule", "packages")
+  if (identical(spec$task, "single_trait_prediction"))
+    required <- c(required, "split")
+  if (identical(spec$task, "parameter_estimation"))
+    required <- c(required, "estimands")
   missing <- setdiff(required, names(spec))
   if (length(missing))
     stop("spec is missing required fields: ", paste(missing, collapse = ", "),
       ".", call. = FALSE)
   .benchmark_scalar_string(spec$study, "spec$study")
   .benchmark_scalar_string(spec$task, "spec$task")
-  if (!identical(spec$task, "single_trait_prediction"))
+  supported <- c("single_trait_prediction", "parameter_estimation")
+  if (!spec$task %in% supported)
     stop("Unsupported benchmark task `", spec$task,
-      "`; only `single_trait_prediction` is implemented.", call. = FALSE)
-  if (!identical(spec$study, "02_prediction"))
-    stop("The prediction execution contract currently supports only study `02_prediction`.",
+      "`; supported tasks are: ", paste(supported, collapse = ", "), ".",
+      call. = FALSE)
+  expected_study <- if (identical(spec$task, "single_trait_prediction"))
+    "02_prediction" else "03_parameter_estimation"
+  if (!identical(spec$study, expected_study))
+    stop("Task `", spec$task, "` requires study `", expected_study, "`.",
       call. = FALSE)
   profiles <- spec$supported_profiles
   if (!is.list(profiles) || !identical(sort(names(profiles)),
@@ -104,12 +112,13 @@ validate_benchmark_spec <- function(spec) {
   expected_methods <- c("st_bed_bayesc", "st_bed_bayesr",
     "st_csr_sbayesc", "st_csr_sbayesr")
   if (!identical(names(spec$methods), expected_methods))
-    stop("spec$methods must preserve the exact Study 02 method order: ",
+    stop("spec$methods must preserve the exact four-method order: ",
       paste(expected_methods, collapse = ", "), ".", call. = FALSE)
-  if (!is.numeric(spec$split$train_fraction) ||
+  if (identical(spec$task, "single_trait_prediction") &&
+      (!is.numeric(spec$split$train_fraction) ||
       length(spec$split$train_fraction) != 1L ||
       spec$split$train_fraction <= 0 || spec$split$train_fraction >= 1 ||
-      length(spec$split$seed) != 1L || is.na(spec$split$seed))
+      length(spec$split$seed) != 1L || is.na(spec$split$seed)))
     stop("spec$split must define a train_fraction in (0, 1) and one seed.",
       call. = FALSE)
   if (!is.numeric(spec$seeds$simulation_base) ||
@@ -119,6 +128,12 @@ validate_benchmark_spec <- function(spec) {
       call. = FALSE)
   if (!is.character(spec$metrics) || !length(spec$metrics) || anyNA(spec$metrics))
     stop("spec$metrics must be a non-empty character vector.", call. = FALSE)
+  if (identical(spec$task, "parameter_estimation") &&
+      (!is.data.frame(spec$estimands) || !nrow(spec$estimands) ||
+       !all(c("estimand_id", "posterior_source", "truth_source") %in%
+         names(spec$estimands)) || anyDuplicated(spec$estimands$estimand_id)))
+    stop("Parameter-estimation spec$estimands must be a non-empty unique registry.",
+      call. = FALSE)
   .benchmark_scalar_string(spec$frozen_capsule, "spec$frozen_capsule")
   .benchmark_scalar_string(spec$packages$sblr$version,
     "spec$packages$sblr$version")
@@ -161,7 +176,7 @@ benchmark_coordinates <- function(spec, profile = "benchmark") {
   out
 }
 
-#' Add deterministic Study 02 seeds to benchmark coordinates
+#' Add deterministic benchmark seeds to coordinates
 #'
 #' @inheritParams benchmark_coordinates
 #' @return The coordinate grid with simulation, fit, and chain seeds.

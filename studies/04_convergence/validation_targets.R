@@ -1,6 +1,4 @@
 source(file.path("studies", "01_finemapping", "setup_example_data.R"), local = TRUE)
-for (f in c("estimands.R", "simulation.R", "pilot.R"))
-  source(file.path("studies", "03_parameter_estimation", f), local = TRUE)
 for (f in c("diagnostic_registry.R", "methods.R", "chain_extraction.R", "diagnostics.R", "pilot.R"))
   source(file.path("studies", "04_convergence", f), local = TRUE)
 source(file.path("studies", "five_replicate_helpers.R"), local = TRUE)
@@ -73,14 +71,20 @@ list(
   targets::tar_target(validation_sim_spec, validation_sim_specs,
     pattern = map(validation_sim_specs), iteration = "list"),
   targets::tar_target(validation_sim_bundle, {
-    sim <- .study03_simulate(validation_sim_spec, validation_genotypes, validation_config)
+    sim <- sblrbench:::simulate_prediction_architecture(list(
+      scenario=validation_sim_spec$architecture,
+      replicate=validation_sim_spec$replicate,
+      simulation_seed=validation_sim_spec$simulation_seed),
+      validation_genotypes,validation_config$parameter_spec)
     oracle <- sblrbench::check_oracle_genetic_values(sim,
       tolerance = validation_config$oracle_tolerance)
     if (!oracle$ok) stop("Study 04 validation oracle failed.", call. = FALSE)
     stats <- sblr::make_summary_stats(Glist = validation_sparse_ld_glist,
       y = sim$truth$phenotypes, chr = validation_config$chr,
       rows = seq_len(nrow(sim$truth$phenotypes)), scale = TRUE, nthreads = 1L)
-    list(simulation = sim, stats = stats, truth = .study03_truth(sim, validation_config))
+    list(simulation = sim, stats = stats,
+      truth = sblrbench:::parameter_estimand_truth(sim,
+        validation_config$parameter_spec))
   }, pattern = map(validation_sim_spec), iteration = "list"),
   targets::tar_target(validation_specs,
     .study04_specs(validation_config), iteration = "list"),

@@ -19,6 +19,7 @@ while (!file.exists(file.path(root, "sblrbench.Rproj"))) {
   root <- parent
 }
 setwd(root)
+devtools::load_all(root, quiet = TRUE)
 Sys.setenv(OMP_NUM_THREADS = "4", OMP_THREAD_LIMIT = "4", OPENBLAS_NUM_THREADS = "1", MKL_NUM_THREADS = "1")
 out <- file.path("results", "local", "bed_vs_csr_bayesr_exact_ld")
 for (d in file.path(out, c("inputs", "ld", "fits", "tables", "figures", "logs")))
@@ -26,29 +27,44 @@ for (d in file.path(out, c("inputs", "ld", "fits", "tables", "figures", "logs"))
 logfile <- file.path(out, "logs", "diagnostic.log")
 logline <- function(...) cat(format(Sys.time(), tz = "UTC", usetz = TRUE), " | ", paste0(..., collapse = ""), "\n",
   file = logfile, append = TRUE, sep = "")
-hash <- function(x) digest::digest(x, algo = "sha256", serialize = TRUE)
-hashfile <- function(x) digest::digest(file = x, algo = "sha256", serialize = FALSE)
+hash <- benchmark_hash_object
+hashfile <- function(x) unname(benchmark_file_sha256(x))
 atomic_rds <- function(x, p) { t <- tempfile(".tmp-", dirname(p), ".rds"); saveRDS(x, t, version = 3);
   if (!file.rename(t, p)) { unlink(t); stop("Cannot write ", p) }; invisible(p) }
 csv <- function(x, n) { p <- file.path(out, "tables", n); t <- tempfile(".tmp-", dirname(p), ".csv");
   utils::write.csv(x, t, row.names = FALSE, na = ""); if (!file.rename(t, p)) { unlink(t); stop("Cannot write ", p) }; invisible(p) }
 numtxt <- function(x) paste(format(as.numeric(x), digits = 17, trim = TRUE), collapse = ";")
 
-sources <- c("studies/01_finemapping/setup_example_data.R", "studies/03_parameter_estimation/config.R",
-  "studies/03_parameter_estimation/simulation.R", "studies/03_parameter_estimation/pilot.R")
-sys.source(sources[1], envir = environment()); config <- source(sources[2], local = TRUE)$value
-sys.source(sources[3], envir = environment()); sys.source(sources[4], envir = environment())
+sources <- c("studies/01_finemapping/setup_example_data.R",
+  "studies/03_parameter_estimation/spec.R")
+sys.source(sources[1], envir = environment())
+config <- read_benchmark_spec(sources[2])
+legacy_config <- list(chr = config$data$chromosome, trait = config$data$trait,
+  sample_limit = config$data$sample_limit, example_data = config$data$example_data,
+  qc = config$markers$qc, sparse_ld = config$data$sparse_ld,
+  simulation = list(h2 = config$controls$simulation$h2,
+    n_causal = config$controls$simulation$n_causal,
+    base_seed = config$seeds$simulation_base, architectures = config$scenarios),
+  oracle_tolerance = config$validation$oracle_tolerance)
 manifest03 <- jsonlite::read_json("results/reference/03_parameter_estimation/current/benchmark_manifest.json", simplifyVector = TRUE)
-if (!identical(manifest03$sblr_commit, sha) || !identical(manifest03$qgdata_commit, config$example_data$commit))
+if (!identical(manifest03$sblr_commit, sha) || !identical(manifest03$qgdata_commit, config$data$example_data$commit))
   stop("Study 03 provenance mismatch.", call. = FALSE)
 
 # Load the exact validated Study 03 coordinate as the genotype/data provenance source.
 base_coordinate <- readRDS("results/local/sbayesr_gctb_diagnostic/inputs/coordinate.rds")
+if (!identical(base_coordinate$checkpoint_schema, "sblrbench-semantic-v2"))
+  stop(paste("Legacy source-hashed diagnostic checkpoint detected.",
+    "This checkpoint schema has been retired and is not reusable under",
+    "the shared semantic checkpoint framework."), call. = FALSE)
 Zall <- base_coordinate$simulation$data$genotypes
 if (!identical(dim(Zall), c(5000L, 37991L)) || !identical(colnames(Zall), base_coordinate$summary_stats$marker_names))
   stop("Prior coordinate checkpoint is not the validated Study 03 coordinate.", call. = FALSE)
-paths <- .study03_paths(); base_glist <- .study01_load_glist(paths)
-marker_info <- .study01_run_qc(base_glist, config); ids <- .study01_selected_ids(base_glist, config$sample_limit)
+paths <- list(glist_path = Sys.getenv("SBLR_BENCH_GLIST", ""),
+  data_dir = file.path("results", "local", "03_parameter_estimation", "data"),
+  output_dir = file.path("results", "local", "03_parameter_estimation", "genotype_setup"))
+base_glist <- .study01_load_glist(paths)
+marker_info <- .study01_run_qc(base_glist, legacy_config)
+ids <- .study01_selected_ids(base_glist, config$data$sample_limit)
 if (!identical(ids, rownames(Zall)) || !identical(marker_info$marker_ids, colnames(Zall))) stop("Current input alignment changed.")
 
 # Exact deterministic LD-rich 1,500-marker window selection from the current Study 03 sparse operator.
@@ -69,24 +85,50 @@ within <- edge_i >= start & edge_i <= end & edge_j >= start & edge_j <= end
 selection <- list(schema = 1L, rule = "maximum retained absolute off-diagonal LD; lowest start breaks ties",
   start = start, end = end, marker_ids = subset_ids, total_abs_retained_ld = window_mass[start],
   retained_edges = sum(within), density = sum(within) / choose(w, 2), source_prefix = current_prefix,
-  source_hashes = vapply(sort(Sys.glob(paste0(current_prefix, "*"))), hashfile, character(1)),
+  ld_file_hashes = vapply(sort(Sys.glob(paste0(current_prefix, "*"))), hashfile, character(1)),
   sample_hash = hash(rownames(Z)), marker_hash = hash(colnames(Z)), genotype_hash = hash(Z), sblr_sha = sha)
-selection_hash <- hash(selection); selection_path <- file.path(out, "inputs", "marker_subset.rds")
+selection_identity <- benchmark_semantic_checkpoint_identity(
+  "study06-exact-sparse-marker-selection",
+  list(diagnostic_schema_version = 2L, rule = selection$rule,
+    start = selection$start, end = selection$end,
+    marker_ids = selection$marker_ids,
+    total_abs_retained_ld = selection$total_abs_retained_ld,
+    retained_edges = selection$retained_edges, density = selection$density,
+    ld_file_hashes = selection$ld_file_hashes,
+    sample_hash = selection$sample_hash, marker_hash = selection$marker_hash,
+    genotype_hash = selection$genotype_hash, sblr_sha = selection$sblr_sha))
+selection_hash <- benchmark_semantic_checkpoint_hash(selection_identity)
+selection_path <- file.path(out, "inputs", "marker_subset.rds")
 subset_reused <- FALSE
-if (file.exists(selection_path)) { old <- readRDS(selection_path); if (!identical(old$selection_hash, selection_hash)) stop("Subset checkpoint mismatch."); subset_reused <- TRUE
-} else atomic_rds(list(selection_hash = selection_hash, selection = selection), selection_path)
+if (file.exists(selection_path)) {
+  old <- benchmark_load_semantic_checkpoint(selection_path, selection_hash)$value
+  subset_reused <- TRUE
+} else atomic_rds(list(checkpoint_schema = "sblrbench-semantic-v2",
+  semantic_hash = selection_hash, selection_hash = selection_hash,
+  identity = selection_identity, selection = selection), selection_path)
 
 # Deterministic reduced sparse-mixture phenotype: 5 markers in each active component.
-sim_seed <- 17002L; sim_identity <- list(selection_hash = selection_hash, seed = sim_seed, ncausal = 15L,
-  component_multiplier = rep(c(.01, .1, 1), each = 5L), h2 = .30)
-sim_hash <- hash(sim_identity); sim_path <- file.path(out, "inputs", "simulation.rds"); input_reused <- FALSE
-if (file.exists(sim_path)) { sim <- readRDS(sim_path); if (!identical(sim$identity_hash, sim_hash)) stop("Simulation checkpoint mismatch."); input_reused <- TRUE
+sim_seed <- 17002L
+sim_identity <- benchmark_semantic_checkpoint_identity(
+  "study06-exact-sparse-simulation", list(selection_hash = selection_hash,
+    simulation_seed = sim_seed, ncausal = 15L,
+    component_multiplier = rep(c(.01, .1, 1), each = 5L), h2 = .30,
+    sample_hash = hash(rownames(Z)), marker_hash = hash(colnames(Z)),
+    genotype_hash = hash(Z), sblr_sha = sha,
+    qgdata_sha = config$data$example_data$commit))
+sim_hash <- benchmark_semantic_checkpoint_hash(sim_identity)
+sim_path <- file.path(out, "inputs", "simulation.rds"); input_reused <- FALSE
+if (file.exists(sim_path)) {
+  sim <- benchmark_load_semantic_checkpoint(sim_path, sim_hash)$value
+  input_reused <- TRUE
 } else {
   set.seed(sim_seed); causal <- sort(sample.int(w, 15L)); mult <- rep(c(.01, .1, 1), each = 5L)
   raw <- stats::rnorm(15L, sd = sqrt(mult)); btrue <- numeric(w); btrue[causal] <- raw
   g <- as.numeric(Z %*% btrue); target_vg <- .30 / .70; scale <- sqrt(target_vg / stats::var(g)); btrue <- btrue * scale; g <- as.numeric(Z %*% btrue)
   e <- stats::rnorm(nrow(Z)); e <- (e - mean(e)) / stats::sd(e); y <- g + e
-  sim <- list(identity_hash = sim_hash, seed = sim_seed, causal_index = causal, causal_ids = subset_ids[causal],
+  sim <- list(checkpoint_schema = "sblrbench-semantic-v2", semantic_hash = sim_hash,
+    identity_hash = sim_hash, identity = sim_identity,
+    seed = sim_seed, causal_index = causal, causal_ids = subset_ids[causal],
     component_multiplier = mult, raw_effect = raw, scale = scale, effects = btrue, genetic_values = g,
     residuals = e, phenotype = y, realized_vg = stats::var(g), realized_ve = stats::var(e),
     realized_vy = stats::var(y), realized_h2 = stats::var(g) / (stats::var(g) + stats::var(e)))
@@ -96,23 +138,30 @@ if (max(abs(as.numeric(Z %*% sim$effects) - sim$genetic_values)) > 1e-10 || abs(
 Y <- matrix(sim$phenotype, ncol = 1L, dimnames = list(rownames(Z), "trait1"))
 
 # Build/reuse two local operators with identical individuals and markers.
-working <- .study01_set_rsids_ld(base_glist, config$chr, subset_ids)
+working <- .study01_set_rsids_ld(base_glist, config$data$chromosome, subset_ids)
 ld_settings <- list(exact = list(max_distance_bp = 0, max_distance_variants = 0L, r2_threshold = 0,
     allow_full_ld = TRUE, block_size = 1024L, nthreads = 1L),
   sparse = list(max_distance_bp = 0, max_distance_variants = 1000L, r2_threshold = .001,
     allow_full_ld = FALSE, block_size = 1024L, nthreads = 1L))
 make_ld <- function(kind) {
   prefix <- file.path(out, "ld", if (kind == "exact") "exact_full" else "study03_sparse")
-  ident <- list(selection_hash = selection_hash, sample_hash = hash(ids), settings = ld_settings[[kind]], sblr_sha = sha)
-  ih <- hash(ident); cp <- file.path(out, "ld", paste0(kind, "_checkpoint.rds"))
-  if (file.exists(cp)) { z <- readRDS(cp); if (!identical(z$identity_hash, ih)) stop(kind, " LD checkpoint mismatch.");
+  ident <- benchmark_semantic_checkpoint_identity(
+    paste0("study06-exact-sparse-ld-", kind),
+    list(selection_hash = selection_hash, sample_hash = hash(ids),
+      marker_hash = hash(subset_ids), operator_settings = ld_settings[[kind]],
+      sblr_sha = sha, qgdata_sha = config$data$example_data$commit))
+  ih <- benchmark_semantic_checkpoint_hash(ident)
+  cp <- file.path(out, "ld", paste0(kind, "_checkpoint.rds"))
+  if (file.exists(cp)) { z <- benchmark_load_semantic_checkpoint(cp, ih)$value
     if (!all(file.exists(z$files)) || !identical(vapply(z$files, hashfile, character(1)), z$file_hashes)) stop(kind, " LD files changed.")
     z$reused <- TRUE; return(z)
   }
   logline("building ", kind, " LD")
   gl <- do.call(sblr::make_sparse_ld, c(list(Glist = working, rows = seq_len(nrow(Z)), out_prefix = prefix,
-    chr = config$chr, pos_bp = NULL), ld_settings[[kind]]))
-  files <- sort(Sys.glob(paste0(prefix, "*"))); z <- list(identity_hash = ih, identity = ident, prefix = prefix,
+    chr = config$data$chromosome, pos_bp = NULL), ld_settings[[kind]]))
+  files <- sort(Sys.glob(paste0(prefix, "*"))); z <- list(
+    checkpoint_schema = "sblrbench-semantic-v2", semantic_hash = ih,
+    identity_hash = ih, identity = ident, prefix = prefix,
     files = files, file_hashes = vapply(files, hashfile, character(1)), glist = gl, reused = FALSE)
   atomic_rds(z, cp); z
 }
@@ -167,13 +216,25 @@ common <- list(pi = pi0, alpha = alpha, mixture_var = mix, h2 = .30, adjE = .9, 
   updatePi = TRUE, nburn = 250L, nit = 1000L, nthin = 1L, nchains = 4L, ncores = 4L, seed = 50104L,
   chain_seeds = chains, keep_chains = TRUE, convergence = "extended",
   convergence_control = list(warn = FALSE, keep_traces = TRUE, extended_groups = "probability"), verbose = FALSE)
-fit_identity_base <- list(selection_hash = selection_hash, simulation_hash = sim_hash, phenotype_hash = hash(Y),
-  effect_hash = hash(sim$effects), sample_hash = hash(rownames(Z)), marker_hash = hash(subset_ids), common = common, sblr_sha = sha,
+fit_identity_base <- list(selection_hash = selection_hash, simulation_hash = sim_hash,
+  scenario = "reduced_sparse_mixture", replicate = 1L, trait = "trait1",
+  phenotype_hash = hash(Y), true_effect_hash = hash(sim$effects),
+  sample_hash = hash(rownames(Z)), marker_hash = hash(subset_ids),
+  method_controls = common, simulation_seed = sim_seed, fit_seed = 50104L,
+  chain_seeds = chains, sblr_sha = sha,
+  qgdata_sha = config$data$example_data$commit,
   exact_ld_hashes = exact_cp$file_hashes, sparse_ld_hashes = sparse_cp$file_hashes)
 sampler_calls <- 0L
 fit_one <- function(id) {
-  ih <- hash(c(fit_identity_base, list(variant = id))); p <- file.path(out, "fits", paste0(id, ".rds"))
-  if (file.exists(p)) { z <- readRDS(p); if (!identical(z$identity_hash, ih)) stop(id, " fit checkpoint mismatch."); z$reused <- TRUE; return(z) }
+  ident <- benchmark_semantic_checkpoint_identity(
+    "study06-exact-sparse-fit", c(fit_identity_base, list(variant = id)))
+  ih <- benchmark_semantic_checkpoint_hash(ident)
+  p <- file.path(out, "fits", paste0(id, ".rds"))
+  if (file.exists(p)) {
+    z <- benchmark_load_semantic_checkpoint(p, ih)$value
+    z$reused <- TRUE
+    return(z)
+  }
   sampler_calls <<- sampler_calls + 1L; t0 <- proc.time()[["elapsed"]]; warns <- character()
   fit <- withCallingHandlers(if (id == "bed_exact_data") do.call(sblr::stblr_bed, c(list(y = Y, Glist = exact_cp$glist,
     rows = seq_len(nrow(Z)), method = "bayesr", full_sweep_every = 0L, null_skip_base = 1L, null_skip_max = 1L,
@@ -181,7 +242,9 @@ fit_one <- function(id) {
     do.call(sblr::stblr_csr, c(list(stats = stats_reduced, ld_prefix = if (id == "csr_exact_ld") exact_cp$prefix else sparse_cp$prefix,
       method = "sbayesr", updateLDswap = FALSE, maf_effect_s = NULL, estimate_maf_effect_s = FALSE), common)),
     warning = function(w) { warns <<- c(warns, conditionMessage(w)); invokeRestart("muffleWarning") })
-  z <- list(identity_hash = ih, fit = fit, elapsed_seconds = proc.time()[["elapsed"]] - t0, warnings = warns, reused = FALSE)
+  z <- list(checkpoint_schema = "sblrbench-semantic-v2", semantic_hash = ih,
+    identity_hash = ih, identity = ident, fit = fit,
+    elapsed_seconds = proc.time()[["elapsed"]] - t0, warnings = warns, reused = FALSE)
   atomic_rds(z, p); z
 }
 ids_fit <- c("bed_exact_data", "csr_exact_ld", "csr_sparse_ld"); labels <- c(bed_exact_data = "BED exact data", csr_exact_ld = "CSR exact LD", csr_sparse_ld = "CSR sparse LD")
@@ -292,7 +355,7 @@ design <- data.frame(window_start = start, window_end = end, markers = w, sample
   exact_ld_reused = exact_cp$reused, sparse_ld_reused = sparse_cp$reused, sampler_calls = sampler_calls)
 csv(design, "design.csv")
 prov <- data.frame(item = c("starting_head", "sblr_version", "sblr_sha", "sblrbench_version", "qgdata_sha", "R", "selection_hash", "simulation_hash", "exact_prefix", "sparse_prefix"),
-  value = c("39c8596ddd810d6fee43bd7f7906d20cbbe52440", as.character(packageVersion("sblr")), sha, as.character(packageVersion("sblrbench")), config$example_data$commit,
+  value = c("39c8596ddd810d6fee43bd7f7906d20cbbe52440", as.character(packageVersion("sblr")), sha, as.character(packageVersion("sblrbench")), config$data$example_data$commit,
     R.version.string, selection_hash, sim_hash, exact_cp$prefix, sparse_cp$prefix)); csv(prov, "provenance.csv")
 
 # Focused plots.
@@ -328,7 +391,7 @@ md <- function(x, d = 5) { x[] <- lapply(x, function(v) if (is.numeric(v)) forma
 central <- variance[variance$quantity %in% c("vbs", "vgs", "ves", "heritability", "active_probability"), c("label", "quantity", "mean", "sd", "lower_025", "upper_975")]
 report <- c("# Exact-LD versus sparse-LD BayesR diagnostic", "", "## Scientific question", "",
   "Does CSR SBayesR agree with full-sweep BED BayesR when CSR uses an effectively complete LD operator from the same individuals and markers? This is a one-window developer diagnostic, not a benchmark result.", "",
-  "## Provenance and design", "", paste0("Pinned `sblr` 0.2.0 at `", sha, "`; qgdata `", config$example_data$commit, "`. Selected global marker window ", start, "–", end, " (1,500 markers) by maximum retained absolute Study 03 sparse-LD mass. Simulation seed 17,002; 15 causal markers, five per non-null BayesR multiplier; realized h2=", round(sim$realized_h2, 6), "."), "",
+  "## Provenance and design", "", paste0("Pinned `sblr` 0.2.0 at `", sha, "`; qgdata `", config$data$example_data$commit, "`. Selected global marker window ", start, "–", end, " (1,500 markers) by maximum retained absolute Study 03 sparse-LD mass. Simulation seed 17,002; 15 causal markers, five per non-null BayesR multiplier; realized h2=", round(sim$realized_h2, 6), "."), "",
   "## LD construction and validation", "", "Exact LD used max-distance variants 0, r2 threshold 0, and `allow_full_ld=TRUE`; sparse LD used the Study 03 settings (1,000-marker distance, r2 threshold 0.001). The stored CSR values are correlations with implicit diagonal 1. Cross-products were reconstructed using the marker-specific square roots of the BED `x'x` diagonal, matching the recorded `sqrt_xx` normalization contract.", "", md(ld_comparison, 8), "",
   "## Prior equality", "", "All common prior inputs and resolved values are numerically identical. CSR scalar values absent from fit metadata were reconstructed with the exact installed resolver and are labelled accordingly.", "", md(prior_table[, c("label", "B", "E", "ssb_prior", "sse_prior", "source")], 8), "",
   "## Fits and convergence", "", md(fit_status, 4), "", md(conv[conv$quantity %in% c("vbs", "vgs", "ves", "heritability", "active_probability"), ], 5), "",

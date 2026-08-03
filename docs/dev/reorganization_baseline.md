@@ -26,7 +26,7 @@ was not used.
   separated-locus fine-mapping benchmark.
 - [Study 02](../../studies/02_prediction/report.qmd): completed held-out
   single-trait prediction benchmark.
-- [Study 03](../../studies/03_parameter_estimation/parameter-estimation.qmd):
+- [Study 03](../../studies/03_parameter_estimation/report.qmd):
   completed single-trait parameter-estimation benchmark.
 - [Study 04](../../studies/04_convergence/convergence.qmd): completed
   convergence selection and five-replicate validation.

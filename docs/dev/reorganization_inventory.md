@@ -67,6 +67,15 @@ left untouched, while the new runner uses science-identity checkpoints.
 
 ## Obsolete candidates
 
+## Phase 4: Study 03 migration
+
+Study 03 parameter estimation now uses the common runner, shared full-sample
+data/simulation/method mechanics, shared scalar extraction, and task-specific
+parameter metrics. Obsolete targets, promotion, estimand, metric, launch,
+worked-example, config, simulation, method, and pilot layers were removed.
+Affected Study 03 and Study 06 diagnostics now use shared semantic checkpoint
+identities; old source-hashed local caches are retired and not reusable.
+
 Study 06 v1/v2 files are not removed
 or classified as obsolete solely from their names. They remain inventory items
 until callers, reproducibility roles, and migration replacements are verified.

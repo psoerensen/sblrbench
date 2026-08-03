@@ -25,6 +25,7 @@ find_root <- function(path = getwd()) {
 }
 root <- find_root()
 setwd(root)
+devtools::load_all(root,quiet=TRUE)
 Sys.setenv(OMP_NUM_THREADS = "4", OMP_THREAD_LIMIT = "4", OPENBLAS_NUM_THREADS = "1",
   MKL_NUM_THREADS = "1", VECLIB_MAXIMUM_THREADS = "1")
 
@@ -47,20 +48,23 @@ write_csv <- function(x, name) {
   if (!file.rename(tmp, path)) { unlink(tmp); stop("Cannot write ", path, call. = FALSE) }
   invisible(path)
 }
-hash_object <- function(x) digest::digest(x, algo = "sha256", serialize = TRUE)
-hash_file <- function(x) digest::digest(file = x, algo = "sha256", serialize = FALSE)
+hash_object <- benchmark_hash_object
+hash_file <- function(x) unname(benchmark_file_sha256(x))
 collapse_num <- function(x) paste(format(as.numeric(x), digits = 17, scientific = FALSE, trim = TRUE), collapse = ";")
 
 started <- Sys.time()
 sampler_calls <- 0L
-source_files <- c("studies/01_finemapping/setup_example_data.R",
-  "studies/five_replicate_helpers.R", "studies/03_parameter_estimation/config.R",
-  "studies/03_parameter_estimation/simulation.R", "studies/03_parameter_estimation/methods.R",
-  "studies/03_parameter_estimation/pilot.R")
-for (f in source_files[1:2]) sys.source(f, envir = environment())
-config <- source(source_files[3], local = TRUE)$value
-for (f in source_files[4:6]) sys.source(f, envir = environment())
-config$profile <- "five_replicate_development"
+setup_files <- c("studies/01_finemapping/setup_example_data.R",
+  "studies/five_replicate_helpers.R", "studies/03_parameter_estimation/spec.R")
+for (f in setup_files[1:2]) sys.source(f, envir = environment())
+config <- read_benchmark_spec(setup_files[3])
+legacy_config <- list(chr=config$data$chromosome,trait=config$data$trait,
+  sample_limit=config$data$sample_limit,example_data=config$data$example_data,
+  qc=config$markers$qc,sparse_ld=config$data$sparse_ld,
+  simulation=list(h2=config$controls$simulation$h2,
+    n_causal=config$controls$simulation$n_causal,
+    base_seed=config$seeds$simulation_base,architectures=config$scenarios),
+  oracle_tolerance=config$validation$oracle_tolerance)
 
 sblr_desc <- utils::packageDescription("sblr")
 sblr_sha <- sblr_desc$RemoteSha %||% sblr_desc$GithubSHA1 %||% NA_character_
@@ -68,7 +72,7 @@ if (!identical(sblr_sha, required_sblr_sha))
   stop("Installed sblr SHA is ", sblr_sha, "; required ", required_sblr_sha, call. = FALSE)
 capsule <- file.path("results", "reference", "03_parameter_estimation", "current")
 manifest03 <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"), simplifyVector = TRUE)
-if (!identical(manifest03$sblr_commit, sblr_sha) || !identical(manifest03$qgdata_commit, config$example_data$commit))
+if (!identical(manifest03$sblr_commit, sblr_sha) || !identical(manifest03$qgdata_commit, config$data$example_data$commit))
   stop("Frozen Study 03 provenance differs from the diagnostic contract.", call. = FALSE)
 
 seed_registry <- utils::read.csv(file.path(capsule, "seed_registry.csv"), check.names = FALSE)
@@ -85,6 +89,10 @@ if (nrow(seed_rows) != 4L || !identical(as.integer(seed_rows$simulation_seed), r
 old_coordinate_path <- file.path("results", "local", "sbayesr_gctb_diagnostic", "inputs", "coordinate.rds")
 if (!file.exists(old_coordinate_path)) stop("Missing prior coordinate checkpoint: ", old_coordinate_path, call. = FALSE)
 coordinate <- readRDS(old_coordinate_path)
+if(!identical(coordinate$checkpoint_schema,"sblrbench-semantic-v2"))
+  stop(paste("Legacy source-hashed diagnostic checkpoint detected.",
+    "This checkpoint schema has been retired and is not reusable under",
+    "the shared semantic checkpoint framework."),call.=FALSE)
 simulation <- coordinate$simulation
 stats <- coordinate$summary_stats
 Z <- simulation$data$genotypes
@@ -98,19 +106,21 @@ if (!identical(dim(Z), c(5000L, 37991L)) || !identical(stats$n, 5000L) ||
     !identical(colnames(Z), simulation$data$marker_ids) ||
     sum(simulation$truth$effects[, 1L] != 0) != 50L)
   stop("Prior coordinate checkpoint does not match the exact design.", call. = FALSE)
-oracle <- sblrbench::check_oracle_genetic_values(simulation, tolerance = config$oracle_tolerance)
+oracle <- sblrbench::check_oracle_genetic_values(simulation, tolerance = config$validation$oracle_tolerance)
 realized_h2 <- stats::var(simulation$truth$genetic_values[, 1L]) /
   (stats::var(simulation$truth$genetic_values[, 1L]) + stats::var(simulation$truth$residuals[, 1L]))
 if (!oracle$ok || abs(realized_h2 - 0.30) > 1e-12) stop("Coordinate oracle or heritability validation failed.", call. = FALSE)
 
-paths <- .study03_paths()
-expected_data <- file.path(paths$data_dir, names(config$example_data$md5))
-if (!all(file.exists(expected_data)) || !identical(unname(tools::md5sum(expected_data)), unname(config$example_data$md5)))
+paths <- list(glist_path=Sys.getenv("SBLR_BENCH_GLIST",""),
+  data_dir=file.path("results","local","03_parameter_estimation","data"),
+  output_dir=file.path("results","local","03_parameter_estimation","genotype_setup"))
+expected_data <- file.path(paths$data_dir, names(config$data$example_data$md5))
+if (!all(file.exists(expected_data)) || !identical(unname(tools::md5sum(expected_data)), unname(config$data$example_data$md5)))
   stop("Pinned qgdata cache is incomplete or has changed.", call. = FALSE)
 base_glist <- .study01_load_glist(paths)
-marker_info <- .study01_run_qc(base_glist, config)
-sample_ids <- .study01_selected_ids(base_glist, config$sample_limit)
-working_glist <- .study01_set_rsids_ld(base_glist, config$chr, marker_info$marker_ids)
+marker_info <- .study01_run_qc(base_glist, legacy_config)
+sample_ids <- .study01_selected_ids(base_glist, config$data$sample_limit)
+working_glist <- .study01_set_rsids_ld(base_glist, config$data$chromosome, marker_info$marker_ids)
 sparse_cache <- file.path(paths$output_dir, "ld_sparse_bed_glist.rds")
 if (!file.exists(sparse_cache)) stop("Existing Study 03 sparse-LD cache is missing; refusing LD construction.", call. = FALSE)
 Glist <- readRDS(sparse_cache)
@@ -118,7 +128,7 @@ ld_prefix <- Glist$sparseLD$prefix
 ld_files <- sort(Sys.glob(paste0(ld_prefix, "*")))
 if (!length(ld_files) || !identical(marker_info$marker_ids, simulation$data$marker_ids) ||
     !identical(sample_ids, simulation$data$sample_ids)) stop("Current genotype/LD alignment differs from the checkpoint.", call. = FALSE)
-recomputed_stats <- .study03_summary_stats(simulation, Glist, config)
+recomputed_stats <- sblrbench:::parameter_summary_stats(simulation,Glist,config)
 if (!identical(recomputed_stats$marker_names, stats$marker_names) ||
     !isTRUE(all.equal(recomputed_stats$yy, stats$yy, tolerance = 0)) ||
     !isTRUE(all.equal(recomputed_stats$wy, stats$wy, tolerance = 0)) ||
@@ -149,31 +159,40 @@ schedulers <- list(
     skip_nulls_burnin_only = NA))
 labels <- c(bed_scheduled_current = "BED scheduled", bed_full_sweep = "BED full sweep", csr_current = "CSR current")
 
-input_identity <- list(schema_version = 1L, prior_coordinate_hash = coordinate$input_hash,
+input_identity <- list(diagnostic_schema_version = 2L,
+  prior_coordinate_hash = coordinate$semantic_hash,
   simulation_seed = 7002L, phenotype_hash = phenotype_hash, effect_hash = effect_hash,
-  sample_hash = sample_hash, marker_hash = marker_hash, qgdata_sha = config$example_data$commit,
-  sblr_sha = sblr_sha, ld_prefix = normalizePath(ld_prefix, winslash = "/", mustWork = FALSE),
-  ld_hashes = ld_hashes, common = common, schedulers = schedulers,
-  source_md5 = unname(tools::md5sum(source_files)))
-input_hash <- hash_object(input_identity)
+  sample_hash = sample_hash, marker_hash = marker_hash, qgdata_sha = config$data$example_data$commit,
+  sblr_sha = sblr_sha, ld_prefix = ld_prefix,
+  ld_hashes = ld_hashes, common = common, schedulers = schedulers)
+input_identity <- benchmark_semantic_checkpoint_identity(
+  "study06-sbayesr-scheduler",input_identity)
+input_hash <- benchmark_semantic_checkpoint_hash(input_identity)
 input_checkpoint <- file.path(local_root, "inputs", "coordinate_validation.rds")
 input_reused <- FALSE
 if (file.exists(input_checkpoint)) {
-  old <- readRDS(input_checkpoint)
-  if (!identical(old$input_hash, input_hash)) stop("Input checkpoint identity differs; refusing reuse.", call. = FALSE)
+  old <- benchmark_load_semantic_checkpoint(input_checkpoint,input_hash)$value
   input_reused <- TRUE
-} else atomic_rds(list(input_hash = input_hash, identity = input_identity,
+} else atomic_rds(list(checkpoint_schema="sblrbench-semantic-v2",
+  semantic_hash=input_hash,input_hash = input_hash, identity = input_identity,
   validation = list(oracle = oracle, realized_h2 = realized_h2, summary_stats_exact = TRUE)), input_checkpoint)
 
 fit_one <- function(id) {
-  identity <- list(input_hash = input_hash, variant = id, common = common, scheduler = schedulers[[id]],
-    backend = if (grepl("^bed", id)) "stblr_bed/bayesr" else "stblr_csr/sbayesr")
-  identity_hash <- hash_object(identity)
+  identity <- benchmark_semantic_checkpoint_identity(
+    "study06-sbayesr-scheduler-fit",
+    list(coordinate_hash = input_hash, scenario = "sparse_mixture", replicate = 1L,
+      trait = config$data$trait, sample_hash = sample_hash, marker_hash = marker_hash,
+      phenotype_hash = phenotype_hash, true_effect_hash = effect_hash,
+      ld_prefix = ld_prefix,
+      ld_file_hashes = ld_hashes, variant = id, method_controls = common,
+      scheduler_controls = schedulers[[id]], simulation_seed = 7002L,
+      fit_seed = 40104L, chain_seeds = chain_seeds, sblr_sha = sblr_sha,
+      qgdata_sha = config$data$example_data$commit,
+      backend = if (grepl("^bed", id)) "stblr_bed/bayesr" else "stblr_csr/sbayesr"))
+  identity_hash <- benchmark_semantic_checkpoint_hash(identity)
   path <- file.path(local_root, "fits", paste0(id, ".rds"))
   if (file.exists(path)) {
-    checkpoint <- readRDS(path)
-    if (!identical(checkpoint$identity_hash, identity_hash))
-      stop("Fit checkpoint identity differs for ", id, "; refusing reuse.", call. = FALSE)
+    checkpoint <- benchmark_load_semantic_checkpoint(path, identity_hash)$value
     checkpoint$checkpoint_reused <- TRUE
     log_line("reused fit checkpoint ", id)
     return(checkpoint)
@@ -196,7 +215,8 @@ fit_one <- function(id) {
   }, warning = function(w) { warnings <<- c(warnings, conditionMessage(w)); invokeRestart("muffleWarning") },
      message = function(m) { messages <<- c(messages, conditionMessage(m)); invokeRestart("muffleMessage") })
   elapsed <- unname(proc.time()[["elapsed"]] - t0)
-  checkpoint <- list(schema_version = 1L, identity_hash = identity_hash, identity = identity,
+  checkpoint <- list(checkpoint_schema = "sblrbench-semantic-v2", semantic_hash = identity_hash,
+    identity_hash = identity_hash, identity = identity,
     fit = fit, elapsed_seconds = elapsed, warnings = warnings, messages = messages,
     checkpoint_reused = FALSE, completed_at = format(Sys.time(), tz = "UTC", usetz = TRUE))
   atomic_rds(checkpoint, path)
@@ -449,7 +469,7 @@ write_csv(design, "design.csv")
 provenance <- data.frame(item = c("sblrbench_starting_head", "sblr_version", "sblr_sha", "qgdata_sha", "R_version",
   "platform", "prior_coordinate_hash", "phenotype_hash", "effect_hash", "sample_order_hash", "marker_order_hash", "ld_prefix"),
   value = c("39c8596ddd810d6fee43bd7f7906d20cbbe52440", as.character(utils::packageVersion("sblr")), sblr_sha,
-    config$example_data$commit, R.version.string, R.version$platform, coordinate$input_hash, phenotype_hash, effect_hash,
+    config$data$example_data$commit, R.version.string, R.version$platform, coordinate$semantic_hash, phenotype_hash, effect_hash,
     sample_hash, marker_hash, normalizePath(ld_prefix, winslash = "/", mustWork = FALSE)))
 write_csv(provenance, "provenance.csv")
 
@@ -528,7 +548,7 @@ maximum_relative_mcse <- max(convergence_summary$relative_mcse, na.rm = TRUE)
 report <- c("# BED versus CSR BayesR scheduler diagnostic", "", "## Scientific question", "",
   "This one-replicate developer diagnostic asks whether adaptive packed-BED marker scheduling explains the apparent BED BayesR advantage over CSR SBayesR. It is diagnostic rather than definitive.", "",
   "## Code-review motivation", "", "Scheduled BED performs mandatory full sweeps periodically and adaptively revisits active, candidate, and due markers between them. Full-sweep BED and CSR update every marker every iteration.", "",
-  "## Exact coordinate and provenance", "", paste0("Study 03 `sparse_mixture`, replicate 1, trait 1; n=5,000; m=37,991; 50 causal markers; h2=0.30; simulation seed 7,002. Installed `sblr` ", sblr_desc$Version, " at `", sblr_sha, "`; qgdata `", config$example_data$commit, "`."), "",
+  "## Exact coordinate and provenance", "", paste0("Study 03 `sparse_mixture`, replicate 1, trait 1; n=5,000; m=37,991; 50 causal markers; h2=0.30; simulation seed 7,002. Installed `sblr` ", sblr_desc$Version, " at `", sblr_sha, "`; qgdata `", config$data$example_data$commit, "`."), "",
   "## Variants and scheduler", "", md_table(scheduler_design[, c("label", "full_sweep_every", "null_skip_base", "null_skip_max", "candidate_threshold", "candidate_lifetime", "nominal_mandatory_full_sweeps")], 4), "",
   "Actual marker-update counts are unavailable from the public fit object. Mandatory full-sweep counts do not include active, candidate, or due-marker updates between scheduled sweeps.", "",
   "## Prior equality", "", paste0("Resolved numerical prior equality: **", if (prior_equal) "passed" else "failed", "**. Strict all-route fit-metadata confirmation: **", if (strict_prior_metadata_confirmation) "passed" else "unavailable", "**. The CSR public fit metadata omits `B`, `E`, `ssb_prior`, and `sse_prior`; its row is recomputed with the exact installed resolver from the recorded common fit inputs."), "", md_table(prior_resolution[, c("label", "B", "E", "ssb_prior", "sse_prior", "initial_mixture_weight", "resolved_value_source")], 8), "",

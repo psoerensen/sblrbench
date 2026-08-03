@@ -1,7 +1,7 @@
 # Plain Study 02 method translation. There is intentionally no global registry
 # or method class beyond the existing small sblrbench method contract.
 
-read_prediction_recommendations <- function(spec) {
+read_benchmark_recommendations <- function(spec) {
   path <- benchmark_spec_path(spec,
     spec$controls$benchmark$recommendation_source)
   if (!file.exists(path))
@@ -28,7 +28,7 @@ read_prediction_recommendations <- function(spec) {
   x[match(expected$method, x$method), , drop = FALSE]
 }
 
-resolve_prediction_methods <- function(spec) {
+resolve_benchmark_methods <- function(spec) {
   validate_benchmark_spec(spec)
   lapply(seq_along(spec$methods), function(i) {
     method <- spec$methods[[i]]
@@ -38,14 +38,14 @@ resolve_prediction_methods <- function(spec) {
   })
 }
 
-prediction_method_controls <- function(spec, method_id, profile, fit_seed,
+benchmark_method_controls <- function(spec, method_id, profile, fit_seed,
                                        chain_seeds) {
   resolve_benchmark_profile(spec, profile)
   if (!method_id %in% names(spec$methods))
-    stop("Unknown Study 02 method: ", method_id, call. = FALSE)
+    stop("Unknown benchmark method: ", method_id, call. = FALSE)
   method <- spec$methods[[method_id]]
   if (identical(profile, "benchmark")) {
-    recommendation <- read_prediction_recommendations(spec)
+    recommendation <- read_benchmark_recommendations(spec)
     row <- recommendation[recommendation$method == method_id, , drop = FALSE]
     controls <- list(nit = as.integer(row$recommended_nit_argument),
       nburn = as.integer(row$recommended_nburn),
@@ -101,4 +101,22 @@ predict_prediction_result <- function(result, simulation, test_simulation,
     simulation$data$marker_ids), simulation$data$trait_names)
   prediction <- scaled_test %*% effects
   add_sblrbench_predictions(result, prediction, test_simulation)
+}
+
+fit_parameter_estimation_method <- function(method, controls, simulation,
+                                             stats, glist) {
+  capabilities <- c("posterior_effects","pip","scalar_trait",
+    if(identical(method$representation,"BED")) "individual_level" else
+      "summary_statistics")
+  method_spec <- new_sblr_native_method(method$id,method$label,
+    method$interface,method$native_method,capabilities=capabilities,
+    metadata=list(task="parameter_estimation"))
+  inputs <- if(identical(method$representation,"BED"))
+    list(y=simulation$truth$phenotypes,Glist=glist,
+      rows=seq_len(nrow(simulation$truth$phenotypes))) else
+    list(stats=stats,Glist=glist)
+  result <- run_sblrbench_method(method_spec,fit_inputs=inputs,
+    controls=controls)
+  validate_sblrbench_result(result,simulation)
+  result
 }

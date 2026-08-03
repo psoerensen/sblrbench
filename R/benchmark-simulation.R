@@ -98,3 +98,47 @@ prepare_prediction_simulations <- function(spec, profile, data) {
       test_simulation = test_simulation, oracle = oracle, stats = stats)
   })
 }
+
+parameter_estimand_truth <- function(simulation, spec) {
+  effects <- simulation$truth$effects[, 1L]
+  causal <- effects != 0
+  vg <- stats::var(simulation$truth$genetic_values[, 1L])
+  ve <- stats::var(simulation$truth$residuals[, 1L])
+  values <- c(sum(causal)/length(effects), mean(effects[causal]^2),
+    sum(effects^2), vg, ve, vg/(vg+ve))
+  data.frame(study=spec$study,scenario=simulation$scenario$architecture,
+    architecture=simulation$scenario$architecture,
+    replicate=simulation$scenario$replicate,
+    estimand_id=spec$estimands$estimand_id,truth=values,
+    truth_type="realized_quantity",
+    truth_definition=spec$estimands$truth_source,
+    source="validated simulation on the fitted analysis scale",status="ok",
+    reason="",stringsAsFactors=FALSE)
+}
+
+parameter_summary_stats <- function(simulation,glist,spec) {
+  stats <- sblr::make_summary_stats(Glist=glist,
+    y=simulation$truth$phenotypes,chr=spec$data$chromosome,
+    rows=seq_len(nrow(simulation$truth$phenotypes)),scale=TRUE,nthreads=1L)
+  if(!identical(stats$marker_names,simulation$data$marker_ids) ||
+     !identical(stats$trait_names,spec$data$trait) ||
+     !identical(as.integer(stats$n),nrow(simulation$truth$phenotypes)))
+    stop("Parameter summary statistics are not aligned.",call.=FALSE)
+  stats
+}
+
+prepare_parameter_estimation_simulations <- function(spec, profile, data) {
+  coordinates <- benchmark_prediction_simulation_coordinates(spec, profile)
+  lapply(seq_len(nrow(coordinates)), function(i) {
+    coordinate <- as.list(coordinates[i,,drop=FALSE])
+    simulation <- simulate_prediction_architecture(coordinate, data$scaled,
+      spec)
+    oracle <- check_oracle_genetic_values(simulation,
+      tolerance=spec$validation$oracle_tolerance)
+    if (!oracle$ok) stop("Parameter-estimation simulation oracle failed.",
+      call.=FALSE)
+    stats <- parameter_summary_stats(simulation,data$ld_glist,spec)
+    list(coordinate=coordinate,simulation=simulation,oracle=oracle,stats=stats,
+      truth=parameter_estimand_truth(simulation,spec))
+  })
+}

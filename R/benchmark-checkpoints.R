@@ -32,3 +32,48 @@ benchmark_load_checkpoint <- function(path, expected_hash = NULL,
       call. = FALSE)
   list(value = value, reused = TRUE, reason = "validated")
 }
+
+benchmark_semantic_checkpoint_identity <- function(diagnostic_id,
+                                                    scientific_inputs) {
+  .benchmark_scalar_string(diagnostic_id, "diagnostic_id")
+  if (!is.list(scientific_inputs) || is.null(names(scientific_inputs)) ||
+      any(!nzchar(names(scientific_inputs))) ||
+      anyDuplicated(names(scientific_inputs)))
+    stop("scientific_inputs must be a uniquely named list.", call. = FALSE)
+  forbidden <- c("source_hash", "source_file_hash", "source_files",
+    "script_hash", "driver_hash", "script_path", "source_path",
+    "report_path", "documentation_path", "working_directory", "timestamp")
+  field_names <- function(x) {
+    if (!is.list(x)) return(character())
+    c(names(x), unlist(lapply(x, field_names), use.names = FALSE))
+  }
+  found <- intersect(unique(field_names(scientific_inputs)), forbidden)
+  if (length(found))
+    stop("Semantic checkpoint identity cannot contain: ",
+      paste(found, collapse = ", "), ".", call. = FALSE)
+  list(checkpoint_schema = "sblrbench-semantic-v2",
+    diagnostic_id = diagnostic_id, scientific_inputs = scientific_inputs)
+}
+
+benchmark_semantic_checkpoint_hash <- function(identity) {
+  if (!is.list(identity) ||
+      !identical(identity$checkpoint_schema, "sblrbench-semantic-v2"))
+    stop("Semantic checkpoint identity must use sblrbench-semantic-v2.",
+      call. = FALSE)
+  benchmark_hash_object(identity)
+}
+
+benchmark_load_semantic_checkpoint <- function(path, expected_hash,
+                                                validator = NULL) {
+  if (!file.exists(path))
+    return(list(value = NULL, reused = FALSE, reason = "missing"))
+  value <- try(readRDS(path), silent = TRUE)
+  if (inherits(value, "try-error"))
+    stop("Checkpoint cannot be read: ", path, call. = FALSE)
+  if (!identical(value$checkpoint_schema, "sblrbench-semantic-v2"))
+    stop(paste("Legacy source-hashed diagnostic checkpoint detected.",
+      "This checkpoint schema has been retired and is not reusable under",
+      "the shared semantic checkpoint framework."), call. = FALSE)
+  benchmark_load_checkpoint(path, expected_hash, hash_field = "semantic_hash",
+    validator = validator)
+}

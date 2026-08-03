@@ -30,8 +30,9 @@ parse_benchmark_cli_arguments <- function(args) {
   if (length(missing))
     stop("Missing required command-line options: ",
       paste(missing, collapse = ", "), ".", call. = FALSE)
-  if (!identical(options[["--study"]], "02_prediction"))
-    stop("Unsupported --study; only `02_prediction` is implemented.",
+  supported_studies <- c("02_prediction","03_parameter_estimation")
+  if (!options[["--study"]] %in% supported_studies)
+    stop("Unsupported --study; choose `02_prediction` or `03_parameter_estimation`.",
       call. = FALSE)
   if (!options[["--profile"]] %in% c("workshop", "benchmark"))
     stop("--profile must be `workshop` or `benchmark`.", call. = FALSE)
@@ -89,14 +90,17 @@ parse_benchmark_cli_arguments <- function(args) {
     coordinate_count = nrow(coordinates),
     scenarios = names(spec$scenarios), methods = names(spec$methods),
     replicate_count = resolve_benchmark_profile(spec, profile)$replicate_count,
-    split = spec$split, marker_policy = spec$markers,
+    split = if(is.null(spec$split)) NULL else spec$split,
+    marker_policy = spec$markers,
     scientific_controls = spec$controls, seeds = spec$seeds,
     qgdata = spec$data$example_data,
     packages = list(sblr = package, expected = spec$packages),
     data_summary = if (is.null(data)) NULL else list(
       sample_count = length(data$sample_ids),
-      training_sample_count = length(data$split$train_ids),
-      test_sample_count = length(data$split$test_ids),
+      training_sample_count = if(is.null(data$split)) NULL else
+        length(data$split$train_ids),
+      test_sample_count = if(is.null(data$split)) NULL else
+        length(data$split$test_ids),
       marker_count = length(data$markers$marker_ids),
       sample_order_hash = benchmark_hash_object(data$sample_ids),
       marker_order_hash = benchmark_hash_object(data$markers$marker_ids)),
@@ -114,6 +118,95 @@ parse_benchmark_cli_arguments <- function(args) {
 
 .prediction_bundle_key <- function(scenario, replicate) {
   paste(scenario, as.integer(replicate), sep = "::")
+}
+
+.run_parameter_estimation <- function(spec,profile,resolved,coordinates,
+                                      methods,paths,resume) {
+  data <- prepare_parameter_estimation_data(spec,paths$root)
+  bundles <- prepare_parameter_estimation_simulations(spec,profile,data)
+  keys <- vapply(bundles,function(x) .prediction_bundle_key(
+    x$coordinate$scenario,x$coordinate$replicate),character(1))
+  names(bundles) <- keys
+  dispatch <- getOption("sblrbench.parameter_fit_dispatch",
+    fit_parameter_estimation_method)
+  if(!is.function(dispatch)) stop("Parameter fit dispatch must be a function.",
+    call.=FALSE)
+  status_rows <- runtime_rows <- estimate_rows <- marker_rows <- list()
+  convergence_rows <- list()
+  for(i in seq_len(nrow(coordinates))) {
+    coordinate <- coordinates[i,,drop=FALSE]; cl <- as.list(coordinate)
+    bundle <- bundles[[.prediction_bundle_key(coordinate$scenario,
+      coordinate$replicate)]]; method <- methods[[coordinate$method]]
+    controls <- benchmark_method_controls(spec,coordinate$method,profile,
+      coordinate$fit_seed,coordinate$chain_seeds[[1L]])
+    identity <- list(schema_version=1L,study=spec$study,coordinate=cl,
+      sample_ids=data$sample_ids,marker_ids=data$markers$marker_ids,
+      simulation_effects=bundle$simulation$truth$effects,
+      simulation_phenotypes=bundle$simulation$truth$phenotypes,
+      controls=controls,package_sha=spec$packages$sblr$sha,
+      qgdata_commit=spec$data$example_data$commit)
+    input_hash <- benchmark_hash_object(identity)
+    checkpoint <- .prediction_checkpoint_path(paths,cl)
+    result <- NULL; reused <- FALSE; reason <- ""
+    if(isTRUE(resume) && file.exists(checkpoint)) {
+      loaded <- benchmark_load_checkpoint(checkpoint,input_hash,
+        validator=function(x) identical(x$package_sha,spec$packages$sblr$sha) &&
+          identical(x$coordinate,cl) && inherits(x$result,"sblrbench_result"))
+      result <- loaded$value$result; reused <- TRUE
+    } else {
+      result <- tryCatch(dispatch(method=method,controls=controls,
+        simulation=bundle$simulation,stats=bundle$stats,glist=data$ld_glist),
+        error=function(e) {reason <<- conditionMessage(e); NULL})
+      if(!is.null(result)) benchmark_atomic_save_rds(list(input_hash=input_hash,
+        package_sha=spec$packages$sblr$sha,coordinate=cl,result=result),checkpoint,
+        compress=FALSE,temporary_prefix=".parameter-fit-")
+    }
+    ok <- !is.null(result)
+    status_rows[[i]] <- data.frame(study=spec$study,
+      scenario=coordinate$scenario,replicate=coordinate$replicate,
+      method=coordinate$method,status=if(ok)"ok" else "failed",reason=reason,
+      reused=reused,input_hash=input_hash,stringsAsFactors=FALSE)
+    runtime_rows[[i]] <- data.frame(study=spec$study,
+      scenario=coordinate$scenario,replicate=coordinate$replicate,
+      method=coordinate$method,elapsed_seconds=if(ok)extract_runtime(result) else NA_real_,
+      status=if(ok)"ok" else "failed",reason=reason,reused=reused,
+      stringsAsFactors=FALSE)
+    if(ok) {
+      draws <- extract_parameter_draws(result,coordinate$method,spec$estimands,
+        length(data$markers$marker_ids),expected_chains=controls$nchains)
+      summary <- complete_parameter_summary(summarise_parameter_draws(draws),
+        spec$estimands,coordinate$method,controls$nchains)
+      estimate_rows[[i]] <- parameter_recovery_metrics(summary,bundle$truth,
+        method,spec$estimands,spec$validation$relative_error_tolerance)
+      marker_rows[[i]] <- prediction_marker_table(result,coordinate$scenario,
+        coordinate$replicate,coordinate$method)
+      convergence_rows[[i]] <- .prediction_convergence_row(result,cl)
+    }
+  }
+  status <- .benchmark_bind_rows(status_rows); runtime <- .benchmark_bind_rows(runtime_rows)
+  estimates <- .benchmark_bind_rows(estimate_rows)
+  marker_results <- .benchmark_bind_rows(marker_rows)
+  convergence <- .benchmark_bind_rows(convergence_rows)
+  truth <- .benchmark_bind_rows(lapply(bundles,`[[`,"truth"))
+  metrics <- if(is.null(estimates)) NULL else parameter_recovery_summary(estimates)
+  paired <- if(is.null(estimates)) NULL else parameter_paired_differences(estimates)
+  paired_summary <- if(is.null(paired)) NULL else parameter_paired_summary(paired)
+  files <- list(
+    fit_status=.benchmark_write_csv(status,file.path(paths$tables,"fit_status.csv")),
+    simulation_truth=.benchmark_write_csv(truth,file.path(paths$tables,"simulation_truth.csv")),
+    estimates=.benchmark_write_csv(estimates,file.path(paths$tables,"estimates.csv")),
+    parameter_metrics=.benchmark_write_csv(metrics,file.path(paths$tables,"parameter_metrics.csv")),
+    marker_results=.benchmark_write_csv(marker_results,file.path(paths$tables,"marker_results.csv")),
+    convergence=.benchmark_write_csv(convergence,file.path(paths$tables,"convergence.csv")),
+    runtime=.benchmark_write_csv(runtime,file.path(paths$tables,"runtime.csv")),
+    paired=.benchmark_write_csv(paired,file.path(paths$tables,"paired_parameter_differences.csv")),
+    paired_summary=.benchmark_write_csv(paired_summary,file.path(paths$tables,"paired_comparison_summary.csv")))
+  manifest <- .prediction_manifest(spec,profile,paths,coordinates,FALSE,status,data)
+  .write_prediction_manifest(manifest,paths$manifest)
+  writeLines(benchmark_session_information(),paths$session_info)
+  list(spec=spec,paths=c(paths,files),status=status,truth=truth,
+    estimates=estimates,marker_results=marker_results,metrics=metrics,
+    convergence=convergence,runtime=runtime)
 }
 
 .prediction_checkpoint_identity <- function(spec, coordinate, controls,
@@ -189,7 +282,7 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
     stop("validate_only must be TRUE or FALSE.", call. = FALSE)
   resolved <- resolve_benchmark_profile(spec, profile)
   coordinates <- benchmark_seeds(spec, profile)
-  methods <- resolve_prediction_methods(spec)
+  methods <- resolve_benchmark_methods(spec)
   names(methods) <- vapply(methods, `[[`, character(1), "id")
   benchmark_assert_package_sha("sblr", spec$packages$sblr$sha)
   if (!identical(as.character(utils::packageVersion("sblr")),
@@ -212,6 +305,10 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
       runtime = NULL))
   }
 
+  if(identical(spec$task,"parameter_estimation"))
+    return(.run_parameter_estimation(spec,profile,resolved,coordinates,methods,
+      paths,resume))
+
   data <- prepare_prediction_data(spec, output_dir)
   bundles <- prepare_prediction_simulations(spec, profile, data)
   bundle_keys <- vapply(bundles, function(x) .prediction_bundle_key(
@@ -232,7 +329,7 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
     bundle <- bundles[[.prediction_bundle_key(coordinate$scenario,
       coordinate$replicate)]]
     method <- methods[[coordinate$method]]
-    controls <- prediction_method_controls(spec, coordinate$method, profile,
+    controls <- benchmark_method_controls(spec, coordinate$method, profile,
       coordinate$fit_seed, coordinate$chain_seeds[[1L]])
     identity <- .prediction_checkpoint_identity(spec, coordinate_list,
       controls, bundle$simulation, data)

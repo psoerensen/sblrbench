@@ -26,7 +26,7 @@ if (!requireNamespace("devtools", quietly = TRUE))
 devtools::load_all(root, quiet = TRUE)
 
 options <- sblrbench:::parse_benchmark_cli_arguments(args)
-spec <- read_benchmark_spec(file.path(root, "studies", "02_prediction",
+spec <- read_benchmark_spec(file.path(root, "studies", options$study,
   "spec.R"))
 result <- run_benchmark(spec = spec, output_dir = options$output_dir,
   profile = options$profile, resume = options$resume,

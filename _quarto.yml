@@ -10,7 +10,7 @@ project:
     - studies/index.qmd
     - studies/01_finemapping/fine-mapping.qmd
     - studies/02_prediction/report.qmd
-    - studies/03_parameter_estimation/parameter-estimation.qmd
+    - studies/03_parameter_estimation/report.qmd
     - studies/04_convergence/convergence.qmd
     - studies/05_annotation_models/annotation-convergence.qmd
     - studies/06_ld_operator/low-rank-operator.qmd

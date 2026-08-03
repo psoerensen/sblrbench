@@ -82,3 +82,32 @@ validate_prediction_capsule <- function(path, spec) {
       call. = FALSE)
   invisible(TRUE)
 }
+
+validate_parameter_capsule <- function(path,spec) {
+  required <- c("README.md","benchmark_manifest.json","estimand_registry.csv",
+    "simulation_truth.csv","parameter_estimates.csv",
+    "parameter_recovery_summary.csv","paired_parameter_differences.csv",
+    "paired_comparison_summary.csv","computational_summary.csv",
+    "replicate_status.csv","seed_registry.csv","example_data_manifest.csv",
+    "source_files.csv","session_info.txt","checksums.csv")
+  benchmark_validate_capsule_checksums(path,required)
+  manifest <- jsonlite::read_json(file.path(path,"benchmark_manifest.json"),
+    simplifyVector=TRUE)
+  status <- utils::read.csv(file.path(path,"replicate_status.csv"),
+    stringsAsFactors=FALSE)
+  estimates <- utils::read.csv(file.path(path,"parameter_estimates.csv"),
+    stringsAsFactors=FALSE)
+  expected <- benchmark_coordinates(spec,"benchmark")
+  key <- function(x) paste(x[[if("scenario"%in%names(x))"scenario" else
+    "architecture"]],x$replicate,x$method,sep="::")
+  if(nrow(status)!=nrow(expected)||anyDuplicated(key(status))||
+     !setequal(key(status),key(expected))||any(status$status!="ok")||
+     manifest$successful_fit_count!=40L||manifest$replicate_count!=5L)
+    stop("Parameter capsule fit grid is invalid.",call.=FALSE)
+  available <- estimates$status=="ok"
+  if(!setequal(estimates$estimand_id,spec$estimands$estimand_id)||
+     any(!is.finite(estimates$truth))||
+     any(!is.finite(estimates$posterior_mean[available])))
+    stop("Parameter capsule estimands are invalid.",call.=FALSE)
+  invisible(TRUE)
+}

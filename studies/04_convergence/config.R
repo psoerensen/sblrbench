@@ -1,14 +1,21 @@
-.study04_project_root <- if (file.exists(file.path("studies", "03_parameter_estimation", "config.R"))) "." else file.path("..", "..")
-.study04_study03_config <- source(file.path(.study04_project_root, "studies", "03_parameter_estimation", "config.R"), local = TRUE)$value
+.study04_project_root <- if (file.exists(file.path("studies", "03_parameter_estimation", "spec.R"))) "." else file.path("..", "..")
+.study04_spec_env <- new.env(parent=baseenv())
+sys.source(file.path(.study04_project_root,"studies","03_parameter_estimation",
+  "spec.R"),envir=.study04_spec_env)
+.study04_parameter_spec <- .study04_spec_env$spec
 
 list(
   study = "04_convergence", task = "single_trait_multichain_convergence",
+  parameter_spec = .study04_parameter_spec,
   profile = Sys.getenv("SBLR_BENCH_PROFILE", "development"),
   development_settings = TRUE, chr = 1L, trait = "trait1", sample_limit = NULL,
-  example_data = .study04_study03_config$example_data,
-  qc = .study04_study03_config$qc,
-  sparse_ld = .study04_study03_config$sparse_ld,
-  simulation = .study04_study03_config$simulation,
+  example_data = .study04_parameter_spec$data$example_data,
+  qc = .study04_parameter_spec$markers$qc,
+  sparse_ld = .study04_parameter_spec$data$sparse_ld,
+  simulation = list(h2=.study04_parameter_spec$controls$simulation$h2,
+    n_causal=.study04_parameter_spec$controls$simulation$n_causal,
+    base_seed=.study04_parameter_spec$seeds$simulation_base,
+    architectures=.study04_parameter_spec$scenarios),
   methods = c("st_bed_bayesc", "st_bed_bayesr", "st_csr_sbayesc", "st_csr_sbayesr"),
   matched_grid = data.frame(architecture = c("sparse_homogeneous", "sparse_homogeneous",
     "sparse_mixture", "sparse_mixture"), method = c("st_bed_bayesc", "st_csr_sbayesc",
@@ -28,5 +35,5 @@ list(
   thresholds = list(rhat = 1.01, ess_bulk = 400, ess_tail = 400,
     relative_mcse = 0.05, chain_count = 4L, standardized_mean_shift = 0.10),
   seeds = list(base_fit = 40000L, chain_stride = 100L),
-  priors = .study04_study03_config$priors,
+  priors = .study04_parameter_spec$controls$priors,
   oracle_tolerance = 1e-10)

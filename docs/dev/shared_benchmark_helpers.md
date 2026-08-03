@@ -27,6 +27,14 @@ Parameter-estimation, fine-mapping, annotation, operator, and MTBLR interfaces
 remain deferred until those studies migrate. There are no Study 02
 compatibility wrappers; removal is complete because all callers are internal.
 
+## Study 03 parameter estimation
+
+`benchmark-spec.R` and `benchmark-execution.R` explicitly support the
+`parameter_estimation` task. Full-sample data and simulations reuse the Study 02
+mechanics. `benchmark-extraction.R` owns scalar trace extraction and draw-wise
+nonlinear transformations. `metrics-parameter-estimation.R` owns the frozen
+bias, error, coverage, RMSE, MAE, and paired-comparison definitions.
+
 ## `R/benchmark-reporting.R`
 
 - Responsibilities: method/architecture labels and order, factors, plot
@@ -67,15 +75,19 @@ compatibility wrappers; removal is complete because all callers are internal.
 - Responsibilities: serialized input hashing, atomic RDS replacement, safe RDS
   load, strict hash comparison, and caller-supplied semantic validation.
 - Authoritative functions: `benchmark_hash_object()`,
-  `benchmark_atomic_save_rds()`, and `benchmark_load_checkpoint()`.
+  `benchmark_atomic_save_rds()`, `benchmark_load_checkpoint()`,
+  `benchmark_semantic_checkpoint_identity()`,
+  `benchmark_semantic_checkpoint_hash()`, and
+  `benchmark_load_semantic_checkpoint()`.
 - Compatibility: `.study06_atomic_rds()` and `.study06v2_atomic_rds()` preserve
   current signatures; Study 06 v2 preserves its exact identity payload and
   delegates only digest/save/load mechanics.
 - Current callers: Study 06, Study 06 v2, and focused tests.
-- Deferred callers: paused Study 07; supplemental diagnostic scripts whose
-  source hashes are part of completed checkpoint identities; Study 05 CSV
-  status checkpoints.
-- Limitation: naming and scientific identity construction remain local.
+- Current callers also include the Study 03 SBayesR comparison and Study 06
+  supplemental scheduler and exact/sparse diagnostics. Their semantic schema
+  is `sblrbench-semantic-v2`; legacy source-hashed caches are rejected.
+- Deferred callers: paused Study 07 and Study 05 CSV status checkpoints.
+- Limitation: diagnostic IDs and scientific payload construction remain local.
 - Wrapper removal: after each study migration demonstrates byte-compatible
   checkpoint names and identities.
 

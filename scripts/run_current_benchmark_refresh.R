@@ -172,12 +172,12 @@ run_targets <- function(study, profile, output_dir, store_name, script = "_targe
   targets::tar_make(script = script, store = store, callr_function = NULL)
 }
 
-run_prediction <- function(output_dir) {
+run_common_benchmark <- function(study,output_dir) {
   preflight()
   devtools::load_all(root, quiet = TRUE, helpers = FALSE,
     export_all = FALSE)
   verify_package()
-  spec <- read_benchmark_spec(file.path(root, "studies", "02_prediction",
+  spec <- read_benchmark_spec(file.path(root, "studies", study,
     "spec.R"))
   run_benchmark(spec, output_dir = output_dir, profile = "benchmark",
     resume = resume, validate_only = FALSE)
@@ -191,9 +191,10 @@ run_phase <- function(x) switch(x,
   `study04-validation` = run_targets("04_convergence", "five_replicate_validation",
     file.path(refresh_root, "study04", "validation"), "study04-validation",
     script = file.path("studies", "04_convergence", "validation_targets.R")),
-  `study03` = run_targets("03_parameter_estimation", "five_replicate_development",
-    file.path(refresh_root, "study03"), "study03"),
-  `study02` = run_prediction(file.path(refresh_root, "study02")),
+  `study03` = run_common_benchmark("03_parameter_estimation",
+    file.path(refresh_root,"study03")),
+  `study02` = run_common_benchmark("02_prediction",
+    file.path(refresh_root,"study02")),
   `study01` = {
     run_targets("01_finemapping", "pilot",
       file.path(refresh_root, "study01"), "study01",

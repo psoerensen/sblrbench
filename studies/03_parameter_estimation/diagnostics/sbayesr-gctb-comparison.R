@@ -32,6 +32,7 @@ find_root <- function(path = getwd()) {
 
 root <- find_root()
 setwd(root)
+devtools::load_all(root,quiet=TRUE)
 Sys.setenv(OMP_NUM_THREADS = "4", OMP_THREAD_LIMIT = "4",
   OPENBLAS_NUM_THREADS = "1", MKL_NUM_THREADS = "1",
   VECLIB_MAXIMUM_THREADS = "1")
@@ -64,25 +65,28 @@ sblr_sha <- sblr_description$RemoteSha %||% sblr_description$GithubSHA1 %||% NA_
 if (!identical(sblr_sha, required_sblr_sha))
   stop("Installed sblr SHA is ", sblr_sha, "; required ", required_sblr_sha, call. = FALSE)
 
-source_files <- c(
+setup_files <- c(
   "studies/01_finemapping/setup_example_data.R",
   "studies/five_replicate_helpers.R",
-  "studies/03_parameter_estimation/config.R",
-  "studies/03_parameter_estimation/simulation.R",
-  "studies/03_parameter_estimation/methods.R",
-  "studies/03_parameter_estimation/pilot.R",
+  "studies/03_parameter_estimation/spec.R",
   "studies/03_parameter_estimation/diagnostics/sbayesr-gctb-comparison.R"
 )
-for (file in source_files[1:2]) sys.source(file, envir = environment())
-config <- source(source_files[3], local = TRUE)$value
-for (file in source_files[4:6]) sys.source(file, envir = environment())
-config$profile <- "five_replicate_development"
+for (file in setup_files[1:2]) sys.source(file, envir = environment())
+config <- read_benchmark_spec(setup_files[3])
+legacy_config <- list(study=config$study,trait=config$data$trait,
+  chr=config$data$chromosome,sample_limit=config$data$sample_limit,
+  example_data=config$data$example_data,qc=config$markers$qc,
+  sparse_ld=config$data$sparse_ld,
+  simulation=list(h2=config$controls$simulation$h2,
+    n_causal=config$controls$simulation$n_causal,
+    base_seed=config$seeds$simulation_base,architectures=config$scenarios),
+  oracle_tolerance=config$validation$oracle_tolerance)
 
 capsule <- file.path("results", "reference", "03_parameter_estimation", "current")
 capsule_manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"),
   simplifyVector = TRUE)
 if (!identical(capsule_manifest$sblr_commit, required_sblr_sha) ||
-    !identical(capsule_manifest$qgdata_commit, config$example_data$commit))
+    !identical(capsule_manifest$qgdata_commit, config$data$example_data$commit))
   stop("Current Study 03 capsule provenance does not match the diagnostic contract.", call. = FALSE)
 
 seed_registry <- utils::read.csv(file.path(capsule, "seed_registry.csv"), check.names = FALSE)
@@ -105,62 +109,90 @@ variants <- list(
     rep(truth_active_probability / 3, 3)), alpha = rep(1, 4), adjE = 1.0, updatePi = TRUE)
 )
 
-input_identity <- list(
+coordinate_contract <- list(
   coordinate_builder_version = 1L,
   study = "03_parameter_estimation", architecture = "sparse_mixture", replicate = 1L,
-  trait = config$trait, sample_count = capsule_manifest$analysis_sample_count,
+  trait = config$data$trait, sample_count = capsule_manifest$analysis_sample_count,
   marker_count = capsule_manifest$canonical_marker_count,
-  causal_count = config$simulation$n_causal, target_h2 = config$simulation$h2,
+  causal_count = config$controls$simulation$n_causal,
+  target_h2 = config$controls$simulation$h2,
   data_selection_seed = unique(seed_rows$data_selection_seed),
   architecture_seed = unique(seed_rows$architecture_seed),
   simulation_seed = unique(seed_rows$simulation_seed), fit_seed = unique(seed_rows$fit_seed),
   chain_seeds = seed_rows$chain_seed, sblr_sha = sblr_sha,
-  qgdata_sha = config$example_data$commit, qc = config$qc, sparse_ld = config$sparse_ld,
-  source_md5 = unname(tools::md5sum(source_files[1:6]))
+  qgdata_sha = config$data$example_data$commit, qc = config$markers$qc,
+  sparse_ld = config$data$sparse_ld,
+  diagnostic_schema_version = 2L
 )
-input_hash <- digest::digest(input_identity, algo = "sha256", serialize = TRUE)
+coordinate_identity <- function(x) {
+  simulation <- x$simulation
+  summary_stats <- x$summary_stats
+  benchmark_semantic_checkpoint_identity(
+    "study03-sbayesr-gctb-comparison",
+    c(coordinate_contract, list(
+      sample_hash = benchmark_hash_object(x$sample_ids),
+      marker_hash = benchmark_hash_object(summary_stats$marker_names),
+      phenotype_hash = benchmark_hash_object(simulation$truth$phenotypes),
+      true_effect_hash = benchmark_hash_object(simulation$truth$effects),
+      summary_statistic_hash = benchmark_hash_object(list(n = summary_stats$n,
+        yy = summary_stats$yy, wy = summary_stats$wy,
+        ww = summary_stats$ww, marker_names = summary_stats$marker_names)))))
+}
 coordinate_path <- file.path(local_root, "inputs", "coordinate.rds")
 checkpoint_reused <- FALSE
 
 if (file.exists(coordinate_path)) {
-  coordinate <- readRDS(coordinate_path)
-  if (!identical(coordinate$input_hash, input_hash))
-    stop("Existing coordinate checkpoint identity differs; refusing reuse: ", coordinate_path,
-      call. = FALSE)
+  candidate <- readRDS(coordinate_path)
+  if (!identical(candidate$checkpoint_schema, "sblrbench-semantic-v2"))
+    stop(paste("Legacy source-hashed diagnostic checkpoint detected.",
+      "This checkpoint schema has been retired and is not reusable under",
+      "the shared semantic checkpoint framework."), call. = FALSE)
+  input_identity <- coordinate_identity(candidate)
+  input_hash <- benchmark_semantic_checkpoint_hash(input_identity)
+  loaded <- benchmark_load_semantic_checkpoint(coordinate_path, input_hash,
+    validator = function(x) identical(x$input_identity, input_identity))
+  coordinate <- loaded$value
   checkpoint_reused <- TRUE
   log_line("reused coordinate checkpoint ", coordinate_path)
 } else {
-  paths <- .study03_paths()
-  expected_files <- file.path(paths$data_dir, names(config$example_data$md5))
+  paths <- list(glist_path=Sys.getenv("SBLR_BENCH_GLIST",""),
+    data_dir=file.path("results","local","03_parameter_estimation","data"),
+    output_dir=file.path("results","local","03_parameter_estimation","genotype_setup"))
+  expected_files <- file.path(paths$data_dir,
+    names(config$data$example_data$md5))
   if (!all(file.exists(expected_files)))
     stop("Pinned Study 03 input cache is incomplete; this diagnostic will not download replacement data.",
       call. = FALSE)
   observed_md5 <- unname(tools::md5sum(expected_files))
-  if (!identical(observed_md5, unname(config$example_data$md5)))
+  if (!identical(observed_md5, unname(config$data$example_data$md5)))
     stop("Pinned qgdata file checksums do not match Study 03 configuration.", call. = FALSE)
 
   base_glist <- .study01_load_glist(paths)
-  marker_info <- .study01_run_qc(base_glist, config)
-  sample_ids <- .study01_selected_ids(base_glist, config$sample_limit)
-  working_glist <- .study01_set_rsids_ld(base_glist, config$chr, marker_info$marker_ids)
-  Z <- .study01_extract_genotypes(working_glist, config$chr, sample_ids, marker_info$marker_ids)
-  sparse_glist <- .study01_make_sparse_ld(working_glist, marker_info, config, paths$output_dir)
+  marker_info <- .study01_run_qc(base_glist, legacy_config)
+  sample_ids <- .study01_selected_ids(base_glist, config$data$sample_limit)
+  working_glist <- .study01_set_rsids_ld(base_glist, config$data$chromosome, marker_info$marker_ids)
+  Z <- .study01_extract_genotypes(working_glist, config$data$chromosome, sample_ids, marker_info$marker_ids)
+  sparse_glist <- .study01_make_sparse_ld(working_glist, marker_info, legacy_config, paths$output_dir)
 
-  specs <- .study03_replicate_specs(config)
-  spec <- specs[vapply(specs, function(x) identical(x$architecture, "sparse_mixture") &&
-    identical(x$replicate, 1L), logical(1))][[1L]]
-  if (!identical(spec$simulation_seed, unique(seed_rows$simulation_seed)))
+  coordinate_spec <- list(scenario="sparse_mixture",replicate=1L,
+    simulation_seed=unique(seed_rows$simulation_seed))
+  if (!identical(coordinate_spec$simulation_seed, unique(seed_rows$simulation_seed)))
     stop("Study 03 simulation seed derivation disagrees with the capsule.", call. = FALSE)
-  simulation <- .study03_simulate(spec, Z, config)
+  simulation <- sblrbench:::simulate_prediction_architecture(coordinate_spec,Z,config)
   oracle <- sblrbench::check_oracle_genetic_values(simulation,
-    tolerance = config$oracle_tolerance)
+    tolerance = config$validation$oracle_tolerance)
   if (!oracle$ok) stop("Study 03 simulation oracle failed.", call. = FALSE)
-  summary_stats <- .study03_summary_stats(simulation, sparse_glist, config)
-  coordinate <- list(input_hash = input_hash, input_identity = input_identity,
-    simulation = simulation, summary_stats = summary_stats, marker_info = marker_info,
+  summary_stats <- sblrbench:::parameter_summary_stats(simulation,sparse_glist,config)
+  coordinate <- list(simulation = simulation, summary_stats = summary_stats,
+    marker_info = marker_info,
     sample_ids = sample_ids, oracle = oracle, qgdata_md5 = observed_md5,
     genotype_scale = "qgg::getG(impute=TRUE, scale=TRUE)",
     summary_scale = "sblr::make_summary_stats(scale=TRUE)")
+  input_identity <- coordinate_identity(coordinate)
+  input_hash <- benchmark_semantic_checkpoint_hash(input_identity)
+  coordinate <- c(list(checkpoint_schema = "sblrbench-semantic-v2",
+    semantic_hash = input_hash, input_hash = input_hash,
+    input_identity = input_identity), coordinate)
   atomic_rds(coordinate, coordinate_path)
   rm(Z, base_glist, working_glist, sparse_glist); invisible(gc())
   log_line("created coordinate checkpoint ", coordinate_path)
@@ -180,7 +212,7 @@ if (!identical(n, 5000L) || !identical(m, 37991L) ||
 # used only to audit what the public fit would resolve; no sampler is called.
 prior_resolver <- getFromNamespace(".make_stblr_bayesr_priors", "sblr")
 baseline_prior <- prior_resolver(vy = vy, m = m, h2 = 0.30, nub = 4, nue = 4,
-  pi = pi_baseline, mixture_var = mixture_var, trait_names = config$trait,
+  pi = pi_baseline, mixture_var = mixture_var, trait_names = config$data$trait,
   alpha = pi_baseline * 5e5, marker_scale = 1)
 
 fixed_prior <- list(B = unname(baseline_prior$B[1, 1]),
@@ -204,14 +236,15 @@ isolation_possible <- direct_public_support && dispatch_support
 
 design <- data.frame(
   study = "03_parameter_estimation", architecture = "sparse_mixture", replicate = 1L,
-  trait = config$trait, sample_count = n, marker_count = m,
-  causal_count = config$simulation$n_causal, target_h2 = config$simulation$h2,
+  trait = config$data$trait, sample_count = n, marker_count = m,
+  causal_count = config$controls$simulation$n_causal,
+  target_h2 = config$controls$simulation$h2,
   realized_h2 = stats::var(simulation$truth$genetic_values[, 1L]) /
     (stats::var(simulation$truth$genetic_values[, 1L]) +
       stats::var(simulation$truth$residuals[, 1L])),
   simulation_seed = unique(seed_rows$simulation_seed),
   fit_seed = unique(seed_rows$fit_seed), chain_seeds = paste(seed_rows$chain_seed, collapse = ";"),
-  qgdata_sha = config$example_data$commit, sblr_sha = sblr_sha,
+  qgdata_sha = config$data$example_data$commit, sblr_sha = sblr_sha,
   genotype_scale = coordinate$genotype_scale, summary_scale = coordinate$summary_scale,
   yy = as.numeric(summary_stats$yy), phenotype_variance_n_minus_1 = vy,
   oracle_ok = coordinate$oracle$ok, input_hash = input_hash,
@@ -223,7 +256,7 @@ collapse_num <- function(x) paste(format(x, digits = 17, scientific = FALSE, tri
 prior_resolution <- do.call(rbind, lapply(names(variants), function(id) {
   v <- variants[[id]]
   automatic_prior <- prior_resolver(vy = vy, m = m, h2 = 0.30, nub = 4, nue = 4,
-    pi = v$pi, mixture_var = mixture_var, trait_names = config$trait,
+    pi = v$pi, mixture_var = mixture_var, trait_names = config$data$trait,
     alpha = v$alpha, marker_scale = 1)
   data.frame(variant = id, pi = collapse_num(v$pi), alpha = collapse_num(v$alpha),
     adjE = v$adjE, updatePi = v$updatePi, B = fixed_prior$B, E = fixed_prior$E,
@@ -327,10 +360,20 @@ atomic_csv(variant_contrasts, file.path(local_root, "tables", "variant_contrasts
 
 # A future supported implementation must use this identity for every fit
 # checkpoint. Existing checkpoints are rejected rather than silently reused.
-fit_checkpoint_identity <- function(variant_id) list(input_hash = input_hash,
-  simulation_seed = unique(seed_rows$simulation_seed), method_seed = unique(seed_rows$fit_seed),
-  chain_seeds = seed_rows$chain_seed, sblr_sha = sblr_sha,
-  variant_controls = variants[[variant_id]], fixed_prior = fixed_prior)
+fit_checkpoint_identity <- function(variant_id)
+  benchmark_semantic_checkpoint_identity("study03-sbayesr-gctb-fit",list(
+    coordinate_hash=input_hash,scenario="sparse_mixture",replicate=1L,
+    trait=config$data$trait,sample_hash=benchmark_hash_object(coordinate$sample_ids),
+    marker_hash=benchmark_hash_object(summary_stats$marker_names),
+    phenotype_hash=benchmark_hash_object(simulation$truth$phenotypes),
+    true_effect_hash=benchmark_hash_object(simulation$truth$effects),
+    summary_statistic_hash=input_identity$scientific_inputs$summary_statistic_hash,
+    method="st_csr_sbayesr",simulation_seed=unique(seed_rows$simulation_seed),
+    fit_seed=unique(seed_rows$fit_seed),chain_seeds=seed_rows$chain_seed,
+    sblr_sha=sblr_sha,qgdata_sha=config$data$example_data$commit,
+    variant_id=variant_id,variant_controls=variants[[variant_id]],
+    fixed_prior=fixed_prior,mcmc_controls=list(nchains=4L,nburn=250L,
+      nit=2000L,nthin=1L,ncores=4L)))
 validate_fit_checkpoint <- function(checkpoint, variant_id) {
   identical(checkpoint$identity, fit_checkpoint_identity(variant_id)) ||
     stop("Fit checkpoint identity differs for ", variant_id, "; refusing reuse.", call. = FALSE)
@@ -357,7 +400,7 @@ manifest <- list(
   package = list(sblr_version = as.character(utils::packageVersion("sblr")),
     sblr_sha = sblr_sha, sblrbench_version = as.character(utils::packageVersion("sblrbench")),
     qgg_version = as.character(utils::packageVersion("qgg")),
-    qgdata_sha = config$example_data$commit),
+    qgdata_sha = config$data$example_data$commit),
   coordinate = input_identity, mcmc = list(nchains = 4L, nburn = 250L,
     retained_draws_per_chain = 2000L, nthin = 1L, ncores = 4L),
   baseline_prior = c(fixed_prior, list(pi = pi_baseline, alpha = pi_baseline * 5e5,

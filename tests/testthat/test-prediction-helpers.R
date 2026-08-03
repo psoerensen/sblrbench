@@ -120,7 +120,7 @@ test_that("Study 02 spec and profiles validate with actionable failures", {
   incomplete$seeds <- NULL
   expect_error(validate_benchmark_spec(incomplete), "seeds")
   unsupported <- spec
-  unsupported$task <- "parameter_estimation"
+  unsupported$task <- "unsupported_task"
   expect_error(validate_benchmark_spec(unsupported), "Unsupported benchmark task")
 })
 
@@ -170,14 +170,14 @@ test_that("migrated simulation kernel matches the old deterministic fixture", {
 
 test_that("Study 02 methods, priors, and controls are exact", {
   spec <- read_benchmark_spec(.study02_spec_path())
-  methods <- resolve_prediction_methods(spec)
+  methods <- resolve_benchmark_methods(spec)
   expect_identical(vapply(methods, `[[`, character(1), "id"),
     names(spec$methods))
   coordinates <- benchmark_seeds(spec, "benchmark")
   for (method_id in names(spec$methods)) {
     row <- coordinates[coordinates$scenario == "sparse_homogeneous" &
       coordinates$replicate == 1L & coordinates$method == method_id, ]
-    controls <- prediction_method_controls(spec, method_id, "benchmark",
+    controls <- benchmark_method_controls(spec, method_id, "benchmark",
       row$fit_seed, row$chain_seeds[[1]])
     expect_identical(controls$nburn, 250L)
     expect_identical(controls$nchains, 4L)
@@ -231,9 +231,9 @@ test_that("CLI arguments are strict and default only booleans", {
   expect_false(parsed$validate_only)
   expect_error(sblrbench:::parse_benchmark_cli_arguments(c(args,
     "--unknown", "x")), "Unknown")
-  expect_error(sblrbench:::parse_benchmark_cli_arguments(c("--study",
+  expect_identical(sblrbench:::parse_benchmark_cli_arguments(c("--study",
     "03_parameter_estimation", "--profile", "benchmark", "--output-dir",
-    "out")), "Unsupported --study")
+    "out"))$study, "03_parameter_estimation")
   expect_error(sblrbench:::parse_benchmark_cli_arguments(c(args,
     "--resume", "yes")), "true.*false")
 })

@@ -9,11 +9,12 @@ library(sblrbench)
 library(posterior)
 
 source(file.path("studies", "01_finemapping", "setup_example_data.R"))
-source(file.path("studies", "03_parameter_estimation", "simulation.R"))
 source(file.path("studies", "04_convergence", "chain_extraction.R"))
-study03_config <- source(file.path("studies", "03_parameter_estimation", "config.R"), local = TRUE)$value
+study03_config <- read_benchmark_spec(file.path("studies",
+  "03_parameter_estimation","spec.R"))
 data_directory <- Sys.getenv("SBLR_BENCH_DATA_DIR", file.path("results", "local", "example_data"))
-example_files <- .study01_example_files(data_directory, study03_config$example_data)
+example_files <- .study01_example_files(data_directory,
+  study03_config$data$example_data)
 Glist <- .study01_load_glist(list(glist_path = "", data_dir = data_directory), example_files)
 
 sample_ids <- Glist$ids[seq_len(200L)]
@@ -21,9 +22,10 @@ marker_ids <- Glist$rsids[[1L]][seq_len(200L)]
 Glist <- .study01_set_rsids_ld(Glist, 1L, marker_ids)
 genotypes <- qgg::getG(Glist = Glist, chr = 1L, ids = sample_ids,
   rsids = marker_ids, impute = TRUE, scale = TRUE)
-study03_config$simulation$n_causal <- 10L
-simulation <- .study03_simulate(list(architecture = "sparse_homogeneous",
-  replicate = 1L, simulation_seed = 9401L), genotypes, study03_config)
+study03_config$controls$simulation$n_causal <- 10L
+simulation <- sblrbench:::simulate_prediction_architecture(list(
+  scenario="sparse_homogeneous",replicate=1L,simulation_seed=9401L),
+  genotypes,study03_config)
 stopifnot(check_oracle_genetic_values(simulation)$ok)
 
 fit <- sblr::stblr_bed(Glist = Glist, y = simulation$truth$phenotypes,

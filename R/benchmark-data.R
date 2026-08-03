@@ -114,6 +114,68 @@ benchmark_extract_raw_genotypes <- function(glist, chromosome, sample_ids,
   x
 }
 
+benchmark_extract_scaled_genotypes <- function(glist, chromosome, sample_ids,
+                                                marker_ids) {
+  if (!requireNamespace("qgg", quietly = TRUE))
+    stop("Genotype extraction requires the suggested package `qgg`.",
+      call. = FALSE)
+  sample_ids <- .assert_ids(as.character(sample_ids), "sample_ids")
+  marker_ids <- .assert_ids(as.character(marker_ids), "marker_ids")
+  x <- qgg::getG(Glist = glist, chr = as.integer(chromosome), ids = sample_ids,
+    rsids = marker_ids, impute = TRUE, scale = TRUE)
+  if (!identical(rownames(x), sample_ids) ||
+      !identical(colnames(x), marker_ids) || any(!is.finite(x)))
+    stop("Scaled genotype extraction lost canonical order or produced invalid values.",
+      call. = FALSE)
+  x
+}
+
+benchmark_make_full_sample_ld <- function(glist, marker_info, data_spec,
+                                          output_dir) {
+  chromosome <- as.integer(data_spec$chromosome)
+  working <- benchmark_set_glist_marker_order(glist, chromosome,
+    marker_info$marker_ids)
+  dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+  prefix <- file.path(output_dir, "ld_sparse_bed")
+  cache <- paste0(prefix, "_glist.rds")
+  if (file.exists(cache)) {
+    cached <- readRDS(cache)
+    ids <- cached$rsids[[chromosome]][cached$sparseLD$cls[[1L]]]
+    if (identical(ids, marker_info$marker_ids) &&
+        length(Sys.glob(paste0(cached$sparseLD$prefix, "*")))) return(cached)
+  }
+  working <- do.call(sblr::make_sparse_ld, c(list(Glist = working,
+    out_prefix = prefix, chr = chromosome, pos_bp = NULL),
+    data_spec$sparse_ld))
+  ids <- working$rsids[[chromosome]][working$sparseLD$cls[[1L]]]
+  if (!identical(ids, marker_info$marker_ids))
+    stop("Sparse-LD marker order does not match canonical marker order.",
+      call. = FALSE)
+  benchmark_atomic_save_rds(working, cache, compress = FALSE,
+    temporary_prefix = ".full-sample-ld-")
+  working
+}
+
+prepare_parameter_estimation_data <- function(spec, output_dir) {
+  validate_benchmark_spec(spec)
+  paths <- benchmark_data_paths(output_dir)
+  files <- if (nzchar(paths$glist_path)) NULL else
+    benchmark_example_files(paths$data_dir, spec$data)
+  glist <- benchmark_load_glist(paths, files)
+  markers <- benchmark_filter_markers(glist, spec$data$chromosome,
+    spec$markers$qc, spec$data$sparse_ld)
+  sample_ids <- benchmark_selected_ids(glist, spec$data$sample_limit)
+  working <- benchmark_set_glist_marker_order(glist, spec$data$chromosome,
+    markers$marker_ids)
+  scaled <- benchmark_extract_scaled_genotypes(working,
+    spec$data$chromosome, sample_ids, markers$marker_ids)
+  ld_glist <- benchmark_make_full_sample_ld(working, markers, spec$data,
+    paths$ld_dir)
+  list(paths=paths,files=files,glist=glist,markers=markers,
+    sample_ids=sample_ids,scaled=scaled,working_glist=working,
+    ld_glist=ld_glist)
+}
+
 #' Create a deterministic prediction train/test split
 #'
 #' Sampling determines membership, while original sample order is retained

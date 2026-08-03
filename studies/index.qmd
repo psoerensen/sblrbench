@@ -17,7 +17,7 @@ Two architectures, five paired replicates, four methods, and 40 four-chain fits
 evaluate held-out prediction using training-only scaling, summary statistics,
 and LD. [Current capsule](../results/reference/02_prediction/current/README.md).
 
-### [Study 03: Single-trait parameter estimation](03_parameter_estimation/parameter-estimation.qmd)
+### [Study 03: Single-trait parameter estimation](03_parameter_estimation/report.qmd)
 
 Two architectures, five replicates, four methods, and 40 four-chain fits evaluate
 posterior recovery, uncertainty, and matched versus misspecified priors.

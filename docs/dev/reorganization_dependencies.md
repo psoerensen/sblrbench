@@ -14,8 +14,8 @@ reuses the Study 06 target store. No target graph is run or rewritten here.
 - Study 02 and mechanical callers in Studies 05--07 now use
   `R/benchmark-data.R` for splits, scaling, summary statistics, and training LD;
   no study sources Study 02 internals.
-- Study 04 sources Study 03 `estimands.R`, `simulation.R`, and `pilot.R`; its
-  configuration also loads the Study 03 configuration.
+- Study 04 now reads the Study 03 spec and calls shared simulation, truth, and
+  summary-statistic helpers; its scientific design remains unmigrated.
 - Study 05 and Study 06 retain Study 01 example-data setup but use shared data
   helpers instead of Study 02 internals.
 - Study 06 v2 sources Study 06 methods, operators, blocks, simulation, and
@@ -52,9 +52,11 @@ types remain deferred.
   selected copies, semantic validation, and atomic final rename recur across
   promotion files.
 
-Developer diagnostics whose own source hashes participate in checkpoint
-identity are documented but intentionally not rewired in Phase 2; changing
-them would invalidate completed-fit reuse.
+The Study 03 SBayesR comparison and the Study 06 scheduler/exact-sparse
+diagnostics formerly hashed Study 03 implementation files. They now use
+`sblrbench-semantic-v2` identities containing scientific inputs, controls,
+seeds, data/operator hashes, and package provenance. Old local caches are
+detected as retired rather than reused or translated.
 
 ## Capsule promotion dependency on Study 02
 
@@ -83,7 +85,8 @@ designs and is not executable dependency evidence.
 
 - Example-data acquisition remains owned by Study 01; Study 02 mechanics are
   shared, but later data interfaces await their own migrations.
-- Study 04 directly depends on Study 03 simulation and pilot internals.
+- Study 04 uses the shared Study 03 simulation and method mechanics through the
+  committed spec; its own scientific workflow remains unmigrated.
 - Study 05 and Study 06 launchers depend on both Study 01 and Study 02.
 - Trace extraction schemas differ and remain duplicated around study-specific
   quantities.
