@@ -1,4 +1,12 @@
-source(file.path("studies", "02_prediction", "promotion.R"), local = TRUE)
+.sblrbench_root <- getwd()
+while (!file.exists(file.path(.sblrbench_root, "DESCRIPTION"))) {
+  .sblrbench_parent <- dirname(.sblrbench_root)
+  if (identical(.sblrbench_parent, .sblrbench_root)) stop("Cannot locate sblrbench root.")
+  .sblrbench_root <- .sblrbench_parent
+}
+source(file.path(.sblrbench_root, "R", "benchmark-provenance.R"), local = TRUE)
+source(file.path(.sblrbench_root, "R", "benchmark-capsules.R"), local = TRUE)
+source(file.path(.sblrbench_root, "R", "benchmark-validation.R"), local = TRUE)
 
 .study01_current_required <- c(
   "README.md", "benchmark_manifest.json", "benchmark_summary.csv",
@@ -13,7 +21,7 @@ source(file.path("studies", "02_prediction", "promotion.R"), local = TRUE)
   files <- sort(setdiff(list.files(path, recursive = FALSE), "checksums.csv"))
   info <- file.info(file.path(path, files))
   data.frame(file = files, size_bytes = info$size,
-    md5 = unname(.study02_canonical_md5(file.path(path, files))),
+    md5 = unname(benchmark_canonical_md5(file.path(path, files))),
     stringsAsFactors = FALSE)
 }
 
@@ -44,7 +52,7 @@ source(file.path("studies", "02_prediction", "promotion.R"), local = TRUE)
     stop("Study 01 sparse-LD warning validation is incomplete or inconsistent.", call. = FALSE)
   checks <- utils::read.csv(file.path(path, "checksums.csv"), stringsAsFactors = FALSE)
   paths <- file.path(path, checks$file)
-  if (any(!file.exists(paths)) || any(unname(.study02_canonical_md5(paths)) != checks$md5))
+  if (any(!file.exists(paths)) || any(unname(benchmark_canonical_md5(paths)) != checks$md5))
     stop("Study 01 current capsule checksum validation failed.", call. = FALSE)
   invisible(TRUE)
 }
@@ -144,7 +152,7 @@ source(file.path("studies", "02_prediction", "promotion.R"), local = TRUE)
     "studies/01_finemapping/promotion.R", "studies/01_finemapping/setup_example_data.R",
     "scripts/run_current_benchmark_refresh.R", "R/metrics.R", "R/alignment.R")
   src <- data.frame(file = source_files,
-    md5 = unname(.study02_canonical_md5(source_files)), stringsAsFactors = FALSE)
+    md5 = unname(benchmark_canonical_md5(source_files)), stringsAsFactors = FALSE)
   utils::write.csv(src, file.path(staging, "source_files.csv"), row.names = FALSE)
   session <- sub("[[:space:]]+$", "", capture.output(utils::sessionInfo()))
   writeLines(session, file.path(staging, "session_info.txt"), useBytes = TRUE)

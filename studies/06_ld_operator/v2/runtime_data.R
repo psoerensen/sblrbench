@@ -1,3 +1,11 @@
+.sblrbench_root <- getwd()
+while (!file.exists(file.path(.sblrbench_root, "DESCRIPTION"))) {
+  .sblrbench_parent <- dirname(.sblrbench_root)
+  if (identical(.sblrbench_parent, .sblrbench_root)) stop("Cannot locate sblrbench root.")
+  .sblrbench_root <- .sblrbench_parent
+}
+source(file.path(.sblrbench_root, "R", "benchmark-checkpoints.R"), local = TRUE)
+
 .study06v2_load_runtime_data <- function(config) {
   store <- file.path("results", "local", "study06_ld_operator", "_targets")
   design <- .study06v2_safe_v1_design(store)
@@ -98,12 +106,11 @@
   path <- .study06v2_checkpoint_path(config, phase, method,
     simulation$replicate)
   if (file.exists(path)) {
-    old <- try(readRDS(path), silent = TRUE)
-    if (!inherits(old, "try-error") &&
+    loaded <- benchmark_load_checkpoint(path, expected_hash = input_hash,
+      hash_field = "input_hash", validator = function(old)
         .study06v2_validate_checkpoint(old, method, simulation,
-          input_hash, config)) return(old)
-    stop("Stale or mismatched Study 06 v2 checkpoint: ", path,
-      call. = FALSE)
+          input_hash, config))
+    return(loaded$value)
   }
   run <- .study06v2_fit(method, simulation, stats,
     runtime$design$study06_ld_bundle$Glist, runtime$split,

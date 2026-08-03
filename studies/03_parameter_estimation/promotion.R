@@ -1,9 +1,13 @@
-study02_promotion <- c(file.path("studies", "02_prediction", "promotion.R"),
-  file.path("..", "..", "studies", "02_prediction", "promotion.R"))
-study02_promotion <- study02_promotion[file.exists(study02_promotion)][1L]
-if (is.na(study02_promotion)) stop("Cannot locate shared canonical checksum helper.", call. = FALSE)
-source(study02_promotion, local = TRUE)
-.study03_canonical_md5 <- .study02_canonical_md5
+.sblrbench_root <- getwd()
+while (!file.exists(file.path(.sblrbench_root, "DESCRIPTION"))) {
+  .sblrbench_parent <- dirname(.sblrbench_root)
+  if (identical(.sblrbench_parent, .sblrbench_root)) stop("Cannot locate sblrbench root.")
+  .sblrbench_root <- .sblrbench_parent
+}
+source(file.path(.sblrbench_root, "R", "benchmark-provenance.R"), local = TRUE)
+source(file.path(.sblrbench_root, "R", "benchmark-capsules.R"), local = TRUE)
+source(file.path(.sblrbench_root, "R", "benchmark-validation.R"), local = TRUE)
+.study03_canonical_md5 <- benchmark_canonical_md5
 
 .study03_required_files <- function() c("README.md", "benchmark_manifest.json",
   "estimand_registry.csv", "simulation_truth.csv", "parameter_estimates.csv",

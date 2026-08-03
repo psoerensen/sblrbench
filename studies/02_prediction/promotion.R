@@ -1,3 +1,13 @@
+.sblrbench_root <- getwd()
+while (!file.exists(file.path(.sblrbench_root, "DESCRIPTION"))) {
+  .sblrbench_parent <- dirname(.sblrbench_root)
+  if (identical(.sblrbench_parent, .sblrbench_root)) stop("Cannot locate sblrbench root.")
+  .sblrbench_root <- .sblrbench_parent
+}
+source(file.path(.sblrbench_root, "R", "benchmark-provenance.R"), local = TRUE)
+source(file.path(.sblrbench_root, "R", "benchmark-capsules.R"), local = TRUE)
+source(file.path(.sblrbench_root, "R", "benchmark-validation.R"), local = TRUE)
+
 .study02_expected_methods <- function() c(
   "st_bed_bayesc", "st_bed_bayesr", "st_csr_sbayesc", "st_csr_sbayesr"
 )
@@ -64,37 +74,9 @@
   out <- do.call(rbind, rows); rownames(out) <- NULL; out
 }
 
-.study02_canonical_md5 <- function(paths) {
-  paths <- as.character(paths)
-  if (!length(paths)) return(setNames(character(), character()))
-  if (anyNA(paths) || any(!file.exists(paths)))
-    stop("All checksum paths must identify existing files.", call. = FALSE)
-  text_extensions <- c("r", "qmd", "md", "csv", "json", "txt", "yml", "yaml")
-  output <- character(length(paths))
-  names(output) <- paths
-  for (i in seq_along(paths)) {
-    path <- paths[[i]]
-    if (!tolower(tools::file_ext(path)) %in% text_extensions) {
-      output[[i]] <- unname(tools::md5sum(path))
-      next
-    }
-    bytes <- readBin(path, what = "raw", n = file.info(path)$size)
-    values <- as.integer(bytes)
-    if (length(values)) {
-      is_cr <- values == 13L
-      cr_before_lf <- is_cr & c(values[-1L] == 10L, FALSE)
-      values[is_cr] <- 10L
-      bytes <- as.raw(values[!cr_before_lf])
-    }
-    temporary <- tempfile("sblrbench-canonical-", fileext = ".bin")
-    on.exit(unlink(temporary), add = TRUE)
-    connection <- file(temporary, open = "wb")
-    tryCatch(writeBin(bytes, connection), finally = close(connection))
-    output[[i]] <- unname(tools::md5sum(temporary))
-    unlink(temporary)
-  }
-  output
-}
+# Compatibility alias for callers not yet migrated from Study 02 promotion.
+# Remove after Studies 01 and 03--07 call benchmark_canonical_md5() directly.
+.study02_canonical_md5 <- benchmark_canonical_md5
 
 .study02_validate_promotion_tables <- function(config, metrics, paired,
                                                 computation, status,

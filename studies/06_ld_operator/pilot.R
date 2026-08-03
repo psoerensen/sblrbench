@@ -1,3 +1,11 @@
+.sblrbench_root <- getwd()
+while (!file.exists(file.path(.sblrbench_root, "DESCRIPTION"))) {
+  .sblrbench_parent <- dirname(.sblrbench_root)
+  if (identical(.sblrbench_parent, .sblrbench_root)) stop("Cannot locate sblrbench root.")
+  .sblrbench_root <- .sblrbench_parent
+}
+source(file.path(.sblrbench_root, "R", "benchmark-checkpoints.R"), local = TRUE)
+
 .study06_paths <- function(config) list(
   glist_path = Sys.getenv("SBLR_BENCH_GLIST", ""),
   data_dir = Sys.getenv("SBLR_BENCH_DATA_DIR",
@@ -187,14 +195,8 @@
 }
 
 .study06_atomic_rds <- function(x, path) {
-  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-  tmp <- tempfile(".study06-fit-", dirname(path), ".rds")
-  saveRDS(x, tmp, compress = FALSE)
-  if (!file.rename(tmp, path)) {
-    unlink(tmp)
-    stop("Atomic Study 06 fit checkpoint replacement failed: ",
-      path, call. = FALSE)
-  }
+  benchmark_atomic_save_rds(x, path, compress = FALSE,
+    temporary_prefix = ".study06-fit-")
   path
 }
 

@@ -1,7 +1,12 @@
-.study05_promotion_root <- if (file.exists(file.path("studies",
-  "02_prediction", "promotion.R"))) "." else file.path("..", "..")
-source(file.path(.study05_promotion_root, "studies", "02_prediction",
-  "promotion.R"), local = TRUE)
+.sblrbench_root <- getwd()
+while (!file.exists(file.path(.sblrbench_root, "DESCRIPTION"))) {
+  .sblrbench_parent <- dirname(.sblrbench_root)
+  if (identical(.sblrbench_parent, .sblrbench_root)) stop("Cannot locate sblrbench root.")
+  .sblrbench_root <- .sblrbench_parent
+}
+source(file.path(.sblrbench_root, "R", "benchmark-provenance.R"), local = TRUE)
+source(file.path(.sblrbench_root, "R", "benchmark-capsules.R"), local = TRUE)
+source(file.path(.sblrbench_root, "R", "benchmark-validation.R"), local = TRUE)
 
 .study05_required <- function(type = c("convergence", "benchmark")) {
   type <- match.arg(type)
@@ -34,28 +39,13 @@ source(file.path(.study05_promotion_root, "studies", "02_prediction",
 }
 
 .study05_checksums <- function(path) {
-  files <- sort(setdiff(list.files(path, recursive = FALSE), "checksums.csv"))
-  info <- file.info(file.path(path, files))
-  data.frame(file = files, size_bytes = info$size,
-    md5 = unname(.study02_canonical_md5(file.path(path, files))),
-    stringsAsFactors = FALSE)
+  benchmark_capsule_checksums(path)
 }
 
 .study05_validate_checksums <- function(path, required) {
-  x <- utils::read.csv(file.path(path, "checksums.csv"),
-    stringsAsFactors = FALSE)
-  if (!identical(names(x), c("file", "size_bytes", "md5")) ||
-      anyNA(x$file) || anyDuplicated(x$file) ||
-      any(x$file != basename(x$file)) ||
-      any(grepl("(^[A-Za-z]:|^[/\\\\]|(^|[/\\\\])\\.\\.([/\\\\]|$))", x$file)) ||
-      !setequal(x$file, setdiff(required, "checksums.csv")) ||
-      any(!grepl("^[0-9a-f]{32}$", x$md5)))
-    stop("Invalid Study 05 checksum inventory.", call. = FALSE)
-  paths <- file.path(path, x$file)
-  if (any(!file.exists(paths)) ||
-      any(unname(.study02_canonical_md5(paths)) != x$md5))
-    stop("Study 05 capsule checksum validation failed.", call. = FALSE)
-  invisible(TRUE)
+  tryCatch(benchmark_validate_capsule_checksums(path, required),
+    error = function(error) stop("Study 05 capsule checksum validation failed: ",
+      conditionMessage(error), call. = FALSE))
 }
 
 .study05_validate_convergence_capsule <- function(path) {
@@ -254,7 +244,7 @@ source(file.path(.study05_promotion_root, "studies", "02_prediction",
     "studies/05_annotation_models/interface_fit_smoke_test.R",
     reproduce_source)
   write.csv(data.frame(file = source_files,
-    md5 = unname(.study02_canonical_md5(source_files))),
+    md5 = unname(benchmark_canonical_md5(source_files))),
     file.path(staging, "source_files.csv"), row.names = FALSE)
   write.csv(.study05_interface_audit_table(config),
     file.path(staging, "interface_audit_sources.csv"), row.names = FALSE)

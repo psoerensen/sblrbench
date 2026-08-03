@@ -1,32 +1,15 @@
+.sblrbench_root <- getwd()
+while (!file.exists(file.path(.sblrbench_root, "DESCRIPTION"))) {
+  .sblrbench_parent <- dirname(.sblrbench_root)
+  if (identical(.sblrbench_parent, .sblrbench_root)) stop("Cannot locate sblrbench root.")
+  .sblrbench_root <- .sblrbench_parent
+}
+source(file.path(.sblrbench_root, "R", "benchmark-convergence.R"), local = TRUE)
+
 .study06_diagnostic_one <- function(x, thresholds) {
-  wide <- reshape(x[c("iteration", "chain", "value")],
-    idvar = "iteration", timevar = "chain", direction = "wide")
-  m <- as.matrix(wide[-1L])
-  sd_all <- stats::sd(as.numeric(m))
-  rhat <- posterior::rhat(m)
-  bulk <- posterior::ess_bulk(m)
-  tail <- posterior::ess_tail(m)
-  mcse <- posterior::mcse_mean(m)
-  relative <- if (is.finite(sd_all) && sd_all > 0)
-    mcse / sd_all else NA_real_
-  flags <- c(is.finite(rhat) && rhat <= thresholds$rhat,
-    is.finite(bulk) && bulk >= thresholds$ess_bulk,
-    is.finite(tail) && tail >= thresholds$ess_tail,
-    is.finite(relative) && relative <= thresholds$relative_mcse,
-    ncol(m) == thresholds$chain_count,
-    all(is.finite(m)) && is.finite(sd_all) && sd_all > 0)
-  data.frame(rhat = rhat, ess_bulk = bulk, ess_tail = tail,
-    mcse_mean = mcse, posterior_sd = sd_all,
-    relative_mcse = relative, chain_count = ncol(m),
-    draws_per_chain = nrow(m),
-    rhat_pass = flags[1L], ess_bulk_pass = flags[2L],
-    ess_tail_pass = flags[3L], relative_mcse_pass = flags[4L],
-    chain_count_pass = flags[5L], finite_nonconstant_pass = flags[6L],
-    overall_pass = all(flags),
-    limiting_diagnostic = c("rhat", "ess_bulk", "ess_tail",
-      "relative_mcse", "chain_count", "finite_nonconstant")[
-        which(!flags)[1L] %||% 1L],
-    stringsAsFactors = FALSE)
+  out <- benchmark_scalar_diagnostics(x, thresholds)
+  if (isTRUE(out$overall_pass)) out$limiting_diagnostic <- "rhat"
+  out
 }
 
 .study06_diagnostics <- function(draws, burnin, retained, config) {

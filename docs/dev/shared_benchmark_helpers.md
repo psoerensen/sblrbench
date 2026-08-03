@@ -1,0 +1,107 @@
+# Shared benchmark helpers after Phases 0–2
+
+All helpers are ordinary internal R functions. They introduce no class system,
+registry, plugin interface, workflow language, or replacement execution engine.
+
+## `R/benchmark-reporting.R`
+
+- Responsibilities: method/architecture labels and order, factors, plot
+  scales/theme, number/runtime/interval/status formatting, replicate summaries,
+  and display of compact capsule scripts.
+- Authoritative functions: `sblrbench_method_*`,
+  `sblrbench_architecture_*`, `format_sblrbench_*`, `theme_sblrbench()`,
+  `prepare_sblrbench_replicates()`, and `display_capsule_script*()`.
+- Compatibility: `studies/reporting_helpers.R` sources this file and contains
+  no implementation.
+- Current callers: Studies 01--06 standard reports and reporting tests.
+- Deferred callers: future reports after individual study migration.
+- Limitation: table-only presentation; native fits are intentionally rejected
+  by convention rather than accepted as inputs.
+- Wrapper removal: after every report loads package/shared helpers directly.
+
+## `R/benchmark-provenance.R`
+
+- Responsibilities: Git SHA discovery, installed-package version/path/SHA,
+  strict expected-SHA checks, canonical MD5, file SHA-256, session information.
+- Authoritative functions: `benchmark_git_sha()`,
+  `benchmark_package_provenance()`, `benchmark_assert_package_sha()`,
+  `benchmark_canonical_md5()`, `benchmark_file_sha256()`, and
+  `benchmark_session_information()`.
+- Compatibility: public `sblrbench_git_commit()` delegates to the Git helper;
+  `.study02_canonical_md5` remains a direct alias for unmigrated Study 02 code;
+  `.five_replicate_sblr_provenance()` adapts the generic record to its existing
+  field names.
+- Current callers: package provenance, active Studies 01--06 promotion, and
+  focused tests.
+- Deferred callers: current-refresh and Study 06 v2 detailed provenance where
+  compiler/archive fields remain study-specific.
+- Limitation: installed metadata only; no network lookup.
+- Wrapper removal: at the corresponding study migration, after callers use the
+  authoritative names.
+
+## `R/benchmark-checkpoints.R`
+
+- Responsibilities: serialized input hashing, atomic RDS replacement, safe RDS
+  load, strict hash comparison, and caller-supplied semantic validation.
+- Authoritative functions: `benchmark_hash_object()`,
+  `benchmark_atomic_save_rds()`, and `benchmark_load_checkpoint()`.
+- Compatibility: `.study06_atomic_rds()` and `.study06v2_atomic_rds()` preserve
+  current signatures; Study 06 v2 preserves its exact identity payload and
+  delegates only digest/save/load mechanics.
+- Current callers: Study 06, Study 06 v2, and focused tests.
+- Deferred callers: paused Study 07; supplemental diagnostic scripts whose
+  source hashes are part of completed checkpoint identities; Study 05 CSV
+  status checkpoints.
+- Limitation: naming and scientific identity construction remain local.
+- Wrapper removal: after each study migration demonstrates byte-compatible
+  checkpoint names and identities.
+
+## `R/benchmark-convergence.R`
+
+- Responsibilities: retained chain windows, trace-array-to-long extraction,
+  rank-normalized R-hat, bulk/tail ESS, mean MCSE, relative MCSE, and compact
+  threshold flags.
+- Authoritative functions: `benchmark_chain_window()`,
+  `benchmark_trace_array_long()`, and `benchmark_scalar_diagnostics()`.
+- Compatibility: `.study05_one_diagnostic()` and `.study06_diagnostic_one()`
+  adapt output details while retaining study thresholds and historical labels.
+- Current callers: Studies 05--06 diagnostics and focused tests.
+- Deferred callers: Study 04 registry diagnostics, paused Study 07, and full
+  study-specific trace extraction.
+- Limitation: accepts true numeric chain traces only; it does not reconstruct
+  traces from posterior means, compact summaries, or final states.
+- Wrapper removal: after each study’s trace schema is migrated and compared to
+  frozen diagnostic fixtures.
+
+## `R/benchmark-capsules.R`
+
+- Responsibilities: canonical checksum inventory, unique staging directory,
+  selected-file copying, validator-first atomic promotion.
+- Authoritative functions: `benchmark_capsule_checksums()`,
+  `benchmark_capsule_staging_directory()`,
+  `benchmark_copy_capsule_files()`, and `benchmark_promote_capsule()`.
+- Compatibility: study promotion functions retain destinations, required-file
+  lists, manifests, README text, and semantic checks; Study 05--06 checksum
+  functions delegate to the shared inventory.
+- Current callers: promotion checksum wrappers and focused tests.
+- Deferred callers: paused Study 07 and full staging/finalization adoption
+  during each study migration, because current cleanup and overwrite policies
+  differ.
+- Limitation: never chooses scientific outputs or promotes on its own.
+- Wrapper removal: once a migrated study supplies destination, selected files,
+  semantic validator, title, and description directly.
+
+## `R/benchmark-validation.R`
+
+- Responsibilities: required-file presence, checksum schema/path safety,
+  canonical MD5 validation, and mutation detection.
+- Authoritative function: `benchmark_validate_capsule_checksums()`.
+- Compatibility: Studies 05, 06, and 06 v2 retain named wrapper errors and
+  semantic validation after this structural check.
+- Current callers: those promotion validators and focused tests.
+- Deferred callers: Studies 01--04 and paused Study 07, whose existing combined
+  validators are retained until migration.
+- Limitation: structural integrity only; it cannot decide scientific
+  completeness.
+- Wrapper removal: after study-specific semantic validators accept a shared
+  structural-validation result directly.

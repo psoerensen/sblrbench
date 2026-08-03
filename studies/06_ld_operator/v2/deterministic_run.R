@@ -1,11 +1,14 @@
+.sblrbench_root <- getwd()
+while (!file.exists(file.path(.sblrbench_root, "DESCRIPTION"))) {
+  .sblrbench_parent <- dirname(.sblrbench_root)
+  if (identical(.sblrbench_parent, .sblrbench_root)) stop("Cannot locate sblrbench root.")
+  .sblrbench_root <- .sblrbench_parent
+}
+source(file.path(.sblrbench_root, "R", "benchmark-checkpoints.R"), local = TRUE)
+
 .study06v2_atomic_rds <- function(x, path) {
-  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-  tmp <- tempfile(".study06v2-", dirname(path), ".rds")
-  saveRDS(x, tmp, compress = FALSE)
-  if (!file.rename(tmp, path)) {
-    unlink(tmp)
-    stop("Atomic Study 06 v2 checkpoint write failed.", call. = FALSE)
-  }
+  benchmark_atomic_save_rds(x, path, compress = FALSE,
+    temporary_prefix = ".study06v2-")
   path
 }
 

@@ -1,3 +1,11 @@
+.sblrbench_root <- getwd()
+while (!file.exists(file.path(.sblrbench_root, "DESCRIPTION"))) {
+  .sblrbench_parent <- dirname(.sblrbench_root)
+  if (identical(.sblrbench_parent, .sblrbench_root)) stop("Cannot locate sblrbench root.")
+  .sblrbench_root <- .sblrbench_parent
+}
+source(file.path(.sblrbench_root, "R", "benchmark-checkpoints.R"), local = TRUE)
+
 .study06v2_method_for <- function(architecture, configuration, config) {
   stopifnot(architecture %in% config$architectures,
     configuration %in% config$pilot_configurations)
@@ -91,7 +99,7 @@
 }
 
 .study06v2_input_hash <- function(simulation, stats, method, controls,
-                                  config) digest::digest(list(
+                                  config) benchmark_hash_object(list(
   architecture = simulation$architecture,
   replicate = simulation$replicate,
   simulation_seed = simulation$simulation_seed,
@@ -103,7 +111,7 @@
   stats_wy = stats$wy,
   method = method,
   controls = controls,
-  block_size = config$block_size), algo = "sha256")
+  block_size = config$block_size), algorithm = "sha256")
 
 .study06v2_fit <- function(method, simulation, stats, Glist, split, blocks,
                            block_glist, config, phase,

@@ -2,8 +2,7 @@
 #' @param path Repository path.
 #' @export
 sblrbench_git_commit <- function(path=".") {
-  out<-tryCatch(suppressWarnings(system2("git",c("-C",normalizePath(path,mustWork=FALSE),"rev-parse","HEAD"),stdout=TRUE,stderr=TRUE)),error=identity)
-  if(inherits(out,"error")||!is.null(attr(out,"status"))||length(out)!=1L){warning("Git commit metadata is unavailable for ",path,".",call.=FALSE);return(NA_character_)};out
+  benchmark_git_sha(path, warn = TRUE)
 }
 
 #' Construct a compact provenance manifest

@@ -1,3 +1,11 @@
+.sblrbench_root <- getwd()
+while (!file.exists(file.path(.sblrbench_root, "DESCRIPTION"))) {
+  .sblrbench_parent <- dirname(.sblrbench_root)
+  if (identical(.sblrbench_parent, .sblrbench_root)) stop("Cannot locate sblrbench root.")
+  .sblrbench_root <- .sblrbench_parent
+}
+source(file.path(.sblrbench_root, "R", "benchmark-provenance.R"), local = TRUE)
+
 .five_replicate_recommendation_path <- function() {
   configured <- Sys.getenv("SBLR_BENCH_RECOMMENDATIONS", "")
   if (nzchar(configured)) return(configured)
@@ -50,11 +58,9 @@
 }
 
 .five_replicate_sblr_provenance <- function() {
-  d <- utils::packageDescription("sblr")
-  commit <- d$RemoteSha %||% d$GithubSHA1 %||% NA_character_
-  list(version = as.character(utils::packageVersion("sblr")), commit = commit,
-    source_status = if (is.na(commit)) "installed package; source commit unavailable" else
-      "installed package; commit from package metadata")
+  provenance <- benchmark_package_provenance("sblr")
+  list(version = provenance$version, commit = provenance$sha,
+    source_status = provenance$source_status)
 }
 
 .five_replicate_thread_settings <- function() {
