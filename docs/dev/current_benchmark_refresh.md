@@ -35,3 +35,18 @@ coordinate, chain, diagnostic, provenance, and checksum validation.
 The tracked cleanup inventory is generated locally at
 `results/local/current_benchmark_refresh/audit/benchmark_inventory.csv`. No superseded
 tracked capsule is removed until its current replacement and report validate.
+
+## Decisions reached
+
+- Study 04 produced current recommendations and a complete five-replicate validation.
+- Studies 01--03 completed their full current grids under the frozen refresh SHA.
+- Study 05 completed two four-chain maximum-history annotation fits. Neither BayesRC
+  nor SBayesRC satisfied the prespecified convergence gate; the full annotation
+  benchmark was not started. The current evidence is therefore a stop capsule, not a
+  completed scientific benchmark.
+- Study 06 did not require a sampler rerun. Its 60 numerical fits retain their truthful
+  source provenance at `bd8e2c8148a0d9540dc20716455706beeb16fa86`. At the frozen
+  refresh SHA, all resolved BayesC and BayesR prior quantities are identical under the
+  Study 06 settings, and all compiled BED, CSR, block-CSR, and retained-low-rank sampler
+  transition sources are byte-identical. The current Study 06 capsule records both the
+  numerical-fit SHA and the refresh-validation SHA.

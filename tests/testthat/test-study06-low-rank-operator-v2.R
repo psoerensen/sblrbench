@@ -10,6 +10,8 @@ if (dir.exists(study06v2_dir)) {
   source(file.path(study06v2_dir, "methods.R"), local = TRUE)
   source(file.path(study06v2_dir, "final_validation.R"), local = TRUE)
   source(file.path(study06v2_dir, "provenance.R"), local = TRUE)
+  source(file.path(study06v2_root, "studies", "06_ld_operator",
+    "compatibility.R"), local = TRUE)
 }
 
 test_that("v2 pins the optimized installed-package source revision", {
@@ -19,6 +21,24 @@ test_that("v2 pins the optimized installed-package source revision", {
   expect_identical(study06v2_config$required_sblr_version, "0.2.0")
   expect_match(study06v2_config$installed_library, "rlib$")
   expect_identical(study06v2_config$low_rank_residual_rebuild_every, 100L)
+})
+
+test_that("the refresh SHA preserves Study 06 priors and transitions", {
+  skip_if_not(dir.exists(study06v2_dir))
+  prior <- .study06_prior_compatibility()
+  expect_equal(nrow(prior), 12L)
+  expect_true(all(prior$identical_resolved_prior))
+  expect_equal(prior$old_B_per_phenotypic_variance,
+    prior$current_B_per_phenotypic_variance, tolerance = 0)
+  expect_equal(prior$old_ssb_prior_per_phenotypic_variance,
+    prior$current_ssb_prior_per_phenotypic_variance, tolerance = 0)
+
+  sibling <- normalizePath(file.path(study06v2_root, "..", "sblr"),
+    winslash = "/", mustWork = TRUE)
+  source <- .study06_source_compatibility(sibling)
+  expect_true(all(source$identical))
+  expect_true(any(source$role == "compiled sampler transition"))
+  expect_true(any(source$role == "compiled retained-low-rank operator"))
 })
 
 test_that("v2 paths and capsules cannot overwrite v1", {

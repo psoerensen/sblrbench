@@ -1,0 +1,15 @@
+"path","role","fit_sha_blob","refresh_sha_blob","identical"
+"R/stblr-public.R","R dispatch and native binding","ff1cddb94903b296a06df912295b0cac2ae52626","ff1cddb94903b296a06df912295b0cac2ae52626",TRUE
+"R/stblr-block-eigen.R","R dispatch and native binding","5b3ec0da1d59ecd9896c1826f4893a2a8164af50","5b3ec0da1d59ecd9896c1826f4893a2a8164af50",TRUE
+"R/RcppExports.R","R dispatch and native binding","ce9fc5b6dde7234a0081d724b19143c2818d4ecb","ce9fc5b6dde7234a0081d724b19143c2818d4ecb",TRUE
+"src/st_cpg_omp_individual_scheduled_chains.cpp","compiled sampler transition","337cd60b83bf4e601db4b7bf1d0ffefd6b365db4","337cd60b83bf4e601db4b7bf1d0ffefd6b365db4",TRUE
+"src/stblr_cpg_omp_bed_marker_scheduled_chains_bayesr.cpp","compiled sampler transition","b3736fc6fdb6a85b8a4cf33062767ece88926d4e","b3736fc6fdb6a85b8a4cf33062767ece88926d4e",TRUE
+"src/st_cpg_omp_csr.cpp","compiled sampler transition","a0c01f462b8d1585086a42246a1c4b2f96b45ec7","a0c01f462b8d1585086a42246a1c4b2f96b45ec7",TRUE
+"src/st_cpg_omp_csr_bayesr.cpp","compiled sampler transition","b47d00e8bb5cb5c8a660fc3be8fafa849f3b2df6","b47d00e8bb5cb5c8a660fc3be8fafa849f3b2df6",TRUE
+"src/st_block_eigen.cpp","compiled retained-low-rank operator","f2ddbdcd20a2e3d2c20ea38786e001631908e957","f2ddbdcd20a2e3d2c20ea38786e001631908e957",TRUE
+"src/st_block_low_rank.cpp","compiled retained-low-rank operator","1b206cebd9534006c263cadfc0028164d54dfbc3","1b206cebd9534006c263cadfc0028164d54dfbc3",TRUE
+"src/st_ld_operator.h","compiled retained-low-rank operator","6fa34462ec891b798a4deb330a2442095330fc7f","6fa34462ec891b798a4deb330a2442095330fc7f",TRUE
+"src/blr_block_low_rank.h","compiled retained-low-rank operator","4b98f8d14f64c0aa2d6deccba5196b587ef1d543","4b98f8d14f64c0aa2d6deccba5196b587ef1d543",TRUE
+"src/st_csr_common.h","compiled shared sampler contract","85f56deec345f8b842db3b649ef37b62c16cf455","85f56deec345f8b842db3b649ef37b62c16cf455",TRUE
+"src/st_bed_decode.h","compiled shared sampler contract","8ba80f79bce86d042c96db161e5212011acfb5f5","8ba80f79bce86d042c96db161e5212011acfb5f5",TRUE
+"src/st_bed_bayesr_common.h","compiled shared sampler contract","490bdeb69b6e042f4223a09634c285169031d9bd","490bdeb69b6e042f4223a09634c285169031d9bd",TRUE
