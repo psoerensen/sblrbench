@@ -1,7 +1,0 @@
-"architecture","configuration","runtime_seconds_optimized","seconds_per_chain_iteration","runtime_seconds_preoptimization","runtime_ratio"
-"sparse_homogeneous","low_rank_0995",112.95,0.0608900006612142,493.2,0.229014598540146
-"sparse_homogeneous","low_rank_0999",113.39,0.0666933337847392,665.91,0.170278265831719
-"sparse_homogeneous","low_rank_full",155.94,0.0635633317629496,618.61,0.25208127899646
-"sparse_mixture","low_rank_0995",143.56,0.112701807999999,,
-"sparse_mixture","low_rank_0999",157.15,0.0854242546666679,,
-"sparse_mixture","low_rank_full",116.73,0.0898851626666669,,

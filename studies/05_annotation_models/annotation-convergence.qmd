@@ -1,0 +1,58 @@
+---
+title: "Study 05: Annotation-model convergence decision"
+description: "Current maximum-history BayesRC and SBayesRC convergence stop."
+---
+
+```{r}
+#| echo: false
+capsule <- "results/reference/05_annotation_models/current-stop"
+manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"),
+  simplifyVector = TRUE)
+recommendations <- read.csv(file.path(capsule, "method_recommendations.csv"),
+  check.names = FALSE)
+status <- read.csv(file.path(capsule, "fit_status.csv"), check.names = FALSE)
+design <- read.csv(file.path(capsule, "annotation_design_summary.csv"),
+  check.names = FALSE)
+```
+
+::: {.callout-important}
+Study 05 is stopped at its prespecified convergence gate. This is not a
+completed annotation-model scientific benchmark, and no five-replicate result
+capsule exists.
+:::
+
+## Completed work
+
+The public BayesRC and SBayesRC interfaces, annotation orientation, probit
+stick-breaking probabilities, marker alignment, and chain-output contracts were
+validated. A single deterministic annotation matrix with intercept,
+`enriched_binary`, `continuous_signal`, and `null_annotation` was used.
+
+Both maximum-history annotation fits completed with four identifiable chains
+under `sblr` 0.2.0 at `r manifest$installed_sblr_commit`. The full benchmark flag is
+`r manifest$full_benchmark_started`; no simulation grid beyond the pilot was
+started.
+
+## Prespecified stop decision
+
+```{r}
+#| echo: false
+knitr::kable(recommendations, digits = 4)
+```
+
+Neither annotation-informed method passed every unchanged Study 04 threshold at
+any candidate window. The limiting quantity for both was the R-hat of the
+`continuous_signal` coefficient for the component-0 stick. The largest assessed
+window used 1,000 burn-in and 2,000 retained draws. This failure is preserved as
+scientific evidence; thresholds were not weakened and seeds were not replaced.
+
+## Reproducibility
+
+- [Current stop capsule](../../results/reference/05_annotation_models/current-stop/README.md)
+- [Manifest](../../results/reference/05_annotation_models/current-stop/benchmark_manifest.json)
+- [Convergence diagnostics](../../results/reference/05_annotation_models/current-stop/convergence_diagnostics.csv)
+- [Candidate settings](../../results/reference/05_annotation_models/current-stop/candidate_settings.csv)
+- [Development run record](../../docs/dev/study05_annotation_models_run.md)
+- [Checksums](../../results/reference/05_annotation_models/current-stop/checksums.csv)
+
+A later annotation benchmark requires a new, supported convergence design.

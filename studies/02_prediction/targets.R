@@ -167,8 +167,8 @@ list(
       all(prediction_replicate_status$status == "ok")
     method_seeds <- unique(prediction_computational_summary[, c("architecture", "replicate", "method", "mcmc_seed")])
     jsonlite::write_json(list(study = prediction_config$study, task = prediction_config$task,
-      benchmark_title = if (nrep == 5L) "Single-trait prediction five-replicate development benchmark" else "Single-trait prediction one-replicate development benchmark",
-      benchmark_scope = if (nrep == 5L) "five_replicate_development" else "one_replicate_development",
+      benchmark_title = "Current single-trait prediction benchmark",
+      benchmark_scope = "current",
       benchmark_status = if (complete) "complete" else "incomplete",
       development_settings = TRUE, replicate_count = nrep,
       expected_fit_count = expected_fits,

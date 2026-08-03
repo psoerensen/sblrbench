@@ -8,12 +8,12 @@ project:
     - metrics.qmd
     - reproducibility.qmd
     - studies/index.qmd
-    - studies/01_finemapping/separated-development-pilot.qmd
-    - studies/02_prediction/prediction-development-pilot.qmd
-    - studies/03_parameter_estimation/parameter-estimation-development-pilot.qmd
-    - studies/04_convergence/convergence-development-pilot.qmd
-    - studies/06_ld_operator/ld-operator-development-pilot.qmd
-    - studies/06_ld_operator/retained-low-rank-operator-development-v2.qmd
+    - studies/01_finemapping/fine-mapping.qmd
+    - studies/02_prediction/prediction.qmd
+    - studies/03_parameter_estimation/parameter-estimation.qmd
+    - studies/04_convergence/convergence.qmd
+    - studies/05_annotation_models/annotation-convergence.qmd
+    - studies/06_ld_operator/low-rank-operator.qmd
   resources:
     - results/reference/**
 

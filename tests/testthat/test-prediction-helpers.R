@@ -131,7 +131,8 @@ test_that("active Study 02 method set is exactly the four ST methods", {
   expect_identical(vapply(specs, `[[`, character(1), "id"), config$methods)
   expect_false(any(grepl("^mt_", config$methods)))
   expect_false("multitrait" %in% names(config))
-  expect_identical(config$reference_profiles$one_replicate_development$replicate_count, 1L)
+  expect_identical(config$reference_profiles$current$replicate_count, 5L)
+  expect_identical(config$mcmc$policy, "current_study04_recommendations")
 })
 
 test_that("promotion validation rejects active MT rows and partial grids", {
@@ -142,7 +143,7 @@ test_that("promotion validation rejects active MT rows and partial grids", {
   source(promotion_path, local = TRUE)
   config <- source(config_path, local = TRUE)$value
   status <- expand.grid(architecture = names(config$simulation$architectures),
-    replicate = 1L, method = config$methods, stringsAsFactors = FALSE)
+    replicate = 1:5, method = config$methods, stringsAsFactors = FALSE)
   status$status <- "ok"; status$reason <- ""
   computation <- status; computation$runtime <- 1
   metrics <- merge(status[, c("architecture", "replicate", "method")],
@@ -151,20 +152,24 @@ test_that("promotion validation rejects active MT rows and partial grids", {
       "prediction_calibration_intercept", "prediction_calibration_slope",
       "effect_rmse")), by = NULL)
   metrics$trait <- "trait1"; metrics$value <- 1; metrics$status <- "ok"
-  simulations <- data.frame(architecture = names(config$simulation$architectures),
-    replicate = 1L, causal_count = 50L, realized_h2 = .3, oracle_ok = TRUE)
+  simulations <- expand.grid(
+    architecture = names(config$simulation$architectures), replicate = 1:5,
+    stringsAsFactors = FALSE)
+  simulations$causal_count <- 50L; simulations$realized_h2 <- .3
+  simulations$oracle_ok <- TRUE
   paired <- expand.grid(architecture = names(config$simulation$architectures),
     comparison_id = c("bayesr_vs_bayesc_bed", "sbayesr_vs_sbayesc_csr",
       "csr_vs_bed_bayesc", "csr_vs_bed_bayesr"),
     paired_metric = paste0("metric", 1:7), stringsAsFactors = FALSE)
-  paired$replicate <- 1L; paired$focal_method <- "focal"
+  paired <- merge(paired, data.frame(replicate = 1:5), by = NULL)
+  paired$focal_method <- "focal"
   paired$comparison_method <- "comparison"; paired$complete_pair <- TRUE
   paired$advantage <- 0
-  manifest <- list(task = "single_trait_prediction", replicate_count = 1L,
-    benchmark_scope = "one_replicate_development", benchmark_status = "complete",
+  manifest <- list(task = "single_trait_prediction", replicate_count = 5L,
+    benchmark_scope = "current", benchmark_status = "complete",
     active_methods = config$methods, training_sample_count = 3500L,
     test_sample_count = 1500L, canonical_marker_count = 37991L,
-    expected_fit_count = 8L, successful_fit_count = 8L, failed_fit_count = 0L,
+    expected_fit_count = 40L, successful_fit_count = 40L, failed_fit_count = 0L,
     qgdata = list(commit = config$example_data$commit, files = config$example_data$files))
   expect_invisible(.study02_validate_promotion_tables(config, metrics, paired,
     computation, status, simulations, manifest))
@@ -172,10 +177,10 @@ test_that("promotion validation rejects active MT rows and partial grids", {
   expect_error(.study02_validate_promotion_tables(config, metrics, paired,
     computation, bad, simulations, manifest), "MT rows")
   expect_error(.study02_validate_promotion_tables(config, metrics, paired,
-    computation, status[-1, ], simulations, manifest), "eight complete")
+    computation, status[-1, ], simulations, manifest), "40 complete")
   bad_manifest <- manifest; bad_manifest$replicate_count <- 10L
   expect_error(.study02_validate_promotion_tables(config, metrics, paired,
-    computation, status, simulations, bad_manifest), "exactly one")
+    computation, status, simulations, bad_manifest), "exactly five")
 })
 
 test_that("one-replicate summaries retain NA uncertainty", {
@@ -239,14 +244,17 @@ test_that("capsule validator gives strict checksum diagnostics", {
   capsule <- tempfile("capsule-"); dir.create(capsule)
   required <- c("README.md", "benchmark_summary.csv", "paired_comparison_summary.csv",
     "paired_method_differences.csv", "computational_summary.csv", "replicate_status.csv",
-    "simulation_summary.csv", "config.R", "run_prediction_benchmark.R",
-    "worked_prediction_example.R", "prediction_contract_smoke_test.R",
-    "example_data_manifest.csv", "source_files.csv", "session_info.txt", "pilot.R", "targets.R")
+    "simulation_summary.csv", "seed_registry.csv", "example_data_manifest.csv",
+    "source_files.csv", "session_info.txt")
   invisible(lapply(file.path(capsule, required), function(path) writeLines("fixture", path)))
   methods <- .study02_expected_methods()
   write.csv(data.frame(method = methods, value = 1),
     file.path(capsule, "prediction_metrics.csv"), row.names = FALSE)
-  jsonlite::write_json(list(replicate_count = 1L, successful_fit_count = 8L,
+  status <- expand.grid(architecture = c("sparse_homogeneous", "sparse_mixture"),
+    replicate = 1:5, method = methods, stringsAsFactors = FALSE)
+  status$status <- "ok"
+  write.csv(status, file.path(capsule, "replicate_status.csv"), row.names = FALSE)
+  jsonlite::write_json(list(replicate_count = 5L, successful_fit_count = 40L,
     active_methods = methods), file.path(capsule, "benchmark_manifest.json"), auto_unbox = TRUE)
   files <- sort(setdiff(list.files(capsule), "checksums.csv"))
   make_checks <- function() data.frame(file = files,

@@ -28,7 +28,7 @@ Alignment is identity-based, restores canonical order, and rejects duplicates, m
 
 Add a future method by constructing an ordinary `sblrbench_method`; no registry is required. Start a future study under `studies/<name>/`, keeping study-specific code there until it becomes a stable shared contract. External adapters, full fine-mapping/prediction benchmarks, workflow engines, and method-specific semantic normalization are deliberately deferred.
 
-Study 01 implements a separated-locus fine-mapping pilot. Ten exact causal markers are selected by a seeded randomized-greedy scan after MAF filtering, retained in chromosome order, and separated by at least 1 Mb. The four scalar-trait methods are BED BayesC/BayesR and CSR SBayesC/SBayesR. Set `SBLR_BENCH_STUDY=01_finemapping` and `SBLR_BENCH_REPLICATES` to `1`, `5`, or `10` before `targets::tar_make()`; genotype and sparse-LD targets are cached across stages.
+Study 01 implements a separated-locus fine-mapping benchmark. Ten exact causal markers are selected by a seeded randomized-greedy scan after MAF filtering, retained in chromosome order, and separated by at least 1 Mb. The four scalar-trait methods are BED BayesC/BayesR and CSR SBayesC/SBayesR. Set `SBLR_BENCH_STUDY=01_finemapping` before `targets::tar_make()`; genotype and sparse-LD targets are cached across stages.
 
 Outputs cover effect RMSE, PIP Brier score, average precision, causal ranks/top-K recall, and exact/LD-proxy credible-set coverage. The configured 500-iteration, 250-burn-in, one-chain controls are development settings only. Structural success does not prove convergence or support rankings. Cumulative marginal-PIP credible sets are not per-effect causal configurations; scientific runs require longer chains and sensitivity analyses.
 
@@ -45,7 +45,7 @@ targets::tar_make()
 
 ## Published benchmark capsules
 
-Reviewed, compact, versioned benchmark snapshots live under `results/reference/`. Working outputs and full local study artifacts remain ignored under `results/local/`.
+Reviewed current benchmark capsules live under `results/reference/`. Working outputs and full local study artifacts remain ignored under `results/local/`; earlier capsules remain available through Git history.
 
 ## Reproducing reports
 
@@ -61,15 +61,11 @@ Study 01 uses public simulated PLINK data from a pinned `psoerensen/qgdata` revi
 download_sblrbench_example_data()
 ```
 
-The improved `separated-development-v1.1` capsule contains the same numerical benchmark results as v1 with a real worked sampler example, a separate developer smoke test, pinned data checksums, and clearer full-workflow reproduction guidance.
+The current capsule records the refreshed numerical benchmark, pinned data checksums, source provenance, and validation evidence.
 
-## Prediction development study
+## Current benchmark catalogue
 
-Study 02 is a single-trait prediction benchmark comparing BayesC and BayesR across individual-level BED and summary-statistics/CSR representations. Sparse homogeneous and sparse variance-mixture architectures use the same causal count and target heritability. It uses a common deterministic 70/30 train/test split. Allele frequencies, standardization, sparse LD and summary statistics are learned from training individuals only; test phenotypes are held out from every fitting and preprocessing decision.
-
-```r
-Sys.setenv(SBLR_BENCH_STUDY = "02_prediction", SBLR_BENCH_REPLICATES = "1")
-targets::tar_make()
-```
-
-The readable worked example, developer smoke test and full benchmark entry point are respectively `scripts/worked_prediction_example.R`, `scripts/prediction_contract_smoke_test.R`, and `scripts/run_prediction_benchmark.R`. Short one-chain MCMC settings validate infrastructure only. A separate future study may compare single-trait and multi-trait prediction after multi-trait computational performance has been assessed. Parameter-estimation and convergence benchmarks are also planned separately.
+Studies 01--04 and 06 have complete current benchmarks. Study 05 is stopped at its
+prespecified annotation-convergence gate. Study 07 is planned/paused pending retained
+low-rank multivariate implementation work. See the
+[benchmark catalogue](studies/index.qmd) for current reports and capsules.

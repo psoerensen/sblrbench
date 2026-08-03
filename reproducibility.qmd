@@ -5,44 +5,56 @@ title: "Reproducibility"
 ## Benchmark lifecycle
 
 ```text
-local targets pipeline
+isolated installed package at a pinned SHA
+→ resumable local targets/checkpoints
 → reviewed compact outputs
-→ promotion validation
-→ frozen reference capsule
-→ Quarto report
-→ GitHub Pages publication
+→ validated current reference capsule
+→ capsule-only Quarto report
 ```
 
-Run a local study with compatible input:
+Working outputs, target stores, logs, and isolated libraries live below ignored
+`results/local/`. Current public evidence lives below `results/reference/`:
+
+```text
+01_finemapping/current
+02_prediction/current
+03_parameter_estimation/current
+04_convergence/current-selection
+04_convergence/current-validation
+05_annotation_models/current-stop
+06_ld_operator/current
+```
+
+Each capsule records design, seeds, controls, fit counts, exact package source
+provenance, compact result tables, source inventories, session information, and
+checksums. Full fits, sparse-LD stores, Q factors, and targets caches are excluded.
+Git history is the archive for earlier benchmark versions.
+
+## Running a study
+
+Study-specific runners and target declarations validate package provenance and
+checkpoint identity before reuse. For the general target entry point:
 
 ```r
-Sys.setenv(SBLR_BENCH_STUDY = "01_finemapping")
+Sys.setenv(SBLR_BENCH_STUDY = "02_prediction")
 targets::tar_make()
 ```
 
-`results/local/` contains ignored working outputs and full local study results. `results/reference/` contains reviewed, versioned, compact benchmark capsules.
+The current refresh was run against a local isolated installation of `sblr`
+0.2.0 at SHA `02e8c74baa906e83c4a08d42a9cc6339b4e81072`. Study 06 retains numerical-fit
+provenance at its earlier compatible SHA and includes a deterministic compatibility
+audit; its manifest does not falsely claim a rerun.
 
-Promote reviewed outputs with:
+## Report isolation
 
-```r
-source("scripts/promote_reference_results.R")
+```bash
+quarto render
 ```
 
-The promotion validator checks benchmark identity, dimensions, methods, statuses, metrics, finite values, coverage identifiers, and absence of absolute user paths. It refuses to overwrite a snapshot unless `SBLRBENCH_OVERWRITE_REFERENCE=true`.
+Reports read only tracked current capsules. Rendering never constructs LD,
+simulates phenotypes, calls samplers, or reads `results/local`. The complete site
+is validated with the local refresh directory unavailable.
 
-Each capsule contains compact summaries and metrics, a frozen configuration, exact run command, worked example or smoke test as appropriate, source-code inventory, software versions, checksums and explicit limitations. Capsules may describe public, private, synthetic, downloadable, or non-redistributable sources without assuming every study has genotype data.
-
-For Study 01, the simulated PLINK inputs are publicly accessible from a pinned qgdata commit. `download_sblrbench_example_data()` retrieves and checksum-validates them automatically. The capsule records the pinned URLs, file sizes and MD5 checksums; the large genotype files themselves are not copied into this repository or website.
-
-Public reports exclude sparse-LD files, full posterior samples, full fit objects and `_targets/` stores.
-
-## Prediction benchmark
-
-```r
-Sys.setenv(SBLR_BENCH_STUDY = "02_prediction", SBLR_BENCH_REPLICATES = "10")
-targets::tar_make()
-```
-
-Study 02 uses one deterministic split for every architecture, replicate and active ST method. Allele frequencies and scaling parameters come from training rows; sparse LD and summary statistics also use training rows only. Test phenotypes never enter fitting.
-
-The prediction workflow has four distinct artifacts: `scripts/worked_prediction_example.R` for users, `scripts/prediction_contract_smoke_test.R` for fast contract validation, `scripts/run_prediction_benchmark.R` for the full paired single-trait study, and a reference capsule created only after review from a clean Git commit. Multi-trait prediction, parameter-estimation and convergence benchmarks remain separate planned work.
+Study 01 uses public simulated PLINK data from a pinned qgdata revision. Its
+current capsule records file sizes and checksums without copying large genotype
+files into the repository.

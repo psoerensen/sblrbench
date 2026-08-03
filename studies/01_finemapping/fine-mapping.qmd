@@ -1,0 +1,64 @@
+---
+title: "Study 01: Separated-locus fine-mapping"
+description: "Current ten-replicate fine-mapping and credible-set benchmark."
+---
+
+```{r}
+#| echo: false
+capsule <- "results/reference/01_finemapping/current"
+manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"),
+  simplifyVector = TRUE)
+summary <- read.csv(file.path(capsule, "benchmark_summary.csv"),
+  check.names = FALSE)
+status <- read.csv(file.path(capsule, "replicate_status.csv"),
+  check.names = FALSE)
+warnings <- read.csv(file.path(capsule, "target_warnings.csv"),
+  check.names = FALSE)
+```
+
+::: {.callout-warning}
+This is a focused development benchmark. Ten simulations support structural
+validation and descriptive comparison, not a universal method ranking.
+:::
+
+## Design and completion
+
+The current benchmark uses one separated-locus architecture, ten deterministic
+replicates, ten causal markers per replicate, and four scalar methods: ST-BED
+BayesC/BayesR and ST-CSR SBayesC/SBayesR. All `r nrow(status)` fits completed.
+Each fit used 250 burn-in and 500 retained iterations in one chain, with no
+thinning. This explicit Study 01 policy is independent of the multichain
+recommendations selected in Study 04.
+
+The run used `sblr` 0.2.0 at
+`r manifest$sblr_source_commit`. Data and effects are paired across methods within
+each replicate. Causal selection preserves the MAF and distance constraints,
+marker identities, and canonical chromosome order.
+
+## Marker and credible-set outcomes
+
+```{r}
+#| echo: false
+keep <- c("average_precision", "causal_top_10_recall", "effect_rmse",
+  "pip_brier", "exact_coverage_fraction", "ld_proxy_coverage_fraction",
+  "mean_set_size")
+knitr::kable(summary[summary$metric %in% keep,
+  c("method", "metric", "n", "mean", "sd", "min", "max")],
+  digits = 4)
+```
+
+Credible sets are cumulative marginal-PIP sets, not per-effect causal
+configurations. The sparse-LD warning audit found `r nrow(warnings)` recorded
+target warnings. Direct genotype correlations confirmed that every zero-edge
+warning was consistent with the frozen LD threshold rather than marker-order or
+indexing failure.
+
+## Reproducibility
+
+- [Current capsule](../../results/reference/01_finemapping/current/README.md)
+- [Manifest](../../results/reference/01_finemapping/current/benchmark_manifest.json)
+- [Benchmark summary](../../results/reference/01_finemapping/current/benchmark_summary.csv)
+- [LD warning validation](../../results/reference/01_finemapping/current/ld_warning_validation.csv)
+- [Checksums](../../results/reference/01_finemapping/current/checksums.csv)
+
+Earlier development versions remain available through Git history.

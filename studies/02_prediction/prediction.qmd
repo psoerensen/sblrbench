@@ -1,0 +1,68 @@
+---
+title: "Study 02: Single-trait prediction"
+description: "Current five-replicate held-out prediction benchmark."
+---
+
+```{r}
+#| echo: false
+capsule <- "results/reference/02_prediction/current"
+manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"),
+  simplifyVector = TRUE)
+summary <- read.csv(file.path(capsule, "benchmark_summary.csv"),
+  check.names = FALSE)
+paired <- read.csv(file.path(capsule, "paired_comparison_summary.csv"),
+  check.names = FALSE)
+status <- read.csv(file.path(capsule, "replicate_status.csv"),
+  check.names = FALSE)
+```
+
+::: {.callout-warning}
+This complete five-replicate development benchmark provides descriptive paired
+evidence. It does not establish a universal prediction ranking.
+:::
+
+## Design and execution contract
+
+Two architectures—sparse homogeneous and sparse variance mixture—were evaluated
+in five paired replicates with ST-BED BayesC/BayesR and ST-CSR SBayesC/SBayesR.
+All `r nrow(status)` fits completed with four identifiable chains. The current
+run uses the validated Study 04 recommendations: 250 burn-in plus 250 retained
+draws for BayesC/SBayesC, and 250 burn-in plus 2,000 retained draws for
+BayesR/SBayesR; no thinning was used.
+
+The deterministic 70/30 split is shared within replicate. Allele frequencies,
+genotype scaling, summary statistics, and sparse LD use training individuals
+only. Test phenotypes enter evaluation only. The exact package source is
+`r manifest$versions$sblr_source_commit`.
+
+## Held-out results
+
+```{r}
+#| echo: false
+keep <- c("phenotype_prediction_correlation", "prediction_correlation",
+  "prediction_nmse", "prediction_calibration_slope", "effect_rmse")
+knitr::kable(summary[summary$metric %in% keep,
+  c("architecture", "method_label", "metric", "successful_replicates",
+    "mean", "sd", "minimum", "maximum")], digits = 4)
+```
+
+## Paired method contrasts
+
+```{r}
+#| echo: false
+shown <- paired[paired$metric %in%
+  c("phenotype_prediction_correlation", "prediction_correlation",
+    "prediction_nmse"), ]
+knitr::kable(shown, digits = 4)
+```
+
+## Reproducibility
+
+- [Current capsule](../../results/reference/02_prediction/current/README.md)
+- [Manifest](../../results/reference/02_prediction/current/benchmark_manifest.json)
+- [Prediction metrics](../../results/reference/02_prediction/current/prediction_metrics.csv)
+- [Paired replicate differences](../../results/reference/02_prediction/current/paired_method_differences.csv)
+- [Checksums](../../results/reference/02_prediction/current/checksums.csv)
+
+The report reads one canonical capsule; earlier one-replicate and versioned
+development snapshots remain accessible through Git history.

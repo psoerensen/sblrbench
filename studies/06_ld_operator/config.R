@@ -49,7 +49,7 @@ list(
     maximum_prediction_correlation_difference = 0.10,
     minimum_posterior_effect_correlation = 0.95),
   recommendation_source = file.path("results", "reference",
-    "04_convergence", "st-multichain-convergence-development-v1",
+    "04_convergence", "current-selection",
     "method_recommendations.csv"),
   convergence = list(
     maximum_nit = 3000L, maximum_nburn = 0L, nthin = 1L,
@@ -66,9 +66,9 @@ list(
     chain_stride = 101L, operator_probe = 6601L),
   local_dir = file.path("results", "local", "study06_ld_operator"),
   convergence_capsule = file.path("results", "reference",
-    "06_ld_operator", "st-ld-operator-convergence-development-v1"),
+    "06_ld_operator", "current"),
   benchmark_capsule = file.path("results", "reference",
-    "06_ld_operator", "st-ld-operator-five-replicate-development-v1"),
+    "06_ld_operator", "current"),
   source_audit = c(
     "R/stblr-public.R", "R/stblr-block-eigen.R",
     "R/stblr-csr-annot.R", "R/mtblr-bed.R", "R/mtblr-csr.R",

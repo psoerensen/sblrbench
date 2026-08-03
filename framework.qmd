@@ -8,7 +8,7 @@ title: "Benchmark framework"
 |---|---|
 | `sblr` | Statistical models, samplers and public inference APIs |
 | `sblrbench` | Simulations, strict alignment, oracle checks, adapters, truth-aware metrics, provenance and reference benchmarks |
-| Study repositories | Frozen publication-specific designs, production settings, figures, tables and manuscripts |
+| Study repositories | Publication-specific extensions, figures, tables and manuscripts |
 
 ## Study flow
 
@@ -25,13 +25,16 @@ data preparation
 
 Prediction studies replace credible-set evaluation with held-out prediction and paired model/representation contrasts. Their allele frequencies, genotype scaling, sparse LD, and summary statistics are learned from training individuals only. Test phenotypes are used only by evaluation metrics.
 
-`targets` orchestrates and caches computational studies. Published reports never trigger those analyses: they consume reviewed, frozen compact outputs from a versioned reference capsule.
+`targets` orchestrates and caches computational studies. Published reports never trigger those analyses: they consume reviewed, frozen compact outputs from one current reference capsule per scientifically relevant stage.
 
 ## Adding a benchmark
 
-1. Promote reviewed compact results into a new versioned directory under `results/reference/`.
+1. Promote reviewed compact results into the study's canonical current directory under `results/reference/`.
 2. Add one report using the standard section order.
 3. Add one catalogue entry to `studies/index.qmd`.
 4. Render the site.
 
-Every study separates a readable **worked example**, a fast **developer smoke test**, the complete targets-based benchmark, and a reviewed compact **reference capsule**. A separate future study may compare single-trait and multi-trait prediction after computational performance has been assessed. Parameter-estimation and convergence studies are planned separately and can reuse retained native fits without changing prediction metrics.
+Every study separates bounded contract tests, the complete targets-based benchmark,
+and a reviewed compact reference capsule. Earlier benchmark states are preserved by
+Git history rather than duplicated as active capsule trees. Study 07 remains paused
+pending retained-low-rank multivariate implementation work.

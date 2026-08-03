@@ -1,9 +1,0 @@
-"architecture","replicate","method","runtime","status","error_class","error_message","nit","nburn","nthin","nchains","ncores","posterior_draw_count","fit_seed"
-"sparse_homogeneous",1,"st_bed_bayesc",59.99,"ok","","",500,250,1,1,1,500,30101
-"sparse_homogeneous",1,"st_bed_bayesr",301.42,"ok","","",500,250,1,1,1,500,30102
-"sparse_homogeneous",1,"st_csr_sbayesc",26.1,"ok","","",500,250,1,1,1,500,30103
-"sparse_homogeneous",1,"st_csr_sbayesr",18.9399999999999,"ok","","",500,250,1,1,1,500,30104
-"sparse_mixture",1,"st_bed_bayesc",22.71,"ok","","",500,250,1,1,1,500,40101
-"sparse_mixture",1,"st_bed_bayesr",214.88,"ok","","",500,250,1,1,1,500,40102
-"sparse_mixture",1,"st_csr_sbayesc",5.71999999999991,"ok","","",500,250,1,1,1,500,40103
-"sparse_mixture",1,"st_csr_sbayesr",13.09,"ok","","",500,250,1,1,1,500,40104

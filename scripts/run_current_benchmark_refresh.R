@@ -182,7 +182,7 @@ run_phase <- function(x) switch(x,
     script = file.path("studies", "04_convergence", "validation_targets.R")),
   `study03` = run_targets("03_parameter_estimation", "five_replicate_development",
     file.path(refresh_root, "study03"), "study03"),
-  `study02` = run_targets("02_prediction", "five_replicate_development",
+  `study02` = run_targets("02_prediction", "current",
     file.path(refresh_root, "study02"), "study02"),
   `study01` = {
     run_targets("01_finemapping", "pilot",

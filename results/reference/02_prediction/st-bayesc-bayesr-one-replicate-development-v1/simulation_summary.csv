@@ -1,3 +1,0 @@
-"architecture","replicate","simulation_seed","causal_count","target_h2","realized_h2","effect_distribution","component_counts","oracle_ok","oracle_max_abs_error"
-"sparse_homogeneous",1,5002,50,0.3,0.3,"single_normal","single_normal:50",TRUE,0
-"sparse_mixture",1,6002,50,0.3,0.3,"variance_mixture","variance_0.01:28;variance_0.1:20;variance_1:2",TRUE,0

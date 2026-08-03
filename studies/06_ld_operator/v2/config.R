@@ -76,12 +76,8 @@ list(
   preoptimization_archive = file.path("results", "local",
     "study06_low_rank_operator_v2_pre_optimization_bd8e2c8"),
   convergence_capsule = file.path("results", "reference", "06_ld_operator",
-    "st-low-rank-operator-convergence-development-v2"),
+    "current"),
   benchmark_capsule = file.path("results", "reference", "06_ld_operator",
-    "st-low-rank-operator-five-replicate-development-v2"),
-  historical_capsules = c(
-    file.path("results", "reference", "06_ld_operator",
-      "st-ld-operator-convergence-development-v1"),
-    file.path("results", "reference", "06_ld_operator",
-      "st-ld-operator-five-replicate-development-v1"))
+    "current"),
+  historical_capsules = character()
 )

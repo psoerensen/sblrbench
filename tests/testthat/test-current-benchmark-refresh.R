@@ -1,4 +1,9 @@
+refresh_repository_only <- file.exists(test_path("..", "..", "scripts",
+  "run_current_benchmark_refresh.R"))
+
 test_that("current refresh paths and package pin are explicit", {
+  skip_if_not(refresh_repository_only,
+    "repository-only refresh sources are excluded from package builds")
   runner <- paste(readLines(test_path("..", "..", "scripts",
     "run_current_benchmark_refresh.R"), warn = FALSE), collapse = "\n")
   expect_match(runner, "02e8c74baa906e83c4a08d42a9cc6339b4e81072", fixed = TRUE)
@@ -10,6 +15,8 @@ test_that("current refresh paths and package pin are explicit", {
 })
 
 test_that("five-replicate recommendations resolve to the current capsule", {
+  skip_if_not(refresh_repository_only,
+    "repository-only refresh sources are excluded from package builds")
   env <- new.env(parent = baseenv())
   sys.source(test_path("..", "..", "studies", "five_replicate_helpers.R"), env)
   old <- Sys.getenv("SBLR_BENCH_RECOMMENDATIONS", unset = NA_character_)
@@ -23,6 +30,8 @@ test_that("five-replicate recommendations resolve to the current capsule", {
 })
 
 test_that("Study 02 compacts simulation branches before aggregation", {
+  skip_if_not(refresh_repository_only,
+    "repository-only refresh sources are excluded from package builds")
   source <- paste(readLines(test_path("..", "..", "studies", "02_prediction",
     "targets.R"), warn = FALSE), collapse = "\n")
   expect_match(source, "prediction_simulation_summary_branch")
@@ -32,6 +41,8 @@ test_that("Study 02 compacts simulation branches before aggregation", {
 })
 
 test_that("Study 01 current capsule contract is exact and current", {
+  skip_if_not(refresh_repository_only,
+    "repository-only refresh sources are excluded from package builds")
   promotion <- paste(readLines(test_path("..", "..", "studies", "01_finemapping",
     "promotion.R"), warn = FALSE), collapse = "\n")
   targets <- paste(readLines(test_path("..", "..", "studies", "01_finemapping",
@@ -55,6 +66,8 @@ test_that("Study 01 current capsule contract is exact and current", {
 })
 
 test_that("Study 05 refresh promotes an explicit convergence decision only", {
+  skip_if_not(refresh_repository_only,
+    "repository-only refresh sources are excluded from package builds")
   runner <- paste(readLines(test_path("..", "..", "scripts",
     "run_current_benchmark_refresh.R"), warn = FALSE), collapse = "\n")
   config <- paste(readLines(test_path("..", "..", "studies",

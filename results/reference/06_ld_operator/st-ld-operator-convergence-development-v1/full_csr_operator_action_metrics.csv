@@ -1,3 +1,0 @@
-"vector_id","reference_operator_id","operator_id","maximum_absolute_error","relative_norm_difference","cosine_similarity","quadratic_form_difference"
-"summary_score","full_csr","runtime_matched_block_csr",590639.931433228,0.429913025829707,0.922385705759743,73928112437.0278
-"true_effect","full_csr","runtime_matched_block_csr",65.9442127638996,0.489912559315767,0.886320654760429,2.8553371295211

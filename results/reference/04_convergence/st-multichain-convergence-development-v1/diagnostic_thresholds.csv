@@ -1,7 +1,0 @@
-"diagnostic","operator","threshold"
-"rhat","<=",1.01
-"ess_bulk",">=",400
-"ess_tail",">=",400
-"relative_mcse","<=",0.05
-"chain_count","==",4
-"standardized_mean_shift","<=",0.1

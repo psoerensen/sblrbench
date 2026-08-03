@@ -1,7 +1,7 @@
 list(
   study = "02_prediction",
   task = "single_trait_prediction",
-  profile = Sys.getenv("SBLR_BENCH_PROFILE", "one_replicate_development"),
+  profile = Sys.getenv("SBLR_BENCH_PROFILE", "current"),
   development_settings = TRUE,
   data_source = "qgg_example",
   example_data = list(
@@ -39,15 +39,12 @@ list(
   ),
   methods = c("st_bed_bayesc", "st_bed_bayesr", "st_csr_sbayesc", "st_csr_sbayesr"),
   reference_profiles = list(
-    one_replicate_development = list(
-      replicate_count = 1L,
-      capsule_id = "st-bayesc-bayesr-one-replicate-development-v1",
-      status = "complete_development_benchmark"
-    ),
-    five_replicate_development = list(
+    current = list(
       replicate_count = 5L,
-      capsule_id = "st-bayesc-bayesr-five-replicate-development-v1",
-      status = "complete_five_replicate_development_benchmark"
+      capsule_id = "current",
+      status = "complete_current_benchmark",
+      recommendation_source = file.path("results", "reference",
+        "04_convergence", "current-selection", "method_recommendations.csv")
     )
   ),
   priors = list(
@@ -56,7 +53,9 @@ list(
     bayesr_active_probability = 0.01,
     bayesr_mixture_var = c(0, 0.01, 0.1, 1)
   ),
-  mcmc = list(nit = 500L, nburn = 250L, nthin = 1L, nchains = 1L,
-    ncores = 1L, convergence = "none", seed_offset = 10000L),
+  mcmc = list(policy = "current_study04_recommendations",
+    recommendation_source = file.path("results", "reference",
+      "04_convergence", "current-selection", "method_recommendations.csv"),
+    seed_offset = 10000L),
   oracle_tolerance = 1e-10
 )

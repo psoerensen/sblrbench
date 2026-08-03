@@ -1,0 +1,69 @@
+---
+title: "Study 03: Single-trait parameter estimation"
+description: "Current five-replicate posterior recovery benchmark."
+---
+
+```{r}
+#| echo: false
+capsule <- "results/reference/03_parameter_estimation/current"
+manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"),
+  simplifyVector = TRUE)
+recovery <- read.csv(file.path(capsule, "parameter_recovery_summary.csv"),
+  check.names = FALSE)
+paired <- read.csv(file.path(capsule, "paired_comparison_summary.csv"),
+  check.names = FALSE)
+status <- read.csv(file.path(capsule, "replicate_status.csv"),
+  check.names = FALSE)
+```
+
+::: {.callout-warning}
+Five simulations per architecture make interval coverage coarse: each miss
+changes observed coverage by 20 percentage points.
+:::
+
+## Design and controls
+
+The current benchmark contains two architectures, five deterministic replicates,
+and four methods for `r nrow(status)` total fits. It evaluates matched and
+misspecified BayesC/SBayesC and BayesR/SBayesR priors using paired truth and
+inputs. Unlike the earlier development snapshot, this fresh run deliberately
+adopts the current Study 04 recommendations: 250 burn-in plus 250 retained draws
+for BayesC/SBayesC and 250 burn-in plus 2,000 retained draws for BayesR/SBayesR,
+with four chains and no thinning.
+
+The exact package source is `r manifest$sblr_commit`. Truth, estimand
+availability, interval definitions, and matched/misspecified classifications are
+frozen in the capsule.
+
+## Recovery
+
+```{r}
+#| echo: false
+shown <- recovery[recovery$estimand_id %in%
+  c("heritability", "genetic_variance", "residual_variance",
+    "effect_variance") & recovery$successful_replicates > 0,
+  c("architecture", "method", "model_specification", "estimand_id",
+    "successful_replicates", "mean_truth", "mean_posterior_mean",
+    "mean_bias", "rmse", "observed_coverage_proportion")]
+knitr::kable(shown, digits = 4)
+```
+
+## Paired contrasts
+
+```{r}
+#| echo: false
+knitr::kable(utils::head(paired, 24), digits = 4)
+```
+
+Unavailable estimands remain explicit in the full tables rather than being
+dropped or assigned artificial truth values.
+
+## Reproducibility
+
+- [Current capsule](../../results/reference/03_parameter_estimation/current/README.md)
+- [Manifest](../../results/reference/03_parameter_estimation/current/benchmark_manifest.json)
+- [Parameter estimates](../../results/reference/03_parameter_estimation/current/parameter_estimates.csv)
+- [Recovery summary](../../results/reference/03_parameter_estimation/current/parameter_recovery_summary.csv)
+- [Checksums](../../results/reference/03_parameter_estimation/current/checksums.csv)
+
+Earlier development snapshots remain available through Git history.

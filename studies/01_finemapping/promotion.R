@@ -137,8 +137,8 @@ source(file.path("studies", "02_prediction", "promotion.R"), local = TRUE)
     r2_threshold = unique(ld_validation$r2_threshold))
   jsonlite::write_json(manifest, file.path(staging, "benchmark_manifest.json"),
     pretty = TRUE, auto_unbox = TRUE, null = "null")
-  file.copy(file.path("results", "reference", "01_finemapping",
-    "separated-development-v1.1", "example_data_manifest.csv"), staging)
+  file.copy(file.path("results", "reference", "02_prediction", "current",
+    "example_data_manifest.csv"), staging)
   source_files <- c("_targets.R", "studies/01_finemapping/config.R",
     "studies/01_finemapping/targets.R", "studies/01_finemapping/pilot.R",
     "studies/01_finemapping/promotion.R", "studies/01_finemapping/setup_example_data.R",

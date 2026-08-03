@@ -142,7 +142,7 @@ source(file.path(.study07_promotion_root, "studies", "02_prediction",
   file.copy("studies/07_mtblr_validation/contract_smoke_test.R",
     file.path(staging, "contract_smoke_test.R"))
   file.copy(file.path("results", "reference", "06_ld_operator",
-    "st-ld-operator-five-replicate-development-v1",
+    "current",
     "example_data_manifest.csv"), file.path(staging,
       "example_data_manifest.csv"))
   if (type != "contract") .study07_write_csv(

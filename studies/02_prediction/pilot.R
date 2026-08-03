@@ -139,12 +139,13 @@
   seed <- as.integer(config$mcmc$seed_offset +
     match(simulation$scenario$architecture, names(config$simulation$architectures)) * 10000L +
     simulation$scenario$replicate * 100L + method$method_index)
-  five <- identical(config$profile, "five_replicate_development")
-  common <- if (five) .five_replicate_mcmc(method$id) else
-    config$mcmc[c("nit", "nburn", "nthin", "nchains", "ncores", "convergence")]
+  current <- config$profile %in% c("current", "five_replicate_development")
+  if (!current) stop("Study 02 supports only the current five-replicate contract.",
+    call. = FALSE)
+  common <- .five_replicate_mcmc(method$id)
   common$seed <- seed
-  chain_seeds <- if (five) .five_replicate_chain_seeds(seed, common$nchains) else seed
-  if (five) common$chain_seeds <- chain_seeds
+  chain_seeds <- .five_replicate_chain_seeds(seed, common$nchains)
+  common$chain_seeds <- chain_seeds
   common$verbose <- FALSE; common$h2 <- config$priors$h2
   if (method$prior_class == "BayesR") {
     active <- config$priors$bayesr_active_probability

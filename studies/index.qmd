@@ -1,99 +1,56 @@
 ---
 title: "Benchmark catalogue"
-description: "Ordered catalogue of frozen sblrbench development benchmarks and planned extensions."
+description: "Current validated sblrbench studies and planned multivariate work."
 ---
 
-## Available benchmarks
+## Current benchmarks
 
-### [Study 01: Separated-locus fine-mapping](01_finemapping/separated-development-pilot.qmd)
+### [Study 01: Separated-locus fine-mapping](01_finemapping/fine-mapping.qmd)
 
-| Field | Value |
-|---|---|
-| Status | Complete development benchmark |
-| Study type | Fine-mapping and credible-set evaluation |
-| Methods | ST-BED BayesC; ST-BED BayesR; ST-CSR SBayesC; ST-CSR SBayesR |
-| Architectures | Separated causal loci |
-| Replicates or chains | 10 replicates |
-| Primary outputs | Marker recovery, causal ranks, credible sets |
-| Validation | 40/40 fits; simulation oracles and strict alignment passed |
-| Capsule | [v1.1 reproducibility capsule](../results/reference/01_finemapping/separated-development-v1.1/README.md) |
+Ten replicates and 40 fits evaluate marker recovery, causal ranks, and
+credible-set coverage under an explicit one-chain development contract.
+[Current capsule](../results/reference/01_finemapping/current/README.md).
 
-### [Study 02: Single-trait prediction](02_prediction/prediction-development-pilot.qmd)
+### [Study 02: Single-trait prediction](02_prediction/prediction.qmd)
 
-| Field | Value |
-|---|---|
-| Status | Complete five-replicate development benchmark |
-| Study type | Held-out single-trait prediction |
-| Methods | ST-BED BayesC; ST-BED BayesR; ST-CSR SBayesC; ST-CSR SBayesR |
-| Architectures | Sparse homogeneous; sparse variance mixture |
-| Replicates or chains | Five paired replicates per architecture |
-| Primary outputs | Prediction correlation, NMSE, calibration, paired differences |
-| Validation | 40/40 fits; four identifiable chains per fit; training-only scaling, LD and summary statistics |
-| Capsule | [Five-replicate capsule](../results/reference/02_prediction/st-bayesc-bayesr-five-replicate-development-v1/README.md); [historical one-replicate capsule](../results/reference/02_prediction/st-bayesc-bayesr-one-replicate-development-v1/README.md) |
+Two architectures, five paired replicates, four methods, and 40 four-chain fits
+evaluate held-out prediction using training-only scaling, summary statistics,
+and LD. [Current capsule](../results/reference/02_prediction/current/README.md).
 
-### [Study 03: Single-trait parameter estimation](03_parameter_estimation/parameter-estimation-development-pilot.qmd)
+### [Study 03: Single-trait parameter estimation](03_parameter_estimation/parameter-estimation.qmd)
 
-| Field | Value |
-|---|---|
-| Status | Complete five-replicate development benchmark |
-| Study type | Posterior parameter estimation |
-| Methods | ST-BED BayesC; ST-BED BayesR; ST-CSR SBayesC; ST-CSR SBayesR |
-| Architectures | Sparse homogeneous; sparse variance mixture |
-| Replicates or chains | Five replicates per architecture |
-| Primary outputs | Effect, genetic and residual variance; heritability; posterior intervals |
-| Validation | 40/40 fits; four identifiable chains per fit; simulation oracles and posterior contracts passed |
-| Capsule | [Five-replicate capsule](../results/reference/03_parameter_estimation/st-parameter-estimation-five-replicate-development-v1/README.md); [historical one-replicate capsule](../results/reference/03_parameter_estimation/st-parameter-estimation-one-replicate-development-v1/README.md) |
+Two architectures, five replicates, four methods, and 40 four-chain fits evaluate
+posterior recovery, uncertainty, and matched versus misspecified priors.
+[Current capsule](../results/reference/03_parameter_estimation/current/README.md).
 
-### [Study 04: Multichain convergence](04_convergence/convergence-development-pilot.qmd)
+### [Study 04: Multichain convergence](04_convergence/convergence.qmd)
 
-| Field | Value |
-|---|---|
-| Status | Complete multichain development benchmark with five-replicate validation |
-| Study type | Operational multichain convergence diagnostics |
-| Methods | Matched ST-BED/CSR BayesC and BayesR |
-| Architectures | Sparse homogeneous; sparse variance mixture |
-| Recommendation-generating run | One replicate per matched architecture; 4 method fits; 16 chains |
-| Fixed-setting validation | Five replicates per matched combination; 20 method fits; 80 chains |
-| Primary outputs | R-hat, bulk/tail ESS, relative MCSE, burn-in stability, recommendations |
-| Validation | Recommendation run: 4/4 fits and 16/16 chains; fixed-setting validation: 20/20 fits and 80/80 chains, with recommendations supported in all five replicates |
-| Capsule | [Recommendation-generating capsule](../results/reference/04_convergence/st-multichain-convergence-development-v1/README.md); [five-replicate validation capsule](../results/reference/04_convergence/st-multichain-convergence-validation-five-replicate-v1/README.md) |
+Four maximum-history fits (16 chains) select current operational settings. A
+separate 20-fit, 80-chain, five-replicate stage validates those recommendations.
+[Selection capsule](../results/reference/04_convergence/current-selection/README.md) ·
+[validation capsule](../results/reference/04_convergence/current-validation/README.md).
 
-### Study 05: Single-trait annotation-informed models
+### [Study 05: Annotation-model convergence decision](05_annotation_models/annotation-convergence.qmd)
 
-| Field | Value |
-|---|---|
-| Status | Interface and maximum-history convergence pilot completed; prespecified convergence stop condition triggered |
-| Study type | Annotation-informed mixture probabilities |
-| Methods | ST-BED BayesR/BayesRC; ST-CSR SBayesR/SBayesRC |
-| Validation | Both maximum-history annotation-model fits completed; no candidate setting passed all unchanged Study 04 thresholds |
-| Scientific results | No five-replicate benchmark was started and no frozen scientific result capsule was produced |
-| Documentation | [Development run record](../docs/dev/study05_annotation_models_run.md) |
+The interface audit and two four-chain maximum-history fits completed. The
+prespecified convergence stop condition was triggered for both annotation-aware
+methods, so no five-replicate scientific benchmark was started.
+[Current stop capsule](../results/reference/05_annotation_models/current-stop/README.md).
 
-### [Study 06 v2: Retained low-rank LD operator validation](06_ld_operator/retained-low-rank-operator-development-v2.qmd)
+### [Study 06: Retained low-rank LD operators](06_ld_operator/low-rank-operator.qmd)
 
-| Field | Value |
-|---|---|
-| Status | Complete five-replicate development benchmark |
-| Study type | Retained-low-rank LD operator validation |
-| Package | `sblr` 0.2.0 at commit `bd8e2c8148a0d9540dc20716455706beeb16fa86` |
-| Architectures | Sparse homogeneous; sparse variance mixture |
-| Scale | 2 architectures; 5 paired replicates; 6 configurations; 60 four-chain fits |
-| Configurations | Packed BED; full CSR; runtime-matched block CSR; near-full retained low rank; retained mass 0.999; retained mass 0.995 |
-| Primary outputs | Deterministic operator validation; prediction; parameter recovery; marker-effect agreement; variable selection; convergence; runtime; storage; retained rank and mass; residual-drift diagnostics |
-| Validation | 60/60 canonical fits; 14/14 pilot fits; 10/10 convergence fits; no reconstructed-dense fit in the primary grid; maximum residual drift approximately `2.4869e-14` |
-| Readiness decision | **READY FOR MTBLR LOW-RANK EXTENSION** |
-| Capsules | [Convergence capsule](../results/reference/06_ld_operator/st-low-rank-operator-convergence-development-v2/README.md); [five-replicate capsule](../results/reference/06_ld_operator/st-low-rank-operator-five-replicate-development-v2/README.md) |
+Two architectures, five paired replicates, six configurations, and 60 four-chain
+fits validate packed BED, full and block CSR, and retained-low-rank operators.
+The fits retain their original compatible package SHA; deterministic validation
+against the current refresh SHA proves unchanged resolved priors and scalar
+sampler transitions. [Current capsule](../results/reference/06_ld_operator/current/README.md).
 
-### [Historical Study 06 v1: Reconstructed-dense block-eigen benchmark](06_ld_operator/ld-operator-development-pilot.qmd)
+## Planned and paused
 
-This immutable historical benchmark used the reconstructed-dense block-eigen
-operator. It remains available as historical evidence and must not be confused
-with the retained-low-rank Study 06 v2 benchmark.
+### Study 07: Multivariate implementation validation
 
-## Planned benchmarks
+Planned/paused pending retained-low-rank MT implementation and scalar-to-MT
+extension work. Preserved alignment, state-mapping, covariance, checkpoint, and
+runtime infrastructure is not presented as current scientific evidence.
 
-- Fine-mapping with realistic LD.
-- High-LD causal architecture.
-- Multi-trait prediction after computational optimization.
-- Scientific-scale annotation-informed models after convergence redesign.
-- Multi-trait operator and prediction benchmarks.
+Earlier development benchmark versions remain available through Git history.

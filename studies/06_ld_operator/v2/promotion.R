@@ -295,7 +295,7 @@ source(file.path(.study06v2_promotion_root, "studies", "02_prediction",
   file.copy(file.path("studies", "06_ld_operator", "v2",
     "contract_smoke_test.R"), file.path(staging, "contract_smoke_test.R"))
   file.copy(file.path("results", "reference", "06_ld_operator",
-    "st-ld-operator-five-replicate-development-v1",
+    "current",
     "example_data_manifest.csv"), file.path(staging,
       "example_data_manifest.csv"))
   if (type == "convergence") file.copy(file.path(local,
@@ -307,7 +307,7 @@ source(file.path(.study06v2_promotion_root, "studies", "02_prediction",
     "scripts/run_study06_low_rank_operator_v2.ps1",
     list.files(file.path("studies", "06_ld_operator", "v2"),
       full.names = TRUE),
-    "studies/06_ld_operator/retained-low-rank-operator-development-v2.qmd")
+    "studies/06_ld_operator/low-rank-operator.qmd")
   sources <- sort(sources[file.exists(sources)])
   write.csv(data.frame(file = sources,
     md5 = unname(.study02_canonical_md5(sources))),

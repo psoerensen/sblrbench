@@ -1,0 +1,108 @@
+---
+title: "Study 06: Retained low-rank LD operators"
+description: "Current five-replicate LD-operator validation and compatibility audit."
+---
+
+```{r}
+#| echo: false
+capsule <- "results/reference/06_ld_operator/current"
+manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"),
+  simplifyVector = TRUE)
+compatibility <- jsonlite::read_json(file.path(capsule,
+  "compatibility_manifest.json"), simplifyVector = TRUE)
+prediction <- read.csv(file.path(capsule, "prediction_metrics.csv"),
+  check.names = FALSE)
+paired <- read.csv(file.path(capsule, "paired_comparison_summary.csv"),
+  check.names = FALSE)
+checkpoint <- read.csv(file.path(capsule, "checkpoint_validation.csv"),
+  check.names = FALSE)
+rank <- read.csv(file.path(capsule, "low_rank_fit_block_diagnostics.csv"),
+  check.names = FALSE)
+runtime <- read.csv(file.path(capsule, "computational_summary.csv"),
+  check.names = FALSE)
+```
+
+::: {.callout-warning}
+This is a five-replicate development benchmark of operator implementations,
+not a comparison of different BLR prior models or a universal performance
+ranking.
+:::
+
+## Scope and provenance
+
+Two architectures, five paired replicates, and six configurations produced 60
+validated four-chain fits: packed BED, full CSR, block CSR, near-full retained
+low rank, 0.999 retained mass, and 0.995 retained mass. Reconstructed-dense
+eigen fits were excluded from the primary grid.
+
+The numerical fits retain their truthful `sblr` source provenance at
+`r manifest$numerical_fit_source_sha`. Compatibility with the current refresh
+SHA `r manifest$refresh_validation_sha` was established without sampler reruns:
+all resolved BayesC and BayesR priors are identical and all compiled scalar
+sampler and retained-low-rank transition sources are byte-identical.
+
+## Deterministic and numerical validation
+
+The `block_low_rank_v1` contract stores retained factors and transformed scores. Its global
+projected residual-variance identity is
+
+$$
+SSE = yy - \sum_b w_b^\top w_b + \sum_b r_b^\top r_b.
+$$
+
+Deterministic Q/w identities, rank selection, score transforms, residual
+updates, and projected SSE passed. The maximum observed residual drift in the
+60-fit grid was `r format(max(checkpoint$maximum_residual_drift, na.rm = TRUE),
+scientific = TRUE, digits = 4)`.
+
+The whole-marker retained ranks were 37,991/37,991 near-full,
+37,839/37,991 at 0.999, and 37,231/37,991 at 0.995. Retained rank is not assumed
+to guarantee a speed or memory advantage; measured timing and storage determine
+the practical trade-off.
+
+## Prediction
+
+```{r}
+#| echo: false
+shown <- prediction[prediction$metric %in% c(
+  "phenotype_prediction_correlation", "genetic_value_correlation",
+  "prediction_rmse", "prediction_calibration_slope"), ]
+cols <- intersect(c("architecture", "replicate", "configuration", "metric",
+  "value"), names(shown))
+knitr::kable(utils::head(shown[cols], 48), digits = 4)
+```
+
+## Paired operator contrasts
+
+```{r}
+#| echo: false
+shown <- paired[paired$metric %in% c("phenotype_prediction_correlation",
+  "genetic_value_correlation", "prediction_rmse", "heritability"), ]
+knitr::kable(shown, digits = 4)
+```
+
+Block CSR versus full CSR describes omitted cross-block LD. Near-full retained
+low rank versus block CSR isolates retained-factor implementation as closely as
+the frozen operators allow. Near-full versus 0.999 and 0.995 describes spectral
+retention. BED versus summary data is a broader likelihood and representation
+comparison, not an equivalence requirement.
+
+## Current decision
+
+The scalar result is **READY FOR MTBLR LOW-RANK EXTENSION**: deterministic
+identities and projected SSE are valid, chains are supported under the frozen
+recommendations, retention sensitivity is not pathological, and numerical
+stability, runtime, and storage are characterized. This does not itself validate
+an MT implementation.
+
+## Reproducibility
+
+- [Current capsule](../../results/reference/06_ld_operator/current/README.md)
+- [Manifest](../../results/reference/06_ld_operator/current/benchmark_manifest.json)
+- [Compatibility evidence](../../results/reference/06_ld_operator/current/compatibility_manifest.json)
+- [Prior compatibility](../../results/reference/06_ld_operator/current/prior_compatibility.csv)
+- [Paired comparisons](../../results/reference/06_ld_operator/current/paired_replicate_differences.csv)
+- [Checksums](../../results/reference/06_ld_operator/current/checksums.csv)
+
+Earlier reconstructed-dense and versioned low-rank benchmark presentations remain
+available through Git history, not as duplicate active result trees.

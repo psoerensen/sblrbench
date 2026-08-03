@@ -1,2 +1,0 @@
-"expected_fit_count","completed_fit_count","maximum_low_rank_residual_drift","maximum_absolute_heritability_difference","minimum_posterior_effect_correlation","comparable_preoptimization_timing_count","maximum_preoptimization_runtime_ratio","projected_complete_grid_hours","pass"
-14,14,1.50990331349021e-14,0.00279889569408814,0.995945034533395,3,0.25208127899646,2.46384222871861,TRUE

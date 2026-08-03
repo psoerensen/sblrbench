@@ -63,10 +63,10 @@ if (!file.exists(study03_helpers)) {
   testthat::test_that("tracked Study 03 capsule and report contract validate", {
     source(file.path(root, "studies", "03_parameter_estimation", "promotion.R"), local = TRUE)
     capsule <- file.path(root, "results", "reference", "03_parameter_estimation",
-      "st-parameter-estimation-one-replicate-development-v1")
+      "current")
     testthat::expect_silent(.study03_validate_capsule(capsule))
     report <- readLines(file.path(root, "studies", "03_parameter_estimation",
-      "parameter-estimation-development-pilot.qmd"), warn = FALSE)
+      "parameter-estimation.qmd"), warn = FALSE)
     testthat::expect_true(any(grepl("results.*reference", report)))
     testthat::expect_false(any(grepl("stblr_bed|stblr_csr|tar_make", report)))
   })

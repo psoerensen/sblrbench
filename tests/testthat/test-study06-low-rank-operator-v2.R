@@ -41,16 +41,16 @@ test_that("the refresh SHA preserves Study 06 priors and transitions", {
   expect_true(any(source$role == "compiled retained-low-rank operator"))
 })
 
-test_that("v2 paths and capsules cannot overwrite v1", {
+test_that("Study 06 uses one canonical current capsule", {
   skip_if_not(dir.exists(study06v2_dir))
   expect_false(study06v2_config$local_dir ==
     file.path("results", "local", "study06_ld_operator"))
-  expect_true(all(grepl("low-rank.*v2|low_rank.*v2",
-    c(study06v2_config$local_dir, study06v2_config$convergence_capsule,
-      study06v2_config$benchmark_capsule))))
-  expect_false(any(study06v2_config$historical_capsules %in%
-    c(study06v2_config$convergence_capsule,
-      study06v2_config$benchmark_capsule)))
+  expect_match(study06v2_config$local_dir, "study06_low_rank_operator_v2")
+  expect_identical(study06v2_config$convergence_capsule,
+    file.path("results", "reference", "06_ld_operator", "current"))
+  expect_identical(study06v2_config$benchmark_capsule,
+    study06v2_config$convergence_capsule)
+  expect_length(study06v2_config$historical_capsules, 0L)
 })
 
 test_that("operator-pilot gates are inherited explicitly from v1", {
@@ -214,13 +214,13 @@ test_that("v2 aggregation uses only retained-low-rank comparison labels", {
   expect_false(any(grepl("block_eigen|hard|ridge", registry$comparison_id)))
 })
 
-test_that("v2 report is frozen-capsule-only and records optimized diagnostics", {
+test_that("current Study 06 report is frozen-capsule-only", {
   skip_if_not(dir.exists(study06v2_dir))
   report <- readLines(file.path(study06v2_root, "studies",
-    "06_ld_operator", "retained-low-rank-operator-development-v2.qmd"),
+    "06_ld_operator", "low-rank-operator.qmd"),
     warn = FALSE)
   text <- paste(report, collapse = "\n")
-  expect_match(text, "frozen reference capsules")
+  expect_match(text, "results/reference/06_ld_operator/current")
   expect_false(grepl("stblr_block_eigen\\(|tar_make\\(|simulate\\(", text))
   expect_match(text, "block_low_rank_v1")
   expect_match(text, "READY FOR MTBLR LOW-RANK EXTENSION")

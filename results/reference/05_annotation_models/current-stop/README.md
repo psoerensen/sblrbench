@@ -1,6 +1,11 @@
-# Study 05: annotation-model convergence development
+# Current Study 05 annotation-convergence stop
 
-Package-specific development evidence for the current installed sblr implementation.
-The explicit component grid is c(0, 0.01, 0.1, 1).
-Five simulations are descriptive evidence, not universal validation.
-Native fit objects and target caches are deliberately excluded.
+The BayesRC and SBayesRC interface audit and two four-chain maximum-history fits
+completed with the explicit mixture grid `c(0, 0.01, 0.1, 1)`. Neither method
+passed every prespecified convergence threshold, so the stop rule was triggered.
+
+No five-replicate scientific benchmark was started. This capsule preserves the
+annotation design, seeds, raw scalar chains, diagnostics, limiting quantities,
+source provenance, and checksums. Reproduce the convergence decision with:
+
+    powershell -ExecutionPolicy Bypass -File scripts/run_current_benchmark_refresh.ps1 -Phase study05 -Resume

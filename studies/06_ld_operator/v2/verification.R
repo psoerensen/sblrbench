@@ -7,12 +7,11 @@
 }
 
 .study06v2_render_report <- function(config) {
-  for (path in c(config$convergence_capsule, config$benchmark_capsule))
-    .study06v2_validate_capsule(path,
-      if (identical(path, config$convergence_capsule)) "convergence" else
-        "benchmark", config)
+  source(file.path("studies", "06_ld_operator", "compatibility.R"),
+    local = TRUE)
+  .study06_validate_current_capsule(config$benchmark_capsule)
   report <- file.path("studies", "06_ld_operator",
-    "retained-low-rank-operator-development-v2.qmd")
+    "low-rank-operator.qmd")
   log <- file.path(config$local_dir, "logs", "report.log")
   status <- system2(.study06v2_quarto_executable(), c("render", report),
     stdout = log, stderr = log)
@@ -30,7 +29,7 @@
   files <- files[file.exists(files) & !dir.exists(files)]
   files[!grepl(paste0(
     "^(results/local|_targets|_site|fit_checkpoints|\\.git)(/|$)|",
-    "(^|/)retained-low-rank-operator-development-v2(_files/|[.]html$)"),
+    "(^|/)low-rank-operator(_files/|[.]html$)"),
     files)]
 }
 

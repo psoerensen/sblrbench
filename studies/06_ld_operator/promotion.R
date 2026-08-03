@@ -258,7 +258,7 @@ source(file.path(.study06_promotion_root, "studies",
   file.copy("studies/06_ld_operator/contract_smoke_test.R",
     file.path(staging, "contract_smoke_test.R"))
   file.copy(file.path("results", "reference", "02_prediction",
-    "st-bayesc-bayesr-one-replicate-development-v1",
+    "current",
     "example_data_manifest.csv"),
     file.path(staging, "example_data_manifest.csv"))
   source_files <- c(

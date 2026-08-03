@@ -1,9 +1,0 @@
-"architecture","replicate","data_selection_seed","simulation_seed","method","fit_seed"
-"sparse_homogeneous",1,3301,6002,"st_bed_bayesc",30101
-"sparse_homogeneous",1,3301,6002,"st_bed_bayesr",30102
-"sparse_homogeneous",1,3301,6002,"st_csr_sbayesc",30103
-"sparse_homogeneous",1,3301,6002,"st_csr_sbayesr",30104
-"sparse_mixture",1,3301,7002,"st_bed_bayesc",40101
-"sparse_mixture",1,3301,7002,"st_bed_bayesr",40102
-"sparse_mixture",1,3301,7002,"st_csr_sbayesc",40103
-"sparse_mixture",1,3301,7002,"st_csr_sbayesr",40104

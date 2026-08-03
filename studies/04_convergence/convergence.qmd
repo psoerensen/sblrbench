@@ -1,0 +1,69 @@
+---
+title: "Study 04: Multichain convergence"
+description: "Current recommendation selection and five-replicate validation."
+---
+
+```{r}
+#| echo: false
+selection <- "results/reference/04_convergence/current-selection"
+validation <- "results/reference/04_convergence/current-validation"
+selection_manifest <- jsonlite::read_json(file.path(selection,
+  "benchmark_manifest.json"), simplifyVector = TRUE)
+recommendations <- read.csv(file.path(selection, "method_recommendations.csv"),
+  check.names = FALSE)
+validation_summary <- read.csv(file.path(validation,
+  "method_validation_summary.csv"), check.names = FALSE)
+selection_status <- read.csv(file.path(selection, "chain_status.csv"),
+  check.names = FALSE)
+validation_status <- read.csv(file.path(validation, "chain_status.csv"),
+  check.names = FALSE)
+```
+
+::: {.callout-warning}
+Operational support in five simulations is not universal convergence
+validation. Recommendations apply to the tested package, data, priors, and
+diagnostic registry.
+:::
+
+## Selection and validation stages
+
+The recommendation-generating stage used four maximum-history fits—one matched
+method for each architecture/representation combination—and 16 identifiable
+chains. Candidate burn-in and retained-draw windows were assessed with the
+unchanged R-hat, bulk ESS, tail ESS, relative-MCSE, and burn-in-stability rules.
+
+The separate fixed-setting stage then used 20 fits and 80 chains: five paired
+replicates for each recommendation. All four recommendations were supported in
+all five validation replicates. Both stages used `sblr` 0.2.0 at
+`r selection_manifest$sblr_commit`.
+
+## Current recommendations
+
+```{r}
+#| echo: false
+knitr::kable(recommendations[, c("method", "architecture",
+  "recommendation_status", "recommended_nchains", "recommended_nburn",
+  "recommended_post_burnin_draws", "recommended_nthin",
+  "limiting_estimand", "limiting_diagnostic")], digits = 4)
+```
+
+## Five-replicate support
+
+```{r}
+#| echo: false
+knitr::kable(validation_summary[, c("architecture", "method",
+  "replicate_count", "replicates_passing_all_core_estimands",
+  "maximum_rhat", "minimum_bulk_ess", "minimum_tail_ess",
+  "maximum_relative_mcse", "recommendation_validation_status")], digits = 4)
+```
+
+## Reproducibility
+
+- [Selection capsule](../../results/reference/04_convergence/current-selection/README.md)
+- [Validation capsule](../../results/reference/04_convergence/current-validation/README.md)
+- [Recommendations](../../results/reference/04_convergence/current-selection/method_recommendations.csv)
+- [Validation summary](../../results/reference/04_convergence/current-validation/method_validation_summary.csv)
+- [Selection checksums](../../results/reference/04_convergence/current-selection/checksums.csv)
+- [Validation checksums](../../results/reference/04_convergence/current-validation/checksums.csv)
+
+Earlier recommendation snapshots remain available through Git history.

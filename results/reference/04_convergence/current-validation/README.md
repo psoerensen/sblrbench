@@ -1,6 +1,10 @@
-# Five-replicate validation of recommended MCMC settings
+# Current five-replicate convergence validation
 
-Complete five-replicate development evidence.
+Twenty method fits and 80 identifiable chains evaluate the settings selected in
+the `current-selection` capsule. All four method recommendations were supported
+in all five tested replicates. This is development evidence, not universal
+convergence validation.
 
-This capsule contains compact tabular outputs and provenance only; native fits and target objects are excluded.
-The corresponding one-replicate/development capsule remains an immutable historical reference.
+Native fits are excluded. Reproduce with:
+
+    powershell -ExecutionPolicy Bypass -File scripts/run_current_benchmark_refresh.ps1 -Phase study04 -Resume

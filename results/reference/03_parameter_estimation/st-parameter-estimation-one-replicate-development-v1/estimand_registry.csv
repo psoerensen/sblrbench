@@ -1,7 +1,0 @@
-"estimand_id","label","description","unit_or_scale","truth_type","posterior_source","truth_source","available_methods","primary","bounded","lower_bound","upper_bound","relative_error_allowed"
-"causal_proportion","Causal proportion","Proportion of markers with nonzero effects","proportion","realized_quantity","pi_trace","causal_count/marker_count","st_bed_bayesc;st_csr_sbayesc",FALSE,TRUE,0,1,TRUE
-"effect_variance","Nonzero effect variance","Mean squared nonzero marker effect","scaled-effect squared","realized_quantity","vbs","mean(causal_effects^2)","st_bed_bayesc;st_bed_bayesr;st_csr_sbayesc;st_csr_sbayesr",TRUE,TRUE,0,Inf,TRUE
-"total_marker_effect_variance","Total marker-effect variance","Sum of squared marker effects","scaled-effect squared","realized_quantity","vbs*pi_trace*marker_count","sum(marker_effects^2)","st_bed_bayesc;st_csr_sbayesc",FALSE,TRUE,0,Inf,TRUE
-"genetic_variance","Genetic variance","Sample variance of genetic values","phenotype variance","realized_quantity","vgs","var(genetic_values)","st_bed_bayesc;st_bed_bayesr;st_csr_sbayesc;st_csr_sbayesr",TRUE,TRUE,0,Inf,TRUE
-"residual_variance","Residual variance","Sample variance of residuals","phenotype variance","realized_quantity","ves","var(residuals)","st_bed_bayesc;st_bed_bayesr;st_csr_sbayesc;st_csr_sbayesr",TRUE,TRUE,0,Inf,TRUE
-"heritability","Heritability","Genetic variance divided by genetic plus residual variance","proportion","realized_quantity","vgs/(vgs+ves)","var(G)/(var(G)+var(E))","st_bed_bayesc;st_bed_bayesr;st_csr_sbayesc;st_csr_sbayesr",TRUE,TRUE,0,1,TRUE
