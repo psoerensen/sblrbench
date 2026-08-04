@@ -5,7 +5,7 @@ description: "Five-replicate posterior recovery, interval, and prior-class bench
 
 ```{r}
 #| echo: false
-source("studies/reporting_helpers.R")
+source("R/benchmark-reporting.R")
 capsule <- "results/reference/03_parameter_estimation/current"
 rcsv <- function(x) read.csv(file.path(capsule,x),check.names=FALSE)
 manifest <- jsonlite::read_json(file.path(capsule,"benchmark_manifest.json"),simplifyVector=TRUE)

@@ -120,34 +120,26 @@ test_that("capsule validators fail closed on missing fields", {
   expect_error(.study06_validate_benchmark_capsule(path), "incomplete")
 })
 
-test_that("sampler-free installed interface contract passes", {
-  source(file.path(study06_dir, "contract_smoke_test.R"), local = TRUE)
-  expect_true(isTRUE(run_study06_contract_smoke_test()))
+test_that("sampler-free installed annotation interface contract passes", {
+  required <- c("stblr_bed", "stblr_csr", "stblr_csr_annot",
+    "sbayesrc_marker_pi", "make_sbayesrc_alpha_init")
+  expect_true(all(required %in% getNamespaceExports("sblr")))
+  expect_true("bayesrc" %in% eval(formals(sblr::stblr_bed)$method))
+  expect_true("annotation_probit_stick" %in%
+    eval(formals(sblr::stblr_csr_annot)$annotation_model))
+  A <- cbind(Intercept = 1, signal = c(-1, 0, 1))
+  rownames(A) <- paste0("m", 1:3)
+  alpha <- matrix(c(-3, -.25, -.67, .5, 0, 0), 2L, 3L,
+    byrow = TRUE, dimnames = list(colnames(A), paste0("step_", 1:3)))
+  p <- sblr::sbayesrc_marker_pi(A, alpha, c(0, .01, .1, 1))
+  expect_true(all(is.finite(p)))
+  expect_true(all(p >= 0 & p <= 1))
+  expect_equal(unname(rowSums(p)), rep(1, nrow(A)), tolerance = 1e-12)
 })
 
-test_that("overnight runner validation mode cannot sample or mutate Git", {
-  runner <- readLines(file.path(study06_root, "scripts",
-    "run_study06_annotation_models.R"), warn = FALSE)
-  launcher <- readLines(file.path(study06_root, "scripts",
-    "run_study06_annotation_models.ps1"), warn = FALSE)
-  validation_exit <- grep("if \\(validate_only\\)", runner)
-  target_call <- grep("targets::tar_make", runner)
-  expect_length(validation_exit, 1L)
-  expect_length(target_call, 1L)
-  expect_lt(validation_exit, target_call)
-  expect_true(any(grepl("atomic_csv", runner, fixed = TRUE)))
-  expect_true(any(grepl("study06_status.csv", runner, fixed = TRUE)))
-  expect_true(any(grepl("Validated existing frozen capsule; target execution skipped",
-    runner, fixed = TRUE)))
-  prohibited <- "(git (add|commit|push|tag)|targets::tar_make.*preflight)"
-  expect_false(any(grepl(prohibited, c(runner, launcher),
-    ignore.case = TRUE)))
-})
-
-test_that("runner records failed phases in the atomic status contract", {
-  runner <- paste(readLines(file.path(study06_root, "scripts",
-    "run_study06_annotation_models.R"), warn = FALSE), collapse = "\n")
-  expect_match(runner, 'if \\(ans\\$ok\\) "completed" else "failed"')
-  expect_match(runner, "error_message = error")
-  expect_match(runner, "file.rename\\(tmp, path\\)")
+test_that("Study 06 remains explicitly in development", {
+  readme <- paste(readLines(file.path(study06_dir, "README.md"), warn = FALSE),
+    collapse = "\n")
+  expect_match(readme, "Status: In development", fixed = TRUE)
+  expect_match(readme, "not a completed benchmark", ignore.case = TRUE)
 })

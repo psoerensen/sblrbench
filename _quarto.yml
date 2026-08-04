@@ -14,12 +14,17 @@ project:
     - studies/04_convergence/report.qmd
     - studies/05_ld_operator/report.qmd
     - studies/06_annotation_models/annotation-convergence.qmd
+    - studies/07_mt_validation/status.qmd
   resources:
     - results/reference/**
-    - studies/05_ld_operator/analysis.R
-    - studies/05_ld_operator/spec.R
-    - studies/05_ld_operator/operator-design.R
-    - inst/templates/operator-analysis.R
+    - studies/01_finemapping/*.R
+    - studies/02_prediction/*.R
+    - studies/03_parameter_estimation/*.R
+    - studies/04_convergence/*.R
+    - studies/05_ld_operator/*.R
+    - studies/06_annotation_models/README.md
+    - studies/07_mt_validation/README.md
+    - inst/templates/*.R
 
 website:
   title: "sblrbench"

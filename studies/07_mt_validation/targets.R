@@ -4,12 +4,12 @@ targets::tar_option_set(packages = c("sblrbench", "sblr", "qgg",
 for (f in c("interface_audit.R", "state_contract.R", "simulation.R",
   "alignment.R", "operators.R", "methods.R", "chain_extraction.R",
   "diagnostics.R", "runtime_scaling.R", "metrics.R", "pilot.R",
-  "promotion.R")) source(file.path("studies", "07_mtblr_validation", f),
+  "promotion.R")) source(file.path("studies", "07_mt_validation", f),
     local = TRUE)
 
 list(
   targets::tar_target(study07_config_file,
-    file.path("studies", "07_mtblr_validation", "config.R"), format = "file"),
+    file.path("studies", "07_mt_validation", "config.R"), format = "file"),
   targets::tar_target(study07_config,
     source(study07_config_file, local = TRUE)$value),
   targets::tar_target(study07_paths, .study07_paths(study07_config)),

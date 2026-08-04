@@ -1,6 +1,6 @@
-study07_root <- if (file.exists(file.path("studies", "07_mtblr_validation",
+study07_root <- if (file.exists(file.path("studies", "07_mt_validation",
   "config.R"))) "." else file.path("..", "..")
-study07_dir <- file.path(study07_root, "studies", "07_mtblr_validation")
+study07_dir <- file.path(study07_root, "studies", "07_mt_validation")
 if (dir.exists(study07_dir)) {
   for (f in c("interface_audit.R", "state_contract.R", "simulation.R", "alignment.R",
     "operators.R", "methods.R", "chain_extraction.R", "diagnostics.R",
@@ -13,6 +13,10 @@ if (dir.exists(study07_dir)) {
 test_that("Study 07 source is available in repository tests", {
   skip_if_not(dir.exists(study07_dir))
   expect_true(file.exists(file.path(study07_dir, "targets.R")))
+  readme <- paste(readLines(file.path(study07_dir, "README.md"), warn = FALSE),
+    collapse = "\n")
+  expect_match(readme, "Status: In development", fixed = TRUE)
+  expect_match(readme, "no completed benchmark", ignore.case = TRUE)
 })
 
 test_that("two-trait joint states have exact stable semantics", {

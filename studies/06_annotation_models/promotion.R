@@ -13,7 +13,7 @@ source(file.path(.sblrbench_root, "R", "benchmark-validation.R"), local = TRUE)
   common <- c("README.md", "benchmark_manifest.json", "config.R",
     "example_data_manifest.csv", "source_files.csv",
     "interface_audit_sources.csv", "session_info.txt",
-    "reproduce.R", "contract_smoke_test.R", "checksums.csv")
+    "checksums.csv")
   if (type == "convergence") c(common,
     "annotation_design_summary.csv", "true_alpha.csv", "fit_status.csv",
     "scalar_chain_draws.csv", "convergence_diagnostics.csv",
@@ -205,8 +205,7 @@ source(file.path(.sblrbench_root, "R", "benchmark-validation.R"), local = TRUE)
   required <- .study06_required(type)
   generated <- setdiff(required, c("README.md", "config.R",
     "example_data_manifest.csv", "source_files.csv",
-    "interface_audit_sources.csv", "session_info.txt", "reproduce.R",
-    "contract_smoke_test.R", "checksums.csv"))
+    "interface_audit_sources.csv", "session_info.txt", "checksums.csv"))
   missing <- generated[!file.exists(file.path(source_dir, generated))]
   if (length(missing)) stop("Study 06 promotion source is incomplete: ",
     paste(missing, collapse = ", "), call. = FALSE)
@@ -220,13 +219,6 @@ source(file.path(.sblrbench_root, "R", "benchmark-validation.R"), local = TRUE)
     overwrite = FALSE))) stop("Study 06 output copy failed.", call. = FALSE)
   file.copy("studies/06_annotation_models/config.R",
     file.path(staging, "config.R"))
-  reproduce_source <- if (nzchar(Sys.getenv("SBLR_BENCH_REFRESH_ROOT", "")))
-    "scripts/run_current_benchmark_refresh.R" else
-      "scripts/run_study06_annotation_models.R"
-  file.copy(reproduce_source,
-    file.path(staging, "reproduce.R"))
-  file.copy("studies/06_annotation_models/contract_smoke_test.R",
-    file.path(staging, "contract_smoke_test.R"))
   file.copy(file.path("results", "reference", "02_prediction",
     "current",
     "example_data_manifest.csv"), file.path(staging,
@@ -241,8 +233,7 @@ source(file.path(.sblrbench_root, "R", "benchmark-validation.R"), local = TRUE)
     "studies/06_annotation_models/pilot.R",
     "studies/06_annotation_models/targets.R",
     "studies/06_annotation_models/promotion.R",
-    "studies/06_annotation_models/interface_fit_smoke_test.R",
-    reproduce_source)
+    "studies/06_annotation_models/README.md")
   write.csv(data.frame(file = source_files,
     md5 = unname(benchmark_canonical_md5(source_files))),
     file.path(staging, "source_files.csv"), row.names = FALSE)

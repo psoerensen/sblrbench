@@ -50,10 +50,11 @@ triggered for both annotation-aware methods, so no five-replicate scientific
 benchmark was started.
 [Current stop capsule](../results/reference/06_annotation_models/current-stop/README.md).
 
-### Study 07: Multivariate implementation validation
+### [Study 07: Multitrait validation](07_mt_validation/status.qmd)
 
-**Status: In development.** Planned/paused pending retained-low-rank MT implementation and scalar-to-MT
-extension work. Preserved alignment, state-mapping, covariance, checkpoint, and
-runtime infrastructure is not presented as current scientific evidence.
+**Status: In development.** Planned/paused pending retained-low-rank MT
+implementation and scientific design work. Preserved alignment, state-mapping,
+covariance, checkpoint, and runtime prototypes are not current scientific
+evidence. See the [development status](07_mt_validation/status.qmd).
 
 Earlier development benchmark versions remain available through Git history.

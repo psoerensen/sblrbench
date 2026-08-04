@@ -2,10 +2,10 @@
 
 ## Targets entry points
 
-`_targets.R` remains the dispatcher for unmigrated targets studies. Migrated
-Studies 01--05 use the common CLI and runner; selecting them through
-`_targets.R` now fails with an explicit transition message. Study 05's phased
-launcher and target store were retired. No target graph was run during migration.
+`_targets.R` is now limited to the preserved Study 06 and Study 07 development
+graphs. Completed Studies 01--05 use the common CLI and runner. The contract
+smoke pseudo-study, completed-study transition dispatch, and phased launchers
+were removed. No target graph was run during cleanup.
 
 ## Study-to-study dependencies
 
@@ -36,9 +36,8 @@ types remain deferred.
 ## Duplicated helper families
 
 - Reporting labels, factors, formatting, themes, replicate summaries, and
-  capsule-script display were already centralized in
-  `studies/reporting_helpers.R`; the implementation now lives under `R/` with
-  the old file acting only as a loader.
+  capsule-script display live in `R/benchmark-reporting.R`; all reports now
+  source that authoritative implementation directly.
 - Canonical line-ending-independent MD5 was implemented in Study 02 promotion
   and reused across other studies.
 - Atomic uncompressed RDS save logic was repeated in historical Study 06,
@@ -62,20 +61,17 @@ detected as retired rather than reused or translated.
 
 ## Capsule promotion dependency on Study 02
 
-The cross-study dependency is mechanical, not scientific: promotion files
-needed `.study02_canonical_md5()`. Shared `benchmark_canonical_md5()`, capsule
-inventory, and capsule-validation functions remove it from active Studies 01
-and 03--06. Paused Study 07 still sources Study 02 promotion because this phase
-does not resume or modify it. Study-specific required outputs, manifests,
-README text, semantic checks, and destinations remain in each promotion file.
-The final paused Study 07 caller now uses shared provenance without resuming or
-changing its scientific design.
+The historical cross-study dependency was mechanical, not scientific:
+promotion files needed `.study02_canonical_md5()`. Shared canonical hashing,
+capsule inventory, and capsule validation removed it. Study-specific required
+outputs, manifests, README text, semantic checks, and destinations remain in
+the two development studies until their migrations.
 
 ## Reports and package functions
 
-The six standard reports source `studies/reporting_helpers.R`, which is now a
-compatibility loader for `R/benchmark-reporting.R`. Reports otherwise use base
-R table operations, `jsonlite`, `ggplot2`, `knitr`, and frozen capsule files.
+The completed reports and Study 06 status report source
+`R/benchmark-reporting.R` directly. Reports otherwise use base R table
+operations, `jsonlite`, `ggplot2`, `knitr`, and frozen capsule files.
 The sole Study 05 report reads both operator evidence components from one
 frozen capsule.
 
@@ -91,8 +87,8 @@ designs and is not executable dependency evidence.
 - Study 04 is migrated. Its spec retains only the matched grid, diagnostic
   quantities, candidates, thresholds, chain requirements, and recommendation
   rules; reusable mechanics live under `R/`.
-- Study 06 annotation launchers retain historical dependencies; Study 05 uses
-  the shared CLI and no longer has a per-study launcher.
+- Study 06 and Study 07 retain development target graphs but no dedicated
+  launch wrappers. Their future shared-runner interfaces remain unresolved.
 - Trace extraction schemas differ and remain duplicated around study-specific
   quantities.
 - Promotion functions still duplicate README/manifest composition and exact

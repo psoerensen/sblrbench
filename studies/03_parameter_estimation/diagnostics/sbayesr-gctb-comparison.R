@@ -66,12 +66,11 @@ if (!identical(sblr_sha, required_sblr_sha))
   stop("Installed sblr SHA is ", sblr_sha, "; required ", required_sblr_sha, call. = FALSE)
 
 setup_files <- c(
-  "studies/five_replicate_helpers.R",
   "studies/03_parameter_estimation/spec.R",
   "studies/03_parameter_estimation/diagnostics/sbayesr-gctb-comparison.R"
 )
-for (file in setup_files[1:2]) sys.source(file, envir = environment())
-config <- read_benchmark_spec(setup_files[3])
+sys.source(setup_files[1L], envir = environment())
+config <- read_benchmark_spec(setup_files[2L])
 legacy_config <- list(study=config$study,trait=config$data$trait,
   chr=config$data$chromosome,sample_limit=config$data$sample_limit,
   example_data=config$data$example_data,qc=config$markers$qc,

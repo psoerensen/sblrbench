@@ -12,8 +12,7 @@ source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
   type <- match.arg(type)
   common <- c("README.md", "benchmark_manifest.json", "config.R",
     "example_data_manifest.csv", "source_files.csv",
-    "interface_audit_sources.csv", "session_info.txt", "reproduce.R",
-    "contract_smoke_test.R", "checksums.csv")
+    "interface_audit_sources.csv", "session_info.txt", "checksums.csv")
   switch(type,
     contract = c(common, "interface_audit.csv", "output_semantics.csv",
       "joint_state_map.csv", "permutation_contracts.csv",
@@ -61,7 +60,7 @@ source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
   manifest <- jsonlite::read_json(file.path(path, "benchmark_manifest.json"),
     simplifyVector = TRUE)
   if (!identical(manifest$benchmark_status, "complete") ||
-      !identical(manifest$study, "07_mtblr_validation"))
+      !identical(manifest$study, "07_mt_validation"))
     stop("Study 07 manifest is incomplete.", call. = FALSE)
   if (type == "contract") {
     states <- read.csv(file.path(path, "joint_state_map.csv"))
@@ -128,19 +127,14 @@ source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
   dir.create(staging, recursive = TRUE, showWarnings = FALSE)
   generated <- setdiff(required, c("README.md", "benchmark_manifest.json",
     "config.R", "example_data_manifest.csv", "source_files.csv",
-    "interface_audit_sources.csv", "session_info.txt", "reproduce.R",
-    "contract_smoke_test.R", "checksums.csv",
+    "interface_audit_sources.csv", "session_info.txt", "checksums.csv",
     "method_output_availability.csv", "seed_registry.csv"))
   if (type != "contract") generated <- setdiff(generated, "joint_state_map.csv")
   for (name in generated) if (!file.copy(file.path(source_dir, name),
       file.path(staging, name), overwrite = FALSE))
     stop("Missing Study 07 promotion source: ", name)
-  file.copy("studies/07_mtblr_validation/config.R",
+  file.copy("studies/07_mt_validation/config.R",
     file.path(staging, "config.R"))
-  file.copy("scripts/run_study07_mtblr_validation.R",
-    file.path(staging, "reproduce.R"))
-  file.copy("studies/07_mtblr_validation/contract_smoke_test.R",
-    file.path(staging, "contract_smoke_test.R"))
   file.copy(file.path("results", "reference", "05_ld_operator",
     "current",
     "example_data_manifest.csv"), file.path(staging,
@@ -160,9 +154,7 @@ source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
     .study07_write_csv(.study07_seed_registry(config),
       file.path(staging, "seed_registry.csv"))
   }
-  sources <- c(list.files("studies/07_mtblr_validation", full.names = TRUE),
-    "scripts/run_study07_mtblr_validation.R",
-    "scripts/run_study07_mtblr_validation.ps1")
+  sources <- list.files("studies/07_mt_validation", full.names = TRUE)
   write.csv(data.frame(file = sources,
     md5 = unname(benchmark_canonical_md5(sources))),
     file.path(staging, "source_files.csv"), row.names = FALSE)
@@ -181,7 +173,7 @@ source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
     file.path(staging, "README.md"))
   status <- if (file.exists(file.path(staging, "fit_status.csv")))
     read.csv(file.path(staging, "fit_status.csv")) else NULL
-  manifest <- list(study = "07_mtblr_validation",
+  manifest <- list(study = "07_mt_validation",
     task = switch(type, contract = "mtblr_contract_runtime_validation",
       convergence = "mtblr_convergence_selection",
       benchmark = "mtblr_five_replicate_validation"),

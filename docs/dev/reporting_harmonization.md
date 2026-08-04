@@ -17,7 +17,8 @@ a common callout.
 
 ## Harmonized contract
 
-Reports source `studies/reporting_helpers.R`. The canonical method order is
+Reports source the authoritative `R/benchmark-reporting.R`. The former
+compatibility loader was removed in the final cleanup. The canonical method order is
 BED BayesC, BED BayesR, CSR SBayesC, CSR SBayesR. Named Okabe–Ito-derived colors
 are paired with circles/solid lines for BED and triangles/dashed lines for CSR.
 Architectures are ordered sparse homogeneous then sparse variance mixture.

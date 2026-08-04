@@ -1,4 +1,4 @@
-# Minimal common execution path for migrated Studies 02--04.
+# Common execution path for completed Studies 01--05.
 
 benchmark_output_paths <- function(output_dir) {
   .benchmark_scalar_string(output_dir, "output_dir")
@@ -39,6 +39,12 @@ parse_benchmark_cli_arguments <- function(args) {
       "`06_annotation_models` (in development).", call. = FALSE)
   if (identical(options[["--study"]], "06_annotation_models"))
     stop("Study `06_annotation_models` is in development and is not yet ",
+      "supported by run_benchmark().", call. = FALSE)
+  if (identical(options[["--study"]], "07_mtblr_validation"))
+    stop("Study ID `07_mtblr_validation` is retired; use `07_mt_validation` ",
+      "(in development).", call. = FALSE)
+  if (identical(options[["--study"]], "07_mt_validation"))
+    stop("Study `07_mt_validation` is in development and is not yet ",
       "supported by run_benchmark().", call. = FALSE)
   if (!options[["--study"]] %in% supported_studies)
     stop("Unsupported --study; choose `01_finemapping`, `02_prediction`, `03_parameter_estimation`, `04_convergence`, or `05_ld_operator`.",

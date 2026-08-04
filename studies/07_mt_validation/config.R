@@ -4,7 +4,7 @@
   "05_ld_operator", "spec.R"), local = TRUE)$value
 
 list(
-  study = "07_mtblr_validation",
+  study = "07_mt_validation",
   task = "multivariate_implementation_validation",
   title = "Study 07: Multivariate implementation validation",
   development_settings = TRUE,
@@ -79,13 +79,13 @@ list(
     fit_base = 700000L, implementation_stride = 1000L,
     chain_stride = 101L, permutation = 7701L,
     operator_probe = 7703L),
-  local_dir = file.path("results", "local", "study07_mtblr_validation"),
+  local_dir = file.path("results", "local", "study07_mt_validation"),
   contract_capsule = file.path("results", "reference",
-    "07_mtblr_validation", "mtblr-contract-runtime-development-v1"),
+    "07_mt_validation", "mtblr-contract-runtime-development-v1"),
   convergence_capsule = file.path("results", "reference",
-    "07_mtblr_validation", "mtblr-convergence-development-v1"),
+    "07_mt_validation", "mtblr-convergence-development-v1"),
   benchmark_capsule = file.path("results", "reference",
-    "07_mtblr_validation", "mtblr-five-replicate-development-v1"),
+    "07_mt_validation", "mtblr-five-replicate-development-v1"),
   consulted_sblr_sources = c(
     "R/mtblr-bed.R", "R/mtblr-csr.R", "R/mtblr-block-eigen.R",
     "R/mtblr-summary-chains.R", "R/blr-extended-convergence.R",

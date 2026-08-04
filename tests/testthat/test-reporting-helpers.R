@@ -1,4 +1,4 @@
-reporting_path <- testthat::test_path("..", "..", "studies", "reporting_helpers.R")
+reporting_path <- testthat::test_path("..", "..", "R", "benchmark-reporting.R")
 if (!file.exists(reporting_path)) {
   testthat::test_that("reporting helpers are excluded from package builds", {
     testthat::skip("website-only helpers are excluded from package builds")

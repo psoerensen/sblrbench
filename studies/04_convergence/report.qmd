@@ -5,7 +5,7 @@ description: "Recommendation selection and independent five-replicate fixed-sett
 
 ```{r}
 #| echo: false
-source("studies/reporting_helpers.R")
+source("R/benchmark-reporting.R")
 selection <- "results/reference/04_convergence/current-selection"
 validation <- "results/reference/04_convergence/current-validation"
 scsv <- function(x) read.csv(file.path(selection,x),check.names=FALSE)

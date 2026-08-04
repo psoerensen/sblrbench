@@ -6,7 +6,7 @@ title: "Reproducibility"
 
 ```text
 isolated installed package at a pinned SHA
-→ resumable local targets/checkpoints
+→ validated specification and semantic checkpoints
 → reviewed compact outputs
 → validated current reference capsule
 → capsule-only Quarto report
@@ -32,11 +32,11 @@ Git history is the archive for earlier benchmark versions.
 
 ## Running a study
 
-Study-specific runners and target declarations validate package provenance and
-checkpoint identity before reuse. For the general target entry point:
+The shared CLI validates specifications, package provenance, and checkpoint
+identity. Validation-only mode resolves the complete design without fitting:
 
 ```powershell
-Rscript scripts/run_benchmark.R --study 02_prediction --profile benchmark --output-dir results/local/02_prediction --resume true --validate-only false
+Rscript scripts/run_benchmark.R --study 02_prediction --profile benchmark --output-dir results/local/02_prediction --resume true --validate-only true
 ```
 
 The current refresh was run against a local isolated installation of `sblr`
@@ -52,7 +52,8 @@ quarto render
 
 Reports read only tracked current capsules. Rendering never constructs LD,
 simulates phenotypes, calls samplers, or reads `results/local`. The complete site
-is validated with the local refresh directory unavailable.
+is rendered and audited for broken local links. Study 06's tracked stop capsule
+is explicitly development evidence; Study 07 has no authoritative capsule.
 
 Study 01 uses public simulated PLINK data from a pinned qgdata revision. Its
 current capsule records file sizes and checksums without copying large genotype

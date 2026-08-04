@@ -37,15 +37,14 @@ language, or replacement execution engine.
   components, runtime, metadata, and honest chain information.
 - `R/metrics-prediction.R`: prediction/effect metrics, runtime, summaries, and
   paired comparisons as data frames.
-- `R/benchmark-execution.R`: authoritative `run_benchmark()` for prediction,
-  parameter estimation, and convergence;
+- `R/benchmark-execution.R`: authoritative `run_benchmark()` for fine-mapping,
+  prediction, parameter estimation, convergence, and LD-operator validation;
   validation, standard output paths, science-identity checkpoints, dispatch,
   extraction, metrics, and provenance. Unsupported task types fail explicitly.
 
-Current callers are the Study 02--04 analyses and CLI, the reusable prediction,
-parameter-estimation, and convergence templates, focused tests, and narrowly
-updated later-study callers. Fine-mapping, annotation, operator, and MTBLR
-interfaces remain deferred until those studies migrate. There are no Study 02
+Current callers are the Study 01--05 analyses and CLI, all five reusable
+templates, focused tests, and narrowly updated development-study callers.
+Annotation and multitrait interfaces remain deferred. There are no Study 02
 compatibility wrappers; removal is complete because all callers are internal.
 
 ## Study 03 parameter estimation
@@ -77,14 +76,14 @@ or 24 complete benchmark coordinates without data preparation or fit dispatch.
   `prepare_sblrbench_replicates()`, `benchmark_*_table()`,
   `benchmark_data_summary()`, `benchmark_output_inventory()`, the focused
   `plot_*()` workflow helpers, and `display_capsule_script*()`.
-- Compatibility: `studies/reporting_helpers.R` sources this file and contains
-  no implementation.
+- Compatibility: none; the former report loader was removed after all callers
+  moved to the authoritative implementation.
 - Current callers: Studies 01--06 standard reports, the Study 02 and Study 03
   exact workflows and templates, and reporting/workflow tests.
 - Deferred callers: future reports after individual study migration.
 - Limitation: plotting consumes extracted tidy tables only; native fits are
   intentionally not accepted.
-- Wrapper removal: after every report loads package/shared helpers directly.
+- Wrapper removal: complete.
 
 ## `R/benchmark-provenance.R`
 
@@ -95,12 +94,10 @@ or 24 complete benchmark coordinates without data preparation or fit dispatch.
   `benchmark_canonical_md5()`, `benchmark_file_sha256()`, and
   `benchmark_session_information()`.
 - Compatibility: public `sblrbench_git_commit()` delegates to the Git helper;
-  `.five_replicate_sblr_provenance()` adapts the generic record to its existing
-  field names.
+  no repository-only provenance loader remains.
 - Current callers: package provenance, active Studies 01--06 promotion, and
   focused tests.
-- Deferred callers: current-refresh provenance where compiler/archive fields
-  remain workflow-specific.
+- Deferred callers: future Study 06 and Study 07 migrations.
 - Limitation: installed metadata only; no network lookup.
 - Wrapper removal: at the corresponding study migration, after callers use the
   authoritative names.

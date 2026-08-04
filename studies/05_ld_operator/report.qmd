@@ -5,7 +5,7 @@ description: "Integrated retained-low-rank and SBayesR LD-sensitivity validation
 
 ```{r}
 #| echo: false
-source("studies/reporting_helpers.R")
+source("R/benchmark-reporting.R")
 capsule <- "results/reference/05_ld_operator/current"
 rcsv <- function(x) read.csv(file.path(capsule,x),check.names=FALSE)
 manifest <- jsonlite::read_json(file.path(capsule,"benchmark_manifest.json"),simplifyVector=TRUE)

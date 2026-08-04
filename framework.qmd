@@ -25,16 +25,20 @@ data preparation
 
 Prediction studies replace credible-set evaluation with held-out prediction and paired model/representation contrasts. Their allele frequencies, genotype scaling, sparse LD, and summary statistics are learned from training individuals only. Test phenotypes are used only by evaluation metrics.
 
-`targets` orchestrates and caches computational studies. Published reports never trigger those analyses: they consume reviewed, frozen compact outputs from one current reference capsule per scientifically relevant stage.
+The ordinary `run_benchmark()` framework executes completed Studies 01–05 and
+uses semantic checkpoints for resumable local work. `targets` remains only for
+the in-development Study 06 and Study 07 graphs. Published reports never trigger
+either execution path: they consume reviewed frozen compact outputs.
 
 ## Adding a benchmark
 
-1. Promote reviewed compact results into the study's canonical current directory under `results/reference/`.
-2. Add one report using the standard section order.
-3. Add one catalogue entry to `studies/index.qmd`.
-4. Render the site.
+1. Define scientific choices in an ordinary-list `spec.R`.
+2. Reuse shared data, simulation, execution, extraction, metric, checkpoint,
+   provenance, and reporting functions where their contracts apply.
+3. Validate and review compact outputs before promotion into the canonical
+   `results/reference/` directory.
+4. Add a capsule-only report and catalogue entry, then render and audit the site.
 
-Every study separates bounded contract tests, the complete targets-based benchmark,
-and a reviewed compact reference capsule. Earlier benchmark states are preserved by
-Git history rather than duplicated as active capsule trees. Study 07 remains paused
-pending retained-low-rank multivariate implementation work.
+Every completed study separates deterministic tests, explicit execution, and a
+reviewed compact reference capsule. Earlier states are preserved by Git history.
+Studies 06 and 07 remain development-only.

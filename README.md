@@ -1,71 +1,93 @@
 # sblrbench
 
-`sblrbench` provides small, explicit contracts for simulation-based evaluation of scalable Bayesian linear regression methods. Statistical models, samplers, data preparation, output semantics, convergence, structural diagnostics, and credible sets remain the responsibility of `sblr`; larger simulations, strict alignment, oracle checks, adapters, truth-aware metrics, and provenance belong here. This package calls only exported functions from the installed `sblr` package.
+`sblrbench` has two related purposes: it validates the scientific and software
+behavior of [`sblr`](https://github.com/psoerensen/sblr), and it provides clear,
+extensible analysis workflows built on the same validated framework.
 
-Install with `remotes::install_github("psoerensen/sblrbench")` and attach with `library(sblrbench)`. For local development use `devtools::load_all()`. To install the clone and run the default contract study:
+## Validate `sblr`
+
+Five completed scalar-validation studies are available:
+
+1. Study 01 — Fine-mapping
+2. Study 02 — Prediction
+3. Study 03 — Parameter estimation
+4. Study 04 — Convergence
+5. Study 05 — LD-operator validation
+
+Each completed report reads only a compact frozen capsule under
+`results/reference/`. Capsules contain numerical tables, manifests, checksums,
+source inventories, and provenance—not native fit objects or local checkpoints.
+The reports document the limits of each design; these focused simulations do
+not establish universal rankings or production defaults.
+
+New validation studies should keep scientific choices in an ordinary-list
+`spec.R`, use shared mechanics under `R/`, expose a readable `analysis.R`, and
+publish only reviewed compact results through a frozen capsule.
+
+Study 06 — Annotation-informed models is **in development**. Study 07 —
+Multitrait validation is **in development**. Neither is a completed validation
+benchmark.
+
+## Practical analysis workflows
+
+The exact study scripts under `studies/01_finemapping/` through
+`studies/05_ld_operator/` show complete auditable workflows. Shorter reusable
+examples live under `inst/templates/` for fine-mapping, prediction, parameter
+estimation, convergence, and operator analysis.
+
+The shared runner uses ordinary R functions and lists:
 
 ```r
-devtools::install(upgrade = "never")
-targets::tar_make()
-```
+library(sblrbench)
 
-Version 0.1 offers `sblrbench_simulation`, strict marker/sample/trait alignment, an oracle `Z %*% B` check, lightweight method and result lists, native public-API adapters, four metrics in stable long format, and compact JSON manifests.
-
-```r
-simulation <- as_sblrbench_simulation(sblr::mtsim(...))
-oracle <- check_oracle_genetic_values(simulation)
-
-method <- new_sblrbench_method(
-  id = "example", label = "Example", capabilities = "posterior_effects",
-  fit = function(...) list(...), extract = function(x) x
+spec <- read_benchmark_spec("studies/02_prediction/spec.R")
+result <- run_benchmark(
+  spec,
+  output_dir = "results/local/my-prediction-run",
+  profile = "workshop",
+  resume = TRUE
 )
-result <- run_sblrbench_method(method)
-metrics <- evaluate_metrics(simulation, result,
-                            metrics = c("effect_rmse", "pip_brier"))
 ```
 
-Alignment is identity-based, restores canonical order, and rejects duplicates, missing IDs, unnamed axes, and extras by default. Prediction studies must pass the oracle genotype-scale check before scoring. Native adapters retain the unmodified fit optionally and map only compatible common fields.
+`workshop` profiles are for learning and workflow checks, not performance
+claims. `benchmark` profiles retain the validated scientific coordinates. Local
+outputs use predictable `checkpoints/`, `tables/`, `figures/`, manifest, and
+session-information paths. Scenarios, supported methods, metrics, and output
+locations can be adjusted through the ordinary specification and template
+code; no plugin or workflow language is required.
 
-Add a future method by constructing an ordinary `sblrbench_method`; no registry is required. Start a future study under `studies/<name>/`, keeping study-specific code there until it becomes a stable shared contract. External adapters, full fine-mapping/prediction benchmarks, workflow engines, and method-specific semantic normalization are deliberately deferred.
+The command-line entry point supports completed Studies 01–05:
 
-Study 01 implements a separated-locus fine-mapping benchmark. Ten exact causal markers are selected by a seeded randomized-greedy scan after MAF filtering, retained in chromosome order, and separated by at least 1 Mb. The four scalar-trait methods are BED BayesC/BayesR and CSR SBayesC/SBayesR. Set `SBLR_BENCH_STUDY=01_finemapping` before `targets::tar_make()`; genotype and sparse-LD targets are cached across stages.
-
-Outputs cover effect RMSE, PIP Brier score, average precision, causal ranks/top-K recall, and exact/LD-proxy credible-set coverage. The configured 500-iteration, 250-burn-in, one-chain controls are development settings only. Structural success does not prove convergence or support rankings. Cumulative marginal-PIP credible sets are not per-effect causal configurations; scientific runs require longer chains and sensitivity analyses.
-
-## Website
-
-Reusable benchmark reports will be published at <https://psoerensen.github.io/sblrbench/>. The repository owner may need to select **GitHub Actions** as the Pages source in repository settings.
-
-## Running a study
-
-```r
-Sys.setenv(SBLR_BENCH_STUDY = "01_finemapping")
-targets::tar_make()
+```powershell
+Rscript scripts/run_benchmark.R `
+  --study 02_prediction `
+  --profile workshop `
+  --output-dir results/local/example `
+  --resume true `
+  --validate-only true
 ```
 
-## Published benchmark capsules
+Validation-only mode resolves and checks the design without fitting.
 
-Reviewed current benchmark capsules live under `results/reference/`. Working outputs and full local study artifacts remain ignored under `results/local/`; earlier capsules remain available through Git history.
+## Repository roles
 
-## Reproducing reports
+- `bayesian-linear-regression`: course and teaching material.
+- `sblr`: software implementation and authoritative implemented methodology.
+- `sblrbench`: validation benchmarks and extensible practical
+  analysis/reporting workflows.
 
-```bash
+## Reproducibility and website
+
+The benchmark data source, package revisions, seeds, controls, capsule
+checksums, and report dependencies are recorded in the specifications and
+reference capsules. Working outputs remain ignored under `results/local/`.
+
+Render the capsule-only website with:
+
+```powershell
 quarto render
 ```
 
-Report rendering reads only tracked reference capsules and does not run the targets pipeline.
-
-Study 01 uses public simulated PLINK data from a pinned `psoerensen/qgdata` revision. Download and validate the five example files with:
-
-```r
-download_sblrbench_example_data()
-```
-
-The current capsule records the refreshed numerical benchmark, pinned data checksums, source provenance, and validation evidence.
-
-## Current benchmark catalogue
-
-Studies 01--04 and 06 have complete current benchmarks. Study 05 is stopped at its
-prespecified annotation-convergence gate. Study 07 is planned/paused pending retained
-low-rank multivariate implementation work. See the
-[benchmark catalogue](studies/index.qmd) for current reports and capsules.
+The published site is <https://psoerensen.github.io/sblrbench/>. See the
+[benchmark catalogue](studies/index.qmd), [framework](framework.qmd),
+[metrics](metrics.qmd), and [reproducibility guide](reproducibility.qmd).

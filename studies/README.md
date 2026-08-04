@@ -1,5 +1,14 @@
 # Studies
 
-Start study-specific code inside its study directory. Move code into package-level `R/` only when it is part of a stable contract, shared by multiple studies, or clearly useful to package users.
+Completed validation studies use a small source contract: `spec.R`, a readable
+exact `analysis.R`, and a frozen-capsule-only `report.qmd`. Study-specific
+scientific logic remains alongside that contract when it does not belong in the
+shared framework.
 
-This directory is repository research infrastructure and is excluded from the installed package.
+- Studies 01–05 are completed and validated.
+- Study 06 annotation-informed models is in development.
+- Study 07 multitrait validation is in development and paused.
+
+Move mechanics into package-level `R/` only when their shared contract is
+demonstrated. This directory is repository research infrastructure and is
+excluded from the installed package.

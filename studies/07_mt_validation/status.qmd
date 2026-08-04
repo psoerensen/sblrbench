@@ -1,0 +1,20 @@
+---
+title: "Study 07: Multitrait validation"
+description: "Development status for the paused multitrait validation study."
+---
+
+## Status: In development
+
+Study 07 is paused and no completed benchmark result is claimed. The repository
+preserves two-trait state, simulation, alignment, extraction, diagnostic,
+runtime, and metric prototypes for future work.
+
+The principal implementation blocker is that the current `sblr` multivariate
+block-eigen backend uses reconstructed dense operators. Retained-low-rank
+multivariate execution and the associated scientific design must be resolved
+before benchmark fitting resumes.
+
+See the [development README](README.md) and the
+[benchmark catalogue](../index.qmd). No Study 07 reference capsule is presented
+as authoritative evidence.
+

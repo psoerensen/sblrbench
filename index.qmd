@@ -1,6 +1,6 @@
 ---
 title: "sblrbench"
-description: "Reproducible benchmark contracts and frozen development studies for sblr."
+description: "Validated benchmarks and practical workflows for sblr."
 ---
 
 `sblrbench` provides reusable contracts, validation, metrics, provenance and
@@ -17,13 +17,15 @@ implemented in `sblr`.
 | Study 04 | Multichain convergence diagnostics | Current selection plus five-replicate validation | 4 selection fits/16 chains; 20 validation fits/80 chains | [Convergence](studies/04_convergence/report.qmd) |
 | Study 05 | LD-operator validation | Complete integrated retained-low-rank and SBayesR LD-sensitivity validation | 2 architectures; 5 paired replicates; 60 four-chain fits plus one focused SBayesR window | [LD-operator validation](studies/05_ld_operator/report.qmd) |
 | Study 06 | Annotation-informed models | **In development**; prespecified convergence stop reached | 2 maximum-history fits; no scientific benchmark | [Development status](studies/06_annotation_models/annotation-convergence.qmd) |
-| Study 07 | Multitrait validation | **In development** | Planned/paused | [Study catalogue](studies/index.qmd) |
+| Study 07 | Multitrait validation | **In development** | Planned/paused | [Development status](studies/07_mt_validation/status.qmd) |
 
-::: {.callout-warning .callout-development}
-## Development benchmarks—not final method-performance claims.
-These studies validate software workflows, reporting contracts and operational
-diagnostics. Their short MCMC settings and limited simulation designs do not
-establish universal rankings, calibration or production readiness.
+::: {.callout-note}
+## Validation boundaries
+
+The completed studies provide reproducible evidence for their stated designs.
+Their simulation scales and data settings do not establish universal method
+rankings, calibration, or production defaults. Studies 06 and 07 are
+development work and make no completed benchmark claims.
 :::
 
 Continue with the [benchmark catalogue](studies/index.qmd), [framework](framework.qmd),

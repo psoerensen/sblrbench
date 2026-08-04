@@ -3,6 +3,15 @@
 Study 01 fine-mapping is migrated to the shared framework. Its authoritative
 source is `spec.R`, `analysis.R`, `report.qmd`, and `locus-design.R`.
 
+## Final cleanup status
+
+Studies 01--05 now use the common runner and clean source contracts. The
+`00_contract_smoke` pseudo-study, report/five-replicate compatibility loaders,
+migration refresh drivers, and per-development-study launch wrappers were
+removed after caller and test audits. Root targets dispatch is retained only
+for the Study 06 and Study 07 development graphs. Study 07's authoritative
+internal identifier is `07_mt_validation`.
+
 The responsibility-level inventory is
 [reorganization_inventory.csv](reorganization_inventory.csv). It was built
 from function definitions, `source()` relationships, targets files, launch

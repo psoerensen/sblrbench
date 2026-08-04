@@ -40,3 +40,26 @@ These are cumulative marginal-PIP credible sets. They are not guaranteed per-eff
 - **Effect RMSE:** secondary marker-effect diagnostic.
 
 Study 02 pairs BayesR versus BayesC within BED or CSR, and CSR versus BED within corresponding model classes. Correlation advantages use `focal - comparison`; MSE, NMSE, effect RMSE and absolute calibration-error advantages use `comparison - focal`. Positive values therefore consistently favor the named focal method.
+
+## Parameter-estimation metrics
+
+Study 03 evaluates posterior means against registered realized truths, including
+genetic variance, residual variance, heritability, base effect variance, active
+probability, and the derived active-marker quantity. Bias, absolute error,
+interval width, and interval coverage retain their estimand-specific formulas;
+nonlinear quantities are calculated draw by draw before summarization.
+
+## Convergence diagnostics
+
+Study 04 uses true chain traces for rank-normalized R-hat, bulk ESS, tail ESS,
+MCSE, and relative MCSE. Posterior means, final states, pooled vectors, and
+compact summaries are never substituted for unavailable traces. Candidate
+burn-in and retained-draw settings are evaluated against the frozen thresholds.
+
+## LD-operator metrics
+
+Study 05 compares operator matrices and their deterministic actions using the
+prespecified Frobenius, maximum, diagonal, symmetry, trace, corrected-score,
+quadratic, residual, spectral-mass, rank, runtime, and recovery summaries. These
+metrics describe the tested operators and data window; they do not establish a
+universal sparsity or rank policy.
