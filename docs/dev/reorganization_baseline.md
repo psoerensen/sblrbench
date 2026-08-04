@@ -30,31 +30,29 @@ was not used.
   completed single-trait parameter-estimation benchmark.
 - [Study 04](../../studies/04_convergence/report.qmd): completed
   convergence selection and five-replicate validation.
-- [Study 05](../../studies/05_annotation_models/annotation-convergence.qmd):
-  completed prespecified annotation convergence stop; no scientific benchmark
-  followed the stop.
-- [Study 06](../../studies/06_ld_operator/report.qmd): completed
-  retained-low-rank/block LD-operator validation.
-- [Supplemental Study 06](../../studies/06_ld_operator/sbayesr_ld_robustness/report.qmd):
-  completed SBayesR exact, hard-sparse, and block-eigen robustness evidence.
+- [Study 05](../../studies/05_ld_operator/report.qmd): completed integrated
+  retained-low-rank/block and SBayesR LD-operator validation.
+- [Study 06](../../studies/06_annotation_models/annotation-convergence.qmd):
+  annotation-informed models remain in development after the prespecified
+  convergence stop; no scientific benchmark followed the stop.
 - Study 07 remains reserved for paused future MTBLR validation. Its scaffold is
   not current scientific evidence and is not resumed by this reorganization.
 
-Study 06 therefore has two preserved parts: its existing retained-low-rank
-operator evidence and the supplemental SBayesR LD-operator robustness evidence.
+Study 05 has two integrated evidence components: retained-low-rank/operator
+validation and the SBayesR LD-sensitivity diagnostic.
 
 ## Frozen reference capsules
 
-Eight authoritative capsule directories were present and all 168 recorded
-checksums passed. The machine-readable inventory is
+Seven authoritative capsule directories are present. Their recorded checksums
+pass; the machine-readable inventory is
 [reorganization_baseline_capsules.csv](reorganization_baseline_capsules.csv).
 No capsule was changed or regenerated for this baseline.
 
 ## Quarto website
 
 The configured pages are `index.qmd`, `framework.qmd`, `metrics.qmd`,
-`reproducibility.qmd`, `studies/index.qmd`, and the seven report pages listed
-above (including both Study 06 pages). All scientific reports read frozen
+`reproducibility.qmd`, `studies/index.qmd`, and one page for each numbered
+study that currently has a report. All scientific reports read frozen
 `results/reference/` capsules; none reads `results/local/`, loads a fit
 checkpoint, or invokes a sampler.
 
@@ -63,8 +61,8 @@ checkpoint, or invokes a sampler.
 The root `_targets.R` dispatches through `SBLR_BENCH_STUDY` to
 `studies/<study>/targets.R`. Current target files exist for the contract smoke
 study and Studies 01--07; Study 04 also has `validation_targets.R`. Study launch
-scripts remain under `scripts/`, including the current refresh, Studies 05 and
-06, the Study 06 v2 validation, and the paused Study 07 scaffold.
+scripts remain under `scripts/`, including the current refresh, the
+in-development Study 06 annotation workflow, and the paused Study 07 scaffold.
 
 Targets remains the execution engine. This reorganization does not run a target
 pipeline, rewrite `_targets.R`, or introduce `run_benchmark()`.

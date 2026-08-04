@@ -1,9 +1,12 @@
-# Study 06 LD-operator development run
+# Historical pre-renumbering Study 06 LD-operator development run
+
+> **Retired numbering:** this run became Study 05. Commands and local-cache
+> paths below are historical provenance, not active interfaces.
 
 > **Retired internal runbook.** This records the historical execution that
 > produced the frozen evidence. The launchers and per-study targets graph named
 > below were removed by the shared-framework migration. New validation uses
-> `scripts/run_benchmark.R --study 06_ld_operator`; see
+> `scripts/run_benchmark.R --study 05_ld_operator`; see
 > [study06_migration.md](study06_migration.md). Commands below are provenance,
 > not active instructions.
 
@@ -186,22 +189,22 @@ not loaded or modified. Consulted files are:
 Sampler-free validation:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/run_study06_ld_operator.ps1 --validate-only
+powershell -ExecutionPolicy Bypass -File scripts/run_study05_ld_operator.ps1 --validate-only
 ```
 
 Detached resumable execution:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/run_study06_ld_operator.ps1 --phase all --resume
+powershell -ExecutionPolicy Bypass -File scripts/run_study05_ld_operator.ps1 --phase all --resume
 ```
 
 Foreground fallback:
 
 ```powershell
-Rscript scripts/run_study06_ld_operator.R --phase all --resume
+Rscript scripts/run_study05_ld_operator.R --phase all --resume
 ```
 
 Progress is written atomically to
-`results/local/study06_ld_operator/status.csv`. Persistent phase logs are in
+`results/local/study05_ld_operator/status.csv`. Persistent phase logs are in
 the same directory. No renderer loads qgdata, constructs an operator, or calls
 a sampler.

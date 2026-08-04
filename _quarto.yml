@@ -12,18 +12,14 @@ project:
     - studies/02_prediction/report.qmd
     - studies/03_parameter_estimation/report.qmd
     - studies/04_convergence/report.qmd
-    - studies/05_annotation_models/annotation-convergence.qmd
-    - studies/06_ld_operator/report.qmd
-    - studies/06_ld_operator/sbayesr_ld_robustness/report.qmd
+    - studies/05_ld_operator/report.qmd
+    - studies/06_annotation_models/annotation-convergence.qmd
   resources:
     - results/reference/**
-    - studies/06_ld_operator/analysis.R
-    - studies/06_ld_operator/spec.R
-    - studies/06_ld_operator/operator-design.R
+    - studies/05_ld_operator/analysis.R
+    - studies/05_ld_operator/spec.R
+    - studies/05_ld_operator/operator-design.R
     - inst/templates/operator-analysis.R
-    - studies/06_ld_operator/sbayesr_ld_robustness/README.md
-    - studies/06_ld_operator/sbayesr_ld_robustness/analysis.R
-    - studies/06_ld_operator/sbayesr_ld_robustness/scripts/*.R
 
 website:
   title: "sblrbench"
@@ -40,8 +36,6 @@ website:
         text: Metrics
       - href: studies/index.qmd
         text: Benchmarks
-      - href: studies/06_ld_operator/sbayesr_ld_robustness/report.qmd
-        text: Additional validation
       - href: reproducibility.qmd
         text: Reproducibility
 

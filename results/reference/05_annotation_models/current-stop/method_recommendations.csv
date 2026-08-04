@@ -1,3 +1,0 @@
-"method","recommendation_status","nchains","ncores","nburn","nit","nthin","limiting_estimand","limiting_diagnostic","source"
-"st_bed_bayesrc","unsupported",4,4,1000,2000,1,"alpha:continuous_signal:component_0_stick","rhat","Study 05 maximum-history convergence pilot; no candidate passed"
-"st_csr_sbayesrc","unsupported",4,4,1000,2000,1,"alpha:continuous_signal:component_0_stick","rhat","Study 05 maximum-history convergence pilot; no candidate passed"

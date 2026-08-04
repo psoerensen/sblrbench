@@ -1,4 +1,7 @@
-# Study 06 v2: retained low-rank LD operator validation
+# Historical pre-renumbering Study 06 v2 retained-low-rank validation
+
+> **Retired numbering:** this completed evidence is now integrated into Study
+> 05. Commands and paths below document the historical run only.
 
 > **Retired internal runbook.** This file preserves execution provenance for
 > the immutable capsule. The v2 orchestration and launchers were removed after

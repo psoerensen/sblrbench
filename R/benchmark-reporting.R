@@ -663,7 +663,7 @@ plot_convergence_stability <- function(stability, threshold = 0.10) {
     theme_sblrbench()
 }
 
-#' Plot Study 06 deterministic operator errors
+#' Plot Study 05 deterministic operator errors
 #'
 #' @param comparisons Tidy operator-comparison data.
 #' @return A ggplot object.
@@ -711,7 +711,7 @@ plot_operator_spectrum <- function(eigenvalue_summary) {
       colour = NULL)
 }
 
-#' Plot Study 06 recovery summaries
+#' Plot Study 05 recovery summaries
 #'
 #' @param recovery_metrics Tidy recovery-summary table.
 #' @return A ggplot object.

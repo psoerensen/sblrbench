@@ -248,7 +248,7 @@ benchmark_seeds <- function(spec, profile = "benchmark") {
   coordinates
 }
 
-#' Build Study 06 LD-operator coordinates
+#' Build Study 05 LD-operator coordinates
 #'
 #' @inheritParams benchmark_coordinates
 #' @return A deterministic architecture-by-replicate-by-configuration table.
@@ -273,15 +273,15 @@ benchmark_ld_operator_coordinates <- function(spec, profile = "benchmark") {
 .validate_ld_operator_spec <- function(spec) {
   required <- c("study", "task", "supported_profiles", "data", "split",
     "markers", "replicate_count", "scenarios", "methods", "controls",
-    "seeds", "operators", "metrics", "validation", "frozen_capsules",
-    "supplemental", "packages")
+    "seeds", "operators", "metrics", "validation", "frozen_capsule",
+    "components", "packages")
   missing <- setdiff(required, names(spec))
   if (length(missing))
     stop("LD-operator spec is missing required fields: ",
       paste(missing, collapse = ", "), ".", call. = FALSE)
-  if (!identical(spec$study, "06_ld_operator") ||
+  if (!identical(spec$study, "05_ld_operator") ||
       !identical(spec$task, "ld_operator"))
-    stop("The LD-operator task requires study `06_ld_operator`.", call. = FALSE)
+    stop("The LD-operator task requires study `05_ld_operator`.", call. = FALSE)
   profiles <- spec$supported_profiles
   if (!is.list(profiles) || !identical(sort(names(profiles)),
       c("benchmark", "workshop")))
@@ -341,10 +341,12 @@ benchmark_ld_operator_coordinates <- function(spec, profile = "benchmark") {
   if (!identical(as.integer(spec$validation$expected_fit_count), 60L))
     stop("LD-operator validation must retain the 60-fit benchmark contract.",
       call. = FALSE)
-  if (!all(c("main", "supplemental") %in% names(spec$frozen_capsules)))
-    stop("LD-operator spec must identify main and supplemental capsules.",
-      call. = FALSE)
-  supplemental <- spec$supplemental
+  .benchmark_scalar_string(spec$frozen_capsule, "spec$frozen_capsule")
+  if (!identical(sort(names(spec$components)),
+      c("operator_validation", "sbayesr_ld_sensitivity")))
+    stop("LD-operator spec must define the integrated operator-validation and ",
+      "SBayesR LD-sensitivity components.", call. = FALSE)
+  supplemental <- spec$components$sbayesr_ld_sensitivity
   if (!identical(as.integer(supplemental$marker_window$count), 1500L) ||
       !identical(as.integer(supplemental$block_starts),
         c(1L, 251L, 501L, 624L, 751L, 1001L, 1251L)) ||
@@ -352,7 +354,7 @@ benchmark_ld_operator_coordinates <- function(spec, profile = "benchmark") {
         c(248L, 248L, 123L, 127L, 248L, 248L, 248L)) ||
       !identical(as.integer(supplemental$retained_total_rank), 1490L) ||
       !identical(supplemental$retained_mass, 0.995))
-    stop("Supplemental Study 06 window, blocks, or retained-rank policy changed.",
+    stop("Supplemental Study 05 window, blocks, or retained-rank policy changed.",
       call. = FALSE)
   sha <- .benchmark_scalar_string(spec$packages$sblr$sha,
     "spec$packages$sblr$sha")

@@ -1,0 +1,13 @@
+old_path,new_path,content_type,scientific_content_changed,metadata_changed,checksum_action,notes
+"studies/06_ld_operator/","studies/05_ld_operator/","study source","false","true","not applicable","LD-operator study renumbered; nested SBayesR source integrated into top-level files"
+"studies/06_ld_operator/sbayesr_ld_robustness/analysis.R","studies/05_ld_operator/analysis.R","exact analysis","false","true","not applicable","Scientific sections and deterministic audit contract integrated"
+"studies/06_ld_operator/sbayesr_ld_robustness/report.qmd","studies/05_ld_operator/report.qmd","report","false","true","not applicable","Scientific narrative merged into one capsule-only Study 05 page"
+"studies/06_ld_operator/sbayesr_ld_robustness/scripts/","studies/05_ld_operator/operator-design.R","diagnostic helpers","false","true","not applicable","Useful deterministic operator helpers consolidated without nested source hierarchy"
+"studies/05_annotation_models/","studies/06_annotation_models/","development study source","false","true","not applicable","Mechanical renumber only; remains in development"
+"results/reference/06_ld_operator/current/","results/reference/05_ld_operator/current/","main reference capsule","false","true","regenerate integrated SHA-256 index","Main compact evidence retained"
+"results/reference/06_ld_operator/sbayesr_ld_robustness/current/","results/reference/05_ld_operator/current/","supplemental reference capsule","false","true","regenerate integrated SHA-256 index","Tables receive sbayesr_ prefix only when needed to avoid collisions"
+"results/reference/05_annotation_models/current-stop/","results/reference/06_annotation_models/current-stop/","annotation stop capsule","false","true","regenerate after path metadata update","Existing development stop evidence retained; no new annotation capsule"
+"results/local/06_ld_operator/","results/local/05_ld_operator/","ignored local cache convention","false","true","none","Historical caches are retired and not copied"
+"results/local/study05_annotation_models/","results/local/study06_annotation_models/","ignored local cache convention","false","true","none","Future path updated; historical caches are retired and not copied"
+"studies/06_ld_operator/report.qmd","studies/05_ld_operator/report.qmd","website page","false","true","not applicable","Becomes the only Study 05 report"
+"studies/05_annotation_models/annotation-convergence.qmd","studies/06_annotation_models/annotation-convergence.qmd","development status page","false","true","not applicable","Clearly labelled In development"

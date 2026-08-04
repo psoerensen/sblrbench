@@ -9,7 +9,7 @@ arg_value <- function(flag, default = NULL) {
 phase <- arg_value("--phase", "audit")
 resume <- "--resume" %in% args
 allowed <- c("preflight", "audit", "study04-selection", "study04-validation",
-  "study03", "study02", "study01", "study05", "study06-compatibility",
+  "study03", "study02", "study01", "study06", "study05-compatibility",
   "cleanup", "verify", "all")
 if (!phase %in% allowed) stop("Unsupported refresh phase: ", phase, call. = FALSE)
 
@@ -24,7 +24,7 @@ rlib <- file.path(refresh_root, "rlib")
 recommendations <- file.path(root, "results", "reference", "04_convergence",
   "current-selection", "method_recommendations.csv")
 directories <- file.path(refresh_root, c("audit", "study04", "study03", "study02",
-  "study01", "study05", "study06_compatibility", "rendering", "package_checks",
+  "study01", "study06", "study05_compatibility", "rendering", "package_checks",
   "logs", "targets"))
 invisible(lapply(directories, dir.create, recursive = TRUE, showWarnings = FALSE))
 .libPaths(c(rlib, .libPaths()))
@@ -196,29 +196,29 @@ run_phase <- function(x) switch(x,
     file.path(refresh_root,"study02")),
   `study01` = run_common_benchmark("01_finemapping",
     file.path(refresh_root,"study01")),
-  `study05` = {
-    output <- file.path(refresh_root, "study05", "convergence")
-    run_targets("05_annotation_models", "current_convergence", output,
-      "study05-convergence",
-      script = file.path("studies", "05_annotation_models", "targets.R"),
-      extra_vars = c(SBLR_BENCH_STUDY05_PHASE = "convergence",
-        SBLR_BENCH_STUDY05_LOCAL = file.path(refresh_root, "study05"),
-        SBLR_BENCH_LD_DIR = file.path(refresh_root, "study05", "genotype_setup")))
-    source(file.path(root, "studies", "05_annotation_models", "promotion.R"),
+  `study06` = {
+    output <- file.path(refresh_root, "study06", "convergence")
+    run_targets("06_annotation_models", "current_convergence", output,
+      "study06-convergence",
+      script = file.path("studies", "06_annotation_models", "targets.R"),
+      extra_vars = c(SBLR_BENCH_STUDY06_PHASE = "convergence",
+        SBLR_BENCH_STUDY06_LOCAL = file.path(refresh_root, "study06"),
+        SBLR_BENCH_LD_DIR = file.path(refresh_root, "study06", "genotype_setup")))
+    source(file.path(root, "studies", "06_annotation_models", "promotion.R"),
       local = TRUE)
-    decision <- .study05_promote_current_decision(output,
-      source(file.path(root, "studies", "05_annotation_models", "config.R"),
+    decision <- .study06_promote_current_decision(output,
+      source(file.path(root, "studies", "06_annotation_models", "config.R"),
         local = TRUE)$value)
     atomic_write(c(paste("supported:", decision$supported),
       paste("capsule:", decision$destination),
       "full_benchmark_started: false"),
-      file.path(refresh_root, "study05", "decision.txt"))
+      file.path(refresh_root, "study06", "decision.txt"))
   },
   stop("Phase is declared but not implemented yet: ", x, call. = FALSE))
 
 if (phase == "all") {
   for (x in c("audit", "study04-selection", "study04-validation", "study03",
-      "study02", "study01", "study05", "study06-compatibility", "cleanup", "verify"))
+      "study02", "study01", "study06", "study05-compatibility", "cleanup", "verify"))
     run_phase(x)
 } else run_phase(phase)
 

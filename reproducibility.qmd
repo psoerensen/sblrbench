@@ -21,8 +21,8 @@ Working outputs, target stores, logs, and isolated libraries live below ignored
 03_parameter_estimation/current
 04_convergence/current-selection
 04_convergence/current-validation
-05_annotation_models/current-stop
-06_ld_operator/current
+05_ld_operator/current
+06_annotation_models/current-stop
 ```
 
 Each capsule records design, seeds, controls, fit counts, exact package source
@@ -40,7 +40,7 @@ Rscript scripts/run_benchmark.R --study 02_prediction --profile benchmark --outp
 ```
 
 The current refresh was run against a local isolated installation of `sblr`
-0.2.0 at SHA `02e8c74baa906e83c4a08d42a9cc6339b4e81072`. Study 06 retains numerical-fit
+0.2.0 at SHA `02e8c74baa906e83c4a08d42a9cc6339b4e81072`. Study 05 retains numerical-fit
 provenance at its earlier compatible SHA and includes a deterministic compatibility
 audit; its manifest does not falsely claim a rerun.
 

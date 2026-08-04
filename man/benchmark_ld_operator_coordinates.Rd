@@ -2,7 +2,7 @@
 % Please edit documentation in R/benchmark-spec.R
 \name{benchmark_ld_operator_coordinates}
 \alias{benchmark_ld_operator_coordinates}
-\title{Build Study 06 LD-operator coordinates}
+\title{Build Study 05 LD-operator coordinates}
 \usage{
 benchmark_ld_operator_coordinates(spec, profile = "benchmark")
 }
@@ -15,5 +15,5 @@ benchmark_ld_operator_coordinates(spec, profile = "benchmark")
 A deterministic architecture-by-replicate-by-configuration table.
 }
 \description{
-Build Study 06 LD-operator coordinates
+Build Study 05 LD-operator coordinates
 }

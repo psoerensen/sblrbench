@@ -30,9 +30,18 @@ parse_benchmark_cli_arguments <- function(args) {
     stop("Missing required command-line options: ",
       paste(missing, collapse = ", "), ".", call. = FALSE)
   supported_studies <- c("01_finemapping", "02_prediction", "03_parameter_estimation",
-    "04_convergence", "06_ld_operator")
+    "04_convergence", "05_ld_operator")
+  if (identical(options[["--study"]], "06_ld_operator"))
+    stop("Study ID `06_ld_operator` is retired; use `05_ld_operator`.",
+      call. = FALSE)
+  if (identical(options[["--study"]], "05_annotation_models"))
+    stop("Study ID `05_annotation_models` is retired; use ",
+      "`06_annotation_models` (in development).", call. = FALSE)
+  if (identical(options[["--study"]], "06_annotation_models"))
+    stop("Study `06_annotation_models` is in development and is not yet ",
+      "supported by run_benchmark().", call. = FALSE)
   if (!options[["--study"]] %in% supported_studies)
-    stop("Unsupported --study; choose `01_finemapping`, `02_prediction`, `03_parameter_estimation`, `04_convergence`, or `06_ld_operator`.",
+    stop("Unsupported --study; choose `01_finemapping`, `02_prediction`, `03_parameter_estimation`, `04_convergence`, or `05_ld_operator`.",
       call. = FALSE)
   if (!options[["--profile"]] %in% c("workshop", "benchmark"))
     stop("--profile must be `workshop` or `benchmark`.", call. = FALSE)
@@ -177,16 +186,19 @@ parse_benchmark_cli_arguments <- function(args) {
 .run_ld_operator <- function(spec, profile, coordinates, paths, resume) {
   runner <- getOption("sblrbench.ld_operator_runner")
   if (!is.function(runner))
-    stop("Study 06 execution requires its study-specific operator runner. ",
-      "Source `studies/06_ld_operator/operator-design.R` before calling ",
+    stop("Study 05 execution requires its study-specific operator runner. ",
+      "Source `studies/05_ld_operator/operator-design.R` before calling ",
       "run_benchmark() outside validate-only mode.", call. = FALSE)
   result <- runner(spec = spec, profile = profile, coordinates = coordinates,
     paths = paths, resume = resume)
   required <- c("status", "operator_summary", "operator_comparisons",
-    "eigenvalue_summary", "convergence", "recovery_metrics", "runtime")
+    "eigenvalue_summary", "convergence", "recovery_metrics", "runtime",
+    "sbayesr_fit_status", "sbayesr_scheduler", "sbayesr_variance",
+    "sbayesr_conditionals", "sbayesr_quadratics", "sbayesr_recovery",
+    "sbayesr_eigenvalues")
   missing <- setdiff(required, names(result))
   if (length(missing))
-    stop("The Study 06 operator runner omitted required result components: ",
+    stop("The Study 05 operator runner omitted required result components: ",
       paste(missing, collapse = ", "), ".", call. = FALSE)
   result$spec <- spec
   result$paths <- c(paths, result$paths)

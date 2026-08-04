@@ -2,7 +2,7 @@
 % Please edit documentation in R/benchmark-reporting.R
 \name{plot_operator_recovery}
 \alias{plot_operator_recovery}
-\title{Plot Study 06 recovery summaries}
+\title{Plot Study 05 recovery summaries}
 \usage{
 plot_operator_recovery(recovery_metrics)
 }
@@ -13,5 +13,5 @@ plot_operator_recovery(recovery_metrics)
 A ggplot object.
 }
 \description{
-Plot Study 06 recovery summaries
+Plot Study 05 recovery summaries
 }

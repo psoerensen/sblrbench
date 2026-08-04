@@ -50,8 +50,8 @@ The following approved names are deliberately not created:
   differ; only the common trace-array primitive is consolidated.
 - task metric files: existing metric interfaces need a first study migration
   before task-specific placement is stable.
-- `metrics-operator.R`: created for reusable Study 06 matrix and action-error
-  metrics; block/eigen construction policies remain local to Study 06.
+- `metrics-operator.R`: reusable Study 05 matrix and action-error metrics;
+  block/eigen construction policies remain local to Study 05.
 
 No empty placeholder or speculative abstraction is created for these items.
 
@@ -77,12 +77,13 @@ Study 03 parameter estimation now uses the common runner, shared full-sample
 data/simulation/method mechanics, shared scalar extraction, and task-specific
 parameter metrics. Obsolete targets, promotion, estimand, metric, launch,
 worked-example, config, simulation, method, and pilot layers were removed.
-Affected Study 03 and Study 06 diagnostics now use shared semantic checkpoint
+Affected Study 03 and LD-operator diagnostics now use shared semantic checkpoint
 identities; old source-hashed local caches are retired and not reusable.
 
-Historical Study 06 targets, launchers, promotion code, duplicated helpers, and
-v2 orchestration were removed during the Study 06 migration. The three detailed
-operator helper files used by paused Study 07 remain until that study is resumed.
+Historical LD-operator targets, launchers, promotion code, duplicated helpers,
+and v2 orchestration were removed during migration. The remaining operator and
+SBayesR helper implementations were consolidated into the single Study 05
+`operator-design.R`, which paused Study 07 now sources directly.
 or classified as obsolete solely from their names. They remain inventory items
 until callers, reproducibility roles, and migration replacements are verified.
 Git history is the archive; no legacy directory is introduced.

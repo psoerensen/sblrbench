@@ -14,17 +14,17 @@ replacement validated and all active dependencies were redirected.
 | `results/reference/03_parameter_estimation/st-parameter-estimation-five-replicate-development-v1` | 03 | Superseded package/prior run | `39fb5802507fc867b34dc4a32644f72705202686` | `results/reference/03_parameter_estimation/current` |
 | `results/reference/04_convergence/st-multichain-convergence-development-v1` | 04 | Superseded recommendation selection | `c40eb3893b6ff8946b64bd0650ac6ebd1cc3df31` | `results/reference/04_convergence/current-selection` |
 | `results/reference/04_convergence/st-multichain-convergence-validation-five-replicate-v1` | 04 | Superseded fixed-setting validation | `39fb5802507fc867b34dc4a32644f72705202686` | `results/reference/04_convergence/current-validation` |
-| `results/reference/06_ld_operator/st-ld-operator-convergence-development-v1` | 06 | Reconstructed-dense historical stage | `a4bd3fdaedbe6e36400c97318299f1965fba72bf` | Git history; current low-rank evidence below |
-| `results/reference/06_ld_operator/st-ld-operator-five-replicate-development-v1` | 06 | Reconstructed-dense historical benchmark | `a4bd3fdaedbe6e36400c97318299f1965fba72bf` | `results/reference/06_ld_operator/current` |
-| `results/reference/06_ld_operator/st-low-rank-operator-convergence-development-v2` | 06 | Chronology-specific duplicate stage | `285a33ae9fcaba93af2b5bd001c72507da2949e6` | `results/reference/06_ld_operator/current` |
-| `results/reference/06_ld_operator/st-low-rank-operator-five-replicate-development-v2` | 06 | Versioned duplicate of compatible current evidence | `285a33ae9fcaba93af2b5bd001c72507da2949e6` | `results/reference/06_ld_operator/current` |
+| `results/reference/05_ld_operator/st-ld-operator-convergence-development-v1` | 06 | Reconstructed-dense historical stage | `a4bd3fdaedbe6e36400c97318299f1965fba72bf` | Git history; current low-rank evidence below |
+| `results/reference/05_ld_operator/st-ld-operator-five-replicate-development-v1` | 06 | Reconstructed-dense historical benchmark | `a4bd3fdaedbe6e36400c97318299f1965fba72bf` | `results/reference/05_ld_operator/current` |
+| `results/reference/05_ld_operator/st-low-rank-operator-convergence-development-v2` | 06 | Chronology-specific duplicate stage | `285a33ae9fcaba93af2b5bd001c72507da2949e6` | `results/reference/05_ld_operator/current` |
+| `results/reference/05_ld_operator/st-low-rank-operator-five-replicate-development-v2` | 06 | Versioned duplicate of compatible current evidence | `285a33ae9fcaba93af2b5bd001c72507da2949e6` | `results/reference/05_ld_operator/current` |
 | `studies/01_finemapping/separated-development-pilot.qmd` | 01 | Chronology-based report | `9007f48f2c69fc13cc74c4ae18bc926dc0cc5e25` | `studies/01_finemapping/report.qmd` |
 | `studies/02_prediction/prediction-development-pilot.qmd` | 02 | Fallback reader for old capsules | `0fffcb87d0c3e85d7685803caa2299cfcd8409fd` | `studies/02_prediction/report.qmd` |
 | `studies/03_parameter_estimation/parameter-estimation-development-pilot.qmd` | 03 | Fallback reader for old capsules | `0fffcb87d0c3e85d7685803caa2299cfcd8409fd` | `studies/03_parameter_estimation/report.qmd` |
 | `studies/04_convergence/convergence-development-pilot.qmd` | 04 | Version-specific report | `39fb5802507fc867b34dc4a32644f72705202686` | `studies/04_convergence/report.qmd` |
-| `studies/05_annotation_models/annotation-models-development-pilot.qmd` | 05 | Pre-refresh pilot presentation | `0d5b7d854e655c88aac69cef59279be513f4b37d` | `studies/05_annotation_models/annotation-convergence.qmd` |
-| `studies/06_ld_operator/ld-operator-development-pilot.qmd` | 06 | Reconstructed-dense historical report | `a4bd3fdaedbe6e36400c97318299f1965fba72bf` | Git history |
-| `studies/06_ld_operator/retained-low-rank-operator-development-v2.qmd` | 06 | Chronology-based report | `285a33ae9fcaba93af2b5bd001c72507da2949e6` | `studies/06_ld_operator/report.qmd` |
+| `studies/06_annotation_models/annotation-models-development-pilot.qmd` | 05 | Pre-refresh pilot presentation | `0d5b7d854e655c88aac69cef59279be513f4b37d` | `studies/06_annotation_models/annotation-convergence.qmd` |
+| `studies/05_ld_operator/ld-operator-development-pilot.qmd` | 06 | Reconstructed-dense historical report | `a4bd3fdaedbe6e36400c97318299f1965fba72bf` | Git history |
+| `studies/05_ld_operator/retained-low-rank-operator-development-v2.qmd` | 06 | Chronology-based report | `285a33ae9fcaba93af2b5bd001c72507da2949e6` | `studies/05_ld_operator/report.qmd` |
 
 Obsolete one-off promotion and overnight-run controllers were removed with the
 same cleanup because the current refresh runner and study-specific promotion

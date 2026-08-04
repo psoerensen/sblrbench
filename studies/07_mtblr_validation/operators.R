@@ -1,12 +1,12 @@
 .study07_source_operator_helpers <- function() {
-  needed <- c("study06_blocks", "study06_validate_blocks",
-    ".study06_inspect_operator", ".study06_dense_blocks",
-    ".study06_write_runtime_csr", ".study06_runtime_glist",
-    ".study06_inspect_from_csr", ".study06_equivalence_gate",
-    ".study06_apply_blocks", ".study06_apply_csr_crossproduct")
+  needed <- c("study05_blocks", "study05_validate_blocks",
+    ".study05_inspect_operator", ".study05_dense_blocks",
+    ".study05_write_runtime_csr", ".study05_runtime_glist",
+    ".study05_inspect_from_csr", ".study05_equivalence_gate",
+    ".study05_apply_blocks", ".study05_apply_csr_crossproduct")
   if (!all(vapply(needed, exists, logical(1), inherits = TRUE))) {
-    for (f in c("operator-design.R", "operators.R", "operator_validation.R"))
-      source(file.path("studies", "06_ld_operator", f), local = .GlobalEnv)
+    source(file.path("studies", "05_ld_operator", "operator-design.R"),
+      local = .GlobalEnv)
   }
   invisible(TRUE)
 }
@@ -32,8 +32,8 @@
   col_file <- paste0(prefix, ".col_idx.u32.0based.bin")
   val_file <- paste0(prefix, ".values.f32.bin")
   sblr:::.stblr_write_uint64_file(row_file, c(0, cumsum(per_row)))
-  .study06_write_u32(col_file, cols - 1L)
-  .study06_write_float32(val_file, values)
+  .study05_write_u32(col_file, cols - 1L)
+  .study05_write_float32(val_file, values)
   writeLines(c("format=sparse_ld_csr", "storage=streamed_upper_triangle",
     "n_bed=0", "n_used=0", "n_samples_used=0",
     paste0("n_variants=", marker_count), paste0("nnz=", length(values)),
@@ -62,16 +62,16 @@
 .study07_operator_bundle <- function(Glist, stats, full_csr, config,
                                      output_dir, effect_matrix = NULL) {
   .study07_source_operator_helpers()
-  blocks <- study06_blocks(stats$marker_names, config$block_size)
-  study06_validate_blocks(blocks, stats$marker_names)
+  blocks <- study05_blocks(stats$marker_names, config$block_size)
+  study05_validate_blocks(blocks, stats$marker_names)
   effect <- if (is.null(effect_matrix)) numeric(length(stats$marker_names))
     else effect_matrix[, 1L]
-  unfiltered <- .study06_inspect_operator(Glist, stats, blocks,
+  unfiltered <- .study05_inspect_operator(Glist, stats, blocks,
     filter = "ridge_fixed", eta = 0, effects = effect)
-  runtime <- .study06_write_runtime_csr(unfiltered,
+  runtime <- .study05_write_runtime_csr(unfiltered,
     file.path(output_dir, paste0("runtime_block_", length(stats$marker_names))),
     stats$marker_names)
-  runtime_glist <- .study06_runtime_glist(Glist, stats, runtime)
+  runtime_glist <- .study05_runtime_glist(Glist, stats, runtime)
   # The public MT alignment contract recognizes same-BED orientation through
   # the canonical make_sparse_ld source token plus identical BED provenance.
   # This runtime matrix is reconstructed from that same Glist and retains the
@@ -80,7 +80,7 @@
   runtime_glist$sparseLD$reference_id <-
     "study07_runtime_matched_block_reconstruction"
   runtime_glist$sparseLD$marker_metadata <- stats$marker_metadata
-  runtime_inspection <- .study06_inspect_from_csr(runtime$prefix,
+  runtime_inspection <- .study05_inspect_from_csr(runtime$prefix,
     unfiltered$diagonal, blocks, unfiltered)
   scores <- do.call(cbind, lapply(stats$wy, as.numeric))
   if (is.null(effect_matrix)) effect_matrix <- matrix(0,
@@ -91,14 +91,14 @@
     setNames(lapply(seq_len(ncol(effect_matrix)),
       function(t) effect_matrix[, t]),
       paste0("true_effect_trait", seq_len(ncol(effect_matrix)))))
-  equivalence <- .study06_equivalence_gate(runtime_inspection,
+  equivalence <- .study05_equivalence_gate(runtime_inspection,
     unfiltered, blocks, config, action_vectors = action_vectors)
-  dense <- .study06_dense_blocks(unfiltered)
+  dense <- .study05_dense_blocks(unfiltered)
   matrix_action <- do.call(cbind, lapply(seq_len(ncol(scores)),
-    function(t) .study06_apply_blocks(dense, scores[, t])))
+    function(t) .study05_apply_blocks(dense, scores[, t])))
   direct_action <- do.call(cbind, lapply(seq_len(ncol(scores)),
-    function(t) .study06_apply_blocks(
-      .study06_dense_blocks(runtime_inspection), scores[, t])))
+    function(t) .study05_apply_blocks(
+      .study05_dense_blocks(runtime_inspection), scores[, t])))
   matrix_error <- max(abs(matrix_action - direct_action))
   matrix_relative_error <- sqrt(sum((matrix_action - direct_action)^2)) /
     max(sqrt(sum(direct_action^2)), .Machine$double.eps)

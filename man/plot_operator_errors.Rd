@@ -2,7 +2,7 @@
 % Please edit documentation in R/benchmark-reporting.R
 \name{plot_operator_errors}
 \alias{plot_operator_errors}
-\title{Plot Study 06 deterministic operator errors}
+\title{Plot Study 05 deterministic operator errors}
 \usage{
 plot_operator_errors(comparisons)
 }
@@ -13,5 +13,5 @@ plot_operator_errors(comparisons)
 A ggplot object.
 }
 \description{
-Plot Study 06 deterministic operator errors
+Plot Study 05 deterministic operator errors
 }

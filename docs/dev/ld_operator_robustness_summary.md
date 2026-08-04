@@ -1,28 +1,26 @@
-# Supplemental Study 06: SBayesR LD-operator robustness
+# Study 05 SBayesR LD-sensitivity evidence
 
-This evidence is integrated with the shared Study 06 contract in
-[`spec.R`](../../studies/06_ld_operator/spec.R), while retaining its own frozen
-capsule and independently renderable report. The main evidence remains in
-[`report.qmd`](../../studies/06_ld_operator/report.qmd).
+The former supplemental Study 06 evidence is now an explicit component of the
+single **Study 05 — LD-operator validation** contract in
+[`spec.R`](../../studies/05_ld_operator/spec.R). Its scientific narrative is
+integrated into the sole [`report.qmd`](../../studies/05_ld_operator/report.qmd),
+and its compact tables use `sbayesr_` prefixes within the sole capsule at
+`results/reference/05_ld_operator/current/`.
 
-The scheduler and exact-versus-sparse SBayesR diagnostics are consolidated as
-additional Study 06 package-validation evidence:
+The nested source, report, website page, and capsule paths were retired. Unique
+block, spectral, corrected-score, quadratic, and residual audit functions were
+consolidated into
+[`operator-design.R`](../../studies/05_ld_operator/operator-design.R). No fit
+was rerun during integration.
 
-[`studies/06_ld_operator/sbayesr_ld_robustness/report.qmd`](../../studies/06_ld_operator/sbayesr_ld_robustness/report.qmd)
+The bounded result is unchanged: exact CSR reproduced full-sweep BED BayesR in
+one deterministic LD-rich 1,500-marker window. Hard-sparse and block-diagonal
+operators omitted weak or cross-block LD, changing corrected marker scores,
+component probabilities, residual expressions, and posterior recovery. The
+hard-sparse operator was positive definite, and retaining 99.5% of within-block
+spectral mass gave only modest improvement.
 
-The compact report capsule is under
-`results/reference/06_ld_operator/sbayesr_ld_robustness/current/`. Large genotype inputs,
-operators, spectra, and fit checkpoints remain ignored under `results/local/`.
-
-The bounded result is that exact CSR reproduced BED within one deterministic
-LD-rich 1,500-marker window, while hard sparsification changed marker scores,
-quadratic and residual expressions, posterior variance, component allocation,
-and recovery. The configured full-rank block operator faithfully reproduced its
-block target but not global exact LD because it omitted cross-block entries.
-Retaining 0.995 positive spectral mass gave modest improvement but did not
-remove that block-boundary limitation.
-
-All fits use or were validated against installed `sblr` SHA
-`02e8c74baa906e83c4a08d42a9cc6339b4e81072`. Principal limitations are the
-single deterministic window, one reduced phenotype, one fixed block policy,
-and the inability to infer a universal LD construction from this diagnostic.
+The evidence does not establish a universal LD window, threshold, block rule,
+or retained-rank policy, and it does not independently justify an `sblr`
+default change. The validated `sblr` SHA remains
+`02e8c74baa906e83c4a08d42a9cc6339b4e81072`.

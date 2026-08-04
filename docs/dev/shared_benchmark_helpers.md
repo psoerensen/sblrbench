@@ -1,6 +1,6 @@
 # Shared benchmark helpers after Phase 3
 
-## Study 06 operator-validation extension
+## Study 05 operator-validation extension
 
 `R/metrics-operator.R` owns reusable matrix and deterministic-action
 comparisons. `benchmark-spec.R` owns the `ld_operator` spec, coordinate grids,
@@ -9,9 +9,9 @@ task/validation boundary, and `benchmark-reporting.R` supplies operator design
 summaries and named error, rank, spectral, recovery, and runtime plots.
 
 Block construction, retained-eigen policy, projected residual/SSE identities,
-and supplemental audits remain Study 06-specific. No operator registry or class
-was introduced. Paused Study 07 is the only deferred caller of the detailed
-historical operator helper files.
+and integrated SBayesR audits remain Study 05-specific. No operator registry or
+class was introduced. Paused Study 07 sources the one authoritative operator
+design file.
 
 Study 01 adds fine-mapping task validation and execution, shared PIP/marker
 extraction, fine-mapping metrics, and tidy plotting helpers. Separated causal
@@ -114,15 +114,15 @@ or 24 complete benchmark coordinates without data preparation or fit dispatch.
   `benchmark_semantic_checkpoint_identity()`,
   `benchmark_semantic_checkpoint_hash()`, and
   `benchmark_load_semantic_checkpoint()`.
-- Compatibility: no Study 06 checkpoint wrapper remains. New Study 06 work uses
+- Compatibility: no LD-operator checkpoint wrapper remains. New Study 05 work uses
   semantic-v2 identities; frozen capsules remain the numerical authority.
-- Current callers: migrated Studies 01--04 and 06, diagnostics, and focused tests.
-- Current callers also include the Study 03 SBayesR comparison and Study 06
-  supplemental scheduler and exact/sparse diagnostics. Their semantic schema
+- Current callers: migrated Studies 01--05, diagnostics, and focused tests.
+- Current callers also include the Study 03 SBayesR comparison and integrated
+  Study 05 SBayesR evidence. Their semantic schema
   is `sblrbench-semantic-v2`; legacy source-hashed caches are rejected.
-- Deferred callers: paused Study 07 and Study 05 CSV status checkpoints.
+- Deferred callers: paused Study 07 and Study 06 annotation CSV status checkpoints.
 - Limitation: diagnostic IDs and scientific payload construction remain local.
-- Wrapper removal: complete for migrated Studies 01--04 and 06.
+- Wrapper removal: complete for migrated Studies 01--05.
 
 ## `R/benchmark-convergence.R`
 
@@ -131,8 +131,8 @@ or 24 complete benchmark coordinates without data preparation or fit dispatch.
   threshold flags.
 - Authoritative functions: `benchmark_chain_window()`,
   `benchmark_trace_array_long()`, and `benchmark_scalar_diagnostics()`.
-- Compatibility: `.study05_one_diagnostic()` and `.study06_diagnostic_one()`
-  adapt output details while retaining study thresholds and historical labels.
+- Compatibility: `.study06_one_diagnostic()` adapts annotation output details;
+  Study 05 operator diagnostics use the integrated shared/operator helpers.
 - Current callers: Study 04 execution and exact workflow, Studies 05--06
   diagnostic wrappers, and focused tests.
 - Deferred callers: paused Study 07 and later study-specific trace extraction.

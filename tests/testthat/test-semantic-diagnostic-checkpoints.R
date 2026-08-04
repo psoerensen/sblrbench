@@ -59,13 +59,13 @@ test_that("legacy diagnostic checkpoints are rejected", {
 
 test_that("active diagnostics do not reference retired Study 03 sources", {
   root <- testthat::test_path("..", "..")
-  scripts <- file.path(root, c(
-    "studies/03_parameter_estimation/diagnostics/sbayesr-gctb-comparison.R",
-    "studies/06_ld_operator/sbayesr_ld_robustness/scripts/scheduler-diagnostic.R",
-    "studies/06_ld_operator/sbayesr_ld_robustness/scripts/exact-sparse-diagnostic.R"))
+  scripts <- file.path(root,
+    "studies/03_parameter_estimation/diagnostics/sbayesr-gctb-comparison.R")
   text <- paste(unlist(lapply(scripts, readLines, warn = FALSE)), collapse = "\n")
   retired <- paste0("studies/03_parameter_estimation/",
     c("config.R", "simulation.R", "methods.R", "pilot.R"))
   expect_false(any(vapply(retired, grepl, logical(1), x = text,
     fixed = TRUE)))
+  expect_false(dir.exists(file.path(root, "studies", "05_ld_operator",
+    "sbayesr_ld_robustness")))
 })

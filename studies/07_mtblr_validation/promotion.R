@@ -141,7 +141,7 @@ source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
     file.path(staging, "reproduce.R"))
   file.copy("studies/07_mtblr_validation/contract_smoke_test.R",
     file.path(staging, "contract_smoke_test.R"))
-  file.copy(file.path("results", "reference", "06_ld_operator",
+  file.copy(file.path("results", "reference", "05_ld_operator",
     "current",
     "example_data_manifest.csv"), file.path(staging,
       "example_data_manifest.csv"))

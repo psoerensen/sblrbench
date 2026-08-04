@@ -30,30 +30,29 @@ separate 20-fit, 80-chain, five-replicate stage validates those recommendations.
 [Selection capsule](../results/reference/04_convergence/current-selection/README.md) ·
 [validation capsule](../results/reference/04_convergence/current-validation/README.md).
 
-### [Study 05: Annotation-model convergence decision](05_annotation_models/annotation-convergence.qmd)
-
-The interface audit and two four-chain maximum-history fits completed. The
-prespecified convergence stop condition was triggered for both annotation-aware
-methods, so no five-replicate scientific benchmark was started.
-[Current stop capsule](../results/reference/05_annotation_models/current-stop/README.md).
-
-### [Study 06: LD-operator validation](06_ld_operator/report.qmd)
+### [Study 05: LD-operator validation](05_ld_operator/report.qmd)
 
 Two architectures, five paired replicates, six configurations, and 60 four-chain
 fits validate packed BED, full and block CSR, and retained-low-rank operators.
 The fits retain their original compatible package SHA; deterministic validation
 against the current refresh SHA proves unchanged resolved priors and scalar
-sampler transitions. [Current capsule](../results/reference/06_ld_operator/current/README.md).
+sampler transitions. The same integrated study tests exact, hard-sparse, and
+block-eigen SBayesR operators in one deterministic LD-rich window.
+[Integrated capsule](../results/reference/05_ld_operator/current/README.md).
 
-A focused [supplemental SBayesR LD-operator robustness validation](06_ld_operator/sbayesr_ld_robustness/report.qmd)
-tests exact, hard-sparse, and block-eigen operators in one deterministic LD-rich
-window. [Supplemental capsule](../results/reference/06_ld_operator/sbayesr_ld_robustness/current/README.md).
+## In development
 
-## Planned and paused
+### [Study 06: Annotation-informed models](06_annotation_models/annotation-convergence.qmd)
+
+**Status: In development.** The interface audit and two four-chain
+maximum-history fits completed. The prespecified convergence stop condition was
+triggered for both annotation-aware methods, so no five-replicate scientific
+benchmark was started.
+[Current stop capsule](../results/reference/06_annotation_models/current-stop/README.md).
 
 ### Study 07: Multivariate implementation validation
 
-Planned/paused pending retained-low-rank MT implementation and scalar-to-MT
+**Status: In development.** Planned/paused pending retained-low-rank MT implementation and scalar-to-MT
 extension work. Preserved alignment, state-mapping, covariance, checkpoint, and
 runtime infrastructure is not presented as current scientific evidence.
 

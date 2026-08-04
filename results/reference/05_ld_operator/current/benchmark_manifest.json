@@ -1,0 +1,151 @@
+{
+  "schema_version": 2,
+  "study": "05_ld_operator",
+  "title": "Study 05 — LD-operator validation",
+  "status": "complete",
+  "integrated_capsule": true,
+  "components": {
+    "operator_validation": {
+      "study": "05_ld_operator",
+      "task": "single_trait_retained_low_rank_operator_validation",
+      "benchmark_scope": "current_retained_low_rank_operator_benchmark",
+      "benchmark_status": "complete",
+      "expected_fit_count": 60,
+      "successful_fit_count": 60,
+      "failed_fit_count": 0,
+      "replicate_count": 5,
+      "architectures": [
+        "sparse_homogeneous",
+        "sparse_mixture"
+      ],
+      "configurations": [
+        "bed",
+        "full_csr",
+        "block_csr",
+        "low_rank_full",
+        "low_rank_0999",
+        "low_rank_0995"
+      ],
+      "chains_per_fit": 4,
+      "sblr_source_sha": "bd8e2c8148a0d9540dc20716455706beeb16fa86",
+      "sblr_version": "0.2.0",
+      "sblrbench_version": "0.0.0.9000",
+      "repository_commit": "41cf7589169a812e09e88b38988aec911555cb8b",
+      "qgdata_commit": "6cca5819e711d326cfb2614d7e9d9f34942612cd",
+      "operator_contract": "block_low_rank_v1",
+      "low_rank_representation": "low_rank",
+      "eigen_props": {
+        "near_full": 1,
+        "high_retention": 0.999,
+        "canonical": 0.995
+      },
+      "projected_variance_contract": "yy - sum_b crossprod(w_b) + sum_b crossprod(r_b)",
+      "historical_v1_label": "Historical reconstructed-dense Study 05 v1",
+      "readiness_decision": "READY FOR MTBLR LOW-RANK EXTENSION",
+      "thread_controls": {
+        "OMP_NUM_THREADS": 4,
+        "OMP_THREAD_LIMIT": 4,
+        "OPENBLAS_NUM_THREADS": 1,
+        "MKL_NUM_THREADS": 1,
+        "VECLIB_MAXIMUM_THREADS": 1
+      },
+      "source_status": "pinned_local_installed_package_offline",
+      "validation_status": "complete_grid_validated",
+      "failures": [],
+      "numerical_fit_source_sha": "bd8e2c8148a0d9540dc20716455706beeb16fa86",
+      "refresh_validation_sha": "02e8c74baa906e83c4a08d42a9cc6339b4e81072",
+      "compatibility_status": "compatible_without_sampler_rerun",
+      "provenance_note": "The 60 numerical fits were generated at sblr bd8e2c8148a0d9540dc20716455706beeb16fa86 and retain that provenance. Deterministic validation at 02e8c74baa906e83c4a08d42a9cc6339b4e81072 established identical resolved priors and byte-identical scalar sampler and retained-low-rank transition sources."
+    },
+    "sbayesr_ld_sensitivity": {
+      "schema_version": 1,
+      "study": "05_ld_operator",
+      "source_head": "39c8596ddd810d6fee43bd7f7906d20cbbe52440",
+      "sblr_version": "0.2.0",
+      "sblr_sha": "02e8c74baa906e83c4a08d42a9cc6339b4e81072",
+      "qgdata_sha": "6cca5819e711d326cfb2614d7e9d9f34942612cd",
+      "coordinate": {
+        "samples": 5000,
+        "markers": 1500,
+        "qc_start": 13392,
+        "qc_end": 14891,
+        "simulation_seed": 17002,
+        "chain_seeds": [
+          150104,
+          250104,
+          350104,
+          450104
+        ]
+      },
+      "fits": {
+        "reused": [
+          "bed_exact_data",
+          "csr_exact_ld",
+          "csr_sparse_ld"
+        ],
+        "newly_checkpointed": [
+          "block_eigen_full_rank",
+          "block_eigen_retained"
+        ]
+      },
+      "ld": {
+        "exact": {
+          "max_distance_variants": 0,
+          "r2_threshold": 0
+        },
+        "sparse": {
+          "max_distance_variants": 1000,
+          "r2_threshold": 0.001
+        }
+      },
+      "blocks": {
+        "policy": "fixed contiguous 250-marker starts plus chromosome boundary splits",
+        "starts": [
+          1,
+          251,
+          501,
+          624,
+          751,
+          1001,
+          1251
+        ]
+      },
+      "eigen": {
+        "full": {
+          "representation": "dense_reconstructed",
+          "policy": "ridge_fixed",
+          "eta": 0
+        },
+        "retained": {
+          "representation": "low_rank",
+          "policy": "cumulative_positive_mass",
+          "proportion": 0.995,
+          "residual_rebuild_every": 100,
+          "total_rank": 1490,
+          "block_ranks": [
+            248,
+            248,
+            123,
+            127,
+            248,
+            248,
+            248
+          ]
+        }
+      },
+      "interpretation_gate": {
+        "full_rank_global_equivalent": false,
+        "full_rank_block_target_relative_error": 4.42100709710878E-08,
+        "full_rank_global_relative_error": 0.44274036938767114
+      },
+      "component": "sbayesr_ld_sensitivity"
+    }
+  },
+  "source_capsules": [
+    "results/reference/06_ld_operator/current",
+    "results/reference/06_ld_operator/sbayesr_ld_robustness/current"
+  ],
+  "source_capsules_retired": true,
+  "numerical_values_changed": false,
+  "sampler_calls": 0
+}

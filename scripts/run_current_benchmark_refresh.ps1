@@ -1,6 +1,6 @@
 param(
   [ValidateSet('preflight','audit','study04-selection','study04-validation','study03',
-    'study02','study01','study05','study06-compatibility','cleanup','verify','all')]
+    'study02','study01','study06','study05-compatibility','cleanup','verify','all')]
   [string]$Phase = 'audit',
   [switch]$Resume
 )

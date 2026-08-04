@@ -32,14 +32,14 @@
 }
 
 .study07_base_resources <- function(config) {
-  store <- file.path(config$local_dir, "..", "study06_ld_operator", "_targets")
+  store <- file.path(config$local_dir, "..", "study05_ld_operator", "_targets")
   if (!dir.exists(store))
-    stop("Validated Study 06 local target store is unavailable.", call. = FALSE)
+    stop("Validated Study 05 local target store is unavailable.", call. = FALSE)
   read <- function(name) targets::tar_read_raw(name, store = store)
-  list(base_glist = read("study06_base_glist"),
-    marker_ids = read("study06_filtered_markers")$marker_ids,
-    sample_ids = read("study06_sample_ids"),
-    split = read("study06_split"))
+  list(base_glist = read("study05_base_glist"),
+    marker_ids = read("study05_filtered_markers")$marker_ids,
+    sample_ids = read("study05_sample_ids"),
+    split = read("study05_split"))
 }
 
 .study07_raw_genotypes <- function(resources, config) {

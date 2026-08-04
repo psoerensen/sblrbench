@@ -3,8 +3,8 @@
 ## Targets entry points
 
 `_targets.R` remains the dispatcher for unmigrated targets studies. Migrated
-Studies 01--04 and 06 use the common CLI and runner; selecting them through
-`_targets.R` now fails with an explicit transition message. Study 06's phased
+Studies 01--05 use the common CLI and runner; selecting them through
+`_targets.R` now fails with an explicit transition message. Study 05's phased
 launcher and target store were retired. No target graph was run during migration.
 
 ## Study-to-study dependencies
@@ -17,13 +17,12 @@ launcher and target store were retired. No target graph was run during migration
 - Study 04 now derives its matched grid from the Study 03 spec and calls shared
   data, simulation, method, extraction, checkpoint, convergence, and execution
   helpers. It has no per-study targets graph or cross-study source dependency.
-- Study 05 and Study 06 use shared data helpers; their scientific workflows
-  remain unmigrated.
-- Study 06 now uses the shared specification, execution, reporting,
-  checkpoint, and operator-metric layers. Its block/eigen policy remains in
-  `operator-design.R`; the supplemental deterministic audits remain focused
-  scripts under the Study 06 directory.
-- Paused Study 07 sources Study 06 operator helpers and shared data helpers. Its
+- Study 06 annotation work uses shared data helpers but remains in development
+  and scientifically unmigrated.
+- Study 05 uses the shared specification, execution, reporting, checkpoint,
+  and operator-metric layers. Its block/eigen and integrated SBayesR audit
+  policies remain in `operator-design.R`.
+- Paused Study 07 sources Study 05 operator helpers and shared data helpers. Its
   scientific workflow remains paused and unmigrated.
 - Before Phase 2, Studies 01 and 03--07 sourced Study 02 promotion solely to
   obtain canonical text-aware MD5 behavior. Active Studies 01 and 03--06 now
@@ -55,8 +54,8 @@ types remain deferred.
   selected copies, semantic validation, and atomic final rename recur across
   promotion files.
 
-The Study 03 SBayesR comparison and the Study 06 scheduler/exact-sparse
-diagnostics formerly hashed Study 03 implementation files. They now use
+The Study 03 SBayesR comparison and integrated Study 05 SBayesR evidence
+formerly hashed Study 03 implementation files. They now use
 `sblrbench-semantic-v2` identities containing scientific inputs, controls,
 seeds, data/operator hashes, and package provenance. Old local caches are
 detected as retired rather than reused or translated.
@@ -77,7 +76,8 @@ changing its scientific design.
 The six standard reports source `studies/reporting_helpers.R`, which is now a
 compatibility loader for `R/benchmark-reporting.R`. Reports otherwise use base
 R table operations, `jsonlite`, `ggplot2`, `knitr`, and frozen capsule files.
-The supplemental Study 06 report uses only base table reads and `knitr`.
+The sole Study 05 report reads both operator evidence components from one
+frozen capsule.
 
 No current report reads `results/local`, `readRDS()` output, a checkpoint, or a
 native fit object. No report calls `sblr`, constructs LD, simulates data, or
@@ -91,12 +91,11 @@ designs and is not executable dependency evidence.
 - Study 04 is migrated. Its spec retains only the matched grid, diagnostic
   quantities, candidates, thresholds, chain requirements, and recommendation
   rules; reusable mechanics live under `R/`.
-- Study 05 launchers retain historical dependencies; Study 06 now uses the
-  shared CLI and no longer has a per-study launcher.
+- Study 06 annotation launchers retain historical dependencies; Study 05 uses
+  the shared CLI and no longer has a per-study launcher.
 - Trace extraction schemas differ and remain duplicated around study-specific
   quantities.
 - Promotion functions still duplicate README/manifest composition and exact
   source selection; only safe mechanics are shared.
 - Method dispatch and checkpoint naming remain study-specific.
-- Study 05 annotation logic cannot be generalized safely
-  before their migrations.
+- Study 06 annotation logic cannot be generalized safely before its migration.
