@@ -13,7 +13,7 @@ project:
     - studies/03_parameter_estimation/report.qmd
     - studies/04_convergence/report.qmd
     - studies/05_ld_operator/report.qmd
-    - studies/06_annotation_models/annotation-convergence.qmd
+    - studies/06_annotation_models/report.qmd
     - studies/07_mt_validation/status.qmd
   resources:
     - results/reference/**

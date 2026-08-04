@@ -1,6 +1,6 @@
 # Study specifications are ordinary lists. Validation is deliberately scoped to
 # fields required by the currently supported prediction, parameter-estimation,
-# convergence, fine-mapping, and LD-operator tasks.
+# convergence, fine-mapping, LD-operator, and annotation-model tasks.
 
 .benchmark_scalar_string <- function(x, field) {
   if (!is.character(x) || length(x) != 1L || is.na(x) || !nzchar(x))
@@ -61,6 +61,8 @@ validate_benchmark_spec <- function(spec) {
     return(.validate_finemapping_spec(spec))
   if (identical(spec$task, "ld_operator"))
     return(.validate_ld_operator_spec(spec))
+  if (identical(spec$task, "annotation_models"))
+    return(.validate_annotation_spec(spec))
   required <- c("study", "task", "supported_profiles", "data",
     "markers", "replicate_count", "scenarios", "methods", "controls",
     "seeds", "metrics", "validation", "frozen_capsule", "packages")
@@ -182,6 +184,8 @@ benchmark_coordinates <- function(spec, profile = "benchmark") {
     return(benchmark_convergence_coordinates(spec, profile))
   if (identical(spec$task, "ld_operator"))
     return(benchmark_ld_operator_coordinates(spec, profile))
+  if (identical(spec$task, "annotation_models"))
+    return(benchmark_annotation_coordinates(spec, profile, mode = "final"))
   resolved <- resolve_benchmark_profile(spec, profile)
   out <- expand.grid(scenario = names(spec$scenarios),
     replicate = seq_len(resolved$replicate_count), method = names(spec$methods),
@@ -220,6 +224,8 @@ benchmark_seeds <- function(spec, profile = "benchmark") {
       as.integer(seed + seq_len(4L) * spec$seeds$chain_stride)))
     return(coordinates)
   }
+  if (identical(spec$task, "annotation_models"))
+    return(benchmark_annotation_seeds(spec, profile, mode = "final"))
   coordinates <- benchmark_coordinates(spec, profile)
   if (identical(spec$task, "finemapping")) {
     method_index <- match(coordinates$method, names(spec$methods))
@@ -504,5 +510,228 @@ benchmark_matched_spec <- function(spec) {
   if (!grepl("^[0-9a-f]{40}$", sha))
     stop("spec$packages$sblr$sha must be a 40-character Git SHA.",
       call. = FALSE)
+  invisible(spec)
+}
+
+#' Build Study 06 annotation-model coordinates
+#'
+#' @param spec A validated Study 06 specification.
+#' @param profile A supported profile.
+#' @param mode Either `"qualification"` or `"final"`.
+#' @return A deterministic coordinate data frame.
+#' @export
+benchmark_annotation_coordinates <- function(spec, profile = "benchmark",
+                                             mode = c("final",
+                                               "qualification")) {
+  mode <- match.arg(mode)
+  validate_benchmark_spec(spec)
+  resolved <- resolve_benchmark_profile(spec, profile)
+  if (identical(mode, "qualification")) {
+    out <- spec$qualification$entries
+  } else {
+    out <- expand.grid(scenario = names(spec$scenarios),
+      replicate = seq_len(resolved$replicate_count),
+      method = names(spec$methods), KEEP.OUT.ATTRS = FALSE,
+      stringsAsFactors = FALSE)
+    out <- out[order(match(out$scenario, names(spec$scenarios)),
+      out$replicate, match(out$method, names(spec$methods))), , drop = FALSE]
+  }
+  rownames(out) <- NULL
+  out$mode <- mode
+  out$profile <- profile
+  out
+}
+
+#' Add Study 06 deterministic seeds
+#'
+#' @inheritParams benchmark_annotation_coordinates
+#' @return Study 06 coordinates with simulation, fit, and chain seeds.
+#' @export
+benchmark_annotation_seeds <- function(spec, profile = "benchmark",
+                                       mode = c("final", "qualification")) {
+  mode <- match.arg(mode)
+  coordinates <- benchmark_annotation_coordinates(spec, profile, mode)
+  scenario_index <- match(coordinates$scenario, names(spec$scenarios))
+  method_index <- match(coordinates$method, names(spec$methods))
+  base <- as.integer(spec$seeds$scenario_base +
+    scenario_index * spec$seeds$scenario_stride +
+    coordinates$replicate * spec$seeds$replicate_stride)
+  coordinates$component_seed <- base + spec$seeds$component_offset
+  coordinates$effect_seed <- base + spec$seeds$effect_offset
+  coordinates$residual_seed <- base + spec$seeds$residual_offset
+  coordinates$fit_seed <- as.integer(spec$seeds$fit_base +
+    scenario_index * spec$seeds$scenario_stride +
+    coordinates$replicate * 1000L +
+    method_index * spec$seeds$method_stride)
+  chain_count <- if (identical(mode, "qualification") ||
+      identical(profile, "benchmark")) 4L else
+    as.integer(spec$controls$workshop$nchains)
+  coordinates$chain_seeds <- I(lapply(coordinates$fit_seed, function(seed)
+    as.integer(seed + seq_len(chain_count) * spec$seeds$chain_stride)))
+  coordinates
+}
+
+.validate_annotation_spec <- function(spec) {
+  required <- c("study", "task", "status", "supported_profiles", "data",
+    "split", "markers", "replicate_count", "scenarios",
+    "annotation_design", "methods", "controls", "qualification", "seeds",
+    "estimands", "metrics", "validation", "frozen_capsule", "packages")
+  missing <- setdiff(required, names(spec))
+  if (length(missing))
+    stop("Annotation-model spec is missing required fields: ",
+      paste(missing, collapse = ", "), ".", call. = FALSE)
+  if (!identical(spec$study, "06_annotation_models") ||
+      !identical(spec$task, "annotation_models"))
+    stop("The annotation-model task requires study `06_annotation_models`.",
+      call. = FALSE)
+  if (!identical(spec$status, "qualification_pending"))
+    stop("Study 06 must remain `qualification_pending` until fitting passes.",
+      call. = FALSE)
+  profiles <- spec$supported_profiles
+  if (!is.list(profiles) || !identical(sort(names(profiles)),
+      c("benchmark", "workshop")))
+    stop("Annotation-model profiles must define workshop and benchmark.",
+      call. = FALSE)
+  if (!identical(as.integer(profiles$benchmark$replicate_count), 5L) ||
+      !identical(as.integer(spec$replicate_count), 5L))
+    stop("Study 06 benchmark must retain five replicates.", call. = FALSE)
+  if (!identical(as.integer(spec$data$expected_sample_count), 2000L) ||
+      !identical(as.integer(spec$data$expected_marker_count), 37991L) ||
+      !identical(as.integer(spec$data$chromosome), 1L))
+    stop("Study 06 data counts or chromosome differ from the audited design.",
+      call. = FALSE)
+  if (!identical(spec$data$sparse_ld, list(max_distance_bp = 0,
+      max_distance_variants = 1000L, r2_threshold = .001,
+      block_size = 1024L, nthreads = 1L)))
+    stop("Study 06 sparse-LD controls changed.", call. = FALSE)
+  if (!identical(spec$data$example_data$commit,
+      "6cca5819e711d326cfb2614d7e9d9f34942612cd") ||
+      !identical(spec$packages$qgdata$sha,
+        "6cca5819e711d326cfb2614d7e9d9f34942612cd"))
+    stop("Study 06 must use the validated qgdata SHA.", call. = FALSE)
+  if (!identical(spec$split[c("train_fraction", "seed")],
+      list(train_fraction = 0.70, seed = 3101L)))
+    stop("Study 06 train/test split differs from the audited design.",
+      call. = FALSE)
+  expected_scenarios <- c("informative_annotations",
+    "uninformative_annotations")
+  if (!identical(names(spec$scenarios), expected_scenarios))
+    stop("Study 06 scenarios must preserve informative then uninformative order.",
+      call. = FALSE)
+  expected_columns <- c("Intercept", "enriched_binary",
+    "continuous_signal", "null_annotation")
+  if (!identical(spec$annotation_design$columns, expected_columns))
+    stop("Study 06 annotation columns must preserve this exact order: ",
+      paste(expected_columns, collapse = ", "), ".", call. = FALSE)
+  alpha <- spec$annotation_design$informative_nonintercept_alpha
+  if (!is.matrix(alpha) || !identical(dim(alpha), c(3L, 3L)) ||
+      !identical(rownames(alpha), expected_columns[-1L]) ||
+      !identical(colnames(alpha), paste0("step_", 1:3)) ||
+      !isTRUE(all.equal(unname(alpha), matrix(c(.98, .20, 0, .25, 0,
+        .20, 0, 0, 0), 3L, byrow = TRUE))))
+    stop("Study 06 informative annotation coefficients changed.",
+      call. = FALSE)
+  expected_methods <- c("st_bed_bayesr", "st_bed_bayesrc",
+    "st_csr_sbayesr", "st_csr_sbayesrc")
+  if (!identical(names(spec$methods), expected_methods))
+    stop("Study 06 methods must preserve the audited four-method order.",
+      call. = FALSE)
+  observed_methods <- vapply(spec$methods, function(x) paste(x$interface,
+    x$native_method, x$representation, x$prior_class,
+    if (is.null(x$annotation_model)) "" else x$annotation_model,
+    x$computational_policy, sep = "|"), character(1))
+  expected_method_contracts <- c(
+    st_bed_bayesr = "stblr_bed|bayesr|BED|BayesR||full unscheduled BED sweep",
+    st_bed_bayesrc = "stblr_bed|bayesrc|BED|BayesRC||full unscheduled BED sweep",
+    st_csr_sbayesr = "stblr_csr|sbayesr|CSR|BayesR||training-only sparse LD",
+    st_csr_sbayesrc = paste("stblr_csr_annot|sbayesrc|CSR|BayesRC",
+      "annotation_probit_stick|training-only sparse LD", sep = "|"))
+  if (!identical(observed_methods, expected_method_contracts))
+    stop("Study 06 method interfaces, models, or computational policies changed.",
+      call. = FALSE)
+  annotation_methods <- names(spec$methods)[vapply(spec$methods,
+    function(x) isTRUE(x$annotation_aware), logical(1))]
+  if (!identical(annotation_methods,
+      c("st_bed_bayesrc", "st_csr_sbayesrc")))
+    stop("Study 06 baseline/annotation-aware method pairing is invalid.",
+      call. = FALSE)
+  simulation <- spec$controls$simulation
+  if (!identical(simulation$h2, .30) ||
+      !identical(as.integer(simulation$target_expected_nonnull), 50L) ||
+      !identical(simulation$mixture_var, c(0, .01, .1, 1)) ||
+      !identical(simulation$active_component_weights, c(.60, .30, .10)))
+    stop("Study 06 simulation or mixture controls changed.", call. = FALSE)
+  priors <- spec$controls$priors
+  if (!identical(priors$h2, .30) ||
+      !identical(priors$bayesr_active_probability, 50 / 37991) ||
+      !identical(priors$bayesr_mixture_var, c(0, .01, .1, 1)) ||
+      !identical(priors$intercept_flat, TRUE) ||
+      !identical(priors$sigmaSqAlpha_init, c(1, 1, 1)) ||
+      !identical(priors[c("sigmaSqAlpha_a", "sigmaSqAlpha_b")],
+        list(sigmaSqAlpha_a = 2, sigmaSqAlpha_b = 2)) ||
+      !identical(priors$alpha_update_every, 1L) ||
+      !identical(priors$pi_floor, 1e-12) ||
+      !all(vapply(priors[c("updateAlpha", "updateB", "updateE")],
+        isTRUE, logical(1))))
+    stop("Study 06 priors or annotation update controls changed.",
+      call. = FALSE)
+  entries <- spec$qualification$entries
+  expected_entries <- data.frame(
+    scenario = rep(expected_scenarios, each = 2L), replicate = 1L,
+    method = rep(c("st_bed_bayesrc", "st_csr_sbayesrc"), 2L),
+    stringsAsFactors = FALSE)
+  if (!is.data.frame(entries) || !identical(entries, expected_entries))
+    stop("Study 06 must define exactly the four audited qualification entries.",
+      call. = FALSE)
+  qualification <- spec$qualification
+  if (!identical(as.integer(qualification$maximum_history), 9000L) ||
+      !identical(as.integer(qualification$burnin_candidates),
+        c(1000L, 2000L, 3000L)) ||
+      !identical(as.integer(qualification$retained_candidates),
+        c(2000L, 4000L, 6000L)) ||
+      !identical(as.integer(qualification$nchains), 4L))
+    stop("Study 06 qualification history or candidate windows changed.",
+      call. = FALSE)
+  thresholds <- qualification$thresholds
+  if (!identical(thresholds[c("rhat", "ess_bulk", "ess_tail",
+      "relative_mcse", "chain_count")], list(rhat = 1.01,
+      ess_bulk = 400, ess_tail = 400, relative_mcse = .05,
+      chain_count = 4L)))
+    stop("Study 06 convergence thresholds changed.", call. = FALSE)
+  candidates <- expand.grid(burnin = qualification$burnin_candidates,
+    retained = qualification$retained_candidates)
+  if (!any(candidates$burnin + candidates$retained <=
+      qualification$maximum_history))
+    stop("Study 06 qualification has no feasible candidate window.",
+      call. = FALSE)
+  if (!is.data.frame(spec$estimands) || !nrow(spec$estimands) ||
+      anyDuplicated(spec$estimands$estimand_id) ||
+      !all(c("estimand_id", "definition", "required") %in%
+        names(spec$estimands)))
+    stop("Study 06 estimand registry is invalid.", call. = FALSE)
+  if (!is.character(spec$metrics) || !length(spec$metrics) ||
+      anyNA(spec$metrics) || anyDuplicated(spec$metrics))
+    stop("Study 06 metrics must be a unique non-empty character vector.",
+      call. = FALSE)
+  if (!identical(spec$frozen_capsule$status, "partial_evidence_only") ||
+      !is.null(spec$frozen_capsule$final))
+    stop("Study 06 must not claim a final capsule before qualification.",
+      call. = FALSE)
+  sha <- .benchmark_scalar_string(spec$packages$sblr$sha,
+    "spec$packages$sblr$sha")
+  if (!identical(sha, "02e8c74baa906e83c4a08d42a9cc6339b4e81072"))
+    stop("Study 06 must use the validated sblr SHA.", call. = FALSE)
+  # Validate the complete seed space without recursively calling public helpers.
+  grid <- expand.grid(scenario = expected_scenarios, replicate = 1:5,
+    method = expected_methods, KEEP.OUT.ATTRS = FALSE,
+    stringsAsFactors = FALSE)
+  s <- match(grid$scenario, expected_scenarios)
+  m <- match(grid$method, expected_methods)
+  fit <- spec$seeds$fit_base + s * spec$seeds$scenario_stride +
+    grid$replicate * 1000L + m * spec$seeds$method_stride
+  chains <- unlist(lapply(fit, function(seed)
+    seed + seq_len(4L) * spec$seeds$chain_stride), use.names = FALSE)
+  if (anyDuplicated(fit) || anyDuplicated(chains))
+    stop("Study 06 fit or chain seeds are not unique.", call. = FALSE)
   invisible(spec)
 }

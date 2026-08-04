@@ -87,11 +87,13 @@ designs and is not executable dependency evidence.
 - Study 04 is migrated. Its spec retains only the matched grid, diagnostic
   quantities, candidates, thresholds, chain requirements, and recommendation
   rules; reusable mechanics live under `R/`.
-- Study 06 and Study 07 retain development target graphs but no dedicated
-  launch wrappers. Their future shared-runner interfaces remain unresolved.
-- Trace extraction schemas differ and remain duplicated around study-specific
-  quantities.
+- Study 06 now uses the shared runner and has no per-study targets graph;
+  qualification and final scientific execution remain pending. Study 07
+  retains its development graph.
+- Study 06 true annotation traces and draw-wise marker-prior summaries use
+  `R/benchmark-extraction.R`; Study 07 extraction remains deferred.
 - Promotion functions still duplicate README/manifest composition and exact
   source selection; only safe mechanics are shared.
 - Method dispatch and checkpoint naming remain study-specific.
-- Study 06 annotation logic cannot be generalized safely before its migration.
+- Study 06-specific construction remains deliberately local in
+  `annotation-design.R`; reusable annotation metrics live under `R/`.

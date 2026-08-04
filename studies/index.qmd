@@ -42,7 +42,7 @@ block-eigen SBayesR operators in one deterministic LD-rich window.
 
 ## In development
 
-### [Study 06: Annotation-informed models](06_annotation_models/annotation-convergence.qmd)
+### [Study 06: Annotation-informed models](06_annotation_models/report.qmd)
 
 **Status: In development.** The interface audit and two four-chain
 maximum-history fits completed. The prespecified convergence stop condition was

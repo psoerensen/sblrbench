@@ -28,7 +28,7 @@ test_that("website has one Study 05 report and no additional validation", {
   expect_false(grepl("sbayesr_ld_robustness/report.qmd", quarto,
     fixed = TRUE))
   annotation <- paste(readLines(file.path(root, "studies",
-    "06_annotation_models", "annotation-convergence.qmd"), warn = FALSE),
+    "06_annotation_models", "report.qmd"), warn = FALSE),
     collapse = "\n")
   expect_match(annotation, "In development", fixed = TRUE)
 })

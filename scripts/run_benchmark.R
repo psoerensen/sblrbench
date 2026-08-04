@@ -30,9 +30,12 @@ spec <- read_benchmark_spec(file.path(root, "studies", options$study,
   "spec.R"))
 result <- run_benchmark(spec = spec, output_dir = options$output_dir,
   profile = options$profile, resume = options$resume,
-  validate_only = options$validate_only)
+  validate_only = options$validate_only, mode = options$mode)
 cat("Study:", spec$study, "\n")
 cat("Profile:", options$profile, "\n")
 cat("Validate only:", options$validate_only, "\n")
+cat("Mode:", if (is.null(options$mode))
+  if (options$validate_only) "validate_only" else "final" else options$mode,
+  "\n")
 cat("Coordinates:", nrow(result$status), "\n")
 cat("Manifest:", result$paths$manifest, "\n")

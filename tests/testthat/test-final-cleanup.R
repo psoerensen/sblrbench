@@ -57,11 +57,13 @@ test_that("five reusable templates use the shared runner", {
   }
 })
 
-test_that("development CLI identifiers fail without execution", {
+test_that("Study 06 validates while Study 07 remains unavailable", {
   args <- c("--profile", "benchmark", "--output-dir", "unused",
     "--resume", "true", "--validate-only", "true")
-  expect_error(parse_benchmark_cli_arguments(c("--study",
-    "06_annotation_models", args)), "in development")
+  parsed <- parse_benchmark_cli_arguments(c("--study",
+    "06_annotation_models", args))
+  expect_identical(parsed$study, "06_annotation_models")
+  expect_true(parsed$validate_only)
   expect_error(parse_benchmark_cli_arguments(c("--study",
     "07_mt_validation", args)), "in development")
   expect_error(parse_benchmark_cli_arguments(c("--study",

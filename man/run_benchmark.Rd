@@ -9,7 +9,8 @@ run_benchmark(
   output_dir,
   profile = "benchmark",
   resume = TRUE,
-  validate_only = FALSE
+  validate_only = FALSE,
+  mode = NULL
 )
 }
 \arguments{
@@ -24,6 +25,10 @@ run_benchmark(
 
 \item{validate_only}{Validate coordinates, controls, seeds, and provenance
 without preparing data or calling a fit function.}
+
+\item{mode}{Study 06 execution mode: \code{"validate_only"},
+\code{"qualification"}, or \code{"final"}. Other studies support validation-only
+and final execution, but not qualification mode.}
 }
 \value{
 A compact result index containing output tables and paths.

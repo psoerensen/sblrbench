@@ -1,5 +1,16 @@
 # Shared benchmark helpers after Phase 3
 
+## Study 06 annotation-model extension
+
+The runner supports `annotation_models` with explicit `validate_only`,
+`qualification`, and `final` modes. Shared spec, method, extraction,
+convergence, reporting, provenance, and semantic-checkpoint functions are
+reused. `R/metrics-annotation.R` owns stable annotation recovery metrics;
+deterministic scientific construction remains in Study 06
+`annotation-design.R`. Comparable BED/CSR marker priors require true retained
+alpha traces and are reconstructed draw by draw. Missing traces are reported
+as unavailable rather than replaced by posterior means or final states.
+
 ## Study 05 operator-validation extension
 
 `R/metrics-operator.R` owns reusable matrix and deterministic-action

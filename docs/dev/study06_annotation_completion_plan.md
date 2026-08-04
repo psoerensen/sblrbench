@@ -1,5 +1,9 @@
 # Study 06 annotation-informed models completion plan
 
+> **Implementation update:** The shared-framework software described here has
+> been implemented. Scientific qualification and final fitting remain unrun.
+> See `study06_annotation_implementation.md`.
+
 ## Recommended final design
 
 ### Required

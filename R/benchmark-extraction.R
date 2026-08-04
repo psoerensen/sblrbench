@@ -217,6 +217,160 @@ complete_parameter_summary <- function(summary, estimands, method,
   rbind(summary,absent)
 }
 
+#' Extract true annotation coefficient traces
+#'
+#' This accepts only the identifiable iteration-by-chain-by-quantity trace
+#' bundle produced by the annotation-aware samplers. Posterior means and final
+#' states are never substituted.
+#'
+#' @param fit An sblr fit or `sblrbench_result`.
+#' @param expected_chains Required number of identifiable chains.
+#' @return A tidy data frame. Unavailable traces are represented by one row
+#'   with `status = "unavailable"` and an actionable reason.
+#' @export
+extract_annotation_coefficient_traces <- function(fit,
+                                                   expected_chains = 4L) {
+  native <- .benchmark_native_fit(fit)
+  bundle <- native$convergence_traces
+  unavailable <- function(reason) data.frame(iteration = NA_integer_,
+    chain = NA_integer_, parameter = NA_character_, annotation = NA_character_,
+    stick = NA_character_, value = NA_real_, status = "unavailable",
+    reason = reason, stringsAsFactors = FALSE)
+  if (is.null(bundle$values) || length(dim(bundle$values)) != 3L)
+    return(unavailable(paste("True annotation coefficient traces are absent;",
+      "posterior means and final states are not substitutes.")))
+  if (dim(bundle$values)[2L] != as.integer(expected_chains))
+    return(unavailable("Annotation traces lack the required identifiable chains."))
+  q <- bundle$quantities
+  required_columns <- c("parameter_name", "annotation_name", "stick_name")
+  if (!is.data.frame(q) || !all(required_columns %in% names(q)) ||
+      nrow(q) != dim(bundle$values)[3L])
+    return(unavailable("Annotation trace descriptors are incomplete."))
+  index <- which(q$parameter_name %in% c("alpha", "sigmaSqAlpha"))
+  if (!length(index) || !all(c("alpha", "sigmaSqAlpha") %in%
+      q$parameter_name[index]))
+    return(unavailable("True alpha and sigmaSqAlpha traces are both required."))
+  base <- expand.grid(iteration = seq_len(dim(bundle$values)[1L]),
+    chain = seq_len(dim(bundle$values)[2L]))
+  rows <- lapply(index, function(j) data.frame(base,
+    parameter = as.character(q$parameter_name[j]),
+    annotation = ifelse(is.na(q$annotation_name[j]), "",
+      as.character(q$annotation_name[j])),
+    stick = ifelse(is.na(q$stick_name[j]), "",
+      as.character(q$stick_name[j])),
+    value = as.vector(bundle$values[, , j]), status = "ok", reason = "",
+    stringsAsFactors = FALSE))
+  out <- do.call(rbind, rows)
+  rownames(out) <- NULL
+  if (any(!is.finite(out$value)) ||
+      anyDuplicated(out[c("iteration", "chain", "parameter", "annotation",
+        "stick")]))
+    return(unavailable("Annotation coefficient traces are non-finite or duplicated."))
+  out
+}
+
+extract_annotation_fit_components <- function(fit) {
+  native <- .benchmark_native_fit(fit)
+  list(
+    posterior_means = list(alpha = native$alpha,
+      sigmaSqAlpha = native$sigmaSqAlpha),
+    final_states = list(alpha = native$alpha_final,
+      sigmaSqAlpha = native$sigmaSqAlpha_final,
+      marker_prior = native$annotation_prior),
+    true_draws = extract_annotation_coefficient_traces(fit,
+      expected_chains = if (is.list(native$chains)) length(native$chains) else
+        4L),
+    marker_posterior_components = native$component_probabilities,
+    fit_input = native$input)
+}
+
+#' Summarise a comparable draw-wise annotation marker prior
+#'
+#' For each retained chain draw, this reconstructs the complete alpha matrix
+#' and evaluates the package's probit-stick transformation. Marker-level output
+#' is the posterior mean of those draw-wise probabilities. Summary output
+#' retains draw identity for convergence and uncertainty calculations.
+#'
+#' @param traces Output from `extract_annotation_coefficient_traces()`.
+#' @param annotations Ordered marker-by-annotation matrix.
+#' @param mixture_var Ordered mixture variances.
+#' @param true_marker_prior Optional true marker component probabilities.
+#' @param marker_truth Optional data frame containing `true_nonnull`.
+#' @return A list with status, marker summaries, draw summaries, and reason.
+#' @export
+summarise_drawwise_annotation_prior <- function(traces, annotations,
+                                                mixture_var,
+                                                true_marker_prior = NULL,
+                                                marker_truth = NULL) {
+  if (!is.data.frame(traces) || !nrow(traces) ||
+      any(traces$status != "ok"))
+    return(list(status = "unavailable", marker = NULL, draws = NULL,
+      reason = if (is.data.frame(traces) && "reason" %in% names(traces))
+        paste(unique(traces$reason[nzchar(traces$reason)]), collapse = "; ") else
+          "True annotation coefficient traces are unavailable."))
+  alpha <- traces[traces$parameter == "alpha", , drop = FALSE]
+  annotations_required <- colnames(annotations)
+  sticks_required <- paste0("step_", seq_len(length(mixture_var) - 1L))
+  if (!setequal(unique(alpha$annotation), annotations_required) ||
+      !setequal(unique(alpha$stick), sticks_required))
+    return(list(status = "unavailable", marker = NULL, draws = NULL,
+      reason = "Alpha traces do not span every annotation and probit stick."))
+  keys <- unique(alpha[c("chain", "iteration")])
+  keys <- keys[order(keys$chain, keys$iteration), , drop = FALSE]
+  marker_sum <- matrix(0, nrow(annotations), length(mixture_var),
+    dimnames = list(rownames(annotations),
+      paste0("component_", seq_len(length(mixture_var)) - 1L)))
+  enriched <- annotations[, "enriched_binary"] == 1
+  causal <- if (is.null(marker_truth)) rep(NA, nrow(annotations)) else
+    as.logical(marker_truth$true_nonnull[match(rownames(annotations),
+      marker_truth$marker_id)])
+  draw_rows <- vector("list", nrow(keys))
+  for (i in seq_len(nrow(keys))) {
+    z <- alpha[alpha$chain == keys$chain[i] &
+      alpha$iteration == keys$iteration[i], , drop = FALSE]
+    coefficient <- matrix(NA_real_, length(annotations_required),
+      length(sticks_required), dimnames = list(annotations_required,
+        sticks_required))
+    coefficient[cbind(match(z$annotation, annotations_required),
+      match(z$stick, sticks_required))] <- z$value
+    if (anyNA(coefficient))
+      return(list(status = "unavailable", marker = NULL, draws = NULL,
+        reason = "At least one retained draw has an incomplete alpha matrix."))
+    probability <- sblr::sbayesrc_marker_pi(annotations, coefficient,
+      gamma = mixture_var)
+    if (any(!is.finite(probability)) ||
+        any(abs(rowSums(probability) - 1) > 1e-8))
+      stop("Draw-wise annotation prior transformation failed.",
+        call. = FALSE)
+    marker_sum <- marker_sum + probability
+    nonnull <- 1 - probability[, 1L]
+    draw_rows[[i]] <- data.frame(chain = keys$chain[i],
+      iteration = keys$iteration[i], expected_active = sum(nonnull),
+      mean_prior_enriched = mean(nonnull[enriched]),
+      mean_prior_unannotated = mean(nonnull[!enriched]),
+      enriched_prior_contrast = mean(nonnull[enriched]) -
+        mean(nonnull[!enriched]),
+      mean_prior_causal = if (all(is.na(causal))) NA_real_ else
+        mean(nonnull[causal]),
+      mean_prior_noncausal = if (all(is.na(causal))) NA_real_ else
+        mean(nonnull[!causal]), stringsAsFactors = FALSE)
+  }
+  posterior_mean <- marker_sum / nrow(keys)
+  marker <- data.frame(marker_id = rownames(annotations),
+    posterior_mean_nonnull_prior = 1 - posterior_mean[, 1L],
+    stringsAsFactors = FALSE)
+  for (j in seq_len(ncol(posterior_mean)))
+    marker[[paste0("posterior_mean_prior_component_", j - 1L)]] <-
+      posterior_mean[, j]
+  if (!is.null(true_marker_prior)) {
+    true_marker_prior <- true_marker_prior[match(marker$marker_id,
+      rownames(true_marker_prior)), , drop = FALSE]
+    marker$true_nonnull_prior <- 1 - true_marker_prior[, 1L]
+  }
+  list(status = "ok", marker = marker,
+    draws = do.call(rbind, draw_rows), reason = "")
+}
+
 prediction_estimate_table <- function(result, scenario, replicate, method) {
   effects <- extract_marker_effects(result)
   data.frame(study = "02_prediction", scenario = scenario,

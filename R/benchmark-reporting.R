@@ -728,3 +728,88 @@ plot_operator_recovery <- function(recovery_metrics) {
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 30, hjust = 1),
       legend.position = "none")
 }
+
+#' Plot Study 06 annotation-prior recovery
+#'
+#' @param metrics Tidy annotation metric rows.
+#' @return A ggplot object.
+#' @export
+plot_annotation_prior_recovery <- function(metrics) {
+  required <- c("scenario", "method", "metric", "value")
+  if (!is.data.frame(metrics) || !all(required %in% names(metrics)))
+    stop("Annotation metrics lack plotting columns.", call. = FALSE)
+  ids <- c("prior_component_probability_rmse",
+    "prior_expected_active_error", "enriched_prior_contrast")
+  x <- metrics[metrics$metric %in% ids & metrics$status == "ok", , drop = FALSE]
+  ggplot2::ggplot(x, ggplot2::aes(x = method, y = value, colour = method)) +
+    ggplot2::geom_boxplot(show.legend = FALSE) +
+    ggplot2::facet_grid(metric ~ scenario, scales = "free_y") +
+    ggplot2::labs(x = NULL, y = "Posterior recovery summary") +
+    ggplot2::theme_bw() +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1))
+}
+
+#' Plot Study 06 marker prioritisation
+#'
+#' @param metrics Tidy annotation metric rows.
+#' @return A ggplot object.
+#' @export
+plot_annotation_marker_recovery <- function(metrics) {
+  required <- c("scenario", "method", "metric", "value")
+  if (!is.data.frame(metrics) || !all(required %in% names(metrics)))
+    stop("Annotation metrics lack plotting columns.", call. = FALSE)
+  ids <- c("causal_marker_pip", "causal_marker_rank", "pip_auprc",
+    "pip_brier")
+  x <- metrics[metrics$metric %in% ids & metrics$status == "ok", , drop = FALSE]
+  ggplot2::ggplot(x, ggplot2::aes(x = method, y = value, colour = method)) +
+    ggplot2::geom_boxplot(show.legend = FALSE) +
+    ggplot2::facet_grid(metric ~ scenario, scales = "free_y") +
+    ggplot2::labs(x = NULL, y = "Marker recovery") +
+    ggplot2::theme_bw() +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 35, hjust = 1))
+}
+
+#' Plot Study 06 annotation coefficient recovery
+#'
+#' @param alpha Tidy output from `annotation_alpha_recovery()`.
+#' @return A ggplot object.
+#' @export
+plot_annotation_alpha_recovery <- function(alpha) {
+  required <- c("scenario", "method", "annotation", "stick", "truth",
+    "posterior_mean", "lower_95", "upper_95")
+  if (!is.data.frame(alpha) || !all(required %in% names(alpha)))
+    stop("Annotation alpha results lack plotting columns.", call. = FALSE)
+  x <- alpha[alpha$status == "ok", , drop = FALSE]
+  ggplot2::ggplot(x, ggplot2::aes(x = truth, y = posterior_mean,
+    colour = method)) +
+    ggplot2::geom_abline(slope = 1, intercept = 0, linetype = 2) +
+    ggplot2::geom_errorbar(ggplot2::aes(ymin = lower_95, ymax = upper_95),
+      width = 0) +
+    ggplot2::geom_point() +
+    ggplot2::facet_grid(annotation ~ scenario, scales = "free") +
+    ggplot2::labs(x = "True annotation coefficient",
+      y = "Posterior mean and 95% interval") +
+    ggplot2::theme_bw()
+}
+
+#' Plot Study 06 variance-parameter recovery
+#'
+#' @param estimates Tidy Study 06 parameter estimates.
+#' @return A ggplot object.
+#' @export
+plot_annotation_parameter_recovery <- function(estimates) {
+  required <- c("scenario", "method", "parameter", "truth",
+    "posterior_mean", "lower_95", "upper_95", "status")
+  if (!is.data.frame(estimates) || !all(required %in% names(estimates)))
+    stop("Annotation parameter estimates lack plotting columns.",
+      call. = FALSE)
+  x <- estimates[estimates$status == "ok", , drop = FALSE]
+  ggplot2::ggplot(x, ggplot2::aes(truth, posterior_mean, colour = method)) +
+    ggplot2::geom_abline(slope = 1, intercept = 0, linetype = 2) +
+    ggplot2::geom_errorbar(ggplot2::aes(ymin = lower_95, ymax = upper_95),
+      width = 0) +
+    ggplot2::geom_point() +
+    ggplot2::facet_grid(parameter ~ scenario, scales = "free") +
+    ggplot2::labs(x = "Truth", y = "Posterior mean and 95% interval") +
+    ggplot2::theme_bw()
+}

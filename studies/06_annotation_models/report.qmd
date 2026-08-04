@@ -1,0 +1,143 @@
+---
+title: "Study 06: Annotation-informed models"
+description: "Implemented validation design; qualification pending."
+---
+
+```{r}
+#| echo: false
+source("R/benchmark-reporting.R")
+capsule <- "results/reference/06_annotation_models/current-stop"
+rcsv <- function(name) read.csv(file.path(capsule, name), check.names = FALSE)
+manifest <- jsonlite::read_json(file.path(capsule, "benchmark_manifest.json"),
+  simplifyVector = TRUE)
+design <- rcsv("annotation_design_summary.csv")
+true_alpha <- rcsv("true_alpha.csv")
+diagnostics <- rcsv("convergence_diagnostics.csv")
+candidates <- rcsv("candidate_settings.csv")
+recommendations <- rcsv("method_recommendations.csv")
+fit_status <- rcsv("fit_status.csv")
+computation <- rcsv("computational_summary.csv")
+```
+
+::: {.callout-important}
+**Status: In development — qualification pending.** The existing capsule is a
+**Prespecified convergence stop — partial evidence only**. It contains no final
+BayesR/BayesRC or SBayesR/SBayesRC performance comparison.
+:::
+
+## Scientific question
+
+Study 06 asks whether correctly specified informative annotations improve
+marker prioritization and genetic-signal recovery under BayesRC/SBayesRC,
+relative to marginally matched BayesR/SBayesR, without corresponding gains
+under uninformative annotations.
+
+## Study design
+
+The implemented design uses 2,000 chromosome-1 samples and 37,991 ordered QC
+markers from qgdata. A deterministic 70/30 split supplies 1,400 training and
+600 test samples. Informative and uninformative annotation scenarios each use
+five replicates, target heritability 0.30, and 50 expected active markers under
+mixture variances 0, 0.01, 0.1, and 1. The planned final grid has four matched
+methods, 40 fits, and 160 chains.
+
+## Annotation construction
+
+Every marker has an intercept, enriched binary annotation, standardized
+continuous-signal annotation, and null annotation, in that order. Construction
+is deterministic and marker aligned. The informative scenario links annotation
+signal to causal allocation; the uninformative scenario preserves the same
+annotation architecture without causal enrichment.
+
+```{r}
+#| echo: false
+knitr::kable(design, digits = 4)
+knitr::kable(true_alpha, digits = 4,
+  caption = "Generating annotation-by-stick coefficients in the stop capsule.")
+```
+
+## Methods
+
+The final comparison is BED BayesR versus BED BayesRC and CSR SBayesR versus
+CSR SBayesRC (`annotation_model = "annotation_probit_stick"`). Baselines and
+annotation-aware counterparts use matched marginal mixture assumptions. The
+CSR route uses training-only summary statistics and sparse LD.
+
+## Estimands
+
+The primary annotation estimand is the same draw-wise marker component prior
+for BED and CSR: retained annotation coefficients are combined with the ordered
+annotation matrix using the model's probit stick transformation, and only then
+summarized across draws. Posterior mean alpha, final alpha, final marker-prior
+state, input probabilities, and posterior marker allocation probabilities are
+kept distinct.
+
+Marker PIP and causal rank measure prioritization. Prediction, genetic-value
+and effect recovery measure signal recovery; variance components, runtime and
+convergence provide supporting diagnostics. No unavailable fit quantity is
+reconstructed from a final state or a posterior mean.
+
+## Qualification gate
+
+Four entries must qualify before the final grid can run: informative replicate
+1 and uninformative replicate 1 for BED BayesRC and CSR SBayesRC. Each permits
+at most 9,000 iterations and four chains. Candidate burn-ins are 1,000, 2,000,
+and 3,000; retained windows are 2,000, 4,000, and 6,000. Every required scalar
+must satisfy R-hat ≤ 1.01, bulk ESS ≥ 400, tail ESS ≥ 400, and relative MCSE ≤
+0.05. Thresholds cannot be weakened automatically.
+
+## Current partial evidence
+
+The earlier maximum-history evidence covered one informative replicate for the
+two annotation-aware methods. Both fits completed, but no candidate window met
+all registered thresholds. The limiting quantity was
+`alpha:continuous_signal:component_0_stick`.
+
+```{r}
+#| echo: false
+knitr::kable(fit_status)
+knitr::kable(computation, digits = 3)
+knitr::kable(candidates, digits = 4)
+knitr::kable(recommendations, digits = 4)
+```
+
+This is trustworthy evidence for the recorded stop decision, but it does not
+cover the new four-entry qualification gate and is not evidence about method
+performance.
+
+## Why the final benchmark is not complete
+
+No qualifying decision artifact exists for the implemented specification. The
+final runner therefore rejects performance execution. Qualification histories
+can be reused only when their semantic identity, retained traces, method,
+scenario, burn-in, and retained window match exactly.
+
+## Required next runs
+
+The next scientific action is the four-entry qualification run—not the 40-fit
+benchmark. Only after all four entries pass may a separate explicit final
+command launch the prespecified final grid.
+
+## Validation boundaries
+
+The stop capsule does not support conclusions about annotation accuracy,
+enrichment recovery, marker selection, prediction, or superiority of BED or
+CSR routes. Qualification is a gate, not a performance result. The implemented
+software and deterministic tests do not substitute for scientific fits.
+
+## Reproducibility and downloads
+
+This page reads the unchanged `current-stop` capsule only; it does not source
+the study workflow, construct annotations, load checkpoints, or call a sampler.
+
+- [Exact analysis](analysis.R)
+- [Study specification](spec.R)
+- [Annotation design](annotation-design.R)
+- [Reusable annotation template](../../inst/templates/annotation-analysis.R)
+- [Audit](../../docs/dev/study06_annotation_audit.md)
+- [Completion plan](../../docs/dev/study06_annotation_completion_plan.md)
+- [Partial-evidence capsule](../../results/reference/06_annotation_models/current-stop/README.md)
+- [Manifest](../../results/reference/06_annotation_models/current-stop/benchmark_manifest.json)
+- [Convergence diagnostics](../../results/reference/06_annotation_models/current-stop/convergence_diagnostics.csv)
+- [Checksums](../../results/reference/06_annotation_models/current-stop/checksums.csv)
+- [`sblr` annotation interface documentation](https://au-phd.github.io/sblr/reference/stblr_csr_annot.html)

@@ -9,8 +9,9 @@ Studies 01--05 now use the common runner and clean source contracts. The
 `00_contract_smoke` pseudo-study, report/five-replicate compatibility loaders,
 migration refresh drivers, and per-development-study launch wrappers were
 removed after caller and test audits. Root targets dispatch is retained only
-for the Study 06 and Study 07 development graphs. Study 07's authoritative
-internal identifier is `07_mt_validation`.
+for the Study 07 development graph. Study 06 uses the shared runner with
+qualification pending. Study 07's authoritative internal identifier is
+`07_mt_validation`.
 
 The responsibility-level inventory is
 [reorganization_inventory.csv](reorganization_inventory.csv). It was built
@@ -53,12 +54,12 @@ The following approved names are deliberately not created:
   but a first study migration must define the supported data boundary.
 - `benchmark-simulation.R`: architectures and truth objects differ by study.
 - `benchmark-methods.R`: dispatch and controls remain scientific choices.
-- `benchmark-execution.R`: targets remains the execution engine and no
-  `run_benchmark()` abstraction is approved yet.
-- `benchmark-extraction.R`: scalar, annotation, operator, and MT trace schemas
-  differ; only the common trace-array primitive is consolidated.
-- task metric files: existing metric interfaces need a first study migration
-  before task-specific placement is stable.
+- `benchmark-execution.R`: `run_benchmark()` is authoritative for Studies
+  01--06; Study 06 adds explicit validation, qualification, and final modes.
+- `benchmark-extraction.R`: scalar, prediction, parameter, fine-mapping,
+  operator, and annotation extraction are shared; MT remains deferred.
+- task metric files: stable metric families include prediction, parameter
+  estimation, fine-mapping, operator, and annotation metrics.
 - `metrics-operator.R`: reusable Study 05 matrix and action-error metrics;
   block/eigen construction policies remain local to Study 05.
 
