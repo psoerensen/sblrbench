@@ -1,7 +1,7 @@
-.study06_root <- if (file.exists(file.path("studies", "04_convergence",
-  "config.R"))) "." else file.path("..", "..")
-.study06_study04 <- source(file.path(.study06_root, "studies",
-  "04_convergence", "config.R"), local = TRUE)$value
+.study06_root <- if (file.exists(file.path("studies", "03_parameter_estimation",
+  "spec.R"))) "." else file.path("..", "..")
+.study06_parameter_spec <- source(file.path(.study06_root, "studies",
+  "03_parameter_estimation", "spec.R"), local = TRUE)$value
 
 list(
   study = "06_ld_operator",
@@ -13,12 +13,12 @@ list(
   chr = 1L,
   trait = "trait1",
   sample_limit = NULL,
-  example_data = .study06_study04$example_data,
-  qc = .study06_study04$qc,
-  sparse_ld = .study06_study04$sparse_ld,
+  example_data = .study06_parameter_spec$data$example_data,
+  qc = .study06_parameter_spec$markers$qc,
+  sparse_ld = .study06_parameter_spec$data$sparse_ld,
   split = list(train_fraction = 0.70, seed = 3101L),
   architectures = c("sparse_homogeneous", "sparse_mixture"),
-  architecture_specs = .study06_study04$simulation$architectures,
+  architecture_specs = .study06_parameter_spec$scenarios,
   replicate_count = 5L,
   simulation = list(h2 = 0.30, n_causal = 50L),
   configurations = c("bed", "full_csr", "block_csr",

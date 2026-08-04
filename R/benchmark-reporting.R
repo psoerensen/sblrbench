@@ -452,3 +452,81 @@ plot_benchmark_runtime <- function(runtime) {
     ggplot2::labs(x = NULL, y = "Elapsed seconds", title = "Runtime") +
     theme_sblrbench()
 }
+
+.benchmark_convergence_plot_data <- function(data, value) {
+  .benchmark_require_columns(data, c("method", "quantity",
+    "retained_draw_candidate", value), "convergence data")
+  data$method_display <- sblrbench_method_factor(data$method)
+  data
+}
+
+#' Plot Study 04 R-hat trajectories
+#' @param convergence Tidy convergence diagnostics.
+#' @param threshold Prespecified maximum R-hat.
+#' @return A `ggplot2` object.
+#' @export
+plot_convergence_rhat <- function(convergence, threshold = 1.01) {
+  data <- .benchmark_convergence_plot_data(convergence, "rhat")
+  ggplot2::ggplot(data, ggplot2::aes(retained_draw_candidate, rhat,
+      colour = quantity, group = quantity)) +
+    ggplot2::geom_hline(yintercept = threshold, linetype = 2) +
+    ggplot2::geom_line() + ggplot2::geom_point() +
+    ggplot2::facet_grid(burnin_candidate ~ method_display) +
+    ggplot2::labs(x = "Retained draws per chain", y = "R-hat",
+      colour = "Quantity") + theme_sblrbench()
+}
+
+#' Plot Study 04 effective sample sizes
+#' @param convergence Tidy convergence diagnostics.
+#' @param threshold Prespecified minimum ESS.
+#' @return A `ggplot2` object.
+#' @export
+plot_convergence_ess <- function(convergence, threshold = 400) {
+  data <- .benchmark_convergence_plot_data(convergence, "ess_bulk")
+  long <- rbind(transform(data, diagnostic = "Bulk ESS", value = ess_bulk),
+    transform(data, diagnostic = "Tail ESS", value = ess_tail))
+  ggplot2::ggplot(long, ggplot2::aes(retained_draw_candidate, value,
+      colour = quantity, group = quantity)) +
+    ggplot2::geom_hline(yintercept = threshold, linetype = 2) +
+    ggplot2::geom_line() + ggplot2::geom_point() +
+    ggplot2::facet_grid(diagnostic + burnin_candidate ~ method_display,
+      scales = "free_y") +
+    ggplot2::labs(x = "Retained draws per chain",
+      y = "Effective sample size", colour = "Quantity") +
+    theme_sblrbench()
+}
+
+#' Plot Study 04 relative MCSE trajectories
+#' @param convergence Tidy convergence diagnostics.
+#' @param threshold Prespecified maximum relative MCSE.
+#' @return A `ggplot2` object.
+#' @export
+plot_convergence_mcse <- function(convergence, threshold = 0.05) {
+  data <- .benchmark_convergence_plot_data(convergence, "relative_mcse")
+  ggplot2::ggplot(data, ggplot2::aes(retained_draw_candidate, relative_mcse,
+      colour = quantity, group = quantity)) +
+    ggplot2::geom_hline(yintercept = threshold, linetype = 2) +
+    ggplot2::geom_line() + ggplot2::geom_point() +
+    ggplot2::facet_grid(burnin_candidate ~ method_display) +
+    ggplot2::labs(x = "Retained draws per chain", y = "Relative MCSE",
+      colour = "Quantity") + theme_sblrbench()
+}
+
+#' Plot Study 04 burn-in stability
+#' @param stability Tidy standardized-mean-shift rows.
+#' @param threshold Prespecified maximum standardized shift.
+#' @return A `ggplot2` object.
+#' @export
+plot_convergence_stability <- function(stability, threshold = 0.10) {
+  .benchmark_require_columns(stability, c("method", "quantity",
+    "burnin_candidate", "standardized_mean_shift"), "stability")
+  stability$method_display <- sblrbench_method_factor(stability$method)
+  ggplot2::ggplot(stability, ggplot2::aes(burnin_candidate,
+      abs(standardized_mean_shift), colour = quantity, group = quantity)) +
+    ggplot2::geom_hline(yintercept = threshold, linetype = 2) +
+    ggplot2::geom_line() + ggplot2::geom_point() +
+    ggplot2::facet_wrap(~method_display) +
+    ggplot2::labs(x = "Burn-in candidate",
+      y = "Absolute standardized mean shift", colour = "Quantity") +
+    theme_sblrbench()
+}

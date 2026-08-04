@@ -2,10 +2,10 @@
 
 ## Targets entry points
 
-`_targets.R` reads `SBLR_BENCH_STUDY` and sources exactly one
-`studies/<study>/targets.R`. Targets remains the execution engine. Study 04 has
-a second `validation_targets.R`; Study 06 v2 has a separate phased launcher but
-reuses the Study 06 target store. No target graph is run or rewritten here.
+`_targets.R` remains the dispatcher for unmigrated targets studies. Migrated
+Studies 02--04 use the common CLI and runner; selecting them through `_targets.R`
+now fails with an explicit transition message. Study 06 v2 retains its separate
+phased launcher and target store. No target graph was run during Study 04 migration.
 
 ## Study-to-study dependencies
 
@@ -14,8 +14,9 @@ reuses the Study 06 target store. No target graph is run or rewritten here.
 - Study 02 and mechanical callers in Studies 05--07 now use
   `R/benchmark-data.R` for splits, scaling, summary statistics, and training LD;
   no study sources Study 02 internals.
-- Study 04 now reads the Study 03 spec and calls shared simulation, truth, and
-  summary-statistic helpers; its scientific design remains unmigrated.
+- Study 04 now derives its matched grid from the Study 03 spec and calls shared
+  data, simulation, method, extraction, checkpoint, convergence, and execution
+  helpers. It has no per-study targets graph or cross-study source dependency.
 - Study 05 and Study 06 retain Study 01 example-data setup but use shared data
   helpers instead of Study 02 internals.
 - Study 06 v2 sources Study 06 methods, operators, blocks, simulation, and
@@ -85,8 +86,9 @@ designs and is not executable dependency evidence.
 
 - Example-data acquisition remains owned by Study 01; Study 02 mechanics are
   shared, but later data interfaces await their own migrations.
-- Study 04 uses the shared Study 03 simulation and method mechanics through the
-  committed spec; its own scientific workflow remains unmigrated.
+- Study 04 is migrated. Its spec retains only the matched grid, diagnostic
+  quantities, candidates, thresholds, chain requirements, and recommendation
+  rules; reusable mechanics live under `R/`.
 - Study 05 and Study 06 launchers depend on both Study 01 and Study 02.
 - Trace extraction schemas differ and remain duplicated around study-specific
   quantities.

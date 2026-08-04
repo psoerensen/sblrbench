@@ -28,7 +28,7 @@ was not used.
   single-trait prediction benchmark.
 - [Study 03](../../studies/03_parameter_estimation/report.qmd):
   completed single-trait parameter-estimation benchmark.
-- [Study 04](../../studies/04_convergence/convergence.qmd): completed
+- [Study 04](../../studies/04_convergence/report.qmd): completed
   convergence selection and five-replicate validation.
 - [Study 05](../../studies/05_annotation_models/annotation-convergence.qmd):
   completed prespecified annotation convergence stop; no scientific benchmark

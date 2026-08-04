@@ -23,7 +23,7 @@ Two architectures, five replicates, four methods, and 40 four-chain fits evaluat
 posterior recovery, uncertainty, and matched versus misspecified priors.
 [Current capsule](../results/reference/03_parameter_estimation/current/README.md).
 
-### [Study 04: Multichain convergence](04_convergence/convergence.qmd)
+### [Study 04: Multichain convergence](04_convergence/report.qmd)
 
 Four maximum-history fits (16 chains) select current operational settings. A
 separate 20-fit, 80-chain, five-replicate stage validates those recommendations.

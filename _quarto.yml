@@ -11,7 +11,7 @@ project:
     - studies/01_finemapping/fine-mapping.qmd
     - studies/02_prediction/report.qmd
     - studies/03_parameter_estimation/report.qmd
-    - studies/04_convergence/convergence.qmd
+    - studies/04_convergence/report.qmd
     - studies/05_annotation_models/annotation-convergence.qmd
     - studies/06_ld_operator/low-rank-operator.qmd
     - studies/06_ld_operator/sbayesr_ld_robustness/report.qmd

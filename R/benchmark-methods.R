@@ -120,3 +120,39 @@ fit_parameter_estimation_method <- function(method, controls, simulation,
   validate_sblrbench_result(result,simulation)
   result
 }
+
+convergence_method_controls <- function(spec, parameter_spec, coordinate,
+                                        recommendations = NULL) {
+  method_id <- as.character(coordinate$method)
+  if (!method_id %in% names(parameter_spec$methods))
+    stop("Unknown matched convergence method: ", method_id, call. = FALSE)
+  if (identical(as.character(coordinate$stage), "selection")) {
+    controls <- spec$controls$selection
+  } else {
+    if (is.null(recommendations))
+      stop("Validation controls require selected Study 04 recommendations.",
+        call. = FALSE)
+    row <- recommendations[recommendations$method == method_id, , drop = FALSE]
+    if (nrow(row) != 1L || row$recommendation_status != "available")
+      stop("No unique available convergence recommendation for method `",
+        method_id, "`.", call. = FALSE)
+    controls <- spec$controls$validation[c("nthin", "nchains", "ncores",
+      "convergence", "keep_chains", "convergence_control")]
+    controls$nit <- as.integer(row$recommended_nit_argument)
+    controls$nburn <- as.integer(row$recommended_nburn)
+  }
+  controls$seed <- as.integer(coordinate$fit_seed)
+  controls$chain_seeds <- as.integer(coordinate$chain_seeds[[1L]])
+  controls$verbose <- FALSE
+  controls$h2 <- parameter_spec$controls$priors$h2
+  method <- parameter_spec$methods[[method_id]]
+  if (identical(method$prior_class, "BayesR")) {
+    active <- parameter_spec$controls$priors$bayesr_active_probability
+    controls$pi <- c(1 - active, rep(active / 3, 3L))
+    controls$mixture_var <- parameter_spec$controls$priors$bayesr_mixture_var
+  } else {
+    controls$pi_init <-
+      parameter_spec$controls$priors$bayesc_inclusion_probability
+  }
+  controls
+}

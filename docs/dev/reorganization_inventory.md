@@ -80,3 +80,12 @@ Study 06 v1/v2 files are not removed
 or classified as obsolete solely from their names. They remain inventory items
 until callers, reproducibility roles, and migration replacements are verified.
 Git history is the archive; no legacy directory is introduced.
+
+## Phase 5: Study 04 migration
+
+Study 04 convergence now uses an ordinary-list `spec.R`, the shared two-stage
+runner, semantic checkpoints, true-trace extraction, convergence diagnostics,
+recommendation mechanics, validation summaries, and table-only plotting.
+Historical config, target graphs, diagnostics, launchers, promotion scripts,
+examples, and compatibility loaders were removed after caller updates. The
+selection and validation capsules remain byte-identical and authoritative.

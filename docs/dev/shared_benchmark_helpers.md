@@ -19,15 +19,15 @@ language, or replacement execution engine.
   components, runtime, metadata, and honest chain information.
 - `R/metrics-prediction.R`: prediction/effect metrics, runtime, summaries, and
   paired comparisons as data frames.
-- `R/benchmark-execution.R`: authoritative `run_benchmark()` for prediction
-  and parameter estimation;
+- `R/benchmark-execution.R`: authoritative `run_benchmark()` for prediction,
+  parameter estimation, and convergence;
   validation, standard output paths, science-identity checkpoints, dispatch,
   extraction, metrics, and provenance. Unsupported task types fail explicitly.
 
-Current callers are Study 02's analysis and CLI, the reusable prediction
-template, focused tests, and narrowly updated Study 05--07 data callers.
-Parameter-estimation, fine-mapping, annotation, operator, and MTBLR interfaces
-remain deferred until those studies migrate. There are no Study 02
+Current callers are the Study 02--04 analyses and CLI, the reusable prediction,
+parameter-estimation, and convergence templates, focused tests, and narrowly
+updated later-study callers. Fine-mapping, annotation, operator, and MTBLR
+interfaces remain deferred until those studies migrate. There are no Study 02
 compatibility wrappers; removal is complete because all callers are internal.
 
 ## Study 03 parameter estimation
@@ -37,6 +37,16 @@ compatibility wrappers; removal is complete because all callers are internal.
 mechanics. `benchmark-extraction.R` owns scalar trace extraction and draw-wise
 nonlinear transformations. `metrics-parameter-estimation.R` owns the frozen
 bias, error, coverage, RMSE, MAE, and paired-comparison definitions.
+
+## Study 04 convergence
+
+`benchmark-spec.R` derives the two-stage matched grid from the authoritative
+Study 03 spec. `benchmark-extraction.R` accepts only identifiable native chain
+traces. `benchmark-convergence.R` owns exact window slicing, R-hat, bulk/tail
+ESS, MCSE, relative MCSE, burn-in stability, recommendation selection, and
+five-replicate support summaries. `benchmark-execution.R` runs selection then
+validation through semantic checkpoints; validation-only resolves 4 workshop
+or 24 complete benchmark coordinates without data preparation or fit dispatch.
 
 ## `R/benchmark-reporting.R`
 
@@ -107,9 +117,9 @@ bias, error, coverage, RMSE, MAE, and paired-comparison definitions.
   `benchmark_trace_array_long()`, and `benchmark_scalar_diagnostics()`.
 - Compatibility: `.study05_one_diagnostic()` and `.study06_diagnostic_one()`
   adapt output details while retaining study thresholds and historical labels.
-- Current callers: Studies 05--06 diagnostics and focused tests.
-- Deferred callers: Study 04 registry diagnostics, paused Study 07, and full
-  study-specific trace extraction.
+- Current callers: Study 04 execution and exact workflow, Studies 05--06
+  diagnostic wrappers, and focused tests.
+- Deferred callers: paused Study 07 and later study-specific trace extraction.
 - Limitation: accepts true numeric chain traces only; it does not reconstruct
   traces from posterior means, compact summaries, or final states.
 - Wrapper removal: after each study’s trace schema is migrated and compared to

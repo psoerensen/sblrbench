@@ -232,7 +232,12 @@ The selection stage has one maximum-history fit per matched workflow, and valida
 
 ## Reproducibility and downloads
 
-The report reads tracked selection and validation capsules. The [analysis entry point](analysis.R) documents the separate runners.
+The report reads tracked selection and validation capsules. Downloads:
+
+- [Exact Study 04 analysis](analysis.R)
+- [Study 04 specification](spec.R)
+- [Reusable convergence template](../../inst/templates/convergence-analysis.R)
+- [`sblr` single-trait documentation](https://psoerensen.github.io/sblr/)
 
 - [Selection capsule](../../results/reference/04_convergence/current-selection/README.md)
 - [Validation capsule](../../results/reference/04_convergence/current-validation/README.md)

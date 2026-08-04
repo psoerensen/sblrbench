@@ -21,7 +21,7 @@ replacement validated and all active dependencies were redirected.
 | `studies/01_finemapping/separated-development-pilot.qmd` | 01 | Chronology-based report | `9007f48f2c69fc13cc74c4ae18bc926dc0cc5e25` | `studies/01_finemapping/fine-mapping.qmd` |
 | `studies/02_prediction/prediction-development-pilot.qmd` | 02 | Fallback reader for old capsules | `0fffcb87d0c3e85d7685803caa2299cfcd8409fd` | `studies/02_prediction/report.qmd` |
 | `studies/03_parameter_estimation/parameter-estimation-development-pilot.qmd` | 03 | Fallback reader for old capsules | `0fffcb87d0c3e85d7685803caa2299cfcd8409fd` | `studies/03_parameter_estimation/report.qmd` |
-| `studies/04_convergence/convergence-development-pilot.qmd` | 04 | Version-specific report | `39fb5802507fc867b34dc4a32644f72705202686` | `studies/04_convergence/convergence.qmd` |
+| `studies/04_convergence/convergence-development-pilot.qmd` | 04 | Version-specific report | `39fb5802507fc867b34dc4a32644f72705202686` | `studies/04_convergence/report.qmd` |
 | `studies/05_annotation_models/annotation-models-development-pilot.qmd` | 05 | Pre-refresh pilot presentation | `0d5b7d854e655c88aac69cef59279be513f4b37d` | `studies/05_annotation_models/annotation-convergence.qmd` |
 | `studies/06_ld_operator/ld-operator-development-pilot.qmd` | 06 | Reconstructed-dense historical report | `a4bd3fdaedbe6e36400c97318299f1965fba72bf` | Git history |
 | `studies/06_ld_operator/retained-low-rank-operator-development-v2.qmd` | 06 | Chronology-based report | `285a33ae9fcaba93af2b5bd001c72507da2949e6` | `studies/06_ld_operator/low-rank-operator.qmd` |

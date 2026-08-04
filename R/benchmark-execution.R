@@ -1,5 +1,4 @@
-# Minimal common execution path. Only Study 02 single-trait prediction is
-# implemented; unsupported tasks fail before data preparation or fitting.
+# Minimal common execution path for migrated Studies 02--04.
 
 benchmark_output_paths <- function(output_dir) {
   .benchmark_scalar_string(output_dir, "output_dir")
@@ -30,9 +29,10 @@ parse_benchmark_cli_arguments <- function(args) {
   if (length(missing))
     stop("Missing required command-line options: ",
       paste(missing, collapse = ", "), ".", call. = FALSE)
-  supported_studies <- c("02_prediction","03_parameter_estimation")
+  supported_studies <- c("02_prediction", "03_parameter_estimation",
+    "04_convergence")
   if (!options[["--study"]] %in% supported_studies)
-    stop("Unsupported --study; choose `02_prediction` or `03_parameter_estimation`.",
+    stop("Unsupported --study; choose `02_prediction`, `03_parameter_estimation`, or `04_convergence`.",
       call. = FALSE)
   if (!options[["--profile"]] %in% c("workshop", "benchmark"))
     stop("--profile must be `workshop` or `benchmark`.", call. = FALSE)
@@ -73,12 +73,15 @@ parse_benchmark_cli_arguments <- function(args) {
   }
 }
 
-.prediction_validation_status <- function(coordinates) {
-  data.frame(study = "02_prediction", scenario = coordinates$scenario,
+.prediction_validation_status <- function(coordinates, study = "02_prediction") {
+  out <- data.frame(study = study, scenario = coordinates$scenario,
     replicate = coordinates$replicate, method = coordinates$method,
     status = "not_run_validate_only",
     reason = "Specification, profile, coordinates, seeds, methods, and package provenance validated; fitting disabled.",
     stringsAsFactors = FALSE)
+  if ("stage" %in% names(coordinates))
+    out <- cbind(out["study"], stage = coordinates$stage, out[-1L])
+  out
 }
 
 .prediction_manifest <- function(spec, profile, paths, coordinates,
@@ -88,12 +91,16 @@ parse_benchmark_cli_arguments <- function(args) {
   list(schema_version = 1L, study = spec$study, task = spec$task,
     profile = profile, validate_only = isTRUE(validate_only),
     coordinate_count = nrow(coordinates),
-    scenarios = names(spec$scenarios), methods = names(spec$methods),
+    scenarios = if (is.null(spec$scenarios)) unique(coordinates$scenario) else
+      names(spec$scenarios),
+    methods = if (is.null(spec$methods)) unique(coordinates$method) else
+      names(spec$methods),
     replicate_count = resolve_benchmark_profile(spec, profile)$replicate_count,
     split = if(is.null(spec$split)) NULL else spec$split,
-    marker_policy = spec$markers,
+    marker_policy = if (is.null(spec$markers)) NULL else spec$markers,
     scientific_controls = spec$controls, seeds = spec$seeds,
-    qgdata = spec$data$example_data,
+    qgdata = if (is.null(spec$data)) spec$packages$qgdata else
+      spec$data$example_data,
     packages = list(sblr = package, expected = spec$packages),
     data_summary = if (is.null(data)) NULL else list(
       sample_count = length(data$sample_ids),
@@ -269,6 +276,238 @@ parse_benchmark_cli_arguments <- function(args) {
     stringsAsFactors = FALSE)
 }
 
+.convergence_checkpoint_path <- function(paths, coordinate) {
+  file.path(paths$checkpoints, "fits", coordinate$stage,
+    coordinate$scenario, paste0("replicate-", coordinate$replicate),
+    paste0(coordinate$method, ".rds"))
+}
+
+.convergence_checkpoint_identity <- function(spec, parameter_spec,
+                                             coordinate, controls,
+                                             simulation, data) {
+  benchmark_semantic_checkpoint_identity(
+    diagnostic_id = "study04-convergence-fit",
+    scientific_inputs = list(
+      study = spec$study, task = spec$task, stage = coordinate$stage,
+      scenario = coordinate$scenario,
+      replicate = as.integer(coordinate$replicate), method = coordinate$method,
+      sample_ids = data$sample_ids, marker_ids = data$markers$marker_ids,
+      simulation_seed = as.integer(coordinate$simulation_seed),
+      simulation_effects = simulation$truth$effects,
+      simulation_phenotypes = simulation$truth$phenotypes,
+      controls = controls, diagnostic_registry = spec$diagnostics$registry,
+      thresholds = spec$diagnostics$thresholds,
+      candidates = spec$diagnostics[c("burnin_candidates",
+        "retained_draw_candidates")],
+      parameter_priors = parameter_spec$controls$priors,
+      sblr_sha = spec$packages$sblr$sha,
+      qgdata_sha = spec$packages$qgdata$sha))
+}
+
+.convergence_fit <- function(spec, parameter_spec, coordinate, bundle, data,
+                             controls, paths, resume, dispatch) {
+  coordinate_list <- as.list(coordinate)
+  identity <- .convergence_checkpoint_identity(spec, parameter_spec,
+    coordinate_list, controls, bundle$simulation, data)
+  input_hash <- benchmark_semantic_checkpoint_hash(identity)
+  checkpoint <- .convergence_checkpoint_path(paths, coordinate_list)
+  result <- NULL
+  reused <- FALSE
+  reason <- ""
+  if (isTRUE(resume) && file.exists(checkpoint)) {
+    loaded <- benchmark_load_semantic_checkpoint(checkpoint, input_hash,
+      validator = function(x) inherits(x$result, "sblrbench_result"))
+    result <- loaded$value$result
+    reused <- TRUE
+  } else {
+    method <- parameter_spec$methods[[coordinate$method]]
+    method$id <- coordinate$method
+    result <- tryCatch(dispatch(method = method, controls = controls,
+      simulation = bundle$simulation, stats = bundle$stats,
+      glist = data$ld_glist), error = function(error) {
+        reason <<- conditionMessage(error)
+        NULL
+      })
+    if (!is.null(result))
+      benchmark_atomic_save_rds(list(
+        checkpoint_schema = "sblrbench-semantic-v2",
+        identity_payload = identity, semantic_hash = input_hash,
+        result = result), checkpoint, compress = FALSE,
+        temporary_prefix = ".convergence-fit-")
+  }
+  list(result = result, reused = reused, reason = reason,
+    input_hash = input_hash, checkpoint = checkpoint)
+}
+
+.convergence_status_row <- function(spec, coordinate, fit) {
+  data.frame(study = spec$study, stage = coordinate$stage,
+    scenario = coordinate$scenario, replicate = coordinate$replicate,
+    method = coordinate$method,
+    status = if (is.null(fit$result)) "failed" else "ok",
+    reason = fit$reason, reused = fit$reused, input_hash = fit$input_hash,
+    stringsAsFactors = FALSE)
+}
+
+.convergence_runtime_row <- function(spec, coordinate, fit) {
+  data.frame(study = spec$study, stage = coordinate$stage,
+    scenario = coordinate$scenario, replicate = coordinate$replicate,
+    method = coordinate$method,
+    elapsed_seconds = if (is.null(fit$result)) NA_real_ else
+      extract_runtime(fit$result),
+    status = if (is.null(fit$result)) "failed" else "ok",
+    reason = fit$reason, reused = fit$reused, stringsAsFactors = FALSE)
+}
+
+.convergence_bundle <- function(bundles, scenario, replicate) {
+  key <- .prediction_bundle_key(scenario, replicate)
+  bundle <- bundles[[key]]
+  if (is.null(bundle)) stop("No matched Study 03 simulation bundle for ", key,
+    ".", call. = FALSE)
+  bundle
+}
+
+.run_convergence <- function(spec, profile, resolved, coordinates, paths,
+                             resume) {
+  parameter_spec <- benchmark_matched_spec(spec)
+  data <- prepare_parameter_estimation_data(parameter_spec, paths$root)
+  parameter_profile <- if (resolved$replicate_count == 1L) "workshop" else
+    "benchmark"
+  bundles <- prepare_parameter_estimation_simulations(parameter_spec,
+    parameter_profile, data)
+  names(bundles) <- vapply(bundles, function(x) .prediction_bundle_key(
+    x$coordinate$scenario, x$coordinate$replicate), character(1))
+  dispatch <- getOption("sblrbench.convergence_fit_dispatch",
+    fit_parameter_estimation_method)
+  if (!is.function(dispatch))
+    stop("Convergence fit dispatch must be a function.", call. = FALSE)
+
+  selection <- coordinates[coordinates$stage == "selection", , drop = FALSE]
+  status_rows <- runtime_rows <- selection_draws <- diagnostics <- stability <-
+    list()
+  for (i in seq_len(nrow(selection))) {
+    coordinate <- selection[i, , drop = FALSE]
+    controls <- convergence_method_controls(spec, parameter_spec,
+      coordinate)
+    bundle <- .convergence_bundle(bundles, coordinate$scenario,
+      coordinate$replicate)
+    fit <- .convergence_fit(spec, parameter_spec, coordinate, bundle, data,
+      controls, paths, resume, dispatch)
+    status_rows[[length(status_rows) + 1L]] <-
+      .convergence_status_row(spec, coordinate, fit)
+    runtime_rows[[length(runtime_rows) + 1L]] <-
+      .convergence_runtime_row(spec, coordinate, fit)
+    if (!is.null(fit$result)) {
+      draws <- extract_convergence_traces(fit$result, coordinate,
+        spec$diagnostics$registry,
+        spec$diagnostics$thresholds$chain_count)
+      selection_draws[[length(selection_draws) + 1L]] <- draws
+      diagnostics[[length(diagnostics) + 1L]] <-
+        benchmark_convergence_candidate_grid(draws, spec)
+      stability[[length(stability) + 1L]] <-
+        benchmark_burnin_stability(draws, spec)
+    }
+  }
+  selection_diagnostics <- .benchmark_bind_rows(diagnostics)
+  burnin_stability <- .benchmark_bind_rows(stability)
+  recommendations <- if (!is.null(selection_diagnostics) &&
+      !is.null(burnin_stability))
+    benchmark_convergence_recommendations(selection_diagnostics,
+      burnin_stability, spec) else NULL
+  if (nrow(selection) && (is.null(recommendations) ||
+      nrow(recommendations) != nrow(selection)))
+    stop("Selection fits did not produce a complete recommendation grid.",
+      call. = FALSE)
+
+  validation <- coordinates[coordinates$stage == "validation", , drop = FALSE]
+  validation_diagnostics <- validation_status <- list()
+  if (nrow(validation)) for (i in seq_len(nrow(validation))) {
+    coordinate <- validation[i, , drop = FALSE]
+    controls <- convergence_method_controls(spec, parameter_spec,
+      coordinate, recommendations)
+    bundle <- .convergence_bundle(bundles, coordinate$scenario,
+      coordinate$replicate)
+    fit <- .convergence_fit(spec, parameter_spec, coordinate, bundle, data,
+      controls, paths, resume, dispatch)
+    status_row <- .convergence_status_row(spec, coordinate, fit)
+    status_rows[[length(status_rows) + 1L]] <- status_row
+    runtime_rows[[length(runtime_rows) + 1L]] <-
+      .convergence_runtime_row(spec, coordinate, fit)
+    diagnostic <- NULL
+    if (!is.null(fit$result)) {
+      draws <- extract_convergence_traces(fit$result, coordinate,
+        spec$diagnostics$registry,
+        spec$diagnostics$thresholds$chain_count)
+      diagnostic <- benchmark_convergence_diagnostics(draws, 0L,
+        as.integer(controls$nit), spec$diagnostics$registry,
+        spec$diagnostics$thresholds)
+      validation_diagnostics[[length(validation_diagnostics) + 1L]] <-
+        diagnostic
+    }
+    limiting <- if (is.null(diagnostic)) character() else
+      diagnostic$quantity[!diagnostic$overall_pass]
+    validation_status[[length(validation_status) + 1L]] <- data.frame(
+      scenario = coordinate$scenario, replicate = coordinate$replicate,
+      method = coordinate$method, status = status_row$status,
+      all_core_quantities_pass = !is.null(diagnostic) &&
+        nrow(diagnostic) == sum(spec$diagnostics$registry$required) &&
+        all(diagnostic$overall_pass),
+      limiting_quantities = if (length(limiting))
+        paste(limiting, collapse = ";") else "none",
+      maximum_rhat = if (is.null(diagnostic)) NA_real_ else
+        max(diagnostic$rhat),
+      minimum_bulk_ess = if (is.null(diagnostic)) NA_real_ else
+        min(diagnostic$ess_bulk),
+      minimum_tail_ess = if (is.null(diagnostic)) NA_real_ else
+        min(diagnostic$ess_tail),
+      maximum_relative_mcse = if (is.null(diagnostic)) NA_real_ else
+        max(diagnostic$relative_mcse), reason = fit$reason,
+      stringsAsFactors = FALSE)
+  }
+  validation_diagnostics <- .benchmark_bind_rows(validation_diagnostics)
+  validation_status <- .benchmark_bind_rows(validation_status)
+  validation_summary <- if (is.null(validation_status)) NULL else
+    benchmark_convergence_validation_summary(validation_status,
+      validation_diagnostics,
+      spec$validation$required_successful_replicates)
+  convergence <- .benchmark_bind_rows(list(selection_diagnostics,
+    validation_diagnostics))
+  status <- .benchmark_bind_rows(status_rows)
+  runtime <- .benchmark_bind_rows(runtime_rows)
+  candidate_summary <- if (is.null(selection_diagnostics)) NULL else
+    aggregate(overall_pass ~ scenario + method + burnin_candidate +
+      retained_draw_candidate, selection_diagnostics, all)
+  files <- list(
+    fit_status = .benchmark_write_csv(status,
+      file.path(paths$tables, "fit_status.csv")),
+    coordinate_grid = .benchmark_write_csv(coordinates,
+      file.path(paths$tables, "coordinate_grid.csv")),
+    convergence = .benchmark_write_csv(convergence,
+      file.path(paths$tables, "convergence.csv")),
+    candidate_summary = .benchmark_write_csv(candidate_summary,
+      file.path(paths$tables, "candidate_summary.csv")),
+    burnin_stability = .benchmark_write_csv(burnin_stability,
+      file.path(paths$tables, "burnin_stability.csv")),
+    recommendations = .benchmark_write_csv(recommendations,
+      file.path(paths$tables, "recommendations.csv")),
+    validation_replicates = .benchmark_write_csv(validation_status,
+      file.path(paths$tables, "validation_replicates.csv")),
+    validation_summary = .benchmark_write_csv(validation_summary,
+      file.path(paths$tables, "validation_summary.csv")),
+    runtime = .benchmark_write_csv(runtime,
+      file.path(paths$tables, "runtime.csv")))
+  manifest <- .prediction_manifest(spec, profile, paths, coordinates, FALSE,
+    status, data)
+  .write_prediction_manifest(manifest, paths$manifest)
+  writeLines(benchmark_session_information(), paths$session_info)
+  list(spec = spec, paths = c(paths, files), status = status,
+    coordinate_grid = coordinates, convergence = convergence,
+    candidate_summary = candidate_summary,
+    burnin_stability = burnin_stability,
+    recommendations = recommendations,
+    validation_replicates = validation_status,
+    validation_summary = validation_summary, runtime = runtime)
+}
+
 #' Run a benchmark
 #'
 #' Runs the ordinary-R execution path for Study 02 prediction. Large native fit
@@ -294,8 +533,6 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
     stop("validate_only must be TRUE or FALSE.", call. = FALSE)
   resolved <- resolve_benchmark_profile(spec, profile)
   coordinates <- benchmark_seeds(spec, profile)
-  methods <- resolve_benchmark_methods(spec)
-  names(methods) <- vapply(methods, `[[`, character(1), "id")
   benchmark_assert_package_sha("sblr", spec$packages$sblr$sha)
   if (!identical(as.character(utils::packageVersion("sblr")),
       spec$packages$sblr$version))
@@ -304,18 +541,36 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
   paths <- benchmark_output_paths(output_dir)
   .benchmark_create_output_dirs(paths)
   if (isTRUE(validate_only)) {
-    status <- .prediction_validation_status(coordinates)
+    if (identical(spec$task, "convergence")) {
+      benchmark_matched_spec(spec)
+      benchmark_convergence_design(spec)
+    }
+    status <- .prediction_validation_status(coordinates, spec$study)
     status_path <- .benchmark_write_csv(status,
       file.path(paths$tables, "fit_status.csv"))
+    coordinate_path <- if (identical(spec$task, "convergence"))
+      .benchmark_write_csv(coordinates,
+        file.path(paths$tables, "coordinate_grid.csv")) else NULL
     manifest <- .prediction_manifest(spec, profile, paths, coordinates, TRUE,
       status)
     .write_prediction_manifest(manifest, paths$manifest)
     writeLines(benchmark_session_information(), paths$session_info)
-    return(list(spec = spec, paths = c(paths, fit_status = status_path),
+    return(list(spec = spec, paths = c(paths, fit_status = status_path,
+      coordinate_grid = coordinate_path),
       status = status, truth = NULL, estimates = NULL,
       marker_results = NULL, metrics = NULL, convergence = NULL,
-      runtime = NULL, oracle = NULL))
+      runtime = NULL, oracle = NULL,
+      coordinate_grid = if (identical(spec$task, "convergence"))
+        coordinates else NULL,
+      candidate_summary = NULL, recommendations = NULL))
   }
+
+  if (identical(spec$task, "convergence"))
+    return(.run_convergence(spec, profile, resolved, coordinates, paths,
+      resume))
+
+  methods <- resolve_benchmark_methods(spec)
+  names(methods) <- vapply(methods, `[[`, character(1), "id")
 
   if(identical(spec$task,"parameter_estimation"))
     return(.run_parameter_estimation(spec,profile,resolved,coordinates,methods,

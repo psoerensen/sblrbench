@@ -62,6 +62,64 @@ extract_chain_information <- function(fit) {
       names(native))])
 }
 
+#' Extract identifiable scalar convergence traces
+#'
+#' Only the native iteration-by-chain-by-quantity trace bundle is accepted.
+#' Posterior means, final states, pooled draws, and compact summaries are not
+#' substitutes for true chain traces.
+#'
+#' @param fit An sblr fit or `sblrbench_result`.
+#' @param coordinate A one-row convergence coordinate.
+#' @param registry The convergence quantity registry.
+#' @param expected_chains Required number of identifiable chains.
+#' @return A tidy data frame with iteration, chain, quantity, and value.
+#' @export
+extract_convergence_traces <- function(fit, coordinate, registry,
+                                       expected_chains = 4L) {
+  native <- .benchmark_native_fit(fit)
+  bundle <- native$convergence_traces
+  if (is.null(bundle$values) || length(dim(bundle$values)) != 3L)
+    stop("True native convergence traces are unavailable; posterior means, final states, and compact summaries cannot be substituted.",
+      call. = FALSE)
+  if (dim(bundle$values)[2L] != expected_chains)
+    stop("True convergence traces do not contain the required number of identifiable chains.",
+      call. = FALSE)
+  source <- as.character(bundle$quantities$group)
+  required <- registry[registry$required, , drop = FALSE]
+  primitive <- required[required$source %in% source, , drop = FALSE]
+  missing_primitive <- required[!required$source %in% source &
+    required$source != "vgs/(vgs+ves)", , drop = FALSE]
+  if (nrow(missing_primitive))
+    stop("True convergence traces omit required scalar quantities: ",
+      paste(missing_primitive$quantity, collapse = ", "), ".",
+      call. = FALSE)
+  metadata <- as.list(coordinate[intersect(c("stage", "scenario",
+    "replicate", "method"), names(coordinate))])
+  index <- match(primitive$source, source)
+  out <- benchmark_trace_array_long(bundle$values[, , index, drop = FALSE],
+    primitive$quantity, metadata = metadata,
+    expected_chains = expected_chains)
+  if ("heritability" %in% required$quantity) {
+    derived_index <- match(c("vgs", "ves"), source)
+    if (anyNA(derived_index))
+      stop("Heritability traces require true vgs and ves chain traces.",
+        call. = FALSE)
+    vg <- bundle$values[, , derived_index[[1L]]]
+    ve <- bundle$values[, , derived_index[[2L]]]
+    h2 <- benchmark_trace_array_long(array(vg / (vg + ve),
+      dim = c(dim(vg), 1L)), "heritability", metadata = metadata,
+      expected_chains = expected_chains)
+    out <- rbind(out, h2)
+  }
+  if (any(!is.finite(out$value)))
+    stop("True convergence traces contain non-finite values.", call. = FALSE)
+  bounds <- required[match(out$quantity, required$quantity), , drop = FALSE]
+  if (any(out$value < bounds$lower_bound | out$value > bounds$upper_bound))
+    stop("True convergence traces violate registered quantity bounds.",
+      call. = FALSE)
+  out
+}
+
 benchmark_trace_vector <- function(x, name) {
   if (is.null(x)) stop("Missing posterior component: ", name, call.=FALSE)
   if (is.vector(x)) x <- matrix(x,ncol=1L)

@@ -1,5 +1,6 @@
 # Study specifications are ordinary lists. Validation is deliberately scoped to
-# fields required by the currently supported prediction and parameter tasks.
+# fields required by the currently supported prediction, parameter-estimation,
+# and convergence tasks.
 
 .benchmark_scalar_string <- function(x, field) {
   if (!is.character(x) || length(x) != 1L || is.na(x) || !nzchar(x))
@@ -54,6 +55,8 @@ benchmark_spec_path <- function(spec, path) {
 #' @export
 validate_benchmark_spec <- function(spec) {
   if (!is.list(spec)) stop("spec must be an ordinary R list.", call. = FALSE)
+  if (identical(spec$task, "convergence"))
+    return(.validate_convergence_spec(spec))
   required <- c("study", "task", "supported_profiles", "data",
     "markers", "replicate_count", "scenarios", "methods", "controls",
     "seeds", "metrics", "validation", "frozen_capsule", "packages")
@@ -171,6 +174,8 @@ resolve_benchmark_profile <- function(spec, profile = "benchmark") {
 #' @return A deterministic scenario-by-replicate-by-method data frame.
 #' @export
 benchmark_coordinates <- function(spec, profile = "benchmark") {
+  if (identical(spec$task, "convergence"))
+    return(benchmark_convergence_coordinates(spec, profile))
   resolved <- resolve_benchmark_profile(spec, profile)
   out <- expand.grid(scenario = names(spec$scenarios),
     replicate = seq_len(resolved$replicate_count), method = names(spec$methods),
@@ -188,6 +193,8 @@ benchmark_coordinates <- function(spec, profile = "benchmark") {
 #' @return The coordinate grid with simulation, fit, and chain seeds.
 #' @export
 benchmark_seeds <- function(spec, profile = "benchmark") {
+  if (identical(spec$task, "convergence"))
+    return(benchmark_convergence_seeds(spec, profile))
   coordinates <- benchmark_coordinates(spec, profile)
   architecture_index <- match(coordinates$scenario, names(spec$scenarios))
   method_index <- match(coordinates$method, names(spec$methods))
@@ -203,4 +210,95 @@ benchmark_seeds <- function(spec, profile = "benchmark") {
   coordinates$chain_seeds <- I(lapply(coordinates$fit_seed, function(seed)
     as.integer(seed + seq_len(nchains) * spec$seeds$chain_stride)))
   coordinates
+}
+
+benchmark_matched_spec <- function(spec) {
+  path <- benchmark_spec_path(spec, spec$matched_study$spec_path)
+  matched <- read_benchmark_spec(path)
+  if (!identical(matched$study, spec$matched_study$study) ||
+      !identical(matched$task, "parameter_estimation"))
+    stop("Study 04 matched_study must resolve to the Study 03 parameter-estimation specification.",
+      call. = FALSE)
+  matched
+}
+
+.validate_convergence_spec <- function(spec) {
+  required <- c("study", "task", "supported_profiles", "replicate_count",
+    "matched_study", "matched_grid", "controls", "seeds", "diagnostics",
+    "validation", "frozen_capsules", "packages")
+  missing <- setdiff(required, names(spec))
+  if (length(missing))
+    stop("Convergence spec is missing required fields: ",
+      paste(missing, collapse = ", "), ".", call. = FALSE)
+  if (!identical(spec$study, "04_convergence") ||
+      !identical(spec$task, "convergence"))
+    stop("The convergence task requires study `04_convergence`.", call. = FALSE)
+  profiles <- spec$supported_profiles
+  if (!is.list(profiles) || !identical(sort(names(profiles)),
+      sort(c("workshop", "benchmark"))))
+    stop("spec$supported_profiles must define exactly `workshop` and `benchmark`.",
+      call. = FALSE)
+  for (id in names(profiles)) {
+    profile <- profiles[[id]]
+    if (!is.numeric(profile$replicate_count) || length(profile$replicate_count) != 1L ||
+        is.na(profile$replicate_count) || profile$replicate_count < 1L ||
+        !is.character(profile$stages) || !length(profile$stages) ||
+        any(!profile$stages %in% c("selection", "validation")))
+      stop("Convergence profile `", id,
+        "` must define a positive replicate_count and valid stages.", call. = FALSE)
+  }
+  if (!identical(as.integer(profiles$benchmark$replicate_count),
+      as.integer(spec$replicate_count)))
+    stop("The convergence benchmark replicate_count must equal spec$replicate_count.",
+      call. = FALSE)
+  required_grid <- c("scenario", "method")
+  if (!is.data.frame(spec$matched_grid) || nrow(spec$matched_grid) != 4L ||
+      !all(required_grid %in% names(spec$matched_grid)) ||
+      anyDuplicated(spec$matched_grid[required_grid]))
+    stop("spec$matched_grid must contain four unique scenario-method rows.",
+      call. = FALSE)
+  diagnostic_fields <- c("registry", "burnin_candidates",
+    "retained_draw_candidates", "thresholds", "recommendation_rules")
+  absent <- setdiff(diagnostic_fields, names(spec$diagnostics))
+  if (length(absent))
+    stop("spec$diagnostics is missing: ", paste(absent, collapse = ", "),
+      ".", call. = FALSE)
+  registry <- spec$diagnostics$registry
+  if (!is.data.frame(registry) || !nrow(registry) ||
+      !all(c("quantity", "source", "classification", "required") %in%
+        names(registry)) || anyDuplicated(registry$quantity))
+    stop("Convergence diagnostic registry must be a unique non-empty data frame.",
+      call. = FALSE)
+  thresholds <- spec$diagnostics$thresholds
+  needed_thresholds <- c("rhat", "ess_bulk", "ess_tail", "relative_mcse",
+    "chain_count", "standardized_mean_shift")
+  if (!is.list(thresholds) || !all(needed_thresholds %in% names(thresholds)) ||
+      any(!is.finite(unlist(thresholds[needed_thresholds]))))
+    stop("Convergence thresholds are incomplete or non-finite.", call. = FALSE)
+  for (id in c("burnin_candidates", "retained_draw_candidates")) {
+    value <- spec$diagnostics[[id]]
+    if (!is.numeric(value) || !length(value) || anyNA(value) ||
+        any(value < 0) || is.unsorted(value, strictly = TRUE))
+      stop("spec$diagnostics$", id,
+        " must be a strictly increasing non-negative numeric vector.",
+        call. = FALSE)
+  }
+  if (!is.list(spec$controls$selection) ||
+      !all(c("nit", "nburn", "nthin", "nchains", "ncores") %in%
+        names(spec$controls$selection)))
+    stop("spec$controls$selection is incomplete.", call. = FALSE)
+  if (!is.numeric(spec$seeds$fit_base) ||
+      !is.numeric(spec$seeds$chain_stride))
+    stop("Convergence seeds must define fit_base and chain_stride.",
+      call. = FALSE)
+  if (!is.list(spec$frozen_capsules) ||
+      !all(c("selection", "validation") %in% names(spec$frozen_capsules)))
+    stop("Convergence spec must identify selection and validation capsules.",
+      call. = FALSE)
+  sha <- .benchmark_scalar_string(spec$packages$sblr$sha,
+    "spec$packages$sblr$sha")
+  if (!grepl("^[0-9a-f]{40}$", sha))
+    stop("spec$packages$sblr$sha must be a 40-character Git SHA.",
+      call. = FALSE)
+  invisible(spec)
 }
