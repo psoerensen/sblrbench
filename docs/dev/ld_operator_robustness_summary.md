@@ -1,5 +1,10 @@
 # Supplemental Study 06: SBayesR LD-operator robustness
 
+This evidence is integrated with the shared Study 06 contract in
+[`spec.R`](../../studies/06_ld_operator/spec.R), while retaining its own frozen
+capsule and independently renderable report. The main evidence remains in
+[`report.qmd`](../../studies/06_ld_operator/report.qmd).
+
 The scheduler and exact-versus-sparse SBayesR diagnostics are consolidated as
 additional Study 06 package-validation evidence:
 

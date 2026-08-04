@@ -1,6 +1,6 @@
 # Study specifications are ordinary lists. Validation is deliberately scoped to
 # fields required by the currently supported prediction, parameter-estimation,
-# and convergence tasks.
+# convergence, fine-mapping, and LD-operator tasks.
 
 .benchmark_scalar_string <- function(x, field) {
   if (!is.character(x) || length(x) != 1L || is.na(x) || !nzchar(x))
@@ -59,6 +59,8 @@ validate_benchmark_spec <- function(spec) {
     return(.validate_convergence_spec(spec))
   if (identical(spec$task, "finemapping"))
     return(.validate_finemapping_spec(spec))
+  if (identical(spec$task, "ld_operator"))
+    return(.validate_ld_operator_spec(spec))
   required <- c("study", "task", "supported_profiles", "data",
     "markers", "replicate_count", "scenarios", "methods", "controls",
     "seeds", "metrics", "validation", "frozen_capsule", "packages")
@@ -178,6 +180,8 @@ resolve_benchmark_profile <- function(spec, profile = "benchmark") {
 benchmark_coordinates <- function(spec, profile = "benchmark") {
   if (identical(spec$task, "convergence"))
     return(benchmark_convergence_coordinates(spec, profile))
+  if (identical(spec$task, "ld_operator"))
+    return(benchmark_ld_operator_coordinates(spec, profile))
   resolved <- resolve_benchmark_profile(spec, profile)
   out <- expand.grid(scenario = names(spec$scenarios),
     replicate = seq_len(resolved$replicate_count), method = names(spec$methods),
@@ -197,6 +201,25 @@ benchmark_coordinates <- function(spec, profile = "benchmark") {
 benchmark_seeds <- function(spec, profile = "benchmark") {
   if (identical(spec$task, "convergence"))
     return(benchmark_convergence_seeds(spec, profile))
+  if (identical(spec$task, "ld_operator")) {
+    coordinates <- benchmark_ld_operator_coordinates(spec, profile)
+    architecture_index <- match(coordinates$scenario, names(spec$scenarios))
+    configuration_index <- match(coordinates$configuration,
+      spec$operators$configurations)
+    coordinates$simulation_seed <- as.integer(spec$seeds$simulation_base +
+      (architecture_index - 1L) * spec$seeds$architecture_stride +
+      coordinates$replicate * spec$seeds$replicate_stride)
+    coordinates$effect_seed <- coordinates$simulation_seed +
+      as.integer(spec$seeds$effect_offset)
+    coordinates$residual_seed <- coordinates$simulation_seed +
+      as.integer(spec$seeds$residual_offset)
+    coordinates$fit_seed <- as.integer(coordinates$simulation_seed +
+      spec$seeds$fit_base + configuration_index *
+        spec$seeds$configuration_stride)
+    coordinates$chain_seeds <- I(lapply(coordinates$fit_seed, function(seed)
+      as.integer(seed + seq_len(4L) * spec$seeds$chain_stride)))
+    return(coordinates)
+  }
   coordinates <- benchmark_coordinates(spec, profile)
   if (identical(spec$task, "finemapping")) {
     method_index <- match(coordinates$method, names(spec$methods))
@@ -223,6 +246,120 @@ benchmark_seeds <- function(spec, profile = "benchmark") {
   coordinates$chain_seeds <- I(lapply(coordinates$fit_seed, function(seed)
     as.integer(seed + seq_len(nchains) * spec$seeds$chain_stride)))
   coordinates
+}
+
+#' Build Study 06 LD-operator coordinates
+#'
+#' @inheritParams benchmark_coordinates
+#' @return A deterministic architecture-by-replicate-by-configuration table.
+#' @export
+benchmark_ld_operator_coordinates <- function(spec, profile = "benchmark") {
+  resolved <- resolve_benchmark_profile(spec, profile)
+  out <- expand.grid(
+    scenario = names(spec$scenarios),
+    replicate = seq_len(resolved$replicate_count),
+    configuration = spec$operators$configurations,
+    KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE
+  )
+  out <- out[order(match(out$scenario, names(spec$scenarios)), out$replicate,
+    match(out$configuration, spec$operators$configurations)), , drop = FALSE]
+  rownames(out) <- NULL
+  out$method <- paste(out$scenario, out$configuration, sep = "__")
+  out$operator <- out$configuration
+  out$profile <- profile
+  out
+}
+
+.validate_ld_operator_spec <- function(spec) {
+  required <- c("study", "task", "supported_profiles", "data", "split",
+    "markers", "replicate_count", "scenarios", "methods", "controls",
+    "seeds", "operators", "metrics", "validation", "frozen_capsules",
+    "supplemental", "packages")
+  missing <- setdiff(required, names(spec))
+  if (length(missing))
+    stop("LD-operator spec is missing required fields: ",
+      paste(missing, collapse = ", "), ".", call. = FALSE)
+  if (!identical(spec$study, "06_ld_operator") ||
+      !identical(spec$task, "ld_operator"))
+    stop("The LD-operator task requires study `06_ld_operator`.", call. = FALSE)
+  profiles <- spec$supported_profiles
+  if (!is.list(profiles) || !identical(sort(names(profiles)),
+      c("benchmark", "workshop")))
+    stop("LD-operator profiles must define workshop and benchmark.", call. = FALSE)
+  for (id in names(profiles)) {
+    count <- profiles[[id]]$replicate_count
+    if (!is.numeric(count) || length(count) != 1L || is.na(count) || count < 1L)
+      stop("LD-operator profile `", id,
+        "` must define one positive replicate_count.", call. = FALSE)
+  }
+  if (!identical(as.integer(profiles$benchmark$replicate_count),
+      as.integer(spec$replicate_count)))
+    stop("LD-operator benchmark replicate_count must equal spec$replicate_count.",
+      call. = FALSE)
+  configurations <- c("bed", "full_csr", "block_csr", "low_rank_full",
+    "low_rank_0999", "low_rank_0995")
+  if (!identical(spec$operators$configurations, configurations) ||
+      !identical(names(spec$methods), configurations))
+    stop("LD-operator configurations must preserve the historical six-operator order.",
+      call. = FALSE)
+  if (!identical(names(spec$scenarios),
+      c("sparse_homogeneous", "sparse_mixture")))
+    stop("LD-operator scenarios must preserve the two historical architectures.",
+      call. = FALSE)
+  recommendations <- spec$controls$benchmark$recommendations
+  control_columns <- c("scenario", "configuration", "nit", "nburn",
+    "nthin", "nchains", "ncores")
+  if (!is.data.frame(recommendations) || nrow(recommendations) != 12L ||
+      !all(control_columns %in% names(recommendations)) ||
+      anyDuplicated(recommendations[c("scenario", "configuration")]) ||
+      !setequal(recommendations$scenario, names(spec$scenarios)) ||
+      !setequal(recommendations$configuration, configurations) ||
+      any(recommendations$nchains != 4L) || any(recommendations$ncores != 4L) ||
+      any(recommendations$nthin != 1L))
+    stop("LD-operator benchmark MCMC recommendations are incomplete or changed.",
+      call. = FALSE)
+  block <- spec$operators$block
+  if (!is.numeric(block$size) || length(block$size) != 1L || block$size != 1000L ||
+      !identical(as.integer(block$sensitivity_sizes),
+        c(250L, 500L, 1000L, 2000L)))
+    stop("LD-operator block definitions do not match the frozen design.",
+      call. = FALSE)
+  eigen <- spec$operators$eigen
+  expected_props <- c(low_rank_full = 1 - .Machine$double.eps,
+    low_rank_0999 = 0.999, low_rank_0995 = 0.995)
+  if (!identical(eigen$policy, "cumulative_positive_mass") ||
+      !isTRUE(all.equal(eigen$proportions, expected_props)) ||
+      !identical(eigen$tolerance, 1e-10))
+    stop("LD-operator eigen-retention policy differs from the frozen design.",
+      call. = FALSE)
+  tolerances <- spec$operators$equivalence_tolerances
+  needed <- c("absolute", "relative", "product_absolute",
+    "quadratic_absolute", "probability")
+  if (!is.list(tolerances) || !all(needed %in% names(tolerances)) ||
+      any(!is.finite(unlist(tolerances[needed]))))
+    stop("LD-operator equivalence tolerances are incomplete.", call. = FALSE)
+  if (!identical(as.integer(spec$validation$expected_fit_count), 60L))
+    stop("LD-operator validation must retain the 60-fit benchmark contract.",
+      call. = FALSE)
+  if (!all(c("main", "supplemental") %in% names(spec$frozen_capsules)))
+    stop("LD-operator spec must identify main and supplemental capsules.",
+      call. = FALSE)
+  supplemental <- spec$supplemental
+  if (!identical(as.integer(supplemental$marker_window$count), 1500L) ||
+      !identical(as.integer(supplemental$block_starts),
+        c(1L, 251L, 501L, 624L, 751L, 1001L, 1251L)) ||
+      !identical(as.integer(supplemental$retained_block_ranks),
+        c(248L, 248L, 123L, 127L, 248L, 248L, 248L)) ||
+      !identical(as.integer(supplemental$retained_total_rank), 1490L) ||
+      !identical(supplemental$retained_mass, 0.995))
+    stop("Supplemental Study 06 window, blocks, or retained-rank policy changed.",
+      call. = FALSE)
+  sha <- .benchmark_scalar_string(spec$packages$sblr$sha,
+    "spec$packages$sblr$sha")
+  if (!grepl("^[0-9a-f]{40}$", sha))
+    stop("spec$packages$sblr$sha must be a 40-character Git SHA.",
+      call. = FALSE)
+  invisible(spec)
 }
 
 .validate_finemapping_spec <- function(spec) {

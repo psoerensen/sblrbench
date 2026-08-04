@@ -13,10 +13,14 @@ project:
     - studies/03_parameter_estimation/report.qmd
     - studies/04_convergence/report.qmd
     - studies/05_annotation_models/annotation-convergence.qmd
-    - studies/06_ld_operator/low-rank-operator.qmd
+    - studies/06_ld_operator/report.qmd
     - studies/06_ld_operator/sbayesr_ld_robustness/report.qmd
   resources:
     - results/reference/**
+    - studies/06_ld_operator/analysis.R
+    - studies/06_ld_operator/spec.R
+    - studies/06_ld_operator/operator-design.R
+    - inst/templates/operator-analysis.R
     - studies/06_ld_operator/sbayesr_ld_robustness/README.md
     - studies/06_ld_operator/sbayesr_ld_robustness/analysis.R
     - studies/06_ld_operator/sbayesr_ld_robustness/scripts/*.R

@@ -1,5 +1,5 @@
 ---
-title: "SBayesR Sensitivity to LD-Operator Approximation"
+title: "Study 06 Supplemental: SBayesR Sensitivity to LD-Operator Approximation"
 subtitle: "Exact, hard-sparse and block-eigen validation"
 description: "Additional validation evidence for the sblr package."
 format:
@@ -63,7 +63,7 @@ defaults or make a general methodological claim.
 
 ## Relationship to the broader `sblrbench` validation suite
 
-The [main Study 06 retained-low-rank benchmark](../low-rank-operator.qmd)
+The [main Study 06 retained-low-rank benchmark](../report.qmd)
 remains the broader LD-operator validation. Study 03 remains the authoritative
 parameter-estimation benchmark. This supplemental Study 06 analysis uses one
 deterministic stress-test window and a new reduced phenotype so omitted genetic
@@ -350,6 +350,8 @@ not tracked.
 
 - [Study README](README.md)
 - [Analysis entry point](analysis.R)
+- [Authoritative Study 06 specification](../spec.R)
+- [Main Study 06 operator-validation report](../report.qmd)
 - [Scheduler diagnostic script](scripts/scheduler-diagnostic.R)
 - [Exact-versus-sparse diagnostic script](scripts/exact-sparse-diagnostic.R)
 - [Eigen extension helpers](scripts/eigen-extension.R)

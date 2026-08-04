@@ -1,5 +1,10 @@
 # Study 06 v2: retained low-rank LD operator validation
 
+> **Retired internal runbook.** This file preserves execution provenance for
+> the immutable capsule. The v2 orchestration and launchers were removed after
+> migration to the shared framework. See [study06_migration.md](study06_migration.md)
+> for the active specification, CLI, checkpoint policy, and report contract.
+
 ## Finalization control gate (2026-08-02)
 
 Final checkpoint validation found that all five `sparse_mixture / full_csr`

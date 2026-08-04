@@ -1,5 +1,12 @@
 # Study 06 LD-operator development run
 
+> **Retired internal runbook.** This records the historical execution that
+> produced the frozen evidence. The launchers and per-study targets graph named
+> below were removed by the shared-framework migration. New validation uses
+> `scripts/run_benchmark.R --study 06_ld_operator`; see
+> [study06_migration.md](study06_migration.md). Commands below are provenance,
+> not active instructions.
+
 ## Scope and initial provenance
 
 Study 06 is a package-specific development benchmark of the installed `sblr`

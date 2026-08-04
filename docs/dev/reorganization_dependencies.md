@@ -3,9 +3,9 @@
 ## Targets entry points
 
 `_targets.R` remains the dispatcher for unmigrated targets studies. Migrated
-Studies 01--04 use the common CLI and runner; selecting them through `_targets.R`
-now fails with an explicit transition message. Study 06 v2 retains its separate
-phased launcher and target store. No target graph was run during Study 04 migration.
+Studies 01--04 and 06 use the common CLI and runner; selecting them through
+`_targets.R` now fails with an explicit transition message. Study 06's phased
+launcher and target store were retired. No target graph was run during migration.
 
 ## Study-to-study dependencies
 
@@ -19,8 +19,10 @@ phased launcher and target store. No target graph was run during Study 04 migrat
   helpers. It has no per-study targets graph or cross-study source dependency.
 - Study 05 and Study 06 use shared data helpers; their scientific workflows
   remain unmigrated.
-- Study 06 v2 sources Study 06 methods, operators, blocks, simulation, and
-  pilot helpers and reads the Study 06 target store.
+- Study 06 now uses the shared specification, execution, reporting,
+  checkpoint, and operator-metric layers. Its block/eigen policy remains in
+  `operator-design.R`; the supplemental deterministic audits remain focused
+  scripts under the Study 06 directory.
 - Paused Study 07 sources Study 06 operator helpers and shared data helpers. Its
   scientific workflow remains paused and unmigrated.
 - Before Phase 2, Studies 01 and 03--07 sourced Study 02 promotion solely to
@@ -40,9 +42,9 @@ types remain deferred.
   the old file acting only as a loader.
 - Canonical line-ending-independent MD5 was implemented in Study 02 promotion
   and reused across other studies.
-- Atomic uncompressed RDS save logic was repeated in Study 06, Study 06 v2,
+- Atomic uncompressed RDS save logic was repeated in historical Study 06,
   Study 07, and developer diagnostics.
-- Input hashes and strict stale-checkpoint refusal recur in Study 06 v2 and the
+- Input hashes and strict stale-checkpoint refusal occurred in historical Study 06 and the
   supplemental diagnostics.
 - The scalar convergence kernel (rank-normalized R-hat, bulk/tail ESS, mean
   MCSE, posterior SD, relative MCSE, and thresholds) was near-identical in
@@ -89,11 +91,12 @@ designs and is not executable dependency evidence.
 - Study 04 is migrated. Its spec retains only the matched grid, diagnostic
   quantities, candidates, thresholds, chain requirements, and recommendation
   rules; reusable mechanics live under `R/`.
-- Study 05 and Study 06 launchers depend on both Study 01 and Study 02.
+- Study 05 launchers retain historical dependencies; Study 06 now uses the
+  shared CLI and no longer has a per-study launcher.
 - Trace extraction schemas differ and remain duplicated around study-specific
   quantities.
 - Promotion functions still duplicate README/manifest composition and exact
   source selection; only safe mechanics are shared.
 - Method dispatch and checkpoint naming remain study-specific.
-- Study 05 annotation and Study 06 operator logic cannot be generalized safely
+- Study 05 annotation logic cannot be generalized safely
   before their migrations.

@@ -205,12 +205,15 @@ benchmark_scenario_table <- function(spec, profile = "benchmark") {
 #' @export
 benchmark_coordinate_table <- function(spec, profile = "benchmark") {
   coordinates <- benchmark_seeds(spec, profile)
-  data.frame(scenario = coordinates$scenario,
+  out <- data.frame(scenario = coordinates$scenario,
     replicate = coordinates$replicate, method = coordinates$method,
     simulation_seed = coordinates$simulation_seed,
     method_seed = coordinates$fit_seed,
     chain_seeds = vapply(coordinates$chain_seeds,
       .benchmark_collapse_values, character(1)), stringsAsFactors = FALSE)
+  if ("configuration" %in% names(coordinates))
+    out$configuration <- coordinates$configuration
+  out
 }
 
 #' Tabulate benchmark methods and resolved controls
@@ -219,6 +222,46 @@ benchmark_coordinate_table <- function(spec, profile = "benchmark") {
 #' @return A tidy data frame with one row per method.
 #' @export
 benchmark_method_table <- function(spec, profile = "benchmark") {
+  if (identical(spec$task, "ld_operator")) {
+    operator <- spec$operators$configurations
+    rows <- lapply(names(spec$scenarios), function(scenario) {
+      bayesr <- identical(scenario, "sparse_mixture")
+      controls <- if (identical(profile, "benchmark"))
+        spec$controls$benchmark$recommendations[
+          spec$controls$benchmark$recommendations$scenario == scenario, ,
+          drop = FALSE] else data.frame(
+            scenario = scenario, configuration = operator,
+            nit = spec$controls$workshop$nit,
+            nburn = spec$controls$workshop$nburn,
+            nthin = spec$controls$workshop$nthin,
+            nchains = spec$controls$workshop$nchains,
+            ncores = spec$controls$workshop$ncores)
+      controls <- controls[match(operator, controls$configuration), , drop = FALSE]
+      data.frame(
+        scenario = scenario,
+        configuration = operator,
+        interface = vapply(spec$methods[operator], `[[`, character(1),
+          "interface"),
+        model = ifelse(operator == "bed",
+          if (bayesr) "bayesr" else "bayesc",
+          if (bayesr) "sbayesr" else "sbayesc"),
+        prior = if (bayesr)
+          paste0("pi=", .benchmark_collapse_values(spec$controls$bayesr$pi)) else
+          paste0("pi_init=", spec$controls$bayesc$pi_init),
+        mixture_multipliers = if (bayesr)
+          .benchmark_collapse_values(spec$controls$bayesr$mixture_var) else NA_character_,
+        nit = controls$nit, nburn = controls$nburn, nthin = controls$nthin,
+        nchains = controls$nchains, ncores = controls$ncores,
+        operator_contract = ifelse(startsWith(operator, "low_rank_"),
+          spec$operators$contract, operator),
+        update_flags = "backend defaults; retained in checkpoint metadata",
+        stringsAsFactors = FALSE
+      )
+    })
+    result <- do.call(rbind, rows)
+    rownames(result) <- NULL
+    return(result)
+  }
   coordinates <- benchmark_seeds(spec, profile)
   do.call(rbind, lapply(names(spec$methods), function(id) {
     method <- spec$methods[[id]]
@@ -292,6 +335,9 @@ benchmark_output_inventory <- function(results) {
 #' @return A data frame summarized by scenario and method.
 #' @export
 benchmark_runtime_summary <- function(runtime) {
+  if (!"elapsed_seconds" %in% names(runtime) &&
+      "mcmc_runtime_seconds" %in% names(runtime))
+    runtime$elapsed_seconds <- runtime$mcmc_runtime_seconds
   .benchmark_require_columns(runtime, c("study", "scenario", "method",
     "elapsed_seconds", "status"), "runtime")
   key <- interaction(runtime$scenario, runtime$method, drop = TRUE,
@@ -438,6 +484,9 @@ plot_component_probabilities <- function(estimates) {
 #' @return A `ggplot2` plot.
 #' @export
 plot_benchmark_runtime <- function(runtime) {
+  if (!"elapsed_seconds" %in% names(runtime) &&
+      "mcmc_runtime_seconds" %in% names(runtime))
+    runtime$elapsed_seconds <- runtime$mcmc_runtime_seconds
   .benchmark_require_columns(runtime,
     c("method", "elapsed_seconds"), "runtime")
   data <- runtime[.benchmark_ok_rows(runtime), , drop = FALSE]
@@ -612,4 +661,70 @@ plot_convergence_stability <- function(stability, threshold = 0.10) {
     ggplot2::labs(x = "Burn-in candidate",
       y = "Absolute standardized mean shift", colour = "Quantity") +
     theme_sblrbench()
+}
+
+#' Plot Study 06 deterministic operator errors
+#'
+#' @param comparisons Tidy operator-comparison data.
+#' @return A ggplot object.
+#' @export
+plot_operator_errors <- function(comparisons) {
+  .benchmark_require_columns(comparisons,
+    c("configuration", "maximum_corrected_score_error"), "comparisons")
+  ggplot2::ggplot(comparisons, ggplot2::aes(
+      stats::reorder(configuration, maximum_corrected_score_error),
+      maximum_corrected_score_error, fill = configuration)) +
+    ggplot2::geom_col(show.legend = FALSE) +
+    ggplot2::coord_flip() + theme_sblrbench() +
+    ggplot2::labs(x = NULL, y = "Maximum corrected-score error")
+}
+
+#' Plot retained rank by low-rank configuration
+#'
+#' @param eigenvalue_summary Block-level retained-rank table.
+#' @return A ggplot object.
+#' @export
+plot_operator_retained_rank <- function(eigenvalue_summary) {
+  .benchmark_require_columns(eigenvalue_summary,
+    c("configuration", "block_start", "retained_rank"), "eigenvalue_summary")
+  ggplot2::ggplot(eigenvalue_summary, ggplot2::aes(block_start,
+      retained_rank, colour = configuration)) +
+    ggplot2::geom_line() + ggplot2::geom_point(size = 1) +
+    theme_sblrbench() +
+    ggplot2::labs(x = "Block start", y = "Retained rank", colour = NULL)
+}
+
+#' Plot retained spectral mass
+#'
+#' @param eigenvalue_summary Block-level retained-eigenvalue table.
+#' @return A ggplot object.
+#' @export
+plot_operator_spectrum <- function(eigenvalue_summary) {
+  .benchmark_require_columns(eigenvalue_summary,
+    c("configuration", "block_start", "retained_mass_fraction"),
+    "eigenvalue_summary")
+  ggplot2::ggplot(eigenvalue_summary, ggplot2::aes(block_start,
+      retained_mass_fraction, colour = configuration)) +
+    ggplot2::geom_line() + ggplot2::geom_point(size = 1) +
+    theme_sblrbench() +
+    ggplot2::labs(x = "Block start", y = "Retained positive spectral mass",
+      colour = NULL)
+}
+
+#' Plot Study 06 recovery summaries
+#'
+#' @param recovery_metrics Tidy recovery-summary table.
+#' @return A ggplot object.
+#' @export
+plot_operator_recovery <- function(recovery_metrics) {
+  .benchmark_require_columns(recovery_metrics,
+    c("architecture", "configuration", "estimand", "rmse"),
+    "recovery_metrics")
+  ggplot2::ggplot(recovery_metrics, ggplot2::aes(configuration, rmse,
+      colour = configuration)) +
+    ggplot2::geom_point() +
+    ggplot2::facet_grid(estimand ~ architecture, scales = "free_y") +
+    theme_sblrbench() + ggplot2::labs(x = NULL, y = "RMSE", colour = NULL) +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 30, hjust = 1),
+      legend.position = "none")
 }

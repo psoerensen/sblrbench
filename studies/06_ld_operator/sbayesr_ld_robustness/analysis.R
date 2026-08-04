@@ -4,8 +4,18 @@
 options(stringsAsFactors = FALSE, warn = 1)
 `%||%` <- function(x, y) if (is.null(x)) y else x
 
-required_sha <- "02e8c74baa906e83c4a08d42a9cc6339b4e81072"
-isolated <- file.path("results", "local", "current_benchmark_refresh", "rlib")
+root <- normalizePath(getwd(), winslash = "/")
+while (!file.exists(file.path(root, "sblrbench.Rproj"))) {
+  parent <- dirname(root)
+  if (identical(parent, root)) stop("Repository root not found.", call. = FALSE)
+  root <- parent
+}
+setwd(root)
+spec_environment <- new.env(parent = baseenv())
+sys.source("studies/06_ld_operator/spec.R", envir = spec_environment)
+study06_spec <- spec_environment$spec
+required_sha <- study06_spec$packages$sblr$sha
+isolated <- file.path(root, "results", "local", "current_benchmark_refresh", "rlib")
 if (!dir.exists(isolated)) stop("Validated isolated library is missing.", call. = FALSE)
 .libPaths(unique(c(normalizePath(isolated, winslash = "/"), .libPaths())))
 required <- c("sblr", "sblrbench", "digest", "jsonlite", "posterior")
@@ -14,13 +24,6 @@ if (length(missing)) stop("Missing packages: ", paste(missing, collapse = ", "),
 sblr_sha <- utils::packageDescription("sblr")$RemoteSha %||% NA_character_
 if (!identical(sblr_sha, required_sha)) stop("Installed sblr SHA mismatch: ", sblr_sha, call. = FALSE)
 
-root <- normalizePath(getwd(), winslash = "/")
-while (!file.exists(file.path(root, "sblrbench.Rproj"))) {
-  parent <- dirname(root)
-  if (identical(parent, root)) stop("Repository root not found.", call. = FALSE)
-  root <- parent
-}
-setwd(root)
 Sys.setenv(OMP_NUM_THREADS = "4", OMP_THREAD_LIMIT = "4",
   OPENBLAS_NUM_THREADS = "1", MKL_NUM_THREADS = "1")
 source("studies/06_ld_operator/sbayesr_ld_robustness/scripts/eigen-extension.R")
@@ -28,7 +31,7 @@ source("studies/06_ld_operator/sbayesr_ld_robustness/scripts/eigen-extension.R")
 local_exact <- file.path("results", "local", "bed_vs_csr_bayesr_exact_ld")
 local_scheduler <- file.path("results", "local", "bed_vs_csr_bayesr_scheduler")
 local_supplement <- file.path("results", "local", "06_ld_operator", "sbayesr_ld_robustness")
-capsule <- file.path("results", "reference", "06_ld_operator", "sbayesr_ld_robustness", "current")
+capsule <- study06_spec$frozen_capsules$supplemental
 for (path in c(file.path(local_supplement, "fits"), file.path(local_supplement, "tables"), capsule))
   dir.create(path, recursive = TRUE, showWarnings = FALSE)
 

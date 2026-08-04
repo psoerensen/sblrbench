@@ -1,5 +1,18 @@
 # Shared benchmark helpers after Phase 3
 
+## Study 06 operator-validation extension
+
+`R/metrics-operator.R` owns reusable matrix and deterministic-action
+comparisons. `benchmark-spec.R` owns the `ld_operator` spec, coordinate grids,
+and historical seed arithmetic. `benchmark-execution.R` supplies the explicit
+task/validation boundary, and `benchmark-reporting.R` supplies operator design
+summaries and named error, rank, spectral, recovery, and runtime plots.
+
+Block construction, retained-eigen policy, projected residual/SSE identities,
+and supplemental audits remain Study 06-specific. No operator registry or class
+was introduced. Paused Study 07 is the only deferred caller of the detailed
+historical operator helper files.
+
 Study 01 adds fine-mapping task validation and execution, shared PIP/marker
 extraction, fine-mapping metrics, and tidy plotting helpers. Separated causal
 locus selection remains in `studies/01_finemapping/locus-design.R` because it
@@ -86,8 +99,8 @@ or 24 complete benchmark coordinates without data preparation or fit dispatch.
   field names.
 - Current callers: package provenance, active Studies 01--06 promotion, and
   focused tests.
-- Deferred callers: current-refresh and Study 06 v2 detailed provenance where
-  compiler/archive fields remain study-specific.
+- Deferred callers: current-refresh provenance where compiler/archive fields
+  remain workflow-specific.
 - Limitation: installed metadata only; no network lookup.
 - Wrapper removal: at the corresponding study migration, after callers use the
   authoritative names.
@@ -101,17 +114,15 @@ or 24 complete benchmark coordinates without data preparation or fit dispatch.
   `benchmark_semantic_checkpoint_identity()`,
   `benchmark_semantic_checkpoint_hash()`, and
   `benchmark_load_semantic_checkpoint()`.
-- Compatibility: `.study06_atomic_rds()` and `.study06v2_atomic_rds()` preserve
-  current signatures; Study 06 v2 preserves its exact identity payload and
-  delegates only digest/save/load mechanics.
-- Current callers: Study 06, Study 06 v2, and focused tests.
+- Compatibility: no Study 06 checkpoint wrapper remains. New Study 06 work uses
+  semantic-v2 identities; frozen capsules remain the numerical authority.
+- Current callers: migrated Studies 01--04 and 06, diagnostics, and focused tests.
 - Current callers also include the Study 03 SBayesR comparison and Study 06
   supplemental scheduler and exact/sparse diagnostics. Their semantic schema
   is `sblrbench-semantic-v2`; legacy source-hashed caches are rejected.
 - Deferred callers: paused Study 07 and Study 05 CSV status checkpoints.
 - Limitation: diagnostic IDs and scientific payload construction remain local.
-- Wrapper removal: after each study migration demonstrates byte-compatible
-  checkpoint names and identities.
+- Wrapper removal: complete for migrated Studies 01--04 and 06.
 
 ## `R/benchmark-convergence.R`
 

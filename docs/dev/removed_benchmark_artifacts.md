@@ -24,7 +24,7 @@ replacement validated and all active dependencies were redirected.
 | `studies/04_convergence/convergence-development-pilot.qmd` | 04 | Version-specific report | `39fb5802507fc867b34dc4a32644f72705202686` | `studies/04_convergence/report.qmd` |
 | `studies/05_annotation_models/annotation-models-development-pilot.qmd` | 05 | Pre-refresh pilot presentation | `0d5b7d854e655c88aac69cef59279be513f4b37d` | `studies/05_annotation_models/annotation-convergence.qmd` |
 | `studies/06_ld_operator/ld-operator-development-pilot.qmd` | 06 | Reconstructed-dense historical report | `a4bd3fdaedbe6e36400c97318299f1965fba72bf` | Git history |
-| `studies/06_ld_operator/retained-low-rank-operator-development-v2.qmd` | 06 | Chronology-based report | `285a33ae9fcaba93af2b5bd001c72507da2949e6` | `studies/06_ld_operator/low-rank-operator.qmd` |
+| `studies/06_ld_operator/retained-low-rank-operator-development-v2.qmd` | 06 | Chronology-based report | `285a33ae9fcaba93af2b5bd001c72507da2949e6` | `studies/06_ld_operator/report.qmd` |
 
 Obsolete one-off promotion and overnight-run controllers were removed with the
 same cleanup because the current refresh runner and study-specific promotion

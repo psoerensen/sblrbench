@@ -15,7 +15,7 @@
                                       filter = "ridge_fixed",
                                       tau = 0, eta = 0,
                                       effects = NULL) {
-  .study06_validate_blocks(blocks, stats$marker_names)
+  study06_validate_blocks(blocks, stats$marker_names)
   m <- length(stats$marker_names)
   if (is.null(effects)) effects <- numeric(m)
   if (length(effects) != m) stop("effects length differs from marker count.")

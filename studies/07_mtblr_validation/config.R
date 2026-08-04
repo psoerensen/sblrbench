@@ -1,7 +1,7 @@
 .study07_root <- if (file.exists(file.path("studies", "06_ld_operator",
-  "config.R"))) "." else file.path("..", "..")
+  "spec.R"))) "." else file.path("..", "..")
 .study07_study06 <- source(file.path(.study07_root, "studies",
-  "06_ld_operator", "config.R"), local = TRUE)$value
+  "06_ld_operator", "spec.R"), local = TRUE)$value
 
 list(
   study = "07_mtblr_validation",
@@ -19,9 +19,9 @@ list(
   chr = 1L,
   sample_count = 5000L,
   split = list(train_fraction = 0.70, seed = 3701L),
-  example_data = .study07_study06$example_data,
-  qc = .study07_study06$qc,
-  sparse_ld = .study07_study06$sparse_ld,
+  example_data = .study07_study06$data$example_data,
+  qc = .study07_study06$markers$qc,
+  sparse_ld = .study07_study06$data$sparse_ld,
   marker_candidates = c(1000L, 2000L, 4000L, 8000L),
   minimum_marker_count = 2000L,
   block_size = 1000L,
@@ -52,8 +52,8 @@ list(
   runtime_implementations = c("mt_bed_bayesc", "mt_csr_sbayesc",
     "mt_block_csr_sbayesc", "mt_block_eigen_sbayesc"),
   unfiltered = list(eigen_filter = "ridge_fixed", eigen_eta = 0),
-  operator_tolerance = .study07_study06$operator_tolerance,
-  operator_probe_count = .study07_study06$operator_probe_count,
+  operator_tolerance = .study07_study06$operators$equivalence_tolerances,
+  operator_probe_count = .study07_study06$validation$operator_probe_count,
   runtime_limits = list(
     maximum_projected_four_chain_seconds = 2 * 60 * 60,
     maximum_projected_benchmark_seconds = 36 * 60 * 60,

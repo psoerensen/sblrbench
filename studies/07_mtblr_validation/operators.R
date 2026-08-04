@@ -1,11 +1,11 @@
 .study07_source_operator_helpers <- function() {
-  needed <- c(".study06_blocks", ".study06_validate_blocks",
+  needed <- c("study06_blocks", "study06_validate_blocks",
     ".study06_inspect_operator", ".study06_dense_blocks",
     ".study06_write_runtime_csr", ".study06_runtime_glist",
     ".study06_inspect_from_csr", ".study06_equivalence_gate",
     ".study06_apply_blocks", ".study06_apply_csr_crossproduct")
   if (!all(vapply(needed, exists, logical(1), inherits = TRUE))) {
-    for (f in c("blocks.R", "operators.R", "operator_validation.R"))
+    for (f in c("operator-design.R", "operators.R", "operator_validation.R"))
       source(file.path("studies", "06_ld_operator", f), local = .GlobalEnv)
   }
   invisible(TRUE)
@@ -62,8 +62,8 @@
 .study07_operator_bundle <- function(Glist, stats, full_csr, config,
                                      output_dir, effect_matrix = NULL) {
   .study07_source_operator_helpers()
-  blocks <- .study06_blocks(stats$marker_names, config$block_size)
-  .study06_validate_blocks(blocks, stats$marker_names)
+  blocks <- study06_blocks(stats$marker_names, config$block_size)
+  study06_validate_blocks(blocks, stats$marker_names)
   effect <- if (is.null(effect_matrix)) numeric(length(stats$marker_names))
     else effect_matrix[, 1L]
   unfiltered <- .study06_inspect_operator(Glist, stats, blocks,

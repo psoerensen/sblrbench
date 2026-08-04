@@ -1,5 +1,5 @@
 ---
-title: "Study 06: Retained low-rank LD operators"
+title: "Study 06: LD-operator validation"
 description: "Five-replicate deterministic, numerical, scientific, and compatibility validation."
 ---
 
@@ -334,6 +334,9 @@ Only two sparse architectures, five replicates, one genotype/LD panel, one block
 
 Rendering reads the current capsule only and performs no sampler or checkpoint work. The [analysis entry point](analysis.R) documents the deterministic/current workflow separately.
 
+- [Study specification](spec.R)
+- [Operator design](operator-design.R)
+- [Reusable operator-analysis template](../../inst/templates/operator-analysis.R)
 - [Current capsule](../../results/reference/06_ld_operator/current/README.md)
 - [Benchmark manifest](../../results/reference/06_ld_operator/current/benchmark_manifest.json)
 - [Compatibility manifest](../../results/reference/06_ld_operator/current/compatibility_manifest.json)
@@ -348,3 +351,5 @@ Rendering reads the current capsule only and performs no sampler or checkpoint w
 - [Prior compatibility](../../results/reference/06_ld_operator/current/prior_compatibility.csv)
 - [Source compatibility](../../results/reference/06_ld_operator/current/source_compatibility.csv)
 - [Checksums](../../results/reference/06_ld_operator/current/checksums.csv)
+- [Supplemental SBayesR LD-operator robustness report](sbayesr_ld_robustness/report.qmd)
+- [Supplemental operator summary](../../results/reference/06_ld_operator/sbayesr_ld_robustness/current/operator_summary.csv)

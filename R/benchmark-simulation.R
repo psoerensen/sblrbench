@@ -51,6 +51,10 @@ simulate_prediction_architecture <- function(coordinate, scaled_genotypes,
   effect_scale <- sqrt(target_vg / stats::var(genetic_values[, 1L]))
   effects[, 1L] <- effects[, 1L] * effect_scale
   genetic_values <- scaled_genotypes %*% effects
+  # Study 06 historically used an explicit residual stream. Other migrated
+  # studies omit residual_offset and therefore retain their exact RNG order.
+  if (!is.null(spec$seeds$residual_offset))
+    set.seed(as.integer(coordinate$simulation_seed + spec$seeds$residual_offset))
   residual <- stats::rnorm(nrow(scaled_genotypes))
   residual <- residual - mean(residual)
   residual <- residual / stats::sd(residual)

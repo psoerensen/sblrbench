@@ -33,7 +33,7 @@ was not used.
 - [Study 05](../../studies/05_annotation_models/annotation-convergence.qmd):
   completed prespecified annotation convergence stop; no scientific benchmark
   followed the stop.
-- [Study 06](../../studies/06_ld_operator/low-rank-operator.qmd): completed
+- [Study 06](../../studies/06_ld_operator/report.qmd): completed
   retained-low-rank/block LD-operator validation.
 - [Supplemental Study 06](../../studies/06_ld_operator/sbayesr_ld_robustness/report.qmd):
   completed SBayesR exact, hard-sparse, and block-eigen robustness evidence.

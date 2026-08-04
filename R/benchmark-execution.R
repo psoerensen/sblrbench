@@ -30,9 +30,9 @@ parse_benchmark_cli_arguments <- function(args) {
     stop("Missing required command-line options: ",
       paste(missing, collapse = ", "), ".", call. = FALSE)
   supported_studies <- c("01_finemapping", "02_prediction", "03_parameter_estimation",
-    "04_convergence")
+    "04_convergence", "06_ld_operator")
   if (!options[["--study"]] %in% supported_studies)
-    stop("Unsupported --study; choose `01_finemapping`, `02_prediction`, `03_parameter_estimation`, or `04_convergence`.",
+    stop("Unsupported --study; choose `01_finemapping`, `02_prediction`, `03_parameter_estimation`, `04_convergence`, or `06_ld_operator`.",
       call. = FALSE)
   if (!options[["--profile"]] %in% c("workshop", "benchmark"))
     stop("--profile must be `workshop` or `benchmark`.", call. = FALSE)
@@ -172,6 +172,25 @@ parse_benchmark_cli_arguments <- function(args) {
     rownames(out) <- NULL
     out
   }
+}
+
+.run_ld_operator <- function(spec, profile, coordinates, paths, resume) {
+  runner <- getOption("sblrbench.ld_operator_runner")
+  if (!is.function(runner))
+    stop("Study 06 execution requires its study-specific operator runner. ",
+      "Source `studies/06_ld_operator/operator-design.R` before calling ",
+      "run_benchmark() outside validate-only mode.", call. = FALSE)
+  result <- runner(spec = spec, profile = profile, coordinates = coordinates,
+    paths = paths, resume = resume)
+  required <- c("status", "operator_summary", "operator_comparisons",
+    "eigenvalue_summary", "convergence", "recovery_metrics", "runtime")
+  missing <- setdiff(required, names(result))
+  if (length(missing))
+    stop("The Study 06 operator runner omitted required result components: ",
+      paste(missing, collapse = ", "), ".", call. = FALSE)
+  result$spec <- spec
+  result$paths <- c(paths, result$paths)
+  result
 }
 
 .prediction_validation_status <- function(coordinates, study = "02_prediction") {
@@ -649,7 +668,8 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
     status <- .prediction_validation_status(coordinates, spec$study)
     status_path <- .benchmark_write_csv(status,
       file.path(paths$tables, "fit_status.csv"))
-    coordinate_path <- if (spec$task %in% c("convergence", "finemapping"))
+    coordinate_path <- if (spec$task %in% c("convergence", "finemapping",
+        "ld_operator"))
       .benchmark_write_csv(coordinates,
         file.path(paths$tables, "coordinate_grid.csv")) else NULL
     manifest <- .prediction_manifest(spec, profile, paths, coordinates, TRUE,
@@ -661,7 +681,8 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
       status = status, truth = NULL, estimates = NULL,
       marker_results = NULL, metrics = NULL, convergence = NULL,
       runtime = NULL, oracle = NULL,
-      coordinate_grid = if (spec$task %in% c("convergence", "finemapping"))
+      coordinate_grid = if (spec$task %in% c("convergence", "finemapping",
+          "ld_operator"))
         coordinates else NULL,
       candidate_summary = NULL, recommendations = NULL))
   }
@@ -669,6 +690,9 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
   if (identical(spec$task, "convergence"))
     return(.run_convergence(spec, profile, resolved, coordinates, paths,
       resume))
+
+  if (identical(spec$task, "ld_operator"))
+    return(.run_ld_operator(spec, profile, coordinates, paths, resume))
 
   methods <- resolve_benchmark_methods(spec)
   names(methods) <- vapply(methods, `[[`, character(1), "id")
