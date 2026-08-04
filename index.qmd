@@ -1,32 +1,57 @@
 ---
 title: "sblrbench"
-description: "Validated benchmarks and practical workflows for sblr."
+description: "Validate sblr and adapt practical Bayesian linear-regression workflows."
 ---
 
-`sblrbench` provides reusable contracts, validation, metrics, provenance and
-reproducible benchmark studies for scalable Bayesian linear regression methods
-implemented in `sblr`.
+`sblrbench` connects reproducible validation evidence with readable,
+adaptable analysis workflows for the models implemented in
+[`sblr`](https://github.com/psoerensen/sblr).
 
-## Current benchmarks
+::: {.grid .route-grid}
+::: {.g-col-12 .g-col-md-6}
+::: {.route-card}
+## Validate `sblr`
 
-| Study | Purpose | Development status | Scale | Report |
-|---|---|---|---|---|
-| Study 01 | Separated-locus fine-mapping | Complete current benchmark | 10 replicates; 40 fits | [Fine-mapping](studies/01_finemapping/report.qmd) |
-| Study 02 | Held-out single-trait prediction | Complete current benchmark | 2 architectures; 5 replicates; 40 fits | [Prediction](studies/02_prediction/report.qmd) |
-| Study 03 | Single-trait parameter estimation | Complete current benchmark | 2 architectures; 5 replicates; 40 fits | [Parameter estimation](studies/03_parameter_estimation/report.qmd) |
-| Study 04 | Multichain convergence diagnostics | Current selection plus five-replicate validation | 4 selection fits/16 chains; 20 validation fits/80 chains | [Convergence](studies/04_convergence/report.qmd) |
-| Study 05 | LD-operator validation | Complete integrated retained-low-rank and SBayesR LD-sensitivity validation | 2 architectures; 5 paired replicates; 60 four-chain fits plus one focused SBayesR window | [LD-operator validation](studies/05_ld_operator/report.qmd) |
-| Study 06 | Annotation-informed models | **In development**; qualification failed | Four-entry gate failed; final grid not launched; package-side review required | [Qualification status](studies/06_annotation_models/report.qmd) |
-| Study 07 | Multitrait validation | **In development** | Planned/paused | [Development status](studies/07_mt_validation/status.qmd) |
+Browse completed simulation benchmarks with registered truth-aware metrics,
+pinned provenance, reviewed reference capsules, and capsule-only reports.
 
-::: {.callout-note}
-## Validation boundaries
-
-The completed studies provide reproducible evidence for their stated designs.
-Their simulation scales and data settings do not establish universal method
-rankings, calibration, or production defaults. Studies 06 and 07 are
-development work and make no completed benchmark claims.
+[Browse benchmark studies →](studies/index.qmd){.btn .btn-primary}
+:::
 :::
 
-Continue with the [benchmark catalogue](studies/index.qmd), [framework](framework.qmd),
-[metric definitions](metrics.qmd), or [reproducibility lifecycle](reproducibility.qmd).
+::: {.g-col-12 .g-col-md-6}
+::: {.route-card}
+## Use `sblrbench`
+
+Follow the complete exact analyses or start from shorter templates for
+fine-mapping, prediction, parameter estimation, convergence, and LD operators.
+
+[Explore practical workflows →](workflows.qmd){.btn .btn-outline-primary}
+:::
+:::
+:::
+
+## Current status
+
+| Evidence or workflow | Current status |
+|---|---|
+| Validation studies | **5 completed** — Studies 01–05 |
+| Development studies | **2 in development** — Studies 06–07 |
+| Reusable templates | **6 available** — five validated workflow types plus annotation development |
+
+Study 06 annotation-informed models stopped at its prespecified qualification
+gate. It has no valid final performance benchmark and remains **In
+development**. Study 07 multitrait validation is also **In development**.
+
+::: {.callout-note}
+## How to read the evidence
+
+A **completed** study passed its scientific and computational validation and
+has a reviewed reference capsule. A **qualification failure** is an execution
+boundary, not a method-performance result. Working output under
+`results/local/` is not authoritative evidence.
+:::
+
+Learn how the pieces connect in the [Framework](framework.qmd), compare the
+registered [Metrics](metrics.qmd), or review the capsule lifecycle under
+[Reproducibility](reproducibility.qmd).

@@ -1,6 +1,8 @@
 ---
 title: "Study 05: LD-operator validation"
 description: "Integrated retained-low-rank and SBayesR LD-sensitivity validation."
+toc: true
+toc-depth: 3
 ---
 
 ```{r}
@@ -76,6 +78,27 @@ plot_config_metric <- function(data,metric_id,ylab,lower=FALSE,reference=NULL) {
 This is a five-replicate development benchmark of LD-operator implementations. It does not compare unrelated prior models and does not establish a universal speed, accuracy or storage ranking.
 :::
 
+::: {.callout-important title="Executive summary"}
+LD-operator representation affects both computational efficiency and statistical
+behaviour. The deterministic operator contracts passed, and exact CSR reproduced
+full-sweep BED BayesR in the focused LD-rich window. Hard sparsification and block
+boundaries omitted weak or cross-block LD and changed corrected scores, posterior
+allocation, residual expressions, and recovery. Retaining 99.5% of within-block
+spectral mass improved the focused comparison modestly but did not recover omitted
+LD fully. These results do not establish a universal operator, window, or retention
+policy.
+:::
+
+## Main findings
+
+| Evidence | Supported finding | Boundary |
+|---|---|---|
+| Deterministic contracts | Block and retained-factor representations implement their stated projected operators. | Passing an identity does not make an approximate operator identical to global exact LD. |
+| Main paired benchmark | Full, block, and retained representations expose distinct recovery and computational trade-offs. | Two sparse architectures and five replicates are not a universal ranking. |
+| Focused SBayesR window | Exact CSR closely reproduced full-sweep BED BayesR. | This is one 1,500-marker LD-rich window. |
+| Sparse and block approximations | Omitted weak or cross-block LD altered conditionals and posterior recovery. | The study does not prescribe a universal LD threshold or block scheme. |
+| Spectral retention | The 0.995 retained representation improved modestly over the compared approximations. | Retained low rank is not proven universally superior. |
+
 ## Benchmark status and scope
 
 All `r main_manifest$successful_fit_count` of `r main_manifest$expected_fit_count` four-chain fits completed across two architectures, five paired replicates and six configurations. The benchmark combines deterministic operator identities, checkpoint/residual validation, convergence support, prediction and recovery metrics, marker-level agreement, runtime/storage measurement, and a current-source compatibility audit.
@@ -123,6 +146,7 @@ knitr::kable(rank_summary,digits=6)
 
 The `block_low_rank_v1` representation (confirmed against `r main_manifest$operator_contract`) stores retained factors $Q_b$, transformed scores $w_b$, and projected residual coordinates $r_b$. Deterministic tests validate construction, diagonal recovery, score transformation, residual updates, corrected marker scores and quadratic forms against explicit source matrices.
 
+::: {.callout-note collapse="true" title="Deterministic identity table"}
 ```{r}
 #| echo: false
 identity_cols <- c("configuration","representation","positive_rank","retained_rank","retained_mass_fraction",
@@ -130,6 +154,8 @@ identity_cols <- c("configuration","representation","positive_rank","retained_ra
  "projected_sse_identity_error","maximum_source_matrix_error","pass")
 knitr::kable(identity[,identity_cols],digits=6)
 ```
+:::
+
 
 ## Projected residual/SSE identity
 
@@ -163,11 +189,13 @@ ggplot2::ggplot(checkpoint,ggplot2::aes(configuration_label,maximum_residual_dri
 
 Each fit uses four chains with Study 04-informed, method-specific settings. Recommendations and five-replicate support remain visible; convergence is not inferred from successful completion alone.
 
+::: {.callout-note collapse="true" title="Convergence recommendations and support tables"}
 ```{r}
 #| echo: false
 knitr::kable(recommendations,digits=4)
 knitr::kable(convergence,digits=4)
 ```
+:::
 
 ## Prediction results
 
@@ -337,12 +365,14 @@ retained-low-rank fits were reused from the completed diagnostic checkpoints
 when the compact evidence was originally frozen. This integration did not call
 a sampler.
 
+::: {.callout-note collapse="true" title="SBayesR provenance and fit-status tables"}
 ```{r}
 #| echo: false
 knitr::kable(sbayesr_provenance)
 knitr::kable(sbayesr_fit_status[, c("label", "elapsed_seconds", "fit_origin",
   "warnings")], digits = 3)
 ```
+:::
 
 ### BED scheduler comparison
 
@@ -405,12 +435,14 @@ representation uses cumulative positive mass 0.995 and retained 1,490 of 1,500
 directions. Five 250-marker blocks retained 248 directions each; the two
 chromosome-boundary fragments retained full rank.
 
+::: {.callout-note collapse="true" title="Pairwise operator and block diagnostics"}
 ```{r}
 #| echo: false
 knitr::kable(sensitivity_pairwise, digits = 5)
 knitr::kable(sensitivity_blocks[, c("block_id", "start", "end",
   "positive_rank", "retained_rank", "retained_mass_fraction")], digits = 5)
 ```
+:::
 
 ### Corrected-score audit
 
@@ -418,10 +450,12 @@ Direct/BED and exact-CSR corrected scores, component probabilities, and
 conditional effect means agree to numerical precision. Hard-sparse score and
 component-probability differences are material for the fixed marker panel.
 
+::: {.callout-note collapse="true" title="Corrected-score audit table"}
 ```{r}
 #| echo: false
 knitr::kable(sensitivity_conditionals, digits = 7)
 ```
+:::
 
 ### Quadratic and residual audit
 
@@ -430,6 +464,7 @@ identities agree. Hard-sparse and block-diagonal operators understate the
 quadratic form and corresponding residual expression because omitted LD terms
 are absent.
 
+::: {.callout-note collapse="true" title="Quadratic and residual audit tables"}
 ```{r}
 #| echo: false
 knitr::kable(sensitivity_quadratics[
@@ -437,6 +472,7 @@ knitr::kable(sensitivity_quadratics[
     "block_eigen_full_rank", "block_eigen_retained"), ], digits = 4)
 knitr::kable(sensitivity_posterior_operator, digits = 5)
 ```
+:::
 
 ### Spectral findings
 
@@ -445,6 +481,7 @@ Neither exact nor hard-sparse LD has eigenvalues below \(-10^{-8}\) or within
 evidence favors accumulated omitted weak LD rather than a small set of
 indefinite or near-zero directions.
 
+::: {.callout-note collapse="true" title="Spectral diagnostic tables"}
 ```{r}
 #| echo: false
 knitr::kable(sensitivity_eigenvalues[, c("operator", "minimum", "maximum",
@@ -452,6 +489,7 @@ knitr::kable(sensitivity_eigenvalues[, c("operator", "minimum", "maximum",
   "positive_condition_number")], digits = 4)
 knitr::kable(sensitivity_decomposition, digits = 4)
 ```
+:::
 
 ### SBayesR recovery
 
@@ -486,6 +524,7 @@ recommend changing `sblr` defaults. Operator choice remains data dependent.
 
 The 60 numerical fits truthfully retain source SHA `r main_manifest$numerical_fit_source_sha`. The refresh validation used `r main_manifest$refresh_validation_sha` without sampler reruns. The audit established identical resolved BayesC/BayesR priors and byte-identical scalar sampler-transition and retained-low-rank sources, yielding status `r main_manifest$compatibility_status`.
 
+::: {.callout-note collapse="true" title="Current-source compatibility tables"}
 ```{r}
 #| echo: false
 compat_table<-data.frame(Check=c("Numerical provenance preserved","Sampler transition sources identical",
@@ -496,6 +535,7 @@ knitr::kable(compat_table)
 knitr::kable(priors[,c("model","configuration","identical_resolved_prior")])
 knitr::kable(sources)
 ```
+:::
 
 ## Readiness decision for MTBLR
 

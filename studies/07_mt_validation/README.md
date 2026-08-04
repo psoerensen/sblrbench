@@ -1,6 +1,6 @@
 # Study 07 — Multitrait validation
 
-**Status: In development**
+**Status: In development — paused**
 
 Study 07 preserves two-trait state definitions, simulation and alignment
 contracts, method-interface experiments, chain extraction, convergence,
@@ -16,4 +16,3 @@ A future migration should extend the ordinary shared specification and runner
 only after those `sblr` and scientific boundaries are resolved. The preserved
 target graph is development machinery and is not part of the completed-study
 CLI.
-

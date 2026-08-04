@@ -1,65 +1,125 @@
 ---
 title: "Metrics"
+description: "Task-specific definitions used by the sblrbench validation studies."
 ---
 
-## Marker-level metrics
+Metrics are interpreted jointly and within each registered study design. No
+single value establishes a universal method ranking.
 
-- **PIP Brier score:** mean squared error between posterior inclusion probability and binary causal truth.
-- **Effect RMSE:** root mean squared error of posterior-mean marker effects.
-- **Average precision:** mean precision at causal-marker ranks after sorting by decreasing PIP.
-- **Causal-marker ranks:** best, median, mean and worst one-based causal rank.
-- **Top-K causal recall:** fraction of causal markers among the top 10, 20 and 50 PIP-ranked markers.
+## Prediction
 
-PIP ties are resolved by first occurrence in canonical marker order.
+| Metric | Preferred direction | Interpretation |
+|---|---:|---|
+| Prediction correlation | Higher | Agreement between predicted and true held-out genetic values |
+| Prediction MSE | Lower | Squared error against true held-out genetic values |
+| Prediction NMSE | Lower | MSE divided by the variance of true held-out genetic values |
+| Phenotype prediction correlation | Higher | Association with held-out phenotype, labelled separately from genetic-value accuracy |
+| Calibration intercept | Toward 0 | Location agreement in `true G = intercept + slope × predicted G` |
+| Calibration slope | Toward 1 | Scale agreement in the same regression |
+| Effect RMSE | Lower | Secondary marker-effect recovery diagnostic |
 
-## Credible-set metrics
+Study 02 reports paired BayesR/BayesC and BED/CSR contrasts. Positive
+advantages are oriented to favor the named focal method: correlation uses
+`focal - comparison`; error metrics and absolute calibration error use
+`comparison - focal`.
 
-- Number of constructed credible sets.
-- Mean and median set size.
-- Conditional exact causal coverage.
-- Conditional LD-proxy coverage at the configured threshold.
-- Number of causal loci detected.
-- Sets without exact causal markers.
-- Sets without causal markers or qualifying proxies.
+[Study 02 report](studies/02_prediction/report.qmd) ·
+[`metric_prediction_correlation()`](https://github.com/psoerensen/sblrbench/blob/master/man/metric_prediction_correlation.Rd) ·
+[`metric_prediction_nmse()`](https://github.com/psoerensen/sblrbench/blob/master/man/metric_prediction_nmse.Rd)
 
-> **Conditional credible-set coverage**  
-> Among constructed sets, how many contain the truth?
+## Fine-mapping and prioritization
 
-> **Causal-locus detection**  
-> Among all true causal loci, how many generated a credible set?
+| Metric | Preferred direction | Interpretation |
+|---|---:|---|
+| PIP Brier score | Lower | Mean squared error between marker PIP and binary causal truth |
+| Effect RMSE | Lower | Error in posterior-mean marker effects |
+| Average precision | Higher | Precision accumulated at causal-marker ranks after decreasing-PIP sorting |
+| Causal-marker rank | Lower | Earlier one-based ranking of causal markers |
+| Top-K causal recall | Higher | Fraction of causal markers among the top 10, 20, or 50 PIP-ranked markers |
+| Credible-set size | Lower, conditional on coverage | Number of markers required to reach the registered cumulative PIP target |
+| Exact credible-set coverage | Near the design target | Constructed sets containing the exact causal marker |
+| LD-proxy coverage | Near the design target | Constructed sets containing an accepted causal proxy |
+| Causal-locus detection | Higher | True causal loci that generated a credible set |
 
-These are cumulative marginal-PIP credible sets. They are not guaranteed per-effect credible sets or complete causal configurations.
+PIP ties are resolved by first occurrence in canonical marker order. Coverage
+is conditional on constructed sets, whereas locus detection uses all true
+causal loci as its denominator. These cumulative marginal-PIP sets are not
+complete multi-effect posterior configurations.
 
-## Prediction metrics
+[Study 01 report](studies/01_finemapping/report.qmd) ·
+[`metric_average_precision()`](https://github.com/psoerensen/sblrbench/blob/master/man/metric_average_precision.Rd) ·
+[`metric_causal_ranks()`](https://github.com/psoerensen/sblrbench/blob/master/man/metric_causal_ranks.Rd)
 
-- **Prediction correlation:** correlation between predicted and true held-out genetic values.
-- **Prediction MSE:** mean squared error against true held-out genetic values.
-- **Prediction NMSE:** prediction MSE divided by the variance of true held-out genetic values.
-- **Phenotype prediction correlation:** correlation between predicted genetic value and held-out phenotype, labelled separately from genetic-value accuracy.
-- **Calibration:** intercept and slope from `true G = intercept + slope × predicted G`.
-- **Effect RMSE:** secondary marker-effect diagnostic.
+## Parameter recovery
 
-Study 02 pairs BayesR versus BayesC within BED or CSR, and CSR versus BED within corresponding model classes. Correlation advantages use `focal - comparison`; MSE, NMSE, effect RMSE and absolute calibration-error advantages use `comparison - focal`. Positive values therefore consistently favor the named focal method.
+| Metric | Preferred direction | Interpretation |
+|---|---:|---|
+| Bias | Toward 0 | Posterior mean minus the registered realized truth |
+| Absolute error | Lower | Magnitude of posterior-mean recovery error |
+| RMSE | Lower | Root mean squared recovery error over matched coordinates |
+| Interval width | Context dependent | Posterior uncertainty; narrower is not better without adequate coverage |
+| Interval coverage | Near nominal | Registered truth inside the posterior interval |
 
-## Parameter-estimation metrics
+Study 03 registers genetic variance, residual variance, heritability, base
+effect variance, active probability, and a derived active-marker quantity.
+Nonlinear estimands are calculated draw by draw before summarization.
 
-Study 03 evaluates posterior means against registered realized truths, including
-genetic variance, residual variance, heritability, base effect variance, active
-probability, and the derived active-marker quantity. Bias, absolute error,
-interval width, and interval coverage retain their estimand-specific formulas;
-nonlinear quantities are calculated draw by draw before summarization.
+[Study 03 report](studies/03_parameter_estimation/report.qmd) ·
+[`plot_parameter_recovery()`](https://github.com/psoerensen/sblrbench/blob/master/man/plot_parameter_recovery.Rd)
 
-## Convergence diagnostics
+## Convergence
 
-Study 04 uses true chain traces for rank-normalized R-hat, bulk ESS, tail ESS,
-MCSE, and relative MCSE. Posterior means, final states, pooled vectors, and
-compact summaries are never substituted for unavailable traces. Candidate
-burn-in and retained-draw settings are evaluated against the frozen thresholds.
+| Diagnostic | Preferred direction | Interpretation |
+|---|---:|---|
+| Rank-normalized R-hat | Toward 1 | Agreement among identifiable chains |
+| Bulk ESS | Higher | Effective information for central posterior mass |
+| Tail ESS | Higher | Effective information in posterior tails |
+| MCSE | Lower | Monte Carlo uncertainty in a summary |
+| Relative MCSE | Lower | MCSE relative to posterior variability |
+| Burn-in stability | Stable | Agreement across registered burn-in choices |
 
-## LD-operator metrics
+Study 04 uses true chain traces. Posterior means, final states, pooled vectors,
+and compact summaries are never substituted for unavailable traces. Candidate
+windows are evaluated against frozen thresholds.
 
-Study 05 compares operator matrices and their deterministic actions using the
-prespecified Frobenius, maximum, diagonal, symmetry, trace, corrected-score,
-quadratic, residual, spectral-mass, rank, runtime, and recovery summaries. These
-metrics describe the tested operators and data window; they do not establish a
-universal sparsity or rank policy.
+[Study 04 report](studies/04_convergence/report.qmd) ·
+[`extract_convergence_traces()`](https://github.com/psoerensen/sblrbench/blob/master/man/extract_convergence_traces.Rd)
+
+## LD-operator validation
+
+| Metric family | Preferred direction | Interpretation |
+|---|---:|---|
+| Relative Frobenius / maximum / diagonal error | Lower | Matrix approximation error against the registered reference |
+| Symmetry and trace error | Lower | Preservation of basic operator identities |
+| Corrected-score error | Lower | Difference in marker conditional scores |
+| Quadratic / residual error | Lower | Difference in fixed-state quadratic and residual expressions |
+| Retained spectral mass | Near target | Positive eigenvalue mass retained by the configured policy |
+| Retained rank | Context dependent | Compression level, interpreted with accuracy and resource use |
+| Recovery and runtime | Metric specific | Statistical behavior and computational cost under the tested operator |
+
+Study 05 also records eigenvalue counts, effective rank, condition number,
+storage, and convergence. These values describe its operators and data window;
+they establish no universal sparsity, block, or rank policy.
+
+[Study 05 report](studies/05_ld_operator/report.qmd) ·
+[`operator_matrix_metrics()`](https://github.com/psoerensen/sblrbench/blob/master/man/operator_matrix_metrics.Rd) ·
+[`operator_action_metrics()`](https://github.com/psoerensen/sblrbench/blob/master/man/operator_action_metrics.Rd)
+
+## Annotation-informed metrics
+
+| Metric family | Preferred direction | Interpretation |
+|---|---:|---|
+| Annotation-prior contrast and correlation | Larger agreement with registered truth | Recovery of the common draw-wise marker-prior estimand |
+| Causal-marker PIP and rank | Higher PIP; lower rank | Prioritization of true active markers |
+| Top-K recovery, precision, and recall | Higher | Marker prioritization at registered cutoffs |
+| Prediction and effect recovery | Metric specific | Genetic-signal recovery under matched baseline comparisons |
+| Parameter recovery | Toward truth | Variance and heritability sanity checks |
+
+These metrics are implemented for Study 06 development validation, but they
+are **not supported by a completed benchmark**. The prespecified qualification
+failed, the final grid was not launched, and the partial stop capsule supports
+no method-performance claim.
+
+[Study 06 status](studies/06_annotation_models/report.qmd) ·
+[`annotation_prior_recovery()`](https://github.com/psoerensen/sblrbench/blob/master/man/annotation_prior_recovery.Rd) ·
+[`annotation_marker_recovery()`](https://github.com/psoerensen/sblrbench/blob/master/man/annotation_marker_recovery.Rd)

@@ -1,6 +1,6 @@
 ---
 title: "Benchmark catalogue"
-description: "Current validated sblrbench studies and planned multivariate work."
+description: "Completed sblrbench validation studies and honest development status."
 ---
 
 ## Current benchmarks
@@ -44,15 +44,15 @@ block-eigen SBayesR operators in one deterministic LD-rich window.
 
 ### [Study 06: Annotation-informed models](06_annotation_models/report.qmd)
 
-**Status: In development.** The interface audit and two four-chain
-maximum-history fits completed. The prespecified convergence stop condition was
-triggered for both annotation-aware methods, so no five-replicate scientific
-benchmark was started.
+**Status: In development — qualification failed.** The four-entry gate produced
+two completed but nonconverged BED BayesRC histories and two CSR SBayesRC
+residual-scale failures. The final 40-fit benchmark was not launched, so no
+method-performance result is claimed.
 [Current stop capsule](../results/reference/06_annotation_models/current-stop/README.md).
 
 ### [Study 07: Multitrait validation](07_mt_validation/status.qmd)
 
-**Status: In development.** Planned/paused pending retained-low-rank MT
+**Status: In development — paused.** Retained-low-rank MT
 implementation and scientific design work. Preserved alignment, state-mapping,
 covariance, checkpoint, and runtime prototypes are not current scientific
 evidence. See the [development status](07_mt_validation/status.qmd).

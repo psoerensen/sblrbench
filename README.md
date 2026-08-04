@@ -89,5 +89,6 @@ quarto render
 ```
 
 The published site is <https://psoerensen.github.io/sblrbench/>. See the
-[benchmark catalogue](studies/index.qmd), [framework](framework.qmd),
-[metrics](metrics.qmd), and [reproducibility guide](reproducibility.qmd).
+[benchmark catalogue](studies/index.qmd), [practical workflows](workflows.qmd),
+[framework](framework.qmd), [metrics](metrics.qmd), and
+[reproducibility guide](reproducibility.qmd).

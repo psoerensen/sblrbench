@@ -157,4 +157,4 @@ the study workflow, construct annotations, load checkpoints, or call a sampler.
 - [Manifest](../../results/reference/06_annotation_models/current-stop/benchmark_manifest.json)
 - [Convergence diagnostics](../../results/reference/06_annotation_models/current-stop/convergence_diagnostics.csv)
 - [Checksums](../../results/reference/06_annotation_models/current-stop/checksums.csv)
-- [`sblr` annotation interface documentation](https://au-phd.github.io/sblr/reference/stblr_csr_annot.html)
+- [`sblr` annotation interface documentation](https://psoerensen.github.io/sblr/reference/stblr_csr_annot.html)

@@ -1,0 +1,113 @@
+---
+title: "Practical workflows"
+description: "Exact validated analyses and shorter reusable sblrbench templates."
+---
+
+`sblrbench` offers two complementary forms of runnable analysis:
+
+- **Exact analyses** expose each study's complete validated design and call the
+  shared runner without duplicating simulation, fitting, checkpoint, or
+  extraction internals.
+- **Reusable templates** are shorter starting points for replacing data,
+  scenarios, methods, or outputs while keeping the same framework contracts.
+
+| Workflow | Exact analysis | Reusable template | Status |
+|---|---|---|---|
+| Fine-mapping | [Study 01 analysis](studies/01_finemapping/analysis.R) | [Fine-mapping template](inst/templates/finemapping-analysis.R) | Validated |
+| Prediction | [Study 02 analysis](studies/02_prediction/analysis.R) | [Prediction template](inst/templates/prediction-analysis.R) | Validated |
+| Parameter estimation | [Study 03 analysis](studies/03_parameter_estimation/analysis.R) | [Parameter-estimation template](inst/templates/parameter-estimation-analysis.R) | Validated |
+| Convergence assessment | [Study 04 analysis](studies/04_convergence/analysis.R) | [Convergence template](inst/templates/convergence-analysis.R) | Validated |
+| LD-operator analysis | [Study 05 analysis](studies/05_ld_operator/analysis.R) | [Operator template](inst/templates/operator-analysis.R) | Validated |
+| Annotation-informed models | [Study 06 analysis](studies/06_annotation_models/analysis.R) | [Annotation template](inst/templates/annotation-analysis.R) | **In development — qualification failed** |
+
+## Choosing a profile and mode
+
+- `profile = "workshop"` uses reduced settings for learning, integration
+  checks, and workflow development. It is **not evidence for method-performance
+  claims**.
+- `profile = "benchmark"` resolves the registered scientific coordinates and
+  controls used by the corresponding validation design.
+- `validate_only = TRUE` validates provenance, coordinates, methods, controls,
+  and output contracts without fitting.
+- `resume = TRUE` reuses only compatible checkpoints under the shared identity
+  rules.
+
+```r
+library(sblrbench)
+
+spec <- read_benchmark_spec("studies/02_prediction/spec.R")
+
+result <- run_benchmark(
+  spec,
+  output_dir = "results/local/example",
+  profile = "workshop",
+  resume = TRUE
+)
+```
+
+Use `validate_only = TRUE` first when inspecting a new or modified design.
+Workshop output is local working material, not a reference capsule.
+
+## Fine-mapping
+
+**Use it for:** posterior marker prioritization, causal ranks, and cumulative
+PIP credible sets within explicit loci.
+
+- [Exact analysis](studies/01_finemapping/analysis.R) · [specification](studies/01_finemapping/spec.R) · [validated report](studies/01_finemapping/report.qmd)
+- Key outputs: [marker metrics](results/reference/01_finemapping/current/marker_metrics.csv) and [credible-set metrics](results/reference/01_finemapping/current/credible_set_metrics.csv)
+- `sblr` references: [`make_credible_sets()`](https://github.com/psoerensen/sblr/blob/02e8c74baa906e83c4a08d42a9cc6339b4e81072/man/make_credible_sets.Rd) and [`plot_posterior()`](https://github.com/psoerensen/sblr/blob/02e8c74baa906e83c4a08d42a9cc6339b4e81072/man/plot_posterior.Rd)
+- **Validation status:** completed Study 01; conclusions apply to its separated-locus design.
+
+## Prediction
+
+**Use it for:** leakage-controlled train/test prediction, genetic-value
+recovery, calibration, and matched BED/CSR comparisons.
+
+- [Exact analysis](studies/02_prediction/analysis.R) · [specification](studies/02_prediction/spec.R) · [validated report](studies/02_prediction/report.qmd)
+- Key outputs: [prediction metrics](results/reference/02_prediction/current/prediction_metrics.csv) and [paired comparisons](results/reference/02_prediction/current/paired_comparison_summary.csv)
+- `sblr` references: [`stblr_bed()`](https://github.com/psoerensen/sblr/blob/02e8c74baa906e83c4a08d42a9cc6339b4e81072/man/stblr_bed.Rd) and [`stblr_csr()`](https://github.com/psoerensen/sblr/blob/02e8c74baa906e83c4a08d42a9cc6339b4e81072/man/stblr_csr.Rd)
+- **Validation status:** completed Study 02; workshop settings do not reproduce its performance evidence.
+
+## Parameter estimation
+
+**Use it for:** posterior recovery of variance components, heritability,
+active probability, and registered derived quantities.
+
+- [Exact analysis](studies/03_parameter_estimation/analysis.R) · [specification](studies/03_parameter_estimation/spec.R) · [validated report](studies/03_parameter_estimation/report.qmd)
+- Key outputs: [estimand registry](results/reference/03_parameter_estimation/current/estimand_registry.csv), [parameter estimates](results/reference/03_parameter_estimation/current/parameter_estimates.csv), and [recovery summary](results/reference/03_parameter_estimation/current/parameter_recovery_summary.csv)
+- `sblr` reference: [`summarise_posterior()`](https://github.com/psoerensen/sblr/blob/02e8c74baa906e83c4a08d42a9cc6339b4e81072/man/summarise_posterior.Rd)
+- **Validation status:** completed Study 03; five replicates support descriptive rather than precise coverage claims.
+
+## Convergence assessment
+
+**Use it for:** true-chain R-hat, ESS, MCSE, burn-in stability, and fixed-setting
+validation. Posterior means and final states are not trace substitutes.
+
+- [Exact analysis](studies/04_convergence/analysis.R) · [specification](studies/04_convergence/spec.R) · [validated report](studies/04_convergence/report.qmd)
+- Key outputs: [diagnostics](results/reference/04_convergence/current-selection/convergence_diagnostics.csv), [burn-in stability](results/reference/04_convergence/current-selection/burnin_stability.csv), and [recommendations](results/reference/04_convergence/current-selection/method_recommendations.csv)
+- `sblr` reference: [single-trait documentation](https://psoerensen.github.io/sblr/)
+- **Validation status:** completed Study 04 for its registered scalar quantities and tested settings.
+
+## LD-operator analysis
+
+**Use it for:** deterministic operator identities, spectral retention,
+low-rank/block approximations, recovery, convergence, runtime, and storage.
+
+- [Exact analysis](studies/05_ld_operator/analysis.R) · [specification](studies/05_ld_operator/spec.R) · [operator design](studies/05_ld_operator/operator-design.R) · [validated report](studies/05_ld_operator/report.qmd)
+- Key outputs: [deterministic identities](results/reference/05_ld_operator/current/deterministic_identity_summary.csv), [prediction metrics](results/reference/05_ld_operator/current/prediction_metrics.csv), and [SBayesR operator summary](results/reference/05_ld_operator/current/sbayesr_operator_summary.csv)
+- `sblr` reference: [`stblr_csr()`](https://github.com/psoerensen/sblr/blob/02e8c74baa906e83c4a08d42a9cc6339b4e81072/man/stblr_csr.Rd)
+- **Validation status:** completed integrated Study 05; it establishes no universal sparsity, block, or retained-rank policy.
+
+## Annotation-informed models
+
+**Use it for:** developing matched BayesR/BayesRC and SBayesR/SBayesRC
+annotation validation with informative and uninformative controls.
+
+- [Exact gated analysis](studies/06_annotation_models/analysis.R) · [specification](studies/06_annotation_models/spec.R) · [annotation design](studies/06_annotation_models/annotation-design.R) · [status report](studies/06_annotation_models/report.qmd)
+- Current evidence: [prespecified stop capsule](results/reference/06_annotation_models/current-stop/README.md) and [qualification diagnostics](results/reference/06_annotation_models/current-stop/convergence_diagnostics.csv)
+- `sblr` reference: [`stblr_csr_annot()`](https://psoerensen.github.io/sblr/reference/stblr_csr_annot.html)
+- **Validation status:** **In development — qualification failed.** The final 40-fit grid was not launched, and no method-performance claim is supported.
+
+See the [Framework](framework.qmd) for execution and output responsibilities,
+and [Reproducibility](reproducibility.qmd) for the distinction between local
+results and reviewed reference capsules.

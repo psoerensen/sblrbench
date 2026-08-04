@@ -1,6 +1,6 @@
 # Study 06 — Annotation-informed models
 
-**Status: In development**
+**Status: In development — qualification failed**
 
 Study 06 now has a final software specification and shared-framework
 implementation for deterministic annotations, matched BayesR/BayesRC and

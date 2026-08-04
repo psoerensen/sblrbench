@@ -1,44 +1,119 @@
 ---
-title: "Benchmark framework"
+title: "Framework"
+description: "How specifications, shared execution, checkpoints, outputs, and reports fit together."
 ---
 
-## Responsibilities
+## Repository responsibilities
 
 | Layer | Responsibility |
 |---|---|
-| `sblr` | Statistical models, samplers and public inference APIs |
-| `sblrbench` | Simulations, strict alignment, oracle checks, adapters, truth-aware metrics, provenance and reference benchmarks |
-| Study repositories | Publication-specific extensions, figures, tables and manuscripts |
+| `sblr` | Statistical models, samplers, and inference APIs |
+| `sblrbench` | Simulation, validation, extraction, metrics, provenance, and reusable workflows |
+| Study or publication repositories | Study-specific extensions, figures, tables, and manuscripts |
 
-## Study flow
+`sblrbench` validates and demonstrates implemented methodology; it does not
+redefine the statistical models owned by `sblr`.
+
+## Workflow architecture
 
 ```text
-data preparation
-→ simulation
-→ oracle validation
-→ method fitting
-→ standardized extraction
-→ metrics
-→ credible-set evaluation
-→ reproducible report
+spec.R
+  ↓
+analysis.R
+  ↓
+run_benchmark()
+  ↓
+semantic checkpoints
+  ↓
+tables and figures
+  ↓
+reviewed reference capsule
+  ↓
+capsule-only report
 ```
 
-Prediction studies replace credible-set evaluation with held-out prediction and paired model/representation contrasts. Their allele frequencies, genotype scaling, sparse LD, and summary statistics are learned from training individuals only. Test phenotypes are used only by evaluation metrics.
+The runner owns reusable data preparation, simulation, method dispatch,
+checkpointing, extraction, metrics, provenance, and output writing. Exact
+analyses make those high-level steps visible without copying their internals.
 
-The ordinary `run_benchmark()` framework executes completed Studies 01–05 and
-uses semantic checkpoints for resumable local work. `targets` remains only for
-the in-development Study 06 and Study 07 graphs. Published reports never trigger
-either execution path: they consume reviewed frozen compact outputs.
+## File responsibilities
 
-## Adding a benchmark
+- **`spec.R`** is an ordinary R list containing the study's scientific design,
+  profiles, coordinates, methods, controls, seeds, validation rules, and
+  provenance pins.
+- **`analysis.R`** is the readable exact workflow: it displays the design,
+  calls `run_benchmark()`, checks status, and presents named result tables and
+  plots.
+- **Shared files under `R/`** implement reusable mechanics and task-specific
+  metric families.
+- **Semantic checkpoints** identify fits from scientific and computational
+  inputs—not source paths, timestamps, or working directories.
+- **Local tables and figures** are working outputs for inspection and review.
+- **Reference capsules** are reviewed compact outputs with manifests,
+  provenance, and checksums.
+- **Capsule-only reports** read tracked reference outputs and never trigger
+  simulation, fitting, checkpoint loading, or promotion.
 
-1. Define scientific choices in an ordinary-list `spec.R`.
-2. Reuse shared data, simulation, execution, extraction, metric, checkpoint,
-   provenance, and reporting functions where their contracts apply.
-3. Validate and review compact outputs before promotion into the canonical
-   `results/reference/` directory.
-4. Add a capsule-only report and catalogue entry, then render and audit the site.
+## Profiles and execution controls
 
-Every completed study separates deterministic tests, explicit execution, and a
-reviewed compact reference capsule. Earlier states are preserved by Git history.
-Studies 06 and 07 remain development-only.
+| Setting | Purpose |
+|---|---|
+| `profile = "workshop"` | Learning, integration checks, and reduced workflow development; not performance evidence |
+| `profile = "benchmark"` | Registered scientific coordinates and controls for the study design |
+| `validate_only = TRUE` | Resolve and validate the design and output contract without fitting |
+| `resume = TRUE` | Reuse only identity-compatible checkpoints and continue missing work |
+
+Published evidence comes from reviewed benchmark outputs, not from workshop or
+validation-only runs.
+
+## Local output structure
+
+The shared output contract uses predictable paths; task-specific tables are
+written only when meaningful:
+
+```text
+results/local/<run>/
+├── checkpoints/
+├── tables/
+├── figures/
+├── manifest.json
+└── session_info.txt
+```
+
+These local results are ignored working material. Promotion to
+`results/reference/` is a separate reviewed action.
+
+## Extending a workflow
+
+Specifications remain ordinary lists, so a prespecified extension can be
+expressed directly and validated before fitting:
+
+```r
+spec <- read_benchmark_spec("studies/02_prediction/spec.R")
+
+spec$profiles$workshop$replicates <- 1L
+spec$scenarios[[1]]$label <- "My prespecified sparse scenario"
+
+run_benchmark(
+  spec,
+  output_dir = "results/local/design-check",
+  profile = "workshop",
+  validate_only = TRUE
+)
+```
+
+Only fields supported by the selected task should be changed, and benchmark
+claims require a reviewed design rather than ad hoc workshop settings. Start
+from the [workflow templates](workflows.qmd) and consult the exact study
+analysis for the complete validated contract.
+
+## Adding a validation study
+
+1. Register scientific choices in `spec.R` and deterministic tests.
+2. Reuse shared mechanics where their contracts apply; retain genuinely
+   study-specific scientific logic locally.
+3. Run explicit validation and review compact outputs before capsule promotion.
+4. Add a capsule-only report and catalogue entry.
+
+Studies 01–05 have completed this lifecycle. Study 06 failed qualification and
+Study 07 remains paused; both are **In development**.
