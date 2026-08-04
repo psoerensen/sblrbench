@@ -696,13 +696,6 @@ validate_annotation_qualification_decision <- function(decision, spec) {
         all(schema$entry_fields %in% names(x)), logical(1))))
     stop("Study 06 qualification decision must contain four complete entries.",
       call. = FALSE)
-  if (any(!vapply(decision$entries, function(entry)
-      is.list(entry$quantity_decisions) && length(entry$quantity_decisions) &&
-        all(vapply(entry$quantity_decisions, function(quantity)
-          all(schema$quantity_fields %in% names(quantity)), logical(1))),
-      logical(1))))
-    stop("Study 06 qualification decision lacks per-quantity diagnostics.",
-      call. = FALSE)
   expected <- spec$qualification$entries
   observed <- do.call(rbind, lapply(decision$entries, function(x)
     data.frame(scenario = x$scenario, replicate = as.integer(x$replicate),
@@ -715,6 +708,13 @@ validate_annotation_qualification_decision <- function(decision, spec) {
       any(!vapply(decision$entries, function(x)
         isTRUE(x$all_quantities_pass), logical(1))))
     stop("Study 06 qualification did not pass every required entry.",
+      call. = FALSE)
+  if (any(!vapply(decision$entries, function(entry)
+      is.list(entry$quantity_decisions) && length(entry$quantity_decisions) &&
+        all(vapply(entry$quantity_decisions, function(quantity)
+          all(schema$quantity_fields %in% names(quantity)), logical(1))),
+      logical(1))))
+    stop("Study 06 qualification decision lacks per-quantity diagnostics.",
       call. = FALSE)
   invisible(decision)
 }
@@ -890,7 +890,8 @@ validate_annotation_qualification_decision <- function(decision, spec) {
     value = as.vector(h2), stringsAsFactors = FALSE))
   prior <- summarise_drawwise_annotation_prior(alpha, bundle$annotations,
     bundle$spec$controls$simulation$mixture_var,
-    bundle$simulation$extras$true_marker_prior, bundle$marker_truth)
+    bundle$simulation$extras$true_marker_prior, bundle$marker_truth,
+    retain_marker_summary = FALSE)
   if (!identical(prior$status, "ok"))
     stop(prior$reason, call. = FALSE)
   derived <- reshape(prior$draws, varying = c("expected_active",

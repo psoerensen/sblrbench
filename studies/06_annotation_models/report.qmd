@@ -1,6 +1,6 @@
 ---
 title: "Study 06: Annotation-informed models"
-description: "Implemented validation design; qualification pending."
+description: "Implemented validation design; qualification failed."
 ---
 
 ```{r}
@@ -20,7 +20,7 @@ computation <- rcsv("computational_summary.csv")
 ```
 
 ::: {.callout-important}
-**Status: In development — qualification pending.** The existing capsule is a
+**Status: In development — qualification failed.** The existing capsule is a
 **Prespecified convergence stop — partial evidence only**. It contains no final
 BayesR/BayesRC or SBayesR/SBayesRC performance comparison.
 :::
@@ -105,18 +105,34 @@ This is trustworthy evidence for the recorded stop decision, but it does not
 cover the new four-entry qualification gate and is not evidence about method
 performance.
 
+## Qualification result
+
+The implemented four-entry qualification was run on 2026-08-04 and failed.
+Both BED BayesRC histories completed but no supported candidate window passed
+all required diagnostics. Both CSR SBayesRC entries stopped in the pinned
+native backend with an invalid projected residual scale. The 40-fit final grid
+was therefore not launched. Full per-entry, per-window, and per-quantity
+evidence is recorded in the
+[qualification result](../../docs/dev/study06_annotation_qualification_result.md).
+
+These failures are sampler qualification evidence, not method-performance
+results. The ignored semantic checkpoints and diagnostic tables remain local;
+this report continues to read only the tracked `current-stop` capsule.
+
 ## Why the final benchmark is not complete
 
-No qualifying decision artifact exists for the implemented specification. The
-final runner therefore rejects performance execution. Qualification histories
-can be reused only when their semantic identity, retained traces, method,
-scenario, burn-in, and retained window match exactly.
+A qualifying decision artifact does not exist for the implemented
+specification. The recorded decision is failed, and the final runner rejects
+performance execution. Completed histories can be reused only when their
+semantic identity, retained traces, method, scenario, burn-in, and retained
+window match exactly.
 
 ## Required next runs
 
-The next scientific action is the four-entry qualification run—not the 40-fit
-benchmark. Only after all four entries pass may a separate explicit final
-command launch the prespecified final grid.
+The next action is a focused `sblr` investigation of BayesRC mixing and the CSR
+projected-residual failure, followed by the unchanged four-entry qualification.
+Only after all four entries pass may a separate explicit final command launch
+the prespecified final grid.
 
 ## Validation boundaries
 
@@ -136,6 +152,7 @@ the study workflow, construct annotations, load checkpoints, or call a sampler.
 - [Reusable annotation template](../../inst/templates/annotation-analysis.R)
 - [Audit](../../docs/dev/study06_annotation_audit.md)
 - [Completion plan](../../docs/dev/study06_annotation_completion_plan.md)
+- [Qualification result](../../docs/dev/study06_annotation_qualification_result.md)
 - [Partial-evidence capsule](../../results/reference/06_annotation_models/current-stop/README.md)
 - [Manifest](../../results/reference/06_annotation_models/current-stop/benchmark_manifest.json)
 - [Convergence diagnostics](../../results/reference/06_annotation_models/current-stop/convergence_diagnostics.csv)

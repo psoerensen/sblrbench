@@ -10,7 +10,7 @@ Studies 01--05 now use the common runner and clean source contracts. The
 migration refresh drivers, and per-development-study launch wrappers were
 removed after caller and test audits. Root targets dispatch is retained only
 for the Study 07 development graph. Study 06 uses the shared runner with
-qualification pending. Study 07's authoritative internal identifier is
+qualification failed and final fitting remains blocked. Study 07's authoritative internal identifier is
 `07_mt_validation`.
 
 The responsibility-level inventory is

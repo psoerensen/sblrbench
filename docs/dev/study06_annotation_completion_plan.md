@@ -1,8 +1,9 @@
 # Study 06 annotation-informed models completion plan
 
-> **Implementation update:** The shared-framework software described here has
-> been implemented. Scientific qualification and final fitting remain unrun.
-> See `study06_annotation_implementation.md`.
+> **Execution update:** The shared-framework software described here has been
+> implemented. The prespecified qualification ran on 2026-08-04 and failed;
+> final fitting was not launched. See
+> `study06_annotation_qualification_result.md`.
 
 ## Recommended final design
 

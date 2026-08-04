@@ -87,7 +87,7 @@ test_that("Study 06 controls and semantic identities preserve annotation inputs"
 
 annotation_trace_fixture <- function(A) {
   annotations <- colnames(A)
-  sticks <- paste0("step_", 1:3)
+  sticks <- paste0("component_", 0:2, "_stick")
   alpha_q <- expand.grid(annotation_name = annotations, stick_name = sticks,
     stringsAsFactors = FALSE)
   q <- rbind(data.frame(parameter_name = "alpha", alpha_q),
@@ -117,6 +117,24 @@ test_that("BED and CSR use true comparable draw-wise annotation priors", {
     expect_identical(prior$status, "ok")
     expect_equal(nrow(prior$marker), 20L)
     expect_equal(nrow(prior$draws), 12L)
+    first <- traces[traces$parameter == "alpha" & traces$chain == 1L &
+      traces$iteration == 1L, , drop = FALSE]
+    coefficient <- matrix(first$value,
+      nrow = length(unique(first$annotation)), byrow = FALSE,
+      dimnames = list(unique(first$annotation), unique(first$stick)))
+    coefficient <- coefficient[colnames(A), paste0("component_", 0:2,
+      "_stick"), drop = FALSE]
+    reference <- sblr::sbayesrc_marker_pi(A, coefficient,
+      study06_spec$controls$simulation$mixture_var)
+    observed <- as.matrix(prior$marker[paste0(
+      "posterior_mean_prior_component_", 0:3)])
+    expect_equal(observed, reference, tolerance = 1e-12,
+      ignore_attr = TRUE)
+    gate_prior <- summarise_drawwise_annotation_prior(traces, A,
+      study06_spec$controls$simulation$mixture_var,
+      retain_marker_summary = FALSE)
+    expect_null(gate_prior$marker)
+    expect_equal(gate_prior$draws, prior$draws)
   }
   missing <- fixture
   missing$convergence_traces <- NULL
@@ -199,8 +217,10 @@ test_that("Study 06 workflow and report retain safe boundaries", {
   expect_true(any(grepl('SBLR_BENCH_MODE", "validate_only', template,
     fixed = TRUE)))
   expect_true(any(grepl("annotation_prior_plot <-", analysis, fixed = TRUE)))
-  expect_true(any(grepl("qualification pending", report,
+  expect_true(any(grepl("qualification failed", report,
     ignore.case = TRUE)))
+  expect_true(any(grepl("Status: In development", report,
+    fixed = TRUE)))
   forbidden <- c("^\\s*run_benchmark\\(", "^\\s*stblr_bed\\(",
     "^\\s*stblr_csr")
   expect_false(any(vapply(forbidden, function(x) any(grepl(x, report)),

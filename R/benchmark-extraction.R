@@ -296,12 +296,16 @@ extract_annotation_fit_components <- function(fit) {
 #' @param mixture_var Ordered mixture variances.
 #' @param true_marker_prior Optional true marker component probabilities.
 #' @param marker_truth Optional data frame containing `true_nonnull`.
+#' @param retain_marker_summary Whether to retain posterior marker-component
+#'   means. Qualification gates may set this to `FALSE` because their
+#'   registered draw-wise non-null summaries depend only on the first stick.
 #' @return A list with status, marker summaries, draw summaries, and reason.
 #' @export
 summarise_drawwise_annotation_prior <- function(traces, annotations,
                                                 mixture_var,
                                                 true_marker_prior = NULL,
-                                                marker_truth = NULL) {
+                                                marker_truth = NULL,
+                                                retain_marker_summary = TRUE) {
   if (!is.data.frame(traces) || !nrow(traces) ||
       any(traces$status != "ok"))
     return(list(status = "unavailable", marker = NULL, draws = NULL,
@@ -310,62 +314,91 @@ summarise_drawwise_annotation_prior <- function(traces, annotations,
           "True annotation coefficient traces are unavailable."))
   alpha <- traces[traces$parameter == "alpha", , drop = FALSE]
   annotations_required <- colnames(annotations)
-  sticks_required <- paste0("step_", seq_len(length(mixture_var) - 1L))
+  sticks_required <- paste0("component_",
+    seq_len(length(mixture_var) - 1L) - 1L, "_stick")
   if (!setequal(unique(alpha$annotation), annotations_required) ||
       !setequal(unique(alpha$stick), sticks_required))
     return(list(status = "unavailable", marker = NULL, draws = NULL,
       reason = "Alpha traces do not span every annotation and probit stick."))
   keys <- unique(alpha[c("chain", "iteration")])
   keys <- keys[order(keys$chain, keys$iteration), , drop = FALSE]
-  marker_sum <- matrix(0, nrow(annotations), length(mixture_var),
-    dimnames = list(rownames(annotations),
-      paste0("component_", seq_len(length(mixture_var)) - 1L)))
+  key_id <- paste(keys$chain, keys$iteration, sep = "\r")
+  alpha$key_index <- match(paste(alpha$chain, alpha$iteration, sep = "\r"),
+    key_id)
+  if (anyNA(alpha$key_index) ||
+      nrow(alpha) != nrow(keys) * length(annotations_required) *
+        length(sticks_required))
+    return(list(status = "unavailable", marker = NULL, draws = NULL,
+      reason = "At least one retained draw has an incomplete alpha matrix."))
+  marker_sum <- if (isTRUE(retain_marker_summary))
+    matrix(0, nrow(annotations), length(mixture_var),
+      dimnames = list(rownames(annotations),
+        paste0("component_", seq_len(length(mixture_var)) - 1L))) else NULL
   enriched <- annotations[, "enriched_binary"] == 1
   causal <- if (is.null(marker_truth)) rep(NA, nrow(annotations)) else
     as.logical(marker_truth$true_nonnull[match(rownames(annotations),
       marker_truth$marker_id)])
-  draw_rows <- vector("list", nrow(keys))
-  for (i in seq_len(nrow(keys))) {
-    z <- alpha[alpha$chain == keys$chain[i] &
-      alpha$iteration == keys$iteration[i], , drop = FALSE]
-    coefficient <- matrix(NA_real_, length(annotations_required),
-      length(sticks_required), dimnames = list(annotations_required,
-        sticks_required))
-    coefficient[cbind(match(z$annotation, annotations_required),
-      match(z$stick, sticks_required))] <- z$value
-    if (anyNA(coefficient))
-      return(list(status = "unavailable", marker = NULL, draws = NULL,
-        reason = "At least one retained draw has an incomplete alpha matrix."))
-    probability <- sblr::sbayesrc_marker_pi(annotations, coefficient,
-      gamma = mixture_var)
-    if (any(!is.finite(probability)) ||
-        any(abs(rowSums(probability) - 1) > 1e-8))
-      stop("Draw-wise annotation prior transformation failed.",
-        call. = FALSE)
-    marker_sum <- marker_sum + probability
-    nonnull <- 1 - probability[, 1L]
-    draw_rows[[i]] <- data.frame(chain = keys$chain[i],
-      iteration = keys$iteration[i], expected_active = sum(nonnull),
-      mean_prior_enriched = mean(nonnull[enriched]),
-      mean_prior_unannotated = mean(nonnull[!enriched]),
-      enriched_prior_contrast = mean(nonnull[enriched]) -
-        mean(nonnull[!enriched]),
+  draw_rows <- vector("list", ceiling(nrow(keys) / 64L))
+  chunks <- split(seq_len(nrow(keys)),
+    ceiling(seq_len(nrow(keys)) / 64L))
+  for (i in seq_along(chunks)) {
+    draw_index <- chunks[[i]]
+    remaining <- matrix(1, nrow(annotations), length(draw_index))
+    nonnull <- NULL
+    sticks_to_transform <- if (isTRUE(retain_marker_summary))
+      seq_along(sticks_required) else 1L
+    for (j in sticks_to_transform) {
+      z <- alpha[alpha$stick == sticks_required[j] &
+        alpha$key_index %in% draw_index, , drop = FALSE]
+      coefficient <- matrix(NA_real_, length(annotations_required),
+        length(draw_index))
+      coefficient[cbind(match(z$annotation, annotations_required),
+        match(z$key_index, draw_index))] <- z$value
+      if (anyNA(coefficient))
+        return(list(status = "unavailable", marker = NULL, draws = NULL,
+          reason = "At least one retained draw has an incomplete alpha matrix."))
+      stick_probability <- stats::pnorm(annotations %*% coefficient)
+      if (any(!is.finite(stick_probability)))
+        stop("Draw-wise annotation prior transformation failed.",
+          call. = FALSE)
+      component_probability <- remaining * (1 - stick_probability)
+      if (isTRUE(retain_marker_summary))
+        marker_sum[, j] <- marker_sum[, j] +
+          rowSums(component_probability)
+      remaining <- remaining * stick_probability
+      if (j == 1L) nonnull <- stick_probability
+    }
+    if (isTRUE(retain_marker_summary))
+      marker_sum[, length(mixture_var)] <-
+        marker_sum[, length(mixture_var)] + rowSums(remaining)
+    draw_rows[[i]] <- data.frame(chain = keys$chain[draw_index],
+      iteration = keys$iteration[draw_index],
+      expected_active = colSums(nonnull),
+      mean_prior_enriched = colMeans(nonnull[enriched, , drop = FALSE]),
+      mean_prior_unannotated = colMeans(nonnull[!enriched, , drop = FALSE]),
+      enriched_prior_contrast =
+        colMeans(nonnull[enriched, , drop = FALSE]) -
+          colMeans(nonnull[!enriched, , drop = FALSE]),
       mean_prior_causal = if (all(is.na(causal))) NA_real_ else
-        mean(nonnull[causal]),
+        colMeans(nonnull[causal, , drop = FALSE]),
       mean_prior_noncausal = if (all(is.na(causal))) NA_real_ else
-        mean(nonnull[!causal]), stringsAsFactors = FALSE)
+        colMeans(nonnull[!causal, , drop = FALSE]),
+      stringsAsFactors = FALSE)
   }
-  posterior_mean <- marker_sum / nrow(keys)
-  marker <- data.frame(marker_id = rownames(annotations),
-    posterior_mean_nonnull_prior = 1 - posterior_mean[, 1L],
-    stringsAsFactors = FALSE)
-  for (j in seq_len(ncol(posterior_mean)))
-    marker[[paste0("posterior_mean_prior_component_", j - 1L)]] <-
-      posterior_mean[, j]
-  if (!is.null(true_marker_prior)) {
-    true_marker_prior <- true_marker_prior[match(marker$marker_id,
-      rownames(true_marker_prior)), , drop = FALSE]
-    marker$true_nonnull_prior <- 1 - true_marker_prior[, 1L]
+  marker <- NULL
+  if (isTRUE(retain_marker_summary)) {
+    posterior_mean <- marker_sum / nrow(keys)
+    marker <- data.frame(marker_id = rownames(annotations),
+      posterior_mean_nonnull_prior = 1 - posterior_mean[, 1L],
+      stringsAsFactors = FALSE)
+    for (j in seq_len(ncol(posterior_mean)))
+      marker[[paste0("posterior_mean_prior_component_", j - 1L)]] <-
+        posterior_mean[, j]
+    if (!is.null(true_marker_prior)) {
+      true_marker_prior <- true_marker_prior[match(marker$marker_id,
+        rownames(true_marker_prior)), , drop = FALSE]
+      marker$true_nonnull_prior <- 1 - true_marker_prior[, 1L]
+    }
   }
   list(status = "ok", marker = marker,
     draws = do.call(rbind, draw_rows), reason = "")

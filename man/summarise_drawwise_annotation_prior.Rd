@@ -9,7 +9,8 @@ summarise_drawwise_annotation_prior(
   annotations,
   mixture_var,
   true_marker_prior = NULL,
-  marker_truth = NULL
+  marker_truth = NULL,
+  retain_marker_summary = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,10 @@ summarise_drawwise_annotation_prior(
 \item{true_marker_prior}{Optional true marker component probabilities.}
 
 \item{marker_truth}{Optional data frame containing \code{true_nonnull}.}
+
+\item{retain_marker_summary}{Whether to retain posterior marker-component
+means. Qualification gates may set this to \code{FALSE} because their
+registered draw-wise non-null summaries depend only on the first stick.}
 }
 \value{
 A list with status, marker summaries, draw summaries, and reason.
