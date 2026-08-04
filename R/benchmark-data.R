@@ -23,7 +23,8 @@ benchmark_example_files <- function(data_dir, data_spec) {
   paths
 }
 
-benchmark_load_glist <- function(paths, example_files = NULL) {
+benchmark_load_glist <- function(paths, example_files = NULL,
+                                 study = "sblrbench Study 02 prediction") {
   if (!requireNamespace("qgg", quietly = TRUE))
     stop("Data preparation requires the suggested package `qgg`.",
       call. = FALSE)
@@ -35,13 +36,32 @@ benchmark_load_glist <- function(paths, example_files = NULL) {
   }
   cache <- file.path(paths$data_dir, "human_glist.rds")
   if (file.exists(cache)) return(readRDS(cache))
-  glist <- qgg::gprep(study = "sblrbench Study 02 prediction",
+  glist <- qgg::gprep(study = study,
     bedfiles = unname(example_files["human.bed"]),
     bimfiles = unname(example_files["human.bim"]),
     famfiles = unname(example_files["human.fam"]))
   benchmark_atomic_save_rds(glist, cache, compress = FALSE,
     temporary_prefix = ".glist-")
   glist
+}
+
+prepare_finemapping_data <- function(spec, output_dir) {
+  validate_benchmark_spec(spec)
+  paths <- benchmark_data_paths(output_dir)
+  files <- if (nzchar(paths$glist_path)) NULL else
+    benchmark_example_files(paths$data_dir, spec$data)
+  glist <- benchmark_load_glist(paths, files, study = "Example")
+  markers <- benchmark_filter_markers(glist, spec$data$chromosome,
+    spec$markers$qc, spec$data$sparse_ld)
+  sample_ids <- benchmark_selected_ids(glist, spec$data$sample_limit)
+  working <- benchmark_set_glist_marker_order(glist, spec$data$chromosome,
+    markers$marker_ids)
+  scaled <- benchmark_extract_scaled_genotypes(working,
+    spec$data$chromosome, sample_ids, markers$marker_ids)
+  ld_glist <- benchmark_make_full_sample_ld(working, markers, spec$data,
+    paths$ld_dir)
+  list(paths=paths,files=files,glist=glist,markers=markers,
+    sample_ids=sample_ids,scaled=scaled,working_glist=working,ld_glist=ld_glist)
 }
 
 benchmark_selected_ids <- function(glist, sample_limit = NULL) {

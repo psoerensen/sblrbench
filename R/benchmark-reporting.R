@@ -231,7 +231,8 @@ benchmark_method_table <- function(spec, profile = "benchmark") {
       prior_class = method$prior_class, nburn = controls$nburn,
       nit = controls$nit, nthin = controls$nthin,
       nchains = controls$nchains, ncores = controls$ncores,
-      inclusion_prior = if (!is.null(controls$pi_init))
+      inclusion_prior = if (identical(spec$task,"finemapping"))
+        "backend default (recorded in fit metadata)" else if (!is.null(controls$pi_init))
         paste0("pi_init=", controls$pi_init) else
         paste0("pi=", .benchmark_collapse_values(controls$pi)),
       mixture_multipliers = .benchmark_collapse_values(controls$mixture_var),
@@ -451,6 +452,88 @@ plot_benchmark_runtime <- function(runtime) {
     ggplot2::facet_wrap(~scenario_display, scales = "free_y") +
     ggplot2::labs(x = NULL, y = "Elapsed seconds", title = "Runtime") +
     theme_sblrbench()
+}
+
+#' Plot causal-marker posterior inclusion probabilities
+#' @param marker_results Tidy fine-mapping marker results.
+#' @return A `ggplot2` object.
+#' @export
+plot_causal_marker_pip <- function(marker_results) {
+  .benchmark_require_columns(marker_results,c("method","causal",
+    "posterior_inclusion_probability"),"marker_results")
+  data <- marker_results[marker_results$causal,,drop=FALSE]
+  data$method_display <- sblrbench_method_factor(data$method)
+  ggplot2::ggplot(data,ggplot2::aes(method_display,
+      posterior_inclusion_probability,colour=method)) +
+    ggplot2::geom_boxplot(outlier.shape=NA,show.legend=FALSE) +
+    ggplot2::geom_point(position=ggplot2::position_jitter(width=.08),
+      alpha=.6,show.legend=FALSE) +
+    ggplot2::labs(x=NULL,y="Causal-marker PIP",title="Causal-marker recovery") +
+    theme_sblrbench()
+}
+
+#' Plot causal-marker ranks
+#' @inheritParams plot_causal_marker_pip
+#' @return A `ggplot2` object.
+#' @export
+plot_causal_marker_rank <- function(marker_results) {
+  .benchmark_require_columns(marker_results,c("method","causal","causal_rank"),
+    "marker_results")
+  data <- marker_results[marker_results$causal,,drop=FALSE]
+  data$method_display <- sblrbench_method_factor(data$method)
+  ggplot2::ggplot(data,ggplot2::aes(method_display,causal_rank,colour=method)) +
+    ggplot2::geom_boxplot(outlier.shape=NA,show.legend=FALSE) +
+    ggplot2::scale_y_log10() + ggplot2::labs(x=NULL,y="Causal-marker rank",
+      title="Causal-marker ranking (lower is better)") + theme_sblrbench()
+}
+
+#' Plot credible-set sizes
+#' @param credible_sets Tidy credible-set results.
+#' @return A `ggplot2` object.
+#' @export
+plot_credible_set_size <- function(credible_sets) {
+  .benchmark_require_columns(credible_sets,c("method","set_size"),
+    "credible_sets")
+  credible_sets$method_display <- sblrbench_method_factor(credible_sets$method)
+  ggplot2::ggplot(credible_sets,ggplot2::aes(method_display,set_size,
+      colour=method)) + ggplot2::geom_boxplot(show.legend=FALSE) +
+    ggplot2::labs(x=NULL,y="Markers",title="Credible-set size") +
+    theme_sblrbench()
+}
+
+#' Plot credible-set coverage
+#' @inheritParams plot_credible_set_size
+#' @return A `ggplot2` object.
+#' @export
+plot_credible_set_coverage <- function(credible_sets) {
+  .benchmark_require_columns(credible_sets,c("method","exact_covered",
+    "ld_proxy_covered"),"credible_sets")
+  long <- rbind(transform(credible_sets,coverage="Exact",covered=exact_covered),
+    transform(credible_sets,coverage="LD proxy",covered=ld_proxy_covered))
+  aggregate <- stats::aggregate(covered ~ method + coverage,long,mean)
+  aggregate$method_display <- sblrbench_method_factor(aggregate$method)
+  ggplot2::ggplot(aggregate,ggplot2::aes(method_display,covered,fill=coverage)) +
+    ggplot2::geom_col(position="dodge") +
+    ggplot2::labs(x=NULL,y="Coverage fraction",fill=NULL,
+      title="Credible-set coverage") + theme_sblrbench()
+}
+
+#' Plot posterior-inclusion-probability calibration
+#' @inheritParams plot_causal_marker_pip
+#' @return A `ggplot2` object.
+#' @export
+plot_pip_calibration <- function(marker_results) {
+  .benchmark_require_columns(marker_results,c("posterior_inclusion_probability",
+    "causal","method"),"marker_results")
+  marker_results$bin <- cut(marker_results$posterior_inclusion_probability,
+    breaks=seq(0,1,by=.1),include.lowest=TRUE)
+  data <- stats::aggregate(cbind(pip=posterior_inclusion_probability,
+    observed=as.numeric(causal)) ~ method + bin,marker_results,mean)
+  ggplot2::ggplot(data,ggplot2::aes(pip,observed,colour=method)) +
+    ggplot2::geom_abline(slope=1,intercept=0,linetype=2) +
+    ggplot2::geom_line() + ggplot2::geom_point() +
+    sblrbench_method_scales()[[1L]] + ggplot2::labs(x="Mean PIP",
+      y="Observed causal fraction",title="PIP calibration") + theme_sblrbench()
 }
 
 .benchmark_convergence_plot_data <- function(data, value) {

@@ -57,6 +57,8 @@ validate_benchmark_spec <- function(spec) {
   if (!is.list(spec)) stop("spec must be an ordinary R list.", call. = FALSE)
   if (identical(spec$task, "convergence"))
     return(.validate_convergence_spec(spec))
+  if (identical(spec$task, "finemapping"))
+    return(.validate_finemapping_spec(spec))
   required <- c("study", "task", "supported_profiles", "data",
     "markers", "replicate_count", "scenarios", "methods", "controls",
     "seeds", "metrics", "validation", "frozen_capsule", "packages")
@@ -196,6 +198,17 @@ benchmark_seeds <- function(spec, profile = "benchmark") {
   if (identical(spec$task, "convergence"))
     return(benchmark_convergence_seeds(spec, profile))
   coordinates <- benchmark_coordinates(spec, profile)
+  if (identical(spec$task, "finemapping")) {
+    method_index <- match(coordinates$method, names(spec$methods))
+    coordinates$causal_seed <- as.integer(spec$seeds$simulation_base +
+      coordinates$replicate)
+    coordinates$simulation_seed <- as.integer(spec$seeds$simulation_base +
+      spec$seeds$phenotype_offset + coordinates$replicate)
+    coordinates$fit_seed <- as.integer(spec$seeds$fit_offset +
+      coordinates$replicate * 100L + method_index)
+    coordinates$chain_seeds <- I(lapply(coordinates$fit_seed, as.integer))
+    return(coordinates)
+  }
   architecture_index <- match(coordinates$scenario, names(spec$scenarios))
   method_index <- match(coordinates$method, names(spec$methods))
   coordinates$architecture_seed <- as.integer(spec$seeds$simulation_base +
@@ -210,6 +223,58 @@ benchmark_seeds <- function(spec, profile = "benchmark") {
   coordinates$chain_seeds <- I(lapply(coordinates$fit_seed, function(seed)
     as.integer(seed + seq_len(nchains) * spec$seeds$chain_stride)))
   coordinates
+}
+
+.validate_finemapping_spec <- function(spec) {
+  required <- c("study", "task", "supported_profiles", "data", "markers",
+    "replicate_count", "scenarios", "causal_design", "locus_design",
+    "methods", "controls", "seeds", "estimands", "metrics", "validation",
+    "frozen_capsule", "packages")
+  missing <- setdiff(required, names(spec))
+  if (length(missing)) stop("Fine-mapping spec is missing required fields: ",
+    paste(missing, collapse = ", "), ".", call. = FALSE)
+  if (!identical(spec$study, "01_finemapping") ||
+      !identical(spec$task, "finemapping"))
+    stop("The fine-mapping task requires study `01_finemapping`.", call. = FALSE)
+  profiles <- spec$supported_profiles
+  if (!is.list(profiles) || !identical(sort(names(profiles)),
+      c("benchmark", "workshop")))
+    stop("Fine-mapping profiles must define workshop and benchmark.", call. = FALSE)
+  if (!identical(as.integer(profiles$benchmark$replicate_count),
+      as.integer(spec$replicate_count)))
+    stop("Fine-mapping benchmark replicate_count must equal spec$replicate_count.",
+      call. = FALSE)
+  expected <- c("st_bed_bayesc", "st_bed_bayesr", "st_csr_sbayesc",
+    "st_csr_sbayesr")
+  if (!identical(names(spec$methods), expected))
+    stop("Fine-mapping methods must preserve the historical four-method order.",
+      call. = FALSE)
+  causal <- spec$causal_design
+  if (!is.numeric(causal$min_distance_bp) || causal$min_distance_bp < 0 ||
+      !is.numeric(causal$min_maf) || !is.numeric(causal$max_maf))
+    stop("Fine-mapping causal-marker design is incomplete.", call. = FALSE)
+  locus <- spec$locus_design
+  needed <- c("credible_set_target", "min_r2", "pip_cutoff",
+    "locus_pip_cutoff", "max_locus_distance", "algorithm")
+  if (!all(needed %in% names(locus)) ||
+      !identical(locus$algorithm, "sblr::make_credible_sets") ||
+      locus$credible_set_target <= 0 || locus$credible_set_target > 1)
+    stop("Fine-mapping locus and credible-set design is invalid.", call. = FALSE)
+  for (profile in names(profiles)) {
+    controls <- spec$controls[[profile]]
+    if (!all(c("nit", "nburn", "nthin", "nchains", "ncores") %in%
+        names(controls)) || controls$nchains != 1L)
+      stop("Fine-mapping profile controls must preserve the one-chain policy.",
+        call. = FALSE)
+  }
+  if (!is.data.frame(spec$estimands) || !nrow(spec$estimands) ||
+      !all(c("estimand", "definition") %in% names(spec$estimands)))
+    stop("Fine-mapping estimands must be a non-empty data frame.", call. = FALSE)
+  sha <- .benchmark_scalar_string(spec$packages$sblr$sha,
+    "spec$packages$sblr$sha")
+  if (!grepl("^[0-9a-f]{40}$", sha))
+    stop("spec$packages$sblr$sha must be a 40-character Git SHA.", call. = FALSE)
+  invisible(spec)
 }
 
 benchmark_matched_spec <- function(spec) {

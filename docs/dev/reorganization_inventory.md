@@ -1,5 +1,8 @@
 # Reorganization inventory
 
+Study 01 fine-mapping is migrated to the shared framework. Its authoritative
+source is `spec.R`, `analysis.R`, `report.qmd`, and `locus-design.R`.
+
 The responsibility-level inventory is
 [reorganization_inventory.csv](reorganization_inventory.csv). It was built
 from function definitions, `source()` relationships, targets files, launch

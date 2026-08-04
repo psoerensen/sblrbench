@@ -54,7 +54,7 @@ collapse_num <- function(x) paste(format(as.numeric(x), digits = 17, scientific 
 
 started <- Sys.time()
 sampler_calls <- 0L
-setup_files <- c("studies/01_finemapping/setup_example_data.R",
+setup_files <- c(
   "studies/five_replicate_helpers.R", "studies/03_parameter_estimation/spec.R")
 for (f in setup_files[1:2]) sys.source(f, envir = environment())
 config <- read_benchmark_spec(setup_files[3])
@@ -117,10 +117,12 @@ paths <- list(glist_path=Sys.getenv("SBLR_BENCH_GLIST",""),
 expected_data <- file.path(paths$data_dir, names(config$data$example_data$md5))
 if (!all(file.exists(expected_data)) || !identical(unname(tools::md5sum(expected_data)), unname(config$data$example_data$md5)))
   stop("Pinned qgdata cache is incomplete or has changed.", call. = FALSE)
-base_glist <- .study01_load_glist(paths)
-marker_info <- .study01_run_qc(base_glist, legacy_config)
-sample_ids <- .study01_selected_ids(base_glist, config$data$sample_limit)
-working_glist <- .study01_set_rsids_ld(base_glist, config$data$chromosome, marker_info$marker_ids)
+base_glist <- sblrbench:::benchmark_load_glist(paths)
+marker_info <- sblrbench:::benchmark_filter_markers(base_glist,
+  legacy_config$chr,legacy_config$qc,legacy_config$sparse_ld)
+sample_ids <- sblrbench:::benchmark_selected_ids(base_glist, config$data$sample_limit)
+working_glist <- sblrbench:::benchmark_set_glist_marker_order(base_glist,
+  config$data$chromosome, marker_info$marker_ids)
 sparse_cache <- file.path(paths$output_dir, "ld_sparse_bed_glist.rds")
 if (!file.exists(sparse_cache)) stop("Existing Study 03 sparse-LD cache is missing; refusing LD construction.", call. = FALSE)
 Glist <- readRDS(sparse_cache)

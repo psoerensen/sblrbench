@@ -9,7 +9,7 @@ test_that("current refresh paths and package pin are explicit", {
   expect_match(runner, "02e8c74baa906e83c4a08d42a9cc6339b4e81072", fixed = TRUE)
   expect_match(runner, "current_benchmark_refresh", fixed = TRUE)
   expect_match(runner, "current-selection", fixed = TRUE)
-  expect_match(runner, "SBLR_BENCH_REPLICATES = \"10\"", fixed = TRUE)
+  expect_match(runner, "run_common_benchmark(\"01_finemapping\"", fixed = TRUE)
   expect_match(runner, "pkgload::load_all(root", fixed = TRUE)
   expect_match(runner, "library(\"sblr\", lib.loc = rlib", fixed = TRUE)
 })
@@ -42,26 +42,18 @@ test_that("Study 02 refresh uses the shared execution entry point", {
 test_that("Study 01 current capsule contract is exact and current", {
   skip_if_not(refresh_repository_only,
     "repository-only refresh sources are excluded from package builds")
-  promotion <- paste(readLines(test_path("..", "..", "studies", "01_finemapping",
-    "promotion.R"), warn = FALSE), collapse = "\n")
-  targets <- paste(readLines(test_path("..", "..", "studies", "01_finemapping",
-    "targets.R"), warn = FALSE), collapse = "\n")
-  expect_match(promotion, "results.*reference.*01_finemapping.*current")
-  expect_match(promotion, "exact successful 40-fit grid", fixed = TRUE)
-  expect_match(promotion, "target_warnings.csv", fixed = TRUE)
-  expect_match(promotion, "warning_target_count", fixed = TRUE)
-  expect_match(promotion, "ld_warning_validation.csv", fixed = TRUE)
-  expect_match(promotion, "threshold_consistent", fixed = TRUE)
-  expect_match(promotion, "02e8c74baa906e83c4a08d42a9cc6339b4e81072", fixed = TRUE)
-  expect_match(targets, "sblr_source_commit")
-  expect_match(targets, "simulation_summary")
-  expect_match(targets, "seed_registry")
-  expect_match(targets, "benchmark_summary")
-  expect_match(targets, "computational_summary_branch")
-  expect_match(targets, "marker_metrics_branch")
-  expect_match(targets, "credible_set_metrics_branch")
-  expect_match(targets, "credible_set_summary_branch")
-  expect_false(grepl("lapply(method_run, `\\[\\[`, \"marker_metrics\")", targets))
+  spec <- read_benchmark_spec(test_path("..","..","studies",
+    "01_finemapping","spec.R"))
+  report <- paste(readLines(test_path("..","..","studies",
+    "01_finemapping","report.qmd"),warn=FALSE),collapse="\n")
+  expect_equal(nrow(benchmark_coordinates(spec,"benchmark")),40L)
+  expect_identical(spec$frozen_capsule,
+    "results/reference/01_finemapping/current")
+  expect_identical(spec$packages$sblr$sha,
+    "02e8c74baa906e83c4a08d42a9cc6339b4e81072")
+  expect_match(report,"target_warnings.csv",fixed=TRUE)
+  expect_match(report,"ld_warning_validation.csv",fixed=TRUE)
+  expect_false(grepl("run_benchmark\\(|readRDS\\(",report))
 })
 
 test_that("Study 05 refresh promotes an explicit convergence decision only", {

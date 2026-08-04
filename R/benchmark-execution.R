@@ -29,10 +29,10 @@ parse_benchmark_cli_arguments <- function(args) {
   if (length(missing))
     stop("Missing required command-line options: ",
       paste(missing, collapse = ", "), ".", call. = FALSE)
-  supported_studies <- c("02_prediction", "03_parameter_estimation",
+  supported_studies <- c("01_finemapping", "02_prediction", "03_parameter_estimation",
     "04_convergence")
   if (!options[["--study"]] %in% supported_studies)
-    stop("Unsupported --study; choose `02_prediction`, `03_parameter_estimation`, or `04_convergence`.",
+    stop("Unsupported --study; choose `01_finemapping`, `02_prediction`, `03_parameter_estimation`, or `04_convergence`.",
       call. = FALSE)
   if (!options[["--profile"]] %in% c("workshop", "benchmark"))
     stop("--profile must be `workshop` or `benchmark`.", call. = FALSE)
@@ -49,6 +49,107 @@ parse_benchmark_cli_arguments <- function(args) {
     validate_only = parse_boolean(
       if (is.null(options[["--validate-only"]])) "false" else
         options[["--validate-only"]], "--validate-only"))
+}
+
+.run_finemapping <- function(spec,profile,coordinates,methods,paths,resume) {
+  data <- prepare_finemapping_data(spec,paths$root)
+  bundles <- prepare_finemapping_simulations(spec,profile,data)
+  names(bundles) <- vapply(bundles,function(x) .prediction_bundle_key(
+    x$coordinate$scenario,x$coordinate$replicate),character(1))
+  dispatch <- getOption("sblrbench.finemapping_fit_dispatch",
+    fit_finemapping_method)
+  status_rows <- runtime_rows <- marker_rows <- set_rows <- list()
+  for(i in seq_len(nrow(coordinates))) {
+    coordinate <- coordinates[i,,drop=FALSE]
+    bundle <- bundles[[.prediction_bundle_key(coordinate$scenario,
+      coordinate$replicate)]]
+    method <- methods[[coordinate$method]]
+    controls <- benchmark_method_controls(spec,coordinate$method,profile,
+      coordinate$fit_seed,coordinate$chain_seeds[[1L]])
+    identity <- benchmark_semantic_checkpoint_identity(
+      diagnostic_id="study01-finemapping-fit",scientific_inputs=list(
+        study=spec$study,scenario=coordinate$scenario,
+        replicate=coordinate$replicate,method=coordinate$method,
+        sample_ids=data$sample_ids,marker_ids=data$markers$marker_ids,
+        causal_markers=bundle$selection$marker_ids,
+        simulation_seed=coordinate$simulation_seed,controls=controls,
+        sblr_sha=spec$packages$sblr$sha,qgdata_sha=spec$packages$qgdata$sha))
+    input_hash <- benchmark_semantic_checkpoint_hash(identity)
+    checkpoint <- .prediction_checkpoint_path(paths,as.list(coordinate))
+    result <- NULL; reused <- FALSE; reason <- ""
+    if(isTRUE(resume) && file.exists(checkpoint)) {
+      loaded <- benchmark_load_semantic_checkpoint(checkpoint,input_hash,
+        validator=function(x) inherits(x$result,"sblrbench_result"))
+      result <- loaded$value$result; reused <- TRUE
+    } else {
+      result <- tryCatch(dispatch(method=method,controls=controls,
+        simulation=bundle$simulation,stats=bundle$stats,glist=data$ld_glist),
+        error=function(e) {reason <<- conditionMessage(e); NULL})
+      if(!is.null(result)) benchmark_atomic_save_rds(list(
+        checkpoint_schema="sblrbench-semantic-v2",identity_payload=identity,
+        semantic_hash=input_hash,result=result),checkpoint,compress=FALSE,
+        temporary_prefix=".finemapping-fit-")
+    }
+    ok <- !is.null(result)
+    status_rows[[i]] <- data.frame(study=spec$study,scenario=coordinate$scenario,
+      replicate=coordinate$replicate,method=coordinate$method,
+      status=if(ok)"ok" else "failed",reason=reason,reused=reused,
+      input_hash=input_hash,stringsAsFactors=FALSE)
+    runtime_rows[[i]] <- data.frame(study=spec$study,scenario=coordinate$scenario,
+      replicate=coordinate$replicate,method=coordinate$method,
+      elapsed_seconds=if(ok)extract_runtime(result) else NA_real_,
+      status=if(ok)"ok" else "failed",reason=reason,reused=reused,
+      stringsAsFactors=FALSE)
+    if(ok) {
+      marker_rows[[i]] <- finemapping_marker_table(result,bundle$simulation,
+        coordinate$method)
+      cs <- spec$locus_design
+      native <- sblr::make_credible_sets(fit=result$native_fit,
+        Glist=data$ld_glist,trait=1L,coverage=cs$credible_set_target,
+        min_r2=cs$min_r2,pip_cutoff=cs$pip_cutoff,
+        locus_pip_cutoff=cs$locus_pip_cutoff,
+        max_locus_distance=cs$max_locus_distance)
+      member_ids <- unique(finemapping_credible_set_members(native)$marker)
+      ids <- intersect(unique(c(bundle$selection$marker_ids,member_ids)),
+        colnames(data$scaled))
+      ld <- if(length(ids)) stats::cor(data$scaled[,ids,drop=FALSE]) else
+        matrix(numeric(),0L,0L)
+      index <- match(data$markers$marker_ids,
+        data$working_glist$rsids[[spec$data$chromosome]])
+      positions <- stats::setNames(
+        data$working_glist$pos[[spec$data$chromosome]][index],
+        data$markers$marker_ids)
+      set_rows[[i]] <- evaluate_finemapping_credible_sets(native,
+        bundle$simulation,positions,ld,coordinate$method,cs$min_r2,
+        cs$max_locus_distance)
+    }
+  }
+  status <- .benchmark_bind_rows(status_rows)
+  runtime <- .benchmark_bind_rows(runtime_rows)
+  marker_results <- .benchmark_bind_rows(marker_rows)
+  credible_sets <- .benchmark_bind_rows(set_rows)
+  metrics <- if(is.null(marker_results)) NULL else
+    summarise_finemapping_metrics(marker_results,credible_sets)
+  truth <- .benchmark_bind_rows(lapply(bundles,.prediction_truth_table))
+  loci <- .benchmark_bind_rows(lapply(bundles,function(x)
+    transform(x$loci,scenario=x$coordinate$scenario,
+      replicate=x$coordinate$replicate)))
+  oracle <- .benchmark_oracle_table(bundles,spec$study)
+  files <- list(
+    fit_status=.benchmark_write_csv(status,file.path(paths$tables,"fit_status.csv")),
+    simulation_truth=.benchmark_write_csv(truth,file.path(paths$tables,"simulation_truth.csv")),
+    loci=.benchmark_write_csv(loci,file.path(paths$tables,"loci.csv")),
+    marker_results=.benchmark_write_csv(marker_results,file.path(paths$tables,"marker_results.csv")),
+    credible_sets=.benchmark_write_csv(credible_sets,file.path(paths$tables,"credible_sets.csv")),
+    finemapping_metrics=.benchmark_write_csv(metrics,file.path(paths$tables,"finemapping_metrics.csv")),
+    runtime=.benchmark_write_csv(runtime,file.path(paths$tables,"runtime.csv")),
+    simulation_oracle=.benchmark_write_csv(oracle,file.path(paths$tables,"simulation_oracle.csv")))
+  manifest <- .prediction_manifest(spec,profile,paths,coordinates,FALSE,status,data)
+  .write_prediction_manifest(manifest,paths$manifest)
+  writeLines(benchmark_session_information(),paths$session_info)
+  list(spec=spec,paths=c(paths,files),status=status,truth=truth,loci=loci,
+    marker_results=marker_results,credible_sets=credible_sets,metrics=metrics,
+    convergence=NULL,runtime=runtime,oracle=oracle)
 }
 
 .benchmark_create_output_dirs <- function(paths) {
@@ -548,7 +649,7 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
     status <- .prediction_validation_status(coordinates, spec$study)
     status_path <- .benchmark_write_csv(status,
       file.path(paths$tables, "fit_status.csv"))
-    coordinate_path <- if (identical(spec$task, "convergence"))
+    coordinate_path <- if (spec$task %in% c("convergence", "finemapping"))
       .benchmark_write_csv(coordinates,
         file.path(paths$tables, "coordinate_grid.csv")) else NULL
     manifest <- .prediction_manifest(spec, profile, paths, coordinates, TRUE,
@@ -560,7 +661,7 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
       status = status, truth = NULL, estimates = NULL,
       marker_results = NULL, metrics = NULL, convergence = NULL,
       runtime = NULL, oracle = NULL,
-      coordinate_grid = if (identical(spec$task, "convergence"))
+      coordinate_grid = if (spec$task %in% c("convergence", "finemapping"))
         coordinates else NULL,
       candidate_summary = NULL, recommendations = NULL))
   }
@@ -571,6 +672,9 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
 
   methods <- resolve_benchmark_methods(spec)
   names(methods) <- vapply(methods, `[[`, character(1), "id")
+
+  if(identical(spec$task,"finemapping"))
+    return(.run_finemapping(spec,profile,coordinates,methods,paths,resume))
 
   if(identical(spec$task,"parameter_estimation"))
     return(.run_parameter_estimation(spec,profile,resolved,coordinates,methods,

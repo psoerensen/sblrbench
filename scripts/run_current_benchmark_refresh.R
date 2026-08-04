@@ -194,19 +194,8 @@ run_phase <- function(x) switch(x,
     file.path(refresh_root,"study03")),
   `study02` = run_common_benchmark("02_prediction",
     file.path(refresh_root,"study02")),
-  `study01` = {
-    run_targets("01_finemapping", "pilot",
-      file.path(refresh_root, "study01"), "study01",
-      extra_vars = c(SBLR_BENCH_REPLICATES = "10"))
-    source(file.path(root, "studies", "01_finemapping", "promotion.R"), local = TRUE)
-    .study01_write_target_warnings(
-      file.path(refresh_root, "targets", "study01"),
-      file.path(refresh_root, "study01", "target_warnings.csv"))
-    .study01_validate_sparse_warning_loci(
-      file.path(refresh_root, "targets", "study01"),
-      file.path(refresh_root, "study01", "ld_warning_validation.csv"))
-    .study01_promote_current(file.path(refresh_root, "study01"))
-  },
+  `study01` = run_common_benchmark("01_finemapping",
+    file.path(refresh_root,"study01")),
   `study05` = {
     output <- file.path(refresh_root, "study05", "convergence")
     run_targets("05_annotation_models", "current_convergence", output,

@@ -142,3 +142,40 @@ prepare_parameter_estimation_simulations <- function(spec, profile, data) {
       truth=parameter_estimand_truth(simulation,spec))
   })
 }
+
+prepare_finemapping_simulations <- function(spec, profile, data) {
+  logic <- new.env(parent = baseenv())
+  sys.source(benchmark_spec_path(spec, spec$locus_design$implementation),
+    envir = logic)
+  coordinates <- unique(benchmark_seeds(spec, profile)[c("scenario",
+    "replicate", "causal_seed", "simulation_seed")])
+  lapply(seq_len(nrow(coordinates)), function(i) {
+    coordinate <- as.list(coordinates[i, , drop = FALSE])
+    design <- spec$causal_design
+    selection <- logic$select_separated_causal_markers(data$working_glist,
+      spec$data$chromosome, data$markers$marker_ids,
+      spec$controls$simulation$n_causal, design$min_distance_bp,
+      coordinate$causal_seed, design$min_maf, design$max_maf)
+    raw <- sblr::mtsim(W=data$scaled,standardize_W=FALSE,nt=1L,
+      n_shared=length(selection$marker_ids),n_specific=0L,
+      causal_rsids=selection$marker_ids,h2=spec$controls$simulation$h2,
+      seed=coordinate$simulation_seed)
+    if(!identical(sort(raw$causal$all),sort(selection$marker_ids)))
+      stop("mtsim() did not preserve the selected causal markers.",call.=FALSE)
+    simulation <- as_sblrbench_simulation(raw,study=spec$study,
+      architecture=coordinate$scenario,replicate=coordinate$replicate,
+      seed=coordinate$simulation_seed)
+    if(is.null(dim(simulation$truth$phenotypes)))
+      simulation$truth$phenotypes <- matrix(simulation$truth$phenotypes,ncol=1L,
+        dimnames=list(simulation$data$sample_ids,simulation$data$trait_names))
+    simulation$extras$causal_selection <- selection
+    validate_sblrbench_simulation(simulation)
+    oracle <- check_oracle_genetic_values(simulation,
+      tolerance=spec$validation$oracle_tolerance)
+    stats <- sblr::make_summary_stats(Glist=data$ld_glist,
+      y=simulation$truth$phenotypes,chr=spec$data$chromosome,scale=TRUE,
+      nthreads=1L)
+    list(coordinate=coordinate,simulation=simulation,selection=selection,
+      loci=logic$study01_locus_table(selection,spec),oracle=oracle,stats=stats)
+  })
+}

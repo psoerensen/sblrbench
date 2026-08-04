@@ -191,7 +191,7 @@ Only one separated-locus architecture, one public genotype panel, ten replicates
 
 ## Reproducibility and downloads
 
-Rendering reads the compact capsule only; it does not run simulation, LD construction or a sampler. The readable [analysis entry point](analysis.R) explains how to invoke the current study separately.
+Rendering reads the compact capsule only; it does not run simulation, LD construction or a sampler. The complete [analysis workflow](analysis.R), [scientific specification](spec.R), and reusable [fine-mapping template](../../inst/templates/finemapping-analysis.R) show how to run the study separately.
 
 - [Current capsule](../../results/reference/01_finemapping/current/README.md)
 - [Manifest](../../results/reference/01_finemapping/current/benchmark_manifest.json)

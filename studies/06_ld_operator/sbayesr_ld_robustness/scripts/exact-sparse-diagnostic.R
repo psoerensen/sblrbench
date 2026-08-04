@@ -35,7 +35,7 @@ csv <- function(x, n) { p <- file.path(out, "tables", n); t <- tempfile(".tmp-",
   utils::write.csv(x, t, row.names = FALSE, na = ""); if (!file.rename(t, p)) { unlink(t); stop("Cannot write ", p) }; invisible(p) }
 numtxt <- function(x) paste(format(as.numeric(x), digits = 17, trim = TRUE), collapse = ";")
 
-sources <- c("studies/01_finemapping/setup_example_data.R",
+sources <- c(
   "studies/03_parameter_estimation/spec.R")
 sys.source(sources[1], envir = environment())
 config <- read_benchmark_spec(sources[2])
@@ -62,9 +62,10 @@ if (!identical(dim(Zall), c(5000L, 37991L)) || !identical(colnames(Zall), base_c
 paths <- list(glist_path = Sys.getenv("SBLR_BENCH_GLIST", ""),
   data_dir = file.path("results", "local", "03_parameter_estimation", "data"),
   output_dir = file.path("results", "local", "03_parameter_estimation", "genotype_setup"))
-base_glist <- .study01_load_glist(paths)
-marker_info <- .study01_run_qc(base_glist, legacy_config)
-ids <- .study01_selected_ids(base_glist, config$data$sample_limit)
+base_glist <- sblrbench:::benchmark_load_glist(paths)
+marker_info <- sblrbench:::benchmark_filter_markers(base_glist,
+  legacy_config$chr,legacy_config$qc,legacy_config$sparse_ld)
+ids <- sblrbench:::benchmark_selected_ids(base_glist, config$data$sample_limit)
 if (!identical(ids, rownames(Zall)) || !identical(marker_info$marker_ids, colnames(Zall))) stop("Current input alignment changed.")
 
 # Exact deterministic LD-rich 1,500-marker window selection from the current Study 03 sparse operator.
@@ -138,7 +139,8 @@ if (max(abs(as.numeric(Z %*% sim$effects) - sim$genetic_values)) > 1e-10 || abs(
 Y <- matrix(sim$phenotype, ncol = 1L, dimnames = list(rownames(Z), "trait1"))
 
 # Build/reuse two local operators with identical individuals and markers.
-working <- .study01_set_rsids_ld(base_glist, config$data$chromosome, subset_ids)
+working <- sblrbench:::benchmark_set_glist_marker_order(base_glist,
+  config$data$chromosome, subset_ids)
 ld_settings <- list(exact = list(max_distance_bp = 0, max_distance_variants = 0L, r2_threshold = 0,
     allow_full_ld = TRUE, block_size = 1024L, nthreads = 1L),
   sparse = list(max_distance_bp = 0, max_distance_variants = 1000L, r2_threshold = .001,

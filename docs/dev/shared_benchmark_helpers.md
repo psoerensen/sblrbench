@@ -1,5 +1,10 @@
 # Shared benchmark helpers after Phase 3
 
+Study 01 adds fine-mapping task validation and execution, shared PIP/marker
+extraction, fine-mapping metrics, and tidy plotting helpers. Separated causal
+locus selection remains in `studies/01_finemapping/locus-design.R` because it
+is a Study 01 scientific choice.
+
 All helpers are ordinary R functions. The small design-table and plotting
 surface used by downloadable workflows is exported; lower-level mechanics stay
 internal. They introduce no class system, registry, plugin interface, workflow

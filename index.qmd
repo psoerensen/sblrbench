@@ -11,7 +11,7 @@ implemented in `sblr`.
 
 | Study | Purpose | Development status | Scale | Report |
 |---|---|---|---|---|
-| Study 01 | Separated-locus fine-mapping | Complete current benchmark | 10 replicates; 40 fits | [Fine-mapping](studies/01_finemapping/fine-mapping.qmd) |
+| Study 01 | Separated-locus fine-mapping | Complete current benchmark | 10 replicates; 40 fits | [Fine-mapping](studies/01_finemapping/report.qmd) |
 | Study 02 | Held-out single-trait prediction | Complete current benchmark | 2 architectures; 5 replicates; 40 fits | [Prediction](studies/02_prediction/report.qmd) |
 | Study 03 | Single-trait parameter estimation | Complete current benchmark | 2 architectures; 5 replicates; 40 fits | [Parameter estimation](studies/03_parameter_estimation/report.qmd) |
 | Study 04 | Multichain convergence diagnostics | Current selection plus five-replicate validation | 4 selection fits/16 chains; 20 validation fits/80 chains | [Convergence](studies/04_convergence/report.qmd) |

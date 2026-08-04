@@ -117,8 +117,6 @@ with_log <- function(phase_name, log_name, expr, output_path = "") {
 
 cfg <- source(file.path(root, "studies", "05_annotation_models", "config.R"),
   local = TRUE)$value
-source(file.path(root, "studies", "01_finemapping",
-  "setup_example_data.R"), local = TRUE)
 for (f in c("annotation_design.R", "simulation.R", "methods.R",
             "chain_extraction.R", "diagnostics.R", "metrics.R", "pilot.R",
             "promotion.R"))
@@ -165,9 +163,11 @@ preflight <- function() {
       call. = FALSE)
   }
   paths <- .study05_paths()
-  example_files <- .study01_example_files(paths$data_dir, cfg$example_data)
-  base_glist <- .study01_load_glist(paths, example_files)
-  marker_ids <- .study01_run_qc(base_glist, cfg)$marker_ids
+  example_files <- sblrbench:::benchmark_example_files(paths$data_dir,
+    list(example_data=cfg$example_data))
+  base_glist <- sblrbench:::benchmark_load_glist(paths, example_files)
+  marker_ids <- sblrbench:::benchmark_filter_markers(base_glist,cfg$chr,
+    cfg$qc,cfg$sparse_ld)$marker_ids
   A <- .study05_annotation_design(marker_ids, cfg)
   alpha <- .study05_true_alpha(A, cfg)
   .study05_validate_annotation(A, marker_ids, cfg)

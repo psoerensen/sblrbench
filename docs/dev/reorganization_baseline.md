@@ -22,7 +22,7 @@ was not used.
 
 ## Scientific studies
 
-- [Study 01](../../studies/01_finemapping/fine-mapping.qmd): completed
+- [Study 01](../../studies/01_finemapping/report.qmd): completed
   separated-locus fine-mapping benchmark.
 - [Study 02](../../studies/02_prediction/report.qmd): completed held-out
   single-trait prediction benchmark.

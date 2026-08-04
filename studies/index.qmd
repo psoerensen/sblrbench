@@ -5,7 +5,7 @@ description: "Current validated sblrbench studies and planned multivariate work.
 
 ## Current benchmarks
 
-### [Study 01: Separated-locus fine-mapping](01_finemapping/fine-mapping.qmd)
+### [Study 01: Separated-locus fine-mapping](01_finemapping/report.qmd)
 
 Ten replicates and 40 fits evaluate marker recovery, causal ranks, and
 credible-set coverage under an explicit one-chain development contract.

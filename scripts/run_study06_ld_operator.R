@@ -144,8 +144,6 @@ with_log <- function(phase_name, log_name, expr,
 
 cfg <- source(file.path("studies", "06_ld_operator", "config.R"),
   local = TRUE)$value
-source(file.path("studies", "01_finemapping",
-  "setup_example_data.R"), local = TRUE)
 for (f in c("blocks.R", "operators.R", "operator_validation.R",
             "simulation.R", "methods.R", "chain_extraction.R",
             "diagnostics.R", "metrics.R", "pilot.R",

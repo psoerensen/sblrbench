@@ -44,6 +44,15 @@ benchmark_method_controls <- function(spec, method_id, profile, fit_seed,
   if (!method_id %in% names(spec$methods))
     stop("Unknown benchmark method: ", method_id, call. = FALSE)
   method <- spec$methods[[method_id]]
+  if (identical(spec$task, "finemapping")) {
+    controls <- spec$controls[[profile]][c("nit", "nburn", "nthin",
+      "nchains", "ncores", "convergence", "keep_chains",
+      "convergence_control")]
+    controls$seed <- as.integer(fit_seed)
+    controls$chain_seeds <- as.integer(chain_seeds)
+    controls$verbose <- FALSE
+    return(controls)
+  }
   if (identical(profile, "benchmark")) {
     recommendation <- read_benchmark_recommendations(spec)
     row <- recommendation[recommendation$method == method_id, , drop = FALSE]
@@ -118,6 +127,22 @@ fit_parameter_estimation_method <- function(method, controls, simulation,
   result <- run_sblrbench_method(method_spec,fit_inputs=inputs,
     controls=controls)
   validate_sblrbench_result(result,simulation)
+  result
+}
+
+fit_finemapping_method <- function(method, controls, simulation, stats, glist) {
+  capabilities <- c("posterior_effects", "pip", "scalar_trait",
+    if (identical(method$representation, "BED")) "individual_level" else
+      "summary_statistics")
+  method_spec <- new_sblr_native_method(method$id,method$label,
+    method$interface,method$native_method,capabilities=capabilities,
+    metadata=list(task="finemapping",development_settings=TRUE))
+  inputs <- if(identical(method$representation,"BED"))
+    list(y=simulation$truth$phenotypes,Glist=glist) else
+    list(stats=stats,Glist=glist)
+  result <- run_sblrbench_method(method_spec,fit_inputs=inputs,controls=controls)
+  validate_sblrbench_result(result,simulation)
+  sblr::check_stblr_consistency(result$native_fit,verbose=FALSE)
   result
 }
 

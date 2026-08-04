@@ -1,8 +1,6 @@
 targets::tar_option_set(packages = c("sblrbench", "sblr", "qgg",
   "posterior", "jsonlite", "Matrix"))
 
-source(file.path("studies", "01_finemapping",
-  "setup_example_data.R"), local = TRUE)
 for (f in c("blocks.R", "operators.R", "operator_validation.R",
             "simulation.R", "methods.R", "chain_extraction.R",
             "diagnostics.R", "metrics.R", "pilot.R"))
@@ -16,14 +14,15 @@ list(
     source(study06_config_file, local = TRUE)$value),
   targets::tar_target(study06_paths, .study06_paths(study06_config)),
   targets::tar_target(study06_example_files,
-    .study01_example_files(study06_paths$data_dir,
-      study06_config$example_data)),
+    sblrbench:::benchmark_example_files(study06_paths$data_dir,
+      list(example_data=study06_config$example_data))),
   targets::tar_target(study06_base_glist,
-    .study01_load_glist(study06_paths, study06_example_files)),
+    sblrbench:::benchmark_load_glist(study06_paths, study06_example_files)),
   targets::tar_target(study06_filtered_markers,
-    .study01_run_qc(study06_base_glist, study06_config)),
+    sblrbench:::benchmark_filter_markers(study06_base_glist,
+      study06_config$chr,study06_config$qc,study06_config$sparse_ld)),
   targets::tar_target(study06_sample_ids,
-    .study01_selected_ids(study06_base_glist,
+    sblrbench:::benchmark_selected_ids(study06_base_glist,
       study06_config$sample_limit)),
   targets::tar_target(study06_split,
     sblrbench::make_prediction_split(study06_sample_ids,
@@ -34,7 +33,7 @@ list(
       study06_config$chr, study06_sample_ids,
       study06_filtered_markers$marker_ids, study06_split)),
   targets::tar_target(study06_working_glist,
-    sblrbench:::benchmark_set_training_af(.study01_set_rsids_ld(
+    sblrbench:::benchmark_set_training_af(sblrbench:::benchmark_set_glist_marker_order(
       study06_base_glist, study06_config$chr,
       study06_filtered_markers$marker_ids),
       study06_config$chr, study06_filtered_markers$marker_ids,

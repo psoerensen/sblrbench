@@ -3,26 +3,26 @@
 ## Targets entry points
 
 `_targets.R` remains the dispatcher for unmigrated targets studies. Migrated
-Studies 02--04 use the common CLI and runner; selecting them through `_targets.R`
+Studies 01--04 use the common CLI and runner; selecting them through `_targets.R`
 now fails with an explicit transition message. Study 06 v2 retains its separate
 phased launcher and target store. No target graph was run during Study 04 migration.
 
 ## Study-to-study dependencies
 
-- Studies 01--06 use `studies/01_finemapping/setup_example_data.R` for the
-  pinned qgdata panel. The data setup is shared code living inside Study 01.
+- Studies 01--06 use `R/benchmark-data.R` for the pinned qgdata panel. The
+  historical cross-study dependency on Study 01 data setup has been removed.
 - Study 02 and mechanical callers in Studies 05--07 now use
   `R/benchmark-data.R` for splits, scaling, summary statistics, and training LD;
   no study sources Study 02 internals.
 - Study 04 now derives its matched grid from the Study 03 spec and calls shared
   data, simulation, method, extraction, checkpoint, convergence, and execution
   helpers. It has no per-study targets graph or cross-study source dependency.
-- Study 05 and Study 06 retain Study 01 example-data setup but use shared data
-  helpers instead of Study 02 internals.
+- Study 05 and Study 06 use shared data helpers; their scientific workflows
+  remain unmigrated.
 - Study 06 v2 sources Study 06 methods, operators, blocks, simulation, and
   pilot helpers and reads the Study 06 target store.
-- Paused Study 07 sources Study 06 operator helpers and uses Study 01 plus the
-  shared data helpers. Its scientific workflow remains paused and unmigrated.
+- Paused Study 07 sources Study 06 operator helpers and shared data helpers. Its
+  scientific workflow remains paused and unmigrated.
 - Before Phase 2, Studies 01 and 03--07 sourced Study 02 promotion solely to
   obtain canonical text-aware MD5 behavior. Active Studies 01 and 03--06 now
   load shared provenance and capsule mechanics directly. Study 02 and paused

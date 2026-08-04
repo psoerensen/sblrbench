@@ -66,7 +66,6 @@ if (!identical(sblr_sha, required_sblr_sha))
   stop("Installed sblr SHA is ", sblr_sha, "; required ", required_sblr_sha, call. = FALSE)
 
 setup_files <- c(
-  "studies/01_finemapping/setup_example_data.R",
   "studies/five_replicate_helpers.R",
   "studies/03_parameter_estimation/spec.R",
   "studies/03_parameter_estimation/diagnostics/sbayesr-gctb-comparison.R"
@@ -167,12 +166,17 @@ if (file.exists(coordinate_path)) {
   if (!identical(observed_md5, unname(config$data$example_data$md5)))
     stop("Pinned qgdata file checksums do not match Study 03 configuration.", call. = FALSE)
 
-  base_glist <- .study01_load_glist(paths)
-  marker_info <- .study01_run_qc(base_glist, legacy_config)
-  sample_ids <- .study01_selected_ids(base_glist, config$data$sample_limit)
-  working_glist <- .study01_set_rsids_ld(base_glist, config$data$chromosome, marker_info$marker_ids)
-  Z <- .study01_extract_genotypes(working_glist, config$data$chromosome, sample_ids, marker_info$marker_ids)
-  sparse_glist <- .study01_make_sparse_ld(working_glist, marker_info, legacy_config, paths$output_dir)
+  base_glist <- sblrbench:::benchmark_load_glist(paths)
+  marker_info <- sblrbench:::benchmark_filter_markers(base_glist,
+    legacy_config$chr,legacy_config$qc,legacy_config$sparse_ld)
+  sample_ids <- sblrbench:::benchmark_selected_ids(base_glist, config$data$sample_limit)
+  working_glist <- sblrbench:::benchmark_set_glist_marker_order(base_glist,
+    config$data$chromosome, marker_info$marker_ids)
+  Z <- sblrbench:::benchmark_extract_scaled_genotypes(working_glist,
+    config$data$chromosome, sample_ids, marker_info$marker_ids)
+  sparse_glist <- sblrbench:::benchmark_make_full_sample_ld(working_glist,
+    marker_info,list(chromosome=legacy_config$chr,
+      sparse_ld=legacy_config$sparse_ld),paths$output_dir)
 
   coordinate_spec <- list(scenario="sparse_mixture",replicate=1L,
     simulation_seed=unique(seed_rows$simulation_seed))

@@ -8,7 +8,7 @@ project:
     - metrics.qmd
     - reproducibility.qmd
     - studies/index.qmd
-    - studies/01_finemapping/fine-mapping.qmd
+    - studies/01_finemapping/report.qmd
     - studies/02_prediction/report.qmd
     - studies/03_parameter_estimation/report.qmd
     - studies/04_convergence/report.qmd
