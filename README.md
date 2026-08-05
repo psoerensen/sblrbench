@@ -26,7 +26,8 @@ publish only reviewed compact results through a frozen capsule.
 
 Study 06 — Annotation-informed models is **in development**: its v1 sparse
 qualification failed and is preserved, while its v2 identifiable qualification
-is scaffolded but unrun; the final benchmark is unauthorized. Study 07 —
+completed all four fits but failed convergence, scientific-recovery, and route
+gates; the final benchmark is unauthorized. Study 07 —
 Multitrait validation is **in development**. Neither is a completed validation
 benchmark.
 

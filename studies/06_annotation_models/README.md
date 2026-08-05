@@ -3,7 +3,8 @@
 **Status: In development — versioned qualification work**
 
 - v1 sparse qualification: **failed and preserved**;
-- v2 identifiable qualification: **designed/scaffolded, not yet run**;
+- v2 identifiable qualification: **failed with recorded convergence/mixing,
+  scientific-recovery, and route-agreement blockers**;
 - final benchmark: **not authorized**.
 
 The tracked
@@ -30,10 +31,15 @@ allocation, and unimplemented collapsed block allocation are not v2 gates.
 V2 outputs and checkpoints must use the
 `results/local/06_annotation_models/v2_identifiable_qualification/` namespace;
 the runner rejects v1/current-stop collisions. Validation-only is the default
-analysis mode and performs no sampler call. Qualification remains an explicit
-future action with four chains and the unchanged convergence thresholds.
+analysis mode and performs no sampler call. The registered four-chain
+qualification has now run. All four histories completed, but every entry
+failed the convergence gate; informative late-stick directions and both
+BED/block-eigen heritability comparisons also failed. The final benchmark
+remains blocked.
 
 See the [v2 design](../../docs/dev/study06_v2_design.md) for the full scientific
-contract, audits, decision rule, diagnostic isolation profiles, and future
-launch command. The historical [v1 qualification result](../../docs/dev/study06_annotation_qualification_result.md)
+contract, audits, decision rule, and diagnostic isolation profiles. The
+[v2 qualification result](../../docs/dev/study06_v2_qualification_result.md)
+records the exact failed decision. The historical
+[v1 qualification result](../../docs/dev/study06_annotation_qualification_result.md)
 remains the authoritative record of why v1 stopped.

@@ -209,7 +209,8 @@ test_that("prediction summaries preserve one-replicate schemas", {
 })
 
 test_that("validate-only execution cannot call the fit dispatch", {
-  spec <- read_benchmark_spec(.study02_spec_path())
+  spec <- with_current_sblr_description_pin(
+    read_benchmark_spec(.study02_spec_path()))
   output <- tempfile("study02-validation-")
   withr::local_options(list(sblrbench.fit_dispatch = function(...)
     stop("FIT DISPATCH MUST NOT RUN")))

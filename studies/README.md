@@ -6,7 +6,8 @@ scientific logic remains alongside that contract when it does not belong in the
 shared framework.
 
 - Studies 01–05 are completed and validated.
-- Study 06 annotation-informed models is in development.
+- Study 06 annotation-informed models is in development; v2 qualification
+  failed and the final benchmark is blocked.
 - Study 07 multitrait validation is in development and paused.
 
 Move mechanics into package-level `R/` only when their shared contract is

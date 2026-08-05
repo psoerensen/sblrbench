@@ -1291,13 +1291,13 @@ validate_annotation_qualification_decision <- function(decision, spec) {
 
 .annotation_parameter_estimates <- function(result, coordinate, bundle) {
   native <- .benchmark_native_fit(result)
-  bundle <- native$convergence_traces
-  if (is.null(bundle$values)) return(NULL)
-  groups <- as.character(bundle$quantities$group)
+  traces <- native$convergence_traces
+  if (is.null(traces$values)) return(NULL)
+  groups <- as.character(traces$quantities$group)
   index <- match(c("vgs", "ves"), groups)
   if (anyNA(index)) return(NULL)
-  vg <- as.numeric(bundle$values[, , index[1L]])
-  ve <- as.numeric(bundle$values[, , index[2L]])
+  vg <- as.numeric(traces$values[, , index[1L]])
+  ve <- as.numeric(traces$values[, , index[2L]])
   values <- list(genetic_variance = vg, residual_variance = ve,
     heritability = vg / (vg + ve))
   train <- match(bundle$simulation$data$train_ids,

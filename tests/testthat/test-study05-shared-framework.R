@@ -124,7 +124,7 @@ test_that("Study 05 reporting helpers return named ggplot objects", {
 })
 
 test_that("Study 05 validation-only execution cannot dispatch fits", {
-  spec <- study05_spec()
+  spec <- with_current_sblr_description_pin(study05_spec())
   calls <- 0L
   old <- options(sblrbench.ld_operator_runner = function(...) {
     calls <<- calls + 1L

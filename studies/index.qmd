@@ -44,10 +44,11 @@ block-eigen SBayesR operators in one deterministic LD-rich window.
 
 ### [Study 06: Annotation-informed models](06_annotation_models/report.qmd)
 
-**Status: In development — qualification failed.** The four-entry gate produced
-two completed but nonconverged BED BayesRC histories and two CSR SBayesRC
-residual-scale failures. The final 40-fit benchmark was not launched, so no
-method-performance result is claimed.
+**Status: In development — v1 and v2 qualifications failed.** The preserved v1
+sparse gate failed. The identifiable v2 gate completed all four BED BayesRC and
+retained block-eigen SBayesRC histories, but failed convergence, informative
+late-stick recovery, and heritability route-agreement gates. The final 40-fit
+benchmark was not launched, so no method-performance result is claimed.
 [Current stop capsule](../results/reference/06_annotation_models/current-stop/README.md).
 
 ### [Study 07: Multitrait validation](07_mt_validation/status.qmd)

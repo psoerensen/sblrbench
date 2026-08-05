@@ -133,7 +133,8 @@ test_that("validation-only convergence execution cannot dispatch fits", {
   on.exit(options(old), add = TRUE)
   out <- tempfile("study04-validation-")
   on.exit(unlink(out, recursive = TRUE), add = TRUE)
-  result <- run_benchmark(study04_spec, out, "benchmark",
+  spec <- with_current_sblr_description_pin(study04_spec)
+  result <- run_benchmark(spec, out, "benchmark",
     validate_only = TRUE)
   expect_equal(nrow(result$status), 24L)
   expect_true(all(result$status$status == "not_run_validate_only"))

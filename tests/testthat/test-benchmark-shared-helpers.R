@@ -1,5 +1,5 @@
 test_that("validated package provenance is strict", {
-  expected <- "02e8c74baa906e83c4a08d42a9cc6339b4e81072"
+  expected <- current_sblr_description_sha()
   provenance <- benchmark_package_provenance("sblr")
   expect_identical(provenance$version, "0.2.0")
   expect_identical(provenance$sha, expected)

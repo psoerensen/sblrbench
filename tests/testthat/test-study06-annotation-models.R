@@ -199,6 +199,18 @@ test_that("diagnostic isolation modes reflect public API availability", {
     "No current public")
 })
 
+test_that("block-eigen SBayesRC uses its supported public gamma control", {
+  controls <- list(mixture_var = c(0, .01, .1, 1), h2 = .5)
+  block <- sblrbench:::.annotation_public_api_controls(
+    study06_spec$methods$st_block_eigen_sbayesrc, controls)
+  bed <- sblrbench:::.annotation_public_api_controls(
+    study06_spec$methods$st_bed_bayesrc, controls)
+  expect_equal(block$gamma, controls$mixture_var)
+  expect_false("mixture_var" %in% names(block))
+  expect_equal(bed$mixture_var, controls$mixture_var)
+  expect_false("gamma" %in% names(bed))
+})
+
 test_that("v2 outputs cannot collide with v1 and qualification is opt-in", {
   expect_error(run_benchmark(study06_spec,
     file.path(study06_root, study06_spec$frozen_capsule$current_stop),
@@ -269,6 +281,27 @@ test_that("true retained traces remain required for draw-wise priors", {
   unavailable <- extract_annotation_coefficient_traces(missing)
   expect_identical(unavailable$status, "unavailable")
   expect_match(unavailable$reason, "not substitutes")
+})
+
+test_that("qualification parameter truth uses the simulation bundle", {
+  simulation <- bench_fixture()
+  simulation$data$train_ids <- simulation$data$sample_ids[1:3]
+  quantities <- data.frame(group = c("vgs", "ves"))
+  values <- array(NA_real_, dim = c(10L, 4L, 2L))
+  values[, , 1L] <- 2
+  values[, , 2L] <- 1
+  result <- new_sblrbench_result("fixture", native_fit = list(
+    convergence_traces = list(values = values, quantities = quantities)))
+  estimates <- sblrbench:::.annotation_parameter_estimates(result,
+    list(scenario = "informative_annotations", replicate = 1L,
+      method = "st_bed_bayesrc"),
+    list(simulation = simulation))
+  expect_equal(estimates$parameter,
+    c("genetic_variance", "residual_variance", "heritability"))
+  expected_vg <- var(simulation$truth$genetic_values[1:3, 1L])
+  expected_ve <- var(simulation$truth$residuals[1:3, 1L])
+  expect_equal(estimates$truth,
+    c(expected_vg, expected_ve, expected_vg / (expected_vg + expected_ve)))
 })
 
 test_that("qualification scientific and route gates are deterministic", {

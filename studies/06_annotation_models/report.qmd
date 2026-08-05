@@ -1,6 +1,6 @@
 ---
 title: "Study 06: Annotation-informed models"
-description: "V1 failed and preserved; v2 scaffolded but not run."
+description: "V1 failed and preserved; v2 qualification failed; final blocked."
 ---
 
 ```{r}
@@ -21,7 +21,7 @@ computation <- rcsv("computational_summary.csv")
 
 ::: {.callout-important}
 **Status: In development — versioned qualification work.** V1 sparse qualification **failed and is preserved**; v2
-identifiable qualification is **designed/scaffolded and has not been run**;
+identifiable qualification **completed all four fits but failed its gates**;
 the final benchmark is **not authorized**. The existing capsule is a
 prespecified v1 convergence stop containing partial evidence only and no final
 BayesR/BayesRC or SBayesR/SBayesRC performance comparison.
@@ -107,7 +107,7 @@ This is trustworthy evidence for the recorded stop decision, but it does not
 cover the new four-entry qualification gate and is not evidence about method
 performance.
 
-## Qualification result
+## Historical v1 qualification result
 
 The implemented four-entry qualification was run on 2026-08-04 and failed.
 Both BED BayesRC histories completed but no supported candidate window passed
@@ -135,12 +135,31 @@ canonical retained low-rank block-eigen routes. Its output namespace,
 checkpoints, qualification decision schema, and package pin are distinct. See
 the [v2 design](../../docs/dev/study06_v2_design.md).
 
+## V2 identifiable qualification result
+
+The v2 qualification ran on 2026-08-05 from the frozen specification at
+`f8fceaf337087f589d12c69fae113d5211959a57` with pinned `sblr`
+`f2e3647920ed7e8b1ea9d47a6571b3753285682a`. All four BED BayesRC and retained
+block-eigen SBayesRC histories completed. Every entry failed the registered
+convergence thresholds at the maximum selected window. Both informative
+routes also failed the later-stick direction gates, and both scenarios failed
+the BED/block-eigen heritability-difference gate. Raw effect and validation
+genetic-value agreement remained high, so the result is not an
+effect-correlation-only criterion failure.
+
+The exact identities, convergence summaries, scientific checks, route context,
+minimal runner wiring fixes, and local evidence hashes are recorded in the
+[v2 qualification result](../../docs/dev/study06_v2_qualification_result.md).
+Raw histories remain local; this report continues to read the unchanged v1
+`current-stop` capsule only.
+
 ## Required next runs
 
-The next scientific action is the explicit one-replicate v2 qualification.
-Only after its four annotation-route entries pass may a separate explicit
-final command launch a multi-replicate benchmark. V1 sparse stress may be run
-separately but cannot authorize or block v2 qualification.
+The next scientific action is review of v2 convergence/mixing and late-stick
+recovery, potentially using the disabled fixed-true-alpha isolation profile in
+a separately authorized task. The final multi-replicate benchmark remains
+blocked. V1 sparse stress remains separate and cannot authorize v2 or final
+execution.
 
 ## Validation boundaries
 
@@ -162,6 +181,7 @@ the study workflow, construct annotations, load checkpoints, or call a sampler.
 - [Completion plan](../../docs/dev/study06_annotation_completion_plan.md)
 - [Qualification result](../../docs/dev/study06_annotation_qualification_result.md)
 - [V2 identifiable design](../../docs/dev/study06_v2_design.md)
+- [V2 qualification result](../../docs/dev/study06_v2_qualification_result.md)
 - [Partial-evidence capsule](../../results/reference/06_annotation_models/current-stop/README.md)
 - [Manifest](../../results/reference/06_annotation_models/current-stop/benchmark_manifest.json)
 - [Convergence diagnostics](../../results/reference/06_annotation_models/current-stop/convergence_diagnostics.csv)

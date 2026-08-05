@@ -52,7 +52,7 @@ test_that("fine-mapping metric and plotting fixtures are deterministic", {
 })
 
 test_that("Study 01 validation-only execution cannot dispatch a fit", {
-  spec <- study01_spec()
+  spec <- with_current_sblr_description_pin(study01_spec())
   old <- options(sblrbench.finemapping_fit_dispatch=function(...)
     stop("fit dispatch must not run"))
   on.exit(options(old),add=TRUE)

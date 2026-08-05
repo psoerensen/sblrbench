@@ -162,6 +162,16 @@ annotation_method_controls <- function(spec, coordinate,
   controls
 }
 
+.annotation_public_api_controls <- function(method, controls) {
+  if (identical(method$interface, "stblr_block_eigen") &&
+      identical(method$native_method, "sbayesrc") &&
+      !is.null(controls$mixture_var)) {
+    controls$gamma <- controls$mixture_var
+    controls$mixture_var <- NULL
+  }
+  controls
+}
+
 fit_annotation_method <- function(method, controls, simulation, stats, glist,
                                   split, annotations, annotation_truth,
                                   block_start = NULL) {
@@ -177,6 +187,7 @@ fit_annotation_method <- function(method, controls, simulation, stats, glist,
     controls$pi <- annotation_truth$marginal_component_probability
   }
   controls$diagnostic_mode <- NULL
+  controls <- .annotation_public_api_controls(method, controls)
   y <- simulation$truth$phenotypes[split$train_ids, , drop = FALSE]
   if (identical(method$representation, "BED")) {
     inputs <- list(y = y, Glist = glist, rows = split$train_rows)

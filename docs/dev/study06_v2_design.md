@@ -1,5 +1,11 @@
 # Study 06 v2 identifiable qualification design
 
+> **Execution status (2026-08-05):** the frozen design below was run for its
+> registered one-replicate qualification. All four fits completed, but the
+> convergence, informative late-stick, and heritability route-agreement gates
+> did not all pass. The final benchmark remains unauthorized. See
+> [the v2 qualification result](study06_v2_qualification_result.md).
+
 ## Status and version boundary
 
 Study 06 now has three explicit identities:

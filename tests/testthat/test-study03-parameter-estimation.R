@@ -59,7 +59,8 @@ test_that("parameter draw transformations and metrics preserve definitions", {
 })
 
 test_that("Study 03 controls and validate-only dispatch are preserved", {
-  spec <- .study03_spec(); coords <- benchmark_seeds(spec,"benchmark")
+  spec <- with_current_sblr_description_pin(.study03_spec())
+  coords <- benchmark_seeds(spec,"benchmark")
   for(id in names(spec$methods)) {
     row <- coords[coords$scenario=="sparse_homogeneous" &
       coords$replicate==1L & coords$method==id,]
