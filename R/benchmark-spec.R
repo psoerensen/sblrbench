@@ -537,6 +537,7 @@ benchmark_annotation_coordinates <- function(spec, profile = "benchmark",
       out$replicate, match(out$method, names(spec$methods))), , drop = FALSE]
   }
   rownames(out) <- NULL
+  out$study_version <- spec$study_version
   out$mode <- mode
   out$profile <- profile
   out
@@ -572,6 +573,8 @@ benchmark_annotation_seeds <- function(spec, profile = "benchmark",
 }
 
 .validate_annotation_spec <- function(spec) {
+  if (identical(spec$study_version, "v2_identifiable_qualification"))
+    return(.validate_annotation_v2_spec(spec))
   required <- c("study", "task", "status", "supported_profiles", "data",
     "split", "markers", "replicate_count", "scenarios",
     "annotation_design", "methods", "controls", "qualification", "seeds",
@@ -733,5 +736,154 @@ benchmark_annotation_seeds <- function(spec, profile = "benchmark",
     seed + seq_len(4L) * spec$seeds$chain_stride), use.names = FALSE)
   if (anyDuplicated(fit) || anyDuplicated(chains))
     stop("Study 06 fit or chain seeds are not unique.", call. = FALSE)
+  invisible(spec)
+}
+
+.validate_annotation_v2_spec <- function(spec) {
+  required <- c("study", "task", "study_version", "status",
+    "versioning", "supported_profiles", "data", "split", "markers",
+    "replicate_count", "scenarios", "annotation_design", "methods",
+    "controls", "diagnostic_profiles", "qualification", "seeds",
+    "estimands", "metrics", "validation", "frozen_capsule", "output",
+    "packages")
+  missing <- setdiff(required, names(spec))
+  if (length(missing))
+    stop("Annotation-model v2 spec is missing required fields: ",
+      paste(missing, collapse = ", "), ".", call. = FALSE)
+  if (!identical(spec$study, "06_annotation_models") ||
+      !identical(spec$task, "annotation_models") ||
+      !identical(spec$study_version, "v2_identifiable_qualification") ||
+      !identical(spec$status, "designed_qualification_not_run"))
+    stop("Study 06 v2 identity or not-run status is invalid.", call. = FALSE)
+  required_versions <- c("v1_sparse_qualification_failed", "v1_sparse_stress",
+    "v2_identifiable_qualification")
+  if (!identical(names(spec$versioning$profiles), required_versions) ||
+      !identical(spec$versioning$current_profile, spec$study_version) ||
+      !identical(spec$versioning$output_namespace, spec$study_version))
+    stop("Study 06 historical and current version profiles are incomplete.",
+      call. = FALSE)
+  v1 <- spec$versioning$profiles$v1_sparse_stress
+  if (!identical(v1$marker_count, 37991L) ||
+      !identical(v1$training_count, 1400L) ||
+      !identical(v1$target_expected_nonnull, 50L) ||
+      !identical(v1$active_component_weights, c(.60, .30, .10)))
+    stop("The preserved v1 sparse-stress specification changed.", call. = FALSE)
+  profiles <- spec$supported_profiles
+  if (!is.list(profiles) || !identical(sort(names(profiles)),
+      c("benchmark", "workshop")) ||
+      !identical(as.integer(profiles$benchmark$replicate_count), 5L) ||
+      !identical(as.integer(spec$replicate_count), 5L))
+    stop("Study 06 v2 profiles must retain the staged one/five-replicate design.",
+      call. = FALSE)
+  block <- spec$data$block_design
+  if (!identical(as.integer(spec$data$expected_sample_count), 2000L) ||
+      !identical(as.integer(spec$data$expected_qc_marker_count), 37991L) ||
+      !identical(as.integer(spec$data$expected_marker_count), 1500L) ||
+      !identical(as.integer(spec$data$chromosome), 1L) ||
+      !identical(block[c("marker_target", "block_count", "block_size")],
+        list(marker_target = 1500L, block_count = 15L, block_size = 100L)) ||
+      !identical(block$representation, "low_rank") ||
+      !identical(block$eigen_policy, "cumulative_positive_mass") ||
+      !identical(block$eigen_prop, .995))
+    stop("Study 06 v2 marker or retained block-eigen design changed.", call. = FALSE)
+  if (!identical(spec$split[c("train_fraction", "seed",
+      "expected_train_count", "expected_test_count")],
+      list(train_fraction = .70, seed = 3101L,
+        expected_train_count = 1400L, expected_test_count = 600L)))
+    stop("Study 06 v2 train/test split changed.", call. = FALSE)
+  if (!identical(spec$data$example_data$commit,
+      "6cca5819e711d326cfb2614d7e9d9f34942612cd") ||
+      !identical(spec$packages$qgdata$sha,
+        "6cca5819e711d326cfb2614d7e9d9f34942612cd"))
+    stop("Study 06 v2 QGG source pin changed.", call. = FALSE)
+  expected_scenarios <- c("informative_annotations", "uninformative_annotations")
+  expected_columns <- c("Intercept", "enriched_binary", "continuous_signal",
+    "null_annotation")
+  if (!identical(names(spec$scenarios), expected_scenarios) ||
+      !identical(spec$annotation_design$columns, expected_columns) ||
+      !identical(spec$annotation_design$enriched_fraction, .15))
+    stop("Study 06 v2 scenario or annotation design changed.", call. = FALSE)
+  alpha <- spec$annotation_design$informative_nonintercept_alpha
+  expected_alpha <- matrix(c(1.6, .3, .2, .3, .15, .1, 0, 0, 0),
+    3L, byrow = TRUE, dimnames = list(expected_columns[-1L],
+      paste0("step_", 1:3)))
+  if (!is.matrix(alpha) || !identical(alpha, expected_alpha))
+    stop("Study 06 v2 prespecified annotation coefficients changed.",
+      call. = FALSE)
+  expected_methods <- c("st_bed_bayesr", "st_bed_bayesrc",
+    "st_block_eigen_sbayesr", "st_block_eigen_sbayesrc")
+  if (!identical(names(spec$methods), expected_methods))
+    stop("Study 06 v2 method registry must contain the intended four routes.",
+      call. = FALSE)
+  interfaces <- vapply(spec$methods, `[[`, character(1), "interface")
+  native <- vapply(spec$methods, `[[`, character(1), "native_method")
+  if (!identical(unname(interfaces), c("stblr_bed", "stblr_bed",
+      "stblr_block_eigen", "stblr_block_eigen")) ||
+      !identical(unname(native), c("bayesr", "bayesrc", "sbayesr", "sbayesrc")))
+    stop("Study 06 v2 public sblr routes changed.", call. = FALSE)
+  block_methods <- spec$methods[grepl("block_eigen", names(spec$methods))]
+  if (any(vapply(block_methods, function(x)
+      !identical(x$operator_representation, "low_rank") ||
+      !identical(x$eigen_policy, "cumulative_positive_mass") ||
+      !identical(x$eigen_prop, .995), logical(1))))
+    stop("Study 06 v2 block-eigen route is not canonical retained low rank.",
+      call. = FALSE)
+  simulation <- spec$controls$simulation
+  if (!identical(simulation$h2, .50) ||
+      !identical(simulation$target_expected_nonnull, 180L) ||
+      !identical(simulation$mixture_var, c(0, .01, .1, 1)) ||
+      !identical(simulation$active_component_weights, c(.50, .30, .20)) ||
+      !identical(simulation$minimum_realized_active_counts, c(60L, 30L, 20L)))
+    stop("Study 06 v2 genetic architecture changed.", call. = FALSE)
+  priors <- spec$controls$priors
+  if (!identical(priors$h2, .50) ||
+      !identical(priors$bayesr_active_probability, 180 / 1500) ||
+      !identical(priors$bayesr_mixture_var, c(0, .01, .1, 1)) ||
+      !identical(priors$annotation_intercept_prior, "proper_default") ||
+      !is.null(priors$intercept_flat))
+    stop("Study 06 v2 priors must use the proper default intercept prior.",
+      call. = FALSE)
+  if (isTRUE(spec$diagnostic_profiles$fixed_true_marker_component_probabilities$public_api_supported) ||
+      isTRUE(spec$diagnostic_profiles$fixed_true_annotation_coefficients$enabled))
+    stop("Study 06 diagnostic isolation profiles must remain disabled by default.",
+      call. = FALSE)
+  expected_entries <- data.frame(scenario = rep(expected_scenarios, each = 2L),
+    replicate = 1L,
+    method = rep(c("st_bed_bayesrc", "st_block_eigen_sbayesrc"), 2L),
+    stringsAsFactors = FALSE)
+  if (!identical(spec$qualification$entries, expected_entries) ||
+      !identical(as.integer(spec$qualification$nchains), 4L) ||
+      !identical(spec$qualification$thresholds,
+        list(rhat = 1.01, ess_bulk = 400, ess_tail = 400,
+          relative_mcse = .05, chain_count = 4L)))
+    stop("Study 06 v2 qualification registry or thresholds changed.",
+      call. = FALSE)
+  if (!identical(spec$frozen_capsule$current_stop,
+      file.path("results", "reference", "06_annotation_models", "current-stop")) ||
+      !identical(spec$frozen_capsule$status,
+        "failed_development_evidence_preserved") ||
+      !is.null(spec$frozen_capsule$final) ||
+      !identical(spec$output$required_path_component, spec$study_version))
+    stop("Study 06 v1 preservation or v2 output isolation is invalid.",
+      call. = FALSE)
+  if (!identical(spec$packages$sblr$version, "0.2.0") ||
+      !identical(spec$packages$sblr$sha,
+        "f2e3647920ed7e8b1ea9d47a6571b3753285682a"))
+    stop("Study 06 v2 must remain pinned to the resolved sibling sblr HEAD.",
+      call. = FALSE)
+  if (!is.data.frame(spec$estimands) || !nrow(spec$estimands) ||
+      anyDuplicated(spec$estimands$estimand_id) || !is.character(spec$metrics) ||
+      anyDuplicated(spec$metrics))
+    stop("Study 06 v2 estimand or metric registry is invalid.", call. = FALSE)
+  grid <- expand.grid(scenario = expected_scenarios, replicate = 1:5,
+    method = expected_methods, KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)
+  scenario_index <- match(grid$scenario, expected_scenarios)
+  method_index <- match(grid$method, expected_methods)
+  fit <- spec$seeds$fit_base + scenario_index * spec$seeds$scenario_stride +
+    grid$replicate * 1000L + method_index * spec$seeds$method_stride
+  chains <- unlist(lapply(fit, function(seed)
+    seed + seq_len(4L) * spec$seeds$chain_stride), use.names = FALSE)
+  if (anyDuplicated(fit) || anyDuplicated(chains))
+    stop("Study 06 v2 fit or chain seeds are not unique.", call. = FALSE)
   invisible(spec)
 }

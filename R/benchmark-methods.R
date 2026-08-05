@@ -45,8 +45,8 @@ read_annotation_baseline_recommendations <- function(spec) {
     stop("Frozen Study 04 baseline recommendations are unavailable: ", path,
       call. = FALSE)
   x <- utils::read.csv(path, stringsAsFactors = FALSE)
-  ids <- c("st_bed_bayesr", "st_csr_sbayesr")
-  x <- x[match(ids, x$method), , drop = FALSE]
+  source_ids <- c("st_bed_bayesr", "st_csr_sbayesr")
+  x <- x[match(source_ids, x$method), , drop = FALSE]
   required <- c("method", "recommendation_status", "recommended_nburn",
     "recommended_nit_argument", "recommended_nthin", "recommended_nchains",
     "recommended_ncores")
@@ -58,14 +58,27 @@ read_annotation_baseline_recommendations <- function(spec) {
       any(x$recommended_ncores != 4L))
     stop("Study 04 BayesR/SBayesR recommendations differ from the audited Study 06 baseline controls.",
       call. = FALSE)
+  x$method <- c("st_bed_bayesr", "st_block_eigen_sbayesr")
   x
+}
+
+resolve_annotation_diagnostic_mode <- function(spec, mode = "standard") {
+  if (!is.character(mode) || length(mode) != 1L || is.na(mode) ||
+      !mode %in% names(spec$diagnostic_profiles))
+    stop("Unknown Study 06 diagnostic profile.", call. = FALSE)
+  profile <- spec$diagnostic_profiles[[mode]]
+  if (!isTRUE(profile$public_api_supported))
+    stop(profile$reason, call. = FALSE)
+  mode
 }
 
 annotation_method_controls <- function(spec, coordinate,
                                        profile = "benchmark",
                                        mode = c("qualification", "final"),
-                                       qualification_decision = NULL) {
+                                       qualification_decision = NULL,
+                                       diagnostic_mode = "standard") {
   mode <- match.arg(mode)
+  diagnostic_mode <- resolve_annotation_diagnostic_mode(spec, diagnostic_mode)
   method_id <- as.character(coordinate$method)
   if (!method_id %in% names(spec$methods))
     stop("Unknown Study 06 method: ", method_id, call. = FALSE)
@@ -132,7 +145,8 @@ annotation_method_controls <- function(spec, coordinate,
     controls$standardize_annotations <- FALSE
     controls$center_binary_annotations <- FALSE
     controls$sigmaSqAlpha_init <- spec$controls$priors$sigmaSqAlpha_init
-    controls$intercept_flat <- spec$controls$priors$intercept_flat
+    if (!is.null(spec$controls$priors$intercept_flat))
+      controls$intercept_flat <- spec$controls$priors$intercept_flat
     controls$sigmaSqAlpha_a <- spec$controls$priors$sigmaSqAlpha_a
     controls$sigmaSqAlpha_b <- spec$controls$priors$sigmaSqAlpha_b
     controls$pi_floor <- spec$controls$priors$pi_floor
@@ -141,20 +155,28 @@ annotation_method_controls <- function(spec, coordinate,
     controls$updateAlpha <- spec$controls$priors$updateAlpha
     controls$updateB <- spec$controls$priors$updateB
     controls$updateE <- spec$controls$priors$updateE
+    if (identical(diagnostic_mode, "fixed_true_annotation_coefficients"))
+      controls$updateAlpha <- FALSE
   }
+  controls$diagnostic_mode <- diagnostic_mode
   controls
 }
 
 fit_annotation_method <- function(method, controls, simulation, stats, glist,
-                                  split, annotations, annotation_truth) {
+                                  split, annotations, annotation_truth,
+                                  block_start = NULL) {
   if (!identical(rownames(annotations), simulation$data$marker_ids))
     stop("Annotation rows are not aligned to fitted marker order.",
       call. = FALSE)
   if (isTRUE(method$annotation_aware)) {
-    controls$alpha_init <- annotation_truth$uninformative_annotations
+    controls$alpha_init <- if (identical(controls$diagnostic_mode,
+        "fixed_true_annotation_coefficients"))
+      annotation_truth[[simulation$scenario$architecture]] else
+        annotation_truth$uninformative_annotations
   } else {
     controls$pi <- annotation_truth$marginal_component_probability
   }
+  controls$diagnostic_mode <- NULL
   y <- simulation$truth$phenotypes[split$train_ids, , drop = FALSE]
   if (identical(method$representation, "BED")) {
     inputs <- list(y = y, Glist = glist, rows = split$train_rows)
@@ -167,6 +189,14 @@ fit_annotation_method <- function(method, controls, simulation, stats, glist,
       controls$sigmaSqAlpha_init <- NULL
       controls$alpha_update_every <- NULL
     }
+  } else if (identical(method$interface, "stblr_block_eigen")) {
+    if (is.null(block_start))
+      stop("Retained block-eigen methods require block_start.", call. = FALSE)
+    inputs <- list(stats = stats, Glist = glist,
+      block_start = as.integer(block_start),
+      representation = method$operator_representation,
+      eigen_policy = method$eigen_policy, eigen_prop = method$eigen_prop)
+    if (isTRUE(method$annotation_aware)) inputs$annotation <- annotations
   } else if (isTRUE(method$annotation_aware)) {
     inputs <- list(stats = stats, Glist = glist, annotations = annotations,
       annotation_model = "annotation_probit_stick")
@@ -181,7 +211,9 @@ fit_annotation_method <- function(method, controls, simulation, stats, glist,
   method_spec <- new_sblr_native_method(method$id, method$label,
     method$interface, method$native_method, capabilities = capabilities,
     metadata = list(task = "annotation_models",
-      annotation_aware = isTRUE(method$annotation_aware)))
+      study_version = simulation$extras$study_version,
+      annotation_aware = isTRUE(method$annotation_aware),
+      representation = method$representation))
   result <- run_sblrbench_method(method_spec, fit_inputs = inputs,
     controls = controls)
   validate_sblrbench_result(result, simulation)

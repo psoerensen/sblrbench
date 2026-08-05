@@ -18,7 +18,7 @@ description: "Exact validated analyses and shorter reusable sblrbench templates.
 | Parameter estimation | [Study 03 analysis](studies/03_parameter_estimation/analysis.R) | [Parameter-estimation template](inst/templates/parameter-estimation-analysis.R) | Validated |
 | Convergence assessment | [Study 04 analysis](studies/04_convergence/analysis.R) | [Convergence template](inst/templates/convergence-analysis.R) | Validated |
 | LD-operator analysis | [Study 05 analysis](studies/05_ld_operator/analysis.R) | [Operator template](inst/templates/operator-analysis.R) | Validated |
-| Annotation-informed models | [Study 06 analysis](studies/06_annotation_models/analysis.R) | [Annotation template](inst/templates/annotation-analysis.R) | **In development — qualification failed** |
+| Annotation-informed models | [Study 06 analysis](studies/06_annotation_models/analysis.R) | [Annotation template](inst/templates/annotation-analysis.R) | **V1 failed/preserved; v2 scaffolded/unrun** |
 
 ## Choosing a profile and mode
 
@@ -103,10 +103,10 @@ low-rank/block approximations, recovery, convergence, runtime, and storage.
 **Use it for:** developing matched BayesR/BayesRC and SBayesR/SBayesRC
 annotation validation with informative and uninformative controls.
 
-- [Exact gated analysis](studies/06_annotation_models/analysis.R) · [specification](studies/06_annotation_models/spec.R) · [annotation design](studies/06_annotation_models/annotation-design.R) · [status report](studies/06_annotation_models/report.qmd)
+- [Exact gated analysis](studies/06_annotation_models/analysis.R) · [specification](studies/06_annotation_models/spec.R) · [annotation design](studies/06_annotation_models/annotation-design.R) · [v2 design](docs/dev/study06_v2_design.md) · [status report](studies/06_annotation_models/report.qmd)
 - Current evidence: [prespecified stop capsule](results/reference/06_annotation_models/current-stop/README.md) and [qualification diagnostics](results/reference/06_annotation_models/current-stop/convergence_diagnostics.csv)
-- `sblr` reference: [`stblr_csr_annot()`](https://psoerensen.github.io/sblr/reference/stblr_csr_annot.html)
-- **Validation status:** **In development — qualification failed.** The final 40-fit grid was not launched, and no method-performance claim is supported.
+- `sblr` references: [`stblr_bed()`](https://psoerensen.github.io/sblr/reference/stblr_bed.html) and [`stblr_block_eigen()`](https://psoerensen.github.io/sblr/reference/stblr_block_eigen.html)
+- **Validation status:** v1 sparse qualification **failed and is preserved**; v2 identifiable qualification is **scaffolded but unrun**; the final benchmark is **not authorized** and no method-performance claim is supported.
 
 See the [Framework](framework.qmd) for execution and output responsibilities,
 and [Reproducibility](reproducibility.qmd) for the distinction between local

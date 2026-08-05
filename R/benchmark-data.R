@@ -78,7 +78,7 @@ benchmark_selected_ids <- function(glist, sample_limit = NULL) {
   ids
 }
 
-benchmark_filter_markers <- function(glist, chromosome, qc, sparse_ld) {
+benchmark_filter_markers <- function(glist, chromosome, qc, sparse_ld = NULL) {
   if (!requireNamespace("qgg", quietly = TRUE))
     stop("Marker filtering requires the suggested package `qgg`.",
       call. = FALSE)
@@ -98,10 +98,14 @@ benchmark_filter_markers <- function(glist, chromosome, qc, sparse_ld) {
       any(maf < qc$excludeMAF))
     stop("Retained marker frequencies do not satisfy the configured QC threshold.",
       call. = FALSE)
-  if (sparse_ld$max_distance_variants > 0L && length(marker_ids) < 2L)
+  if (!is.null(sparse_ld) && sparse_ld$max_distance_variants > 0L &&
+      length(marker_ids) < 2L)
     stop("At least two markers are required for the configured LD window.",
       call. = FALSE)
-  list(marker_ids = marker_ids, af = af, maf = maf,
+  position <- as.numeric(glist$pos[[chromosome]][idx])
+  if (length(position) != length(marker_ids) || any(!is.finite(position)))
+    stop("Retained marker positions are unavailable or invalid.", call. = FALSE)
+  list(marker_ids = marker_ids, positions = position, af = af, maf = maf,
     marker_count_before = length(chromosome_ids),
     marker_count_after = length(marker_ids),
     marker_order_id = paste(chromosome, length(marker_ids), marker_ids[[1L]],
@@ -307,11 +311,15 @@ benchmark_summary_stats <- function(simulation, glist, split, data_spec) {
   y <- simulation$truth$phenotypes[split$train_ids, , drop = FALSE]
   stats <- sblr::make_summary_stats(Glist = glist, y = y, chr = chromosome,
     rows = split$train_rows, scale = TRUE, nthreads = 1L)
+  reference_af <- if (!is.null(glist$sparseLD$af)) glist$sparseLD$af[[1L]] else {
+    idx <- match(simulation$data$marker_ids, glist$rsids[[chromosome]])
+    glist$af[[chromosome]][idx]
+  }
   if (!identical(stats$marker_names, simulation$data$marker_ids) ||
       !identical(stats$trait_names, simulation$data$trait_names) ||
       !identical(as.integer(stats$n), length(split$train_ids)) ||
       !isTRUE(all.equal(unname(stats$af[[1L]]),
-        unname(glist$sparseLD$af[[1L]]), tolerance = 0)))
+        unname(reference_af), tolerance = 0)))
     stop("Training summary statistics failed sample, marker, trait, or frequency checks.",
       call. = FALSE)
   stats
@@ -324,7 +332,26 @@ prepare_prediction_data <- function(spec, output_dir) {
     benchmark_example_files(paths$data_dir, spec$data)
   glist <- benchmark_load_glist(paths, files)
   markers <- benchmark_filter_markers(glist, spec$data$chromosome,
-    spec$markers$qc, spec$data$sparse_ld)
+    spec$markers$qc, spec$data$sparse_ld %||% NULL)
+  panel <- block_start <- NULL
+  if (identical(spec$task, "annotation_models") &&
+      identical(spec$study_version, "v2_identifiable_qualification")) {
+    path <- benchmark_spec_path(spec, spec$annotation_design$implementation)
+    logic <- new.env(parent = environment())
+    sys.source(path, envir = logic)
+    panel <- logic$select_study06_v2_blocks(markers$marker_ids,
+      markers$positions, spec)
+    keep <- match(panel$marker_id, markers$marker_ids)
+    markers$marker_ids <- panel$marker_id
+    markers$positions <- panel$position_bp
+    markers$af <- markers$af[keep]
+    markers$maf <- markers$maf[keep]
+    markers$marker_count_after_qc <- markers$marker_count_after
+    markers$marker_count_after <- nrow(panel)
+    markers$marker_order_id <- paste(spec$data$chromosome, nrow(panel),
+      panel$marker_id[[1L]], panel$marker_id[[nrow(panel)]], sep = ":")
+    block_start <- which(!duplicated(panel$block_id))
+  }
   sample_ids <- benchmark_selected_ids(glist, spec$data$sample_limit)
   split <- make_prediction_split(sample_ids, spec$split$train_fraction,
     spec$split$seed)
@@ -333,9 +360,21 @@ prepare_prediction_data <- function(spec, output_dir) {
   scaled <- training_scaled_genotypes(raw, split$train_rows)
   working <- benchmark_set_training_af(glist, spec$data$chromosome,
     markers$marker_ids, scaled$allele_frequency)
-  ld_glist <- benchmark_make_training_ld(working, split, markers$marker_ids,
-    spec$data, paths$ld_dir)
+  ld_glist <- if (is.null(panel))
+    benchmark_make_training_ld(working, split, markers$marker_ids,
+      spec$data, paths$ld_dir) else working
+  block_audit <- if (is.null(panel)) NULL else
+    logic$audit_study06_v2_blocks(panel, scaled$train,
+      method_marker_ids = stats::setNames(rep(list(markers$marker_ids),
+        length(spec$methods)), names(spec$methods)))
+  if (!is.null(block_audit)) {
+    block_audit$blocks <- cbind(study_version = spec$study_version,
+      block_audit$blocks)
+    block_audit$summary <- cbind(study_version = spec$study_version,
+      block_audit$summary)
+  }
   list(paths = paths, files = files, glist = glist, markers = markers,
     sample_ids = sample_ids, split = split, scaled = scaled,
-    working_glist = working, ld_glist = ld_glist)
+    working_glist = working, ld_glist = ld_glist, marker_panel = panel,
+    block_start = block_start, block_audit = block_audit)
 }

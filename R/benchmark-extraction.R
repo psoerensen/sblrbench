@@ -345,6 +345,7 @@ summarise_drawwise_annotation_prior <- function(traces, annotations,
     draw_index <- chunks[[i]]
     remaining <- matrix(1, nrow(annotations), length(draw_index))
     nonnull <- NULL
+    continuous_prior_contrast <- rep(NA_real_, length(draw_index))
     sticks_to_transform <- if (isTRUE(retain_marker_summary))
       seq_along(sticks_required) else 1L
     for (j in sticks_to_transform) {
@@ -366,7 +367,17 @@ summarise_drawwise_annotation_prior <- function(traces, annotations,
         marker_sum[, j] <- marker_sum[, j] +
           rowSums(component_probability)
       remaining <- remaining * stick_probability
-      if (j == 1L) nonnull <- stick_probability
+      if (j == 1L) {
+        nonnull <- stick_probability
+        intercept_row <- match("Intercept", annotations_required)
+        continuous_row <- match("continuous_signal", annotations_required)
+        if (!is.na(intercept_row) && !is.na(continuous_row))
+          continuous_prior_contrast <-
+            stats::pnorm(coefficient[intercept_row, ] +
+              coefficient[continuous_row, ]) -
+            stats::pnorm(coefficient[intercept_row, ] -
+              coefficient[continuous_row, ])
+      }
     }
     if (isTRUE(retain_marker_summary))
       marker_sum[, length(mixture_var)] <-
@@ -379,6 +390,7 @@ summarise_drawwise_annotation_prior <- function(traces, annotations,
       enriched_prior_contrast =
         colMeans(nonnull[enriched, , drop = FALSE]) -
           colMeans(nonnull[!enriched, , drop = FALSE]),
+      continuous_prior_contrast = continuous_prior_contrast,
       mean_prior_causal = if (all(is.na(causal))) NA_real_ else
         colMeans(nonnull[causal, , drop = FALSE]),
       mean_prior_noncausal = if (all(is.na(causal))) NA_real_ else

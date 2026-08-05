@@ -4,6 +4,12 @@
 > implemented. The prespecified qualification ran on 2026-08-04 and failed;
 > final fitting was not launched. See
 > `study06_annotation_qualification_result.md`.
+>
+> **Versioning update:** the design below is retained as the historical v1
+> sparse design and reclassified as `v1_sparse_stress`; it is not the current
+> primary qualification. The current `v2_identifiable_qualification` contract
+> is in `study06_v2_design.md`, is scaffolded but unrun, and does not authorize
+> the final benchmark.
 
 ## Recommended final design
 

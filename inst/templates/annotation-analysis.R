@@ -5,7 +5,7 @@ library(sblrbench)
 # Safe default. Use "qualification" first; use "final" only after it passes.
 mode <- Sys.getenv("SBLR_BENCH_MODE", "validate_only")
 profile <- "workshop"                 # or "benchmark"
-output_dir <- "results/local/my-annotation-analysis"
+output_dir <- "results/local/my-annotation-analysis/v2_identifiable_qualification"
 
 source("studies/06_annotation_models/spec.R", local = TRUE)
 source("studies/06_annotation_models/annotation-design.R", local = TRUE)

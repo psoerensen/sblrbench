@@ -1,6 +1,6 @@
 ---
 title: "Study 06: Annotation-informed models"
-description: "Implemented validation design; qualification failed."
+description: "V1 failed and preserved; v2 scaffolded but not run."
 ---
 
 ```{r}
@@ -20,8 +20,10 @@ computation <- rcsv("computational_summary.csv")
 ```
 
 ::: {.callout-important}
-**Status: In development — qualification failed.** The existing capsule is a
-**Prespecified convergence stop — partial evidence only**. It contains no final
+**Status: In development — versioned qualification work.** V1 sparse qualification **failed and is preserved**; v2
+identifiable qualification is **designed/scaffolded and has not been run**;
+the final benchmark is **not authorized**. The existing capsule is a
+prespecified v1 convergence stop containing partial evidence only and no final
 BayesR/BayesRC or SBayesR/SBayesRC performance comparison.
 :::
 
@@ -32,9 +34,9 @@ marker prioritization and genetic-signal recovery under BayesRC/SBayesRC,
 relative to marginally matched BayesR/SBayesR, without corresponding gains
 under uninformative annotations.
 
-## Study design
+## Historical v1 study design
 
-The implemented design uses 2,000 chromosome-1 samples and 37,991 ordered QC
+The preserved v1 design uses 2,000 chromosome-1 samples and 37,991 ordered QC
 markers from qgdata. A deterministic 70/30 split supplies 1,400 training and
 600 test samples. Informative and uninformative annotation scenarios each use
 five replicates, target heritability 0.30, and 50 expected active markers under
@@ -58,7 +60,7 @@ knitr::kable(true_alpha, digits = 4,
 
 ## Methods
 
-The final comparison is BED BayesR versus BED BayesRC and CSR SBayesR versus
+The historical planned comparison was BED BayesR versus BED BayesRC and CSR SBayesR versus
 CSR SBayesRC (`annotation_model = "annotation_probit_stick"`). Baselines and
 annotation-aware counterparts use matched marginal mixture assumptions. The
 CSR route uses training-only summary statistics and sparse LD.
@@ -127,12 +129,18 @@ performance execution. Completed histories can be reused only when their
 semantic identity, retained traces, method, scenario, burn-in, and retained
 window match exactly.
 
+V2 does not reinterpret this decision. It adds a separately versioned,
+identifiable 1,500-marker/180-active-marker design using public BED and
+canonical retained low-rank block-eigen routes. Its output namespace,
+checkpoints, qualification decision schema, and package pin are distinct. See
+the [v2 design](../../docs/dev/study06_v2_design.md).
+
 ## Required next runs
 
-The next action is a focused `sblr` investigation of BayesRC mixing and the CSR
-projected-residual failure, followed by the unchanged four-entry qualification.
-Only after all four entries pass may a separate explicit final command launch
-the prespecified final grid.
+The next scientific action is the explicit one-replicate v2 qualification.
+Only after its four annotation-route entries pass may a separate explicit
+final command launch a multi-replicate benchmark. V1 sparse stress may be run
+separately but cannot authorize or block v2 qualification.
 
 ## Validation boundaries
 
@@ -153,6 +161,7 @@ the study workflow, construct annotations, load checkpoints, or call a sampler.
 - [Audit](../../docs/dev/study06_annotation_audit.md)
 - [Completion plan](../../docs/dev/study06_annotation_completion_plan.md)
 - [Qualification result](../../docs/dev/study06_annotation_qualification_result.md)
+- [V2 identifiable design](../../docs/dev/study06_v2_design.md)
 - [Partial-evidence capsule](../../results/reference/06_annotation_models/current-stop/README.md)
 - [Manifest](../../results/reference/06_annotation_models/current-stop/benchmark_manifest.json)
 - [Convergence diagnostics](../../results/reference/06_annotation_models/current-stop/convergence_diagnostics.csv)

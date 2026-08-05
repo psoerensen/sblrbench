@@ -23,17 +23,19 @@ profile <- Sys.getenv("SBLR_BENCH_PROFILE", "benchmark")
 mode <- Sys.getenv("SBLR_BENCH_MODE", "validate_only")
 mode <- match.arg(mode, c("validate_only", "qualification", "final"))
 output_dir <- Sys.getenv("SBLR_BENCH_OUTPUT_DIR",
-  file.path(root, "results/local/06_annotation_models"))
+  file.path(root, "results/local/06_annotation_models",
+    "v2_identifiable_qualification"))
 validate_benchmark_spec(spec)
 
 ## 2. Package and data provenance -----------------------------------------
 provenance <- data.frame(
-  item = c("study", "status", "profile", "mode", "expected sblr SHA",
+  item = c("study", "study version", "status", "profile", "mode", "expected sblr SHA",
     "installed sblr version", "installed sblr SHA", "qgdata SHA",
     "output directory", "partial capsule"),
-  value = c(spec$study, spec$status, profile, mode, spec$packages$sblr$sha,
+  value = c(spec$study, spec$study_version, spec$status, profile, mode,
+    spec$packages$sblr$sha,
     as.character(utils::packageVersion("sblr")),
-    benchmark_package_provenance("sblr")$sha, spec$data$qgdata_sha,
+    benchmark_package_provenance("sblr")$sha, spec$packages$qgdata$sha,
     normalizePath(output_dir, winslash = "/", mustWork = FALSE),
     spec$frozen_capsule$current_stop),
   stringsAsFactors = FALSE)
@@ -102,9 +104,9 @@ print(method_design, row.names = FALSE)
 qualification_design <- list(
   entries = qualification_coordinates,
   maximum_history = spec$qualification$maximum_history,
-  candidate_burnins = spec$qualification$candidate_burnins,
-  candidate_retained = spec$qualification$candidate_retained,
-  required_chains = spec$qualification$required_chains,
+  candidate_burnins = spec$qualification$burnin_candidates,
+  candidate_retained = spec$qualification$retained_candidates,
+  required_chains = spec$qualification$nchains,
   thresholds = spec$qualification$thresholds,
   failure_rule = spec$qualification$failure_rule)
 print(qualification_design)

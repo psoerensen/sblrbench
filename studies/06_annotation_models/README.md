@@ -1,39 +1,39 @@
 # Study 06 — Annotation-informed models
 
-**Status: In development — qualification failed**
+**Status: In development — versioned qualification work**
 
-Study 06 now has a final software specification and shared-framework
-implementation for deterministic annotations, matched BayesR/BayesRC and
-SBayesR/SBayesRC comparisons, comparable draw-wise annotation-prior extraction,
-convergence qualification, semantic checkpoints, recovery metrics, and exact
-analysis/report contracts. The prespecified four-entry qualification ran on
-2026-08-04 and failed, so the final benchmark was not launched.
+- v1 sparse qualification: **failed and preserved**;
+- v2 identifiable qualification: **designed/scaffolded, not yet run**;
+- final benchmark: **not authorized**.
 
-The tracked `results/reference/06_annotation_models/current-stop/` directory is
-development evidence for that stop decision. It is not an authoritative
-completed benchmark capsule and must not be used for method-performance claims.
-This is not a completed benchmark.
+The tracked
+`results/reference/06_annotation_models/current-stop/` directory is immutable
+failed v1 development evidence. It is not a completed benchmark capsule and
+does not support method-performance claims. The original approximately
+37,991-marker, 50-active-marker design is also recorded as `v1_sparse_stress`:
+useful for sparse late-stick, prediction, PIP, active-count, variance, and
+numerical-integrity stress, but not the primary qualification of precise
+late-stick annotation recovery.
 
-The pinned `sblr` interfaces expose the selected annotation coefficient traces
-needed for a consistent draw-wise marker-prior estimand. If a future fit lacks
-those true retained traces, extraction reports the quantity as unavailable; it
-does not substitute a final state or posterior mean.
+The current specification is `v2_identifiable_qualification`. It deterministically
+selects 1,500 chromosome-1 QC markers in 15 separated 100-marker blocks,
+targets 180 non-null markers with expected active counts 90/54/36, and uses
+matched informative and uninformative annotation scenarios. Deterministic
+truth checks prevent an accidentally unidentified qualification replicate.
 
-Both BED BayesRC histories completed but failed the convergence thresholds;
-both CSR SBayesRC entries failed with an invalid projected residual scale. The
-next required action is a focused package-side mixing and residual-scale
-investigation, followed by the unchanged four-entry qualification. Only a
-passing, identity-matched decision can authorize the separate 40-fit,
-160-chain final benchmark. The old local target cache is retired.
+The four scientific routes are public `sblr::stblr_bed()` BayesR/BayesRC and
+public `sblr::stblr_block_eigen()` SBayesR/SBayesRC with canonical
+`representation = "low_rank"` and `eigen_prop = 0.995`. The current proper
+annotation-intercept prior default is used. Approximate sparse CSR, pair
+allocation, and unimplemented collapsed block allocation are not v2 gates.
 
-The concrete audit and completion plan are documented in
-[`docs/dev/study06_annotation_audit.md`](../../docs/dev/study06_annotation_audit.md)
-and
-[`docs/dev/study06_annotation_completion_plan.md`](../../docs/dev/study06_annotation_completion_plan.md).
-The study now uses the shared data, simulation, method, semantic-checkpoint,
-convergence, extraction, metric, and reporting framework. The implementation
-record is in
-[`docs/dev/study06_annotation_implementation.md`](../../docs/dev/study06_annotation_implementation.md).
-The qualification evidence and exact blockers are recorded in
-[`docs/dev/study06_annotation_qualification_result.md`](../../docs/dev/study06_annotation_qualification_result.md).
-No final validated benchmark is currently claimed.
+V2 outputs and checkpoints must use the
+`results/local/06_annotation_models/v2_identifiable_qualification/` namespace;
+the runner rejects v1/current-stop collisions. Validation-only is the default
+analysis mode and performs no sampler call. Qualification remains an explicit
+future action with four chains and the unchanged convergence thresholds.
+
+See the [v2 design](../../docs/dev/study06_v2_design.md) for the full scientific
+contract, audits, decision rule, diagnostic isolation profiles, and future
+launch command. The historical [v1 qualification result](../../docs/dev/study06_annotation_qualification_result.md)
+remains the authoritative record of why v1 stopped.

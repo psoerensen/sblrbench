@@ -30,6 +30,6 @@ Suggests:
     withr
 Remotes:
     psoerensen/qgg,
-    psoerensen/sblr@02e8c74baa906e83c4a08d42a9cc6339b4e81072
+    psoerensen/sblr@f2e3647920ed7e8b1ea9d47a6571b3753285682a
 URL: https://github.com/psoerensen/sblrbench
 BugReports: https://github.com/psoerensen/sblrbench/issues

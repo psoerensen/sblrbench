@@ -231,6 +231,7 @@ parse_benchmark_cli_arguments <- function(args) {
                                  data = NULL) {
   package <- benchmark_package_provenance("sblr")
   list(schema_version = 1L, study = spec$study, task = spec$task,
+    study_version = spec$study_version %||% NULL,
     profile = profile, validate_only = isTRUE(validate_only),
     coordinate_count = nrow(coordinates),
     scenarios = if (is.null(spec$scenarios)) unique(coordinates$scenario) else
@@ -660,6 +661,13 @@ parse_benchmark_cli_arguments <- function(args) {
   environment
 }
 
+.annotation_version_rows <- function(x, spec) {
+  if (!is.data.frame(x) || !nrow(x) || "study_version" %in% names(x)) return(x)
+  if ("study" %in% names(x))
+    return(cbind(x["study"], study_version = spec$study_version, x[-1L]))
+  cbind(study_version = spec$study_version, x)
+}
+
 benchmark_annotation_spec_hash <- function(spec) {
   x <- spec
   attributes(x) <- NULL
@@ -667,13 +675,14 @@ benchmark_annotation_spec_hash <- function(spec) {
 }
 
 annotation_qualification_artifact_schema <- function() list(
-  schema = "sblrbench-annotation-qualification-v1",
-  required_fields = c("study", "spec_hash", "sblr_sha", "qgdata_sha",
-    "entries", "overall_decision", "created_at"),
+  schema = "sblrbench-annotation-qualification-v2",
+  required_fields = c("study", "study_version", "spec_hash", "sblr_sha", "qgdata_sha",
+    "entries", "route_checks", "overall_decision", "created_at"),
   entry_fields = c("scenario", "replicate", "method",
     "available_history", "selected_burnin", "selected_retained", "rhat",
     "ess_bulk", "ess_tail", "relative_mcse", "all_quantities_pass",
-    "quantity_decisions", "semantic_checkpoint_hash",
+    "quantity_decisions", "scientific_checks", "all_scientific_checks_pass",
+    "semantic_checkpoint_hash",
     "reusable_history_hash"),
   quantity_fields = c("quantity", "rhat", "ess_bulk", "ess_tail",
     "relative_mcse", "pass"))
@@ -686,6 +695,7 @@ validate_annotation_qualification_decision <- function(decision, spec) {
     stop("Study 06 qualification decision artifact is incomplete.",
       call. = FALSE)
   if (!identical(decision$study, spec$study) ||
+      !identical(decision$study_version, spec$study_version) ||
       !identical(decision$spec_hash, benchmark_annotation_spec_hash(spec)) ||
       !identical(decision$sblr_sha, spec$packages$sblr$sha) ||
       !identical(decision$qgdata_sha, spec$packages$qgdata$sha))
@@ -706,7 +716,10 @@ validate_annotation_qualification_decision <- function(decision, spec) {
       call. = FALSE)
   if (!identical(decision$overall_decision, "passed") ||
       any(!vapply(decision$entries, function(x)
-        isTRUE(x$all_quantities_pass), logical(1))))
+        isTRUE(x$all_quantities_pass) &&
+          isTRUE(x$all_scientific_checks_pass), logical(1))) ||
+      !is.list(decision$route_checks) || !length(decision$route_checks) ||
+      any(!vapply(decision$route_checks, function(x) isTRUE(x$pass), logical(1))))
     stop("Study 06 qualification did not pass every required entry.",
       call. = FALSE)
   if (any(!vapply(decision$entries, function(entry)
@@ -733,6 +746,7 @@ validate_annotation_qualification_decision <- function(decision, spec) {
                                               data, bundle, mode) {
   annotation_hash <- benchmark_hash_object(bundle$annotations)
   common <- list(study = spec$study, task = spec$task,
+    study_version = spec$study_version,
     scenario = as.character(coordinate$scenario),
     replicate = as.integer(coordinate$replicate),
     method = as.character(coordinate$method),
@@ -750,7 +764,7 @@ validate_annotation_qualification_decision <- function(decision, spec) {
       residual = as.integer(coordinate$residual_seed),
       fit = as.integer(coordinate$fit_seed),
       chains = as.integer(coordinate$chain_seeds[[1L]])),
-    ld_settings = spec$data$sparse_ld,
+    operator_settings = spec$data$block_design,
     sblr_sha = spec$packages$sblr$sha,
     qgdata_sha = spec$packages$qgdata$sha)
   checkpoint <- benchmark_semantic_checkpoint_identity(
@@ -843,6 +857,7 @@ validate_annotation_qualification_decision <- function(decision, spec) {
     result <- tryCatch(dispatch(method = method, controls = controls,
       simulation = bundle$simulation, stats = bundle$stats,
       glist = data$ld_glist, split = data$split,
+      block_start = data$block_start,
       annotations = bundle$annotations,
       annotation_truth = bundle$annotation_truth), error = function(error) {
         reason <<- conditionMessage(error)
@@ -968,6 +983,115 @@ validate_annotation_qualification_decision <- function(decision, spec) {
   bundles
 }
 
+.annotation_truth_audit <- function(bundles, spec) {
+  .benchmark_bind_rows(lapply(bundles, function(bundle) {
+    counts <- bundle$simulation$extras$component_counts
+    sticks <- bundle$simulation$extras$stick_counts
+    coordinate <- bundle$coordinate
+    data.frame(study = spec$study, study_version = spec$study_version,
+      scenario = as.character(coordinate$scenario),
+      replicate = as.integer(coordinate$replicate), sticks,
+      realized_component_0 = counts[1L], realized_component_1 = counts[2L],
+      realized_component_2 = counts[3L], realized_component_3 = counts[4L],
+      realized_active = sum(counts[-1L]),
+      target_heritability = spec$controls$simulation$h2,
+      realized_heritability =
+        bundle$simulation$extras$realized_heritability,
+      stringsAsFactors = FALSE)
+  }))
+}
+
+.annotation_scientific_checks <- function(traces, prior, scenario, spec) {
+  alpha <- traces[traces$parameter == "alpha" &
+    traces$annotation != "Intercept", , drop = FALSE]
+  tolerance <- spec$qualification$scientific_tolerances
+  rows <- list()
+  add <- function(id, quantity, value, threshold, pass) {
+    rows[[length(rows) + 1L]] <<- data.frame(check_id = id,
+      quantity = quantity, value = value, threshold = threshold,
+      pass = isTRUE(pass), stringsAsFactors = FALSE)
+  }
+  groups <- split(alpha, interaction(alpha$annotation, alpha$stick,
+    drop = TRUE, lex.order = TRUE))
+  informative <- identical(as.character(scenario), "informative_annotations")
+  for (x in groups) {
+    annotation <- x$annotation[[1L]]
+    stick <- x$stick[[1L]]
+    id <- paste(annotation, stick, sep = ":")
+    if (informative && annotation %in% c("enriched_binary", "continuous_signal")) {
+      probability <- mean(x$value > 0)
+      add(paste0("positive_direction:", id), id, probability,
+        tolerance$directional_posterior_probability,
+        probability >= tolerance$directional_posterior_probability)
+    } else {
+      interval <- stats::quantile(x$value, c(.025, .975), names = FALSE)
+      add(paste0("zero_compatibility:", id), id,
+        max(abs(interval)), 0, interval[1L] <= 0 && interval[2L] >= 0)
+    }
+  }
+  for (quantity in c("enriched_prior_contrast",
+      "continuous_prior_contrast")) {
+    value <- prior$draws[[quantity]]
+    if (informative) {
+      probability <- mean(value > 0)
+      add(paste0("positive_direction:", quantity), quantity, probability,
+        tolerance$directional_posterior_probability,
+        probability >= tolerance$directional_posterior_probability)
+    } else {
+      interval <- stats::quantile(value, c(.025, .975), names = FALSE)
+      add(paste0("zero_compatibility:", quantity), quantity,
+        max(abs(interval)), 0, interval[1L] <= 0 && interval[2L] >= 0)
+    }
+  }
+  do.call(rbind, rows)
+}
+
+.annotation_route_checks <- function(records, spec) {
+  tolerance <- spec$qualification$scientific_tolerances
+  rows <- lapply(names(spec$scenarios), function(scenario) {
+    hit <- records[vapply(records, function(x)
+      identical(x$scenario, scenario), logical(1))]
+    if (length(hit) != 2L) return(data.frame(scenario = scenario,
+      check_id = "complete_route_pair", value = length(hit), threshold = 2,
+      pass = FALSE, stringsAsFactors = FALSE))
+    names(hit) <- vapply(hit, `[[`, character(1), "method")
+    bed <- hit[["st_bed_bayesrc"]]
+    block <- hit[["st_block_eigen_sbayesrc"]]
+    h2_bed <- bed$parameters$posterior_mean[
+      bed$parameters$parameter == "heritability"]
+    h2_block <- block$parameters$posterior_mean[
+      block$parameters$parameter == "heritability"]
+    pred_bed <- bed$prediction$value[
+      bed$prediction$metric == "genetic_value_correlation"]
+    pred_block <- block$prediction$value[
+      block$prediction$metric == "genetic_value_correlation"]
+    marker <- merge(bed$marker[c("marker_id", "posterior_mean_effect")],
+      block$marker[c("marker_id", "posterior_mean_effect")],
+      by = "marker_id", suffixes = c("_bed", "_block"), sort = FALSE)
+    effect_correlation <- stats::cor(marker$posterior_mean_effect_bed,
+      marker$posterior_mean_effect_block)
+    data.frame(scenario = scenario,
+      check_id = c("bed_block_h2_difference",
+        "bed_block_prediction_correlation_difference",
+        "bed_block_effect_correlation"),
+      value = c(abs(h2_bed - h2_block), abs(pred_bed - pred_block),
+        effect_correlation),
+      threshold = c(tolerance$maximum_bed_block_h2_difference,
+        tolerance$maximum_bed_block_prediction_difference,
+        tolerance$minimum_bed_block_effect_correlation),
+      pass = c(is.finite(h2_bed) && is.finite(h2_block) &&
+          abs(h2_bed - h2_block) <=
+          tolerance$maximum_bed_block_h2_difference,
+        is.finite(pred_bed) && is.finite(pred_block) &&
+          abs(pred_bed - pred_block) <=
+          tolerance$maximum_bed_block_prediction_difference,
+        is.finite(effect_correlation) &&
+          effect_correlation >= tolerance$minimum_bed_block_effect_correlation),
+      stringsAsFactors = FALSE)
+  })
+  .benchmark_bind_rows(rows)
+}
+
 .run_annotation_qualification <- function(spec, profile, coordinates, paths,
                                           resume) {
   data <- prepare_prediction_data(spec, paths$root)
@@ -975,14 +1099,23 @@ validate_annotation_qualification_decision <- function(decision, spec) {
       length(data$markers$marker_ids) != spec$validation$expected_marker_count)
     stop("Study 06 prepared data counts differ from the specification.",
       call. = FALSE)
+  .benchmark_write_csv(data$block_audit$blocks,
+    file.path(paths$tables, "block_design_audit.csv"))
+  .benchmark_write_csv(data$block_audit$summary,
+    file.path(paths$tables, "block_design_summary.csv"))
   logic <- .annotation_logic(spec)
-  bundles <- logic$prepare_annotation_simulations(spec, profile, data)
+  bundles <- logic$prepare_annotation_simulations(spec, profile, data,
+    mode = "qualification")
   bundles <- .annotation_bundle_map(bundles)
+  truth_audit <- .annotation_truth_audit(bundles, spec)
+  .benchmark_write_csv(truth_audit,
+    file.path(paths$tables, "truth_identifiability_audit.csv"))
   methods <- resolve_benchmark_methods(spec)
   names(methods) <- vapply(methods, `[[`, character(1), "id")
   dispatch <- getOption("sblrbench.annotation_fit_dispatch",
     fit_annotation_method)
   status_rows <- runtime_rows <- diagnostic_rows <- candidate_rows <- list()
+  scientific_rows <- science_records <- list()
   decision_entries <- vector("list", nrow(coordinates))
   for (i in seq_len(nrow(coordinates))) {
     coordinate <- coordinates[i, , drop = FALSE]
@@ -995,6 +1128,7 @@ validate_annotation_qualification_decision <- function(decision, spec) {
       controls, data, bundle, paths, "qualification", resume, dispatch)
     ok <- !is.null(fit$result)
     status_rows[[i]] <- data.frame(study = spec$study,
+      study_version = spec$study_version,
       mode = "qualification", scenario = coordinate$scenario,
       replicate = coordinate$replicate, method = coordinate$method,
       status = if (ok) "ok" else "failed", reason = fit$reason,
@@ -1007,7 +1141,20 @@ validate_annotation_qualification_decision <- function(decision, spec) {
       status = if (ok) "ok" else "failed", reason = fit$reason,
       reused = fit$reused, stringsAsFactors = FALSE)
     selected <- selected_diagnostics <- NULL
+    scientific_checks <- data.frame()
     if (ok) {
+      fit$result <- predict_prediction_result(fit$result, bundle$simulation,
+        bundle$test_simulation, data$scaled$test)
+      marker <- .annotation_marker_table(fit$result, bundle, coordinate)
+      parameters <- .annotation_parameter_estimates(fit$result, coordinate,
+        bundle)
+      prediction <- prediction_genetic_value_recovery(bundle$test_simulation,
+        fit$result)
+      alpha <- extract_annotation_coefficient_traces(fit$result,
+        expected_chains = spec$qualification$nchains)
+      science_records[[i]] <- list(scenario = as.character(coordinate$scenario),
+        method = as.character(coordinate$method), marker = marker,
+        parameters = parameters, prediction = prediction)
       draws <- .annotation_required_traces(fit$result, coordinate, bundle,
         spec$qualification$nchains)
       diagnostics <- .annotation_candidate_diagnostics(draws, spec)
@@ -1019,6 +1166,18 @@ validate_annotation_qualification_decision <- function(decision, spec) {
       selected_diagnostics <- diagnostics[
         diagnostics$burnin == selected$burnin &
           diagnostics$retained == selected$retained, , drop = FALSE]
+      selected_alpha <- alpha[alpha$iteration > selected$burnin &
+        alpha$iteration <= selected$burnin + selected$retained, , drop = FALSE]
+      prior <- summarise_drawwise_annotation_prior(selected_alpha,
+        bundle$annotations, spec$controls$simulation$mixture_var,
+        retain_marker_summary = FALSE)
+      if (!identical(prior$status, "ok")) stop(prior$reason, call. = FALSE)
+      scientific_checks <- .annotation_scientific_checks(selected_alpha,
+        prior, coordinate$scenario, spec)
+      scientific_checks <- cbind(scenario = coordinate$scenario,
+        replicate = coordinate$replicate, method = coordinate$method,
+        scientific_checks)
+      scientific_rows[[i]] <- scientific_checks
     }
     quantity_decisions <- if (is.null(selected_diagnostics)) list() else
       lapply(seq_len(nrow(selected_diagnostics)), function(j) list(
@@ -1043,6 +1202,11 @@ validate_annotation_qualification_decision <- function(decision, spec) {
         selected$maximum_relative_mcse,
       all_quantities_pass = !is.null(selected) &&
         isTRUE(selected$all_quantities_pass),
+      scientific_checks = lapply(seq_len(nrow(scientific_checks)), function(j)
+        as.list(scientific_checks[j, c("check_id", "quantity", "value",
+          "threshold", "pass"), drop = FALSE])),
+      all_scientific_checks_pass = nrow(scientific_checks) > 0L &&
+        all(scientific_checks$pass),
       quantity_decisions = quantity_decisions,
       semantic_checkpoint_hash = fit$identities$checkpoint_hash,
       reusable_history_hash = fit$identities$history_hash)
@@ -1051,12 +1215,26 @@ validate_annotation_qualification_decision <- function(decision, spec) {
   runtime <- .benchmark_bind_rows(runtime_rows)
   convergence <- .benchmark_bind_rows(diagnostic_rows)
   candidates <- .benchmark_bind_rows(candidate_rows)
+  scientific <- .benchmark_bind_rows(scientific_rows)
+  route_checks <- .annotation_route_checks(science_records, spec)
+  status <- .annotation_version_rows(status, spec)
+  runtime <- .annotation_version_rows(runtime, spec)
+  convergence <- .annotation_version_rows(convergence, spec)
+  candidates <- .annotation_version_rows(candidates, spec)
+  scientific <- .annotation_version_rows(scientific, spec)
+  route_checks <- .annotation_version_rows(route_checks, spec)
   passed <- all(vapply(decision_entries, function(x)
-    isTRUE(x$all_quantities_pass), logical(1)))
-  decision <- list(schema = "sblrbench-annotation-qualification-v1",
-    study = spec$study, spec_hash = benchmark_annotation_spec_hash(spec),
+    isTRUE(x$all_quantities_pass) &&
+      isTRUE(x$all_scientific_checks_pass), logical(1))) &&
+    nrow(route_checks) > 0L && isTRUE(all(route_checks$pass))
+  decision <- list(schema = "sblrbench-annotation-qualification-v2",
+    study = spec$study, study_version = spec$study_version,
+    spec_hash = benchmark_annotation_spec_hash(spec),
     sblr_sha = spec$packages$sblr$sha,
     qgdata_sha = spec$packages$qgdata$sha, entries = decision_entries,
+    route_checks = lapply(seq_len(nrow(route_checks)), function(i)
+      as.list(route_checks[i, setdiff(names(route_checks), "study_version"),
+        drop = FALSE])),
     overall_decision = if (passed) "passed" else "failed",
     created_at = format(Sys.time(), tz = "UTC", usetz = TRUE))
   decision_path <- file.path(paths$root, spec$qualification$decision_path)
@@ -1069,6 +1247,10 @@ validate_annotation_qualification_decision <- function(decision, spec) {
       file.path(paths$qualification, "convergence.csv")),
     candidate_windows = .benchmark_write_csv(candidates,
       file.path(paths$qualification, "candidate_windows.csv")),
+    scientific_checks = .benchmark_write_csv(scientific,
+      file.path(paths$qualification, "scientific_checks.csv")),
+    route_checks = .benchmark_write_csv(route_checks,
+      file.path(paths$qualification, "route_checks.csv")),
     qualification_decision = decision_path,
     runtime = .benchmark_write_csv(runtime,
       file.path(paths$qualification, "runtime.csv")))
@@ -1077,7 +1259,8 @@ validate_annotation_qualification_decision <- function(decision, spec) {
       call. = FALSE)
   list(spec = spec, paths = c(paths, files), status = status,
     qualification_coordinates = coordinates, qualification = decision,
-    convergence = convergence, runtime = runtime)
+    convergence = convergence, scientific_checks = scientific,
+    route_checks = route_checks, runtime = runtime)
 }
 
 .annotation_marker_table <- function(result, bundle, coordinate) {
@@ -1137,9 +1320,16 @@ validate_annotation_qualification_decision <- function(decision, spec) {
 .run_annotation_final <- function(spec, profile, coordinates, paths, resume) {
   decision <- .read_annotation_qualification_decision(spec, paths)
   data <- prepare_prediction_data(spec, paths$root)
+  .benchmark_write_csv(data$block_audit$blocks,
+    file.path(paths$tables, "block_design_audit.csv"))
+  .benchmark_write_csv(data$block_audit$summary,
+    file.path(paths$tables, "block_design_summary.csv"))
   logic <- .annotation_logic(spec)
   bundles <- .annotation_bundle_map(
-    logic$prepare_annotation_simulations(spec, profile, data))
+    logic$prepare_annotation_simulations(spec, profile, data, mode = "final"))
+  truth_audit <- .annotation_truth_audit(bundles, spec)
+  .benchmark_write_csv(truth_audit,
+    file.path(paths$tables, "truth_identifiability_audit.csv"))
   methods <- resolve_benchmark_methods(spec)
   names(methods) <- vapply(methods, `[[`, character(1), "id")
   dispatch <- getOption("sblrbench.annotation_fit_dispatch",
@@ -1160,7 +1350,8 @@ validate_annotation_qualification_decision <- function(decision, spec) {
       methods[[coordinate$method]], controls, data, bundle, paths, "final",
       resume, dispatch)
     ok <- !is.null(fit$result)
-    status_rows[[i]] <- data.frame(study = spec$study, mode = "final",
+    status_rows[[i]] <- data.frame(study = spec$study,
+      study_version = spec$study_version, mode = "final",
       scenario = coordinate$scenario, replicate = coordinate$replicate,
       method = coordinate$method, status = if (ok) "ok" else "failed",
       reason = fit$reason, reused = fit$reused,
@@ -1249,6 +1440,23 @@ validate_annotation_qualification_decision <- function(decision, spec) {
         stringsAsFactors = FALSE)
     }))
   runtime <- .benchmark_bind_rows(runtime_rows)
+  parameter_estimates <- .benchmark_bind_rows(parameter_rows)
+  annotation_prior_summary <- .benchmark_bind_rows(prior_rows)
+  annotation_alpha <- .benchmark_bind_rows(alpha_rows)
+  prediction_metrics <- .benchmark_bind_rows(prediction_rows)
+  convergence <- .benchmark_bind_rows(convergence_rows)
+  status <- .annotation_version_rows(status, spec)
+  truth <- .annotation_version_rows(truth, spec)
+  annotation_truth_table <- .annotation_version_rows(annotation_truth_table, spec)
+  annotation_prior_summary <- .annotation_version_rows(annotation_prior_summary, spec)
+  marker_results <- .annotation_version_rows(marker_results, spec)
+  parameter_estimates <- .annotation_version_rows(parameter_estimates, spec)
+  annotation_alpha <- .annotation_version_rows(annotation_alpha, spec)
+  metrics <- .annotation_version_rows(metrics, spec)
+  paired <- .annotation_version_rows(paired, spec)
+  prediction_metrics <- .annotation_version_rows(prediction_metrics, spec)
+  convergence <- .annotation_version_rows(convergence, spec)
+  runtime <- .annotation_version_rows(runtime, spec)
   files <- list(
     fit_status = .benchmark_write_csv(status,
       file.path(paths$tables, "fit_status.csv")),
@@ -1257,24 +1465,24 @@ validate_annotation_qualification_decision <- function(decision, spec) {
     annotation_truth = .benchmark_write_csv(annotation_truth_table,
       file.path(paths$tables, "annotation_truth.csv")),
     annotation_prior_summary = .benchmark_write_csv(
-      .benchmark_bind_rows(prior_rows),
+      annotation_prior_summary,
       file.path(paths$tables, "annotation_prior_summary.csv")),
     marker_results = .benchmark_write_csv(marker_results,
       file.path(paths$tables, "marker_results.csv")),
     parameter_estimates = .benchmark_write_csv(
-      .benchmark_bind_rows(parameter_rows),
+      parameter_estimates,
       file.path(paths$tables, "parameter_estimates.csv")),
-    annotation_alpha = .benchmark_write_csv(.benchmark_bind_rows(alpha_rows),
+    annotation_alpha = .benchmark_write_csv(annotation_alpha,
       file.path(paths$tables, "annotation_alpha.csv")),
     annotation_metrics = .benchmark_write_csv(metrics,
       file.path(paths$tables, "annotation_metrics.csv")),
     paired_comparisons = .benchmark_write_csv(paired,
       file.path(paths$tables, "paired_comparisons.csv")),
     prediction_metrics = .benchmark_write_csv(
-      .benchmark_bind_rows(prediction_rows),
+      prediction_metrics,
       file.path(paths$tables, "prediction_metrics.csv")),
     convergence = .benchmark_write_csv(
-      .benchmark_bind_rows(convergence_rows),
+      convergence,
       file.path(paths$tables, "convergence.csv")),
     runtime = .benchmark_write_csv(runtime,
       file.path(paths$tables, "runtime.csv")))
@@ -1284,17 +1492,15 @@ validate_annotation_qualification_decision <- function(decision, spec) {
     spec$qualification$decision_path)
   .write_prediction_manifest(manifest, paths$manifest)
   writeLines(benchmark_session_information(), paths$session_info)
-  parameter_estimates <- .benchmark_bind_rows(parameter_rows)
-  annotation_prior_summary <- .benchmark_bind_rows(prior_rows)
   list(spec = spec, paths = c(paths, files), status = status, truth = truth,
     annotation_truth = annotation_truth_table,
     annotation_prior = annotation_prior_summary,
     annotation_prior_summary = annotation_prior_summary,
     marker_results = marker_results,
     parameter_estimates = parameter_estimates, estimates = parameter_estimates,
-    alpha = .benchmark_bind_rows(alpha_rows), metrics = metrics,
-    paired = paired, prediction_metrics = .benchmark_bind_rows(prediction_rows),
-    convergence = .benchmark_bind_rows(convergence_rows), runtime = runtime,
+    alpha = annotation_alpha, metrics = metrics,
+    paired = paired, prediction_metrics = prediction_metrics,
+    convergence = convergence, runtime = runtime,
     qualification = decision)
 }
 
@@ -1331,16 +1537,42 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
   if (!identical(spec$task, "annotation_models") && identical(mode, "qualification"))
     stop("Qualification mode is supported only for Study 06 annotation models.",
       call. = FALSE)
+  if (identical(spec$task, "annotation_models")) {
+    normalized_output <- gsub("\\\\", "/",
+      normalizePath(output_dir, winslash = "/", mustWork = FALSE))
+    required <- spec$output$required_path_component
+    components <- strsplit(normalized_output, "/", fixed = TRUE)[[1L]]
+    frozen <- gsub("\\\\", "/", normalizePath(
+      benchmark_spec_path(spec, spec$frozen_capsule$current_stop),
+      winslash = "/", mustWork = FALSE))
+    if (!required %in% components || identical(normalized_output, frozen) ||
+        startsWith(normalized_output, paste0(frozen, "/")))
+      stop("Study 06 v2 output_dir must use its versioned namespace and cannot overlap v1 current-stop.",
+        call. = FALSE)
+  }
   resolved <- resolve_benchmark_profile(spec, profile)
   coordinates <- if (identical(spec$task, "annotation_models") &&
       identical(mode, "qualification"))
     benchmark_annotation_seeds(spec, profile, mode = "qualification") else
       benchmark_seeds(spec, profile)
-  benchmark_assert_package_sha("sblr", spec$packages$sblr$sha)
-  if (!identical(as.character(utils::packageVersion("sblr")),
-      spec$packages$sblr$version))
-    stop("Installed sblr version does not match spec$packages$sblr$version.",
-      call. = FALSE)
+  source_only_validation <- identical(spec$task, "annotation_models") &&
+    identical(mode, "validate_only")
+  if (source_only_validation) {
+    root <- attr(spec, "repository_root", exact = TRUE) %||% getwd()
+    sibling <- normalizePath(file.path(root, "..", "sblr"), winslash = "/",
+      mustWork = FALSE)
+    if (!dir.exists(sibling) ||
+        !identical(benchmark_git_sha(sibling, warn = FALSE),
+          spec$packages$sblr$sha))
+      stop("Study 06 v2 validate-only mode requires the pinned sibling sblr source HEAD.",
+        call. = FALSE)
+  } else {
+    benchmark_assert_package_sha("sblr", spec$packages$sblr$sha)
+    if (!identical(as.character(utils::packageVersion("sblr")),
+        spec$packages$sblr$version))
+      stop("Installed sblr version does not match spec$packages$sblr$version.",
+        call. = FALSE)
+  }
   paths <- benchmark_output_paths(output_dir)
   .benchmark_create_output_dirs(paths)
   if (isTRUE(validate_only) || identical(mode, "validate_only")) {
@@ -1349,6 +1581,8 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
       benchmark_convergence_design(spec)
     }
     status <- .prediction_validation_status(coordinates, spec$study)
+    if (identical(spec$task, "annotation_models"))
+      status$study_version <- spec$study_version
     status_path <- .benchmark_write_csv(status,
       file.path(paths$tables, "fit_status.csv"))
     coordinate_path <- if (spec$task %in% c("convergence", "finemapping",

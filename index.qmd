@@ -39,9 +39,10 @@ fine-mapping, prediction, parameter estimation, convergence, and LD operators.
 | Development studies | **2 in development** — Studies 06–07 |
 | Reusable templates | **6 available** — five validated workflow types plus annotation development |
 
-Study 06 annotation-informed models stopped at its prespecified qualification
-gate. It has no valid final performance benchmark and remains **In
-development**. Study 07 multitrait validation is also **In development**.
+Study 06 v1 sparse qualification stopped at its prespecified gate and is
+preserved. Its separately versioned v2 identifiable qualification is
+scaffolded but has not run; no final performance benchmark is authorized.
+Study 06 and Study 07 multitrait validation remain **In development**.
 
 ::: {.callout-note}
 ## How to read the evidence

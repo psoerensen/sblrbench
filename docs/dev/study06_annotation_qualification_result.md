@@ -1,5 +1,11 @@
 # Study 06 annotation qualification result
 
+> **Historical v1 record — unchanged scientific interpretation.** This page
+> records `v1_sparse_qualification_failed`. The failed evidence remains valid
+> development evidence and is not a completed benchmark. The separately
+> versioned `v2_identifiable_qualification` is designed/scaffolded but has not
+> been run; see `study06_v2_design.md`. The final benchmark remains unauthorized.
+
 ## Decision
 
 **Qualification failed. The final 40-coordinate benchmark was not launched.**

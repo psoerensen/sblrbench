@@ -193,9 +193,9 @@ annotation_parameter_recovery <- function(estimates, metadata) {
 #' @return Paired annotation-minus-baseline and scenario-interaction rows.
 #' @export
 annotation_paired_advantages <- function(metrics) {
-  pairs <- data.frame(interface = c("BED", "CSR"),
-    annotation_method = c("st_bed_bayesrc", "st_csr_sbayesrc"),
-    baseline_method = c("st_bed_bayesr", "st_csr_sbayesr"),
+  pairs <- data.frame(interface = c("BED", "block_eigen_low_rank"),
+    annotation_method = c("st_bed_bayesrc", "st_block_eigen_sbayesrc"),
+    baseline_method = c("st_bed_bayesr", "st_block_eigen_sbayesr"),
     stringsAsFactors = FALSE)
   rows <- list()
   for (i in seq_len(nrow(pairs))) for (scenario in unique(metrics$scenario)) {
