@@ -1,0 +1,28 @@
+{
+  "schema": "sblrbench-study06-power-isolation-v1",
+  "profile": "v2_paired_power_isolation",
+  "sblrbench_sha": "954cb8f3d658e2861d07d68523a5d011aa4b9499",
+  "sblr_sha": "f2e3647920ed7e8b1ea9d47a6571b3753285682a",
+  "spec_hash": "241c15afab8fefc571e38e625130de6e4ab58b958c30cff369e26998ee30fa56",
+  "truth_hash": "169d52bef390022a9106d7e61b200493869b40cbb76f1c8d911eebbc80fea1eb",
+  "shuffle_seed": 6201,
+  "shuffle_hash": "37a74596185a708fe825e478dd251c090587e1e841160867fec828ae965d6e40",
+  "fit_count": 8,
+  "all_fits_complete": true,
+  "converged_fits": [
+    "baseline--bed",
+    "baseline--block_eigen",
+    "fixed_true_alpha--bed",
+    "fixed_true_alpha--block_eigen"
+  ],
+  "nonconverged_fits": [
+    "learned_informative--bed",
+    "learned_informative--block_eigen",
+    "learned_shuffled--bed",
+    "learned_shuffled--block_eigen"
+  ],
+  "power_contrasts": "descriptive under non-converged chains",
+  "interpretation": "alpha hierarchy and feedback dominate",
+  "formal_qualification_unchanged": true,
+  "final_benchmark_authorized": false
+}

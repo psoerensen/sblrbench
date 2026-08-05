@@ -22,6 +22,7 @@ computation <- rcsv("computational_summary.csv")
 ::: {.callout-important}
 **Status: In development — versioned qualification work.** V1 sparse qualification **failed and is preserved**; v2
 identifiable qualification **completed all four fits but failed its gates**;
+the paired power/isolation diagnostic **completed without changing that decision**;
 the final benchmark is **not authorized**. The existing capsule is a
 prespecified v1 convergence stop containing partial evidence only and no final
 BayesR/BayesRC or SBayesR/SBayesRC performance comparison.
@@ -153,6 +154,23 @@ minimal runner wiring fixes, and local evidence hashes are recorded in the
 Raw histories remain local; this report continues to read the unchanged v1
 `current-stop` capsule only.
 
+## V2 paired power/isolation diagnostic
+
+An eight-fit paired diagnostic used the informative replicate-1 truth for BED
+BayesR, retained block-eigen SBayesR, learned informative and shuffled
+BayesRC/SBayesRC, and fixed-true-alpha BayesRC/SBayesRC. Both baselines and
+both fixed-alpha models passed the unchanged convergence contract; every
+learned-alpha model failed. Informative annotation fits had substantially
+higher PIP AUPRC than paired baseline and shuffled controls, but those power
+contrasts remain descriptive because the learned fits did not converge. The
+approximately 0.09--0.10 BED/block heritability offset persisted in the
+no-annotation baseline and fixed-alpha condition.
+
+The diagnostic therefore selects **alpha hierarchy and feedback dominate** as
+the primary isolation interpretation, with route variance calibration as a
+secondary issue. It neither reruns nor changes the failed qualification. See
+the [paired power/isolation result](../../docs/dev/study06_v2_power_isolation_result.md).
+
 ## Required next runs
 
 The next scientific action is review of v2 convergence/mixing and late-stick
@@ -182,6 +200,7 @@ the study workflow, construct annotations, load checkpoints, or call a sampler.
 - [Qualification result](../../docs/dev/study06_annotation_qualification_result.md)
 - [V2 identifiable design](../../docs/dev/study06_v2_design.md)
 - [V2 qualification result](../../docs/dev/study06_v2_qualification_result.md)
+- [V2 paired power/isolation result](../../docs/dev/study06_v2_power_isolation_result.md)
 - [Partial-evidence capsule](../../results/reference/06_annotation_models/current-stop/README.md)
 - [Manifest](../../results/reference/06_annotation_models/current-stop/benchmark_manifest.json)
 - [Convergence diagnostics](../../results/reference/06_annotation_models/current-stop/convergence_diagnostics.csv)

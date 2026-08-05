@@ -337,3 +337,86 @@ test_that("qualification scientific and route gates are deterministic", {
   expect_equal(nrow(route), 6L)
   expect_true(all(route$pass))
 })
+
+test_that("paired power isolation registry and shuffle are deterministic", {
+  environment <- new.env(parent = globalenv())
+  sys.source(file.path(study06_root, "studies", "06_annotation_models",
+    "power-isolation.R"), envir = environment)
+  registry <- environment$study06_power_registry(study06_spec)
+  expect_equal(nrow(registry), 8L)
+  expect_identical(as.integer(table(registry$route)), c(4L, 4L))
+  expect_identical(as.integer(table(registry$condition)), rep(2L, 4L))
+  ids <- sprintf("marker_%04d", 1:1500)
+  A <- study06_logic$construct_annotation_design(ids, study06_spec)
+  first <- environment$study06_shuffle_annotations(A, 6201L)
+  second <- environment$study06_shuffle_annotations(A, 6201L)
+  expect_identical(first, second)
+  expect_true(all(first$annotations[, "Intercept"] == 1))
+  expect_lte(max(abs(stats::cor(first$annotations[, -1L]) -
+    stats::cor(A[, -1L]))), 1e-14)
+})
+
+test_that("paired power controls preserve qualification history and requested traces", {
+  environment <- new.env(parent = globalenv())
+  sys.source(file.path(study06_root, "studies", "06_annotation_models",
+    "power-isolation.R"), envir = environment)
+  ids <- sprintf("marker_%04d", 1:1500)
+  controls <- environment$study06_power_controls(study06_spec, ids,
+    701020L, c(701121L, 701222L, 701323L, 701424L), TRUE, FALSE)
+  expect_identical(controls$nit, 9000L)
+  expect_identical(controls$nburn, 0L)
+  expect_identical(controls$nchains, 4L)
+  expect_identical(controls$chain_seeds,
+    c(701121L, 701222L, 701323L, 701424L))
+  expect_identical(controls$convergence_control$selected_markers, ids)
+  expect_identical(controls$convergence_control$selected_marker_quantities,
+    "component")
+  expect_false(controls$updateAlpha)
+  expect_identical(controls$diagnostic_mode,
+    "fixed_true_annotation_coefficients")
+  unavailable <- environment$study06_power_controls(study06_spec,
+    character(), 701020L, c(701121L, 701222L, 701323L, 701424L),
+    FALSE, FALSE)
+  expect_null(unavailable$convergence_control$selected_markers)
+  expect_null(unavailable$convergence_control$selected_marker_quantities)
+})
+
+test_that("paired power trace fallback is deterministic and retains every causal marker", {
+  environment <- new.env(parent = globalenv())
+  sys.source(file.path(study06_root, "studies", "06_annotation_models",
+    "power-isolation.R"), envir = environment)
+  truth <- data.frame(marker_id = sprintf("m%04d", 1:1500),
+    true_nonnull = seq_len(1500) <= 171)
+  first <- environment$study06_trace_marker_set(truth)
+  second <- environment$study06_trace_marker_set(truth)
+  expect_identical(first, second)
+  expect_equal(first$marker_count, 496L)
+  expect_equal(first$causal_count, 171L)
+  expect_true(all(truth$marker_id[truth$true_nonnull] %in% first$marker_ids))
+  expect_false(first$complete_genomewide_occupancy)
+  expect_lte(first$estimated_extended_gib, 1)
+})
+
+test_that("paired power convergence traces include expected active count", {
+  environment <- new.env(parent = globalenv())
+  sys.source(file.path(study06_root, "studies", "06_annotation_models",
+    "power-isolation.R"), envir = environment)
+  ids <- paste0("m", seq_len(20L))
+  A <- study06_logic$construct_annotation_design(ids, study06_spec)
+  groups <- c("vbs", "vgs", "ves", rep("component_pi", 4L))
+  quantities <- data.frame(group = groups,
+    component_name = c(rep(NA_character_, 3L), paste0("component_", 0:3)))
+  values <- array(1, dim = c(5L, 4L, length(groups)))
+  values[, , 4L] <- .88
+  values[, , 5L] <- .06
+  values[, , 6L] <- .04
+  values[, , 7L] <- .02
+  result <- new_sblrbench_result("fixture", native_fit = list(
+    convergence_traces = list(values = values, quantities = quantities)))
+  draws <- environment$study06_power_required_traces(result, NULL, NULL, A,
+    data.frame(marker_id = ids, true_nonnull = FALSE),
+    data.frame(fit_id = "baseline--bed", update_alpha = FALSE), study06_spec)
+  expected <- draws[draws$quantity == "expected_active_count", ]
+  expect_equal(nrow(expected), 20L)
+  expect_equal(expected$value, rep(2.4, 20L))
+})

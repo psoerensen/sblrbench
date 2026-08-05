@@ -5,6 +5,8 @@
 - v1 sparse qualification: **failed and preserved**;
 - v2 identifiable qualification: **failed with recorded convergence/mixing,
   scientific-recovery, and route-agreement blockers**;
+- paired power/isolation diagnostic: **completed; alpha hierarchy and feedback
+  dominate, with route variance calibration a secondary issue**;
 - final benchmark: **not authorized**.
 
 The tracked
@@ -43,3 +45,6 @@ contract, audits, decision rule, and diagnostic isolation profiles. The
 records the exact failed decision. The historical
 [v1 qualification result](../../docs/dev/study06_annotation_qualification_result.md)
 remains the authoritative record of why v1 stopped.
+The [paired power/isolation result](../../docs/dev/study06_v2_power_isolation_result.md)
+records the eight-fit diagnostic; it does not replace or amend either failed
+qualification result.
