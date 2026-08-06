@@ -13,7 +13,7 @@ package-side hierarchy and transition audits: completed
 official SBayesRC multichain parity: blocked by the v0.2.6 seed contract
 official SBayesRC single-trajectory descriptive comparison: completed
 final benchmark: not authorized
-larger n=5000, m≈38000 feasibility experiment: planned, not yet run
+large n=5000, m=37,991 feasibility experiment: technically blocked (LARGE-F6); no scientific fits run
 ```
 
 Study 06 asks whether correctly specified annotations improve causal-marker
@@ -88,6 +88,9 @@ Formal decisions remain separate:
   and [GCTB-P5 decision](../../docs/dev/study06_gctb_parity_decision.json);
 - [official single-trajectory result](../../docs/dev/study06_gctb_single_trajectory_result.md)
   and [GCTB-D decision](../../docs/dev/study06_gctb_single_trajectory_decision.json).
+- [large information-scale design](../../docs/dev/study06_large_feasibility_design.md),
+  [blocked result](../../docs/dev/study06_large_feasibility_result.md), and
+  [LARGE-F6 decision](../../docs/dev/study06_large_feasibility_decision.json).
 
 ## Recommended reading paths
 
@@ -128,11 +131,13 @@ Formal decisions remain separate:
   [annotation design](annotation-design.R).
 - Diagnostic helpers: [paired isolation](power-isolation.R),
   [official export/parity](gctb-parity.R), and
-  [single trajectory](gctb-single-trajectory.R).
+  [single trajectory](gctb-single-trajectory.R), plus the frozen
+  [large-feasibility profile](large-feasibility.R).
 - Entry points: [benchmark runner](../../scripts/run_benchmark.R),
   [paired isolation](../../scripts/run_study06_power_isolation.R),
   [official parity](../../scripts/run_study06_gctb_parity.R), and
-  [single trajectory](../../scripts/run_study06_gctb_single_trajectory.R).
+  [single trajectory](../../scripts/run_study06_gctb_single_trajectory.R), plus
+  the [large-feasibility runner](../../scripts/run_study06_large_feasibility.R).
 
 ## Historical evidence and simulation designs
 
@@ -152,13 +157,16 @@ substantial eigen truncation.
 ## Next phases
 
 1. **Documentation cleanup** — this consolidation.
-2. **Larger information-scale feasibility experiment** — planned, not run:
-   one registered replicate with `n = 5000`, `m ≈ 38000`, four independent
-   `sblr` chains, and explicit alpha, `sigmaSqAlpha`, component occupancy,
-   expected active count, realized active count, variance, heritability, PIP,
-   and recovery
-   checks. This task does not design or authorize it.
-3. **Replicated validation** — only if the feasibility replicate succeeds.
+2. **Large information-scale feasibility experiment** — designed and frozen,
+   but [technically blocked](../../docs/dev/study06_large_feasibility_result.md)
+   before scientific fitting (`LARGE-F6`). The current public API lacks compact
+   genome-wide occupancy-count traces, and the required full-positive-mode B0
+   smoke rejected its iteration-0 residual scale.
+3. **Package-side contract audit** — add/test compact occupancy aggregates and
+   diagnose the frozen B0 residual-scale rejection without changing this truth.
+4. **Exact feasibility execution and replicated validation** — only after those
+   contracts are resolved; replicated validation still requires the exact
+   single replicate to succeed first.
 
 An optional fixed-state official-versus-`sblr` latent-contract audit may examine
 residual variance, effect/`nbsq` scaling, p1 orientation, pi updates, active and

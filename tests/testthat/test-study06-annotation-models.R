@@ -146,6 +146,74 @@ study06_simulation_fixture <- function(scenario = "informative_annotations",
   list(simulation = simulation, A = A, truth = truth, coordinate = coordinate)
 }
 
+test_that("Study 06 large feasibility is frozen and scientifically isolated", {
+  env <- new.env(parent = globalenv())
+  sys.source(testthat::test_path("..", "..", "studies",
+    "06_annotation_models", "large-feasibility.R"), envir = env)
+  spec <- env$study06_large_spec()
+  registry <- env$study06_large_registry(spec)
+
+  expect_identical(registry$fit_id, c("E0", "B0", "E2", "B2", "E1", "B1"))
+  expect_identical(registry$route, rep(c("bed", "block_eigen"), 3L))
+  expect_identical(registry$update_alpha, c(FALSE, FALSE, FALSE, FALSE,
+    TRUE, TRUE))
+  expect_equal(spec$source$sample_count, 5000L)
+  expect_equal(spec$block$max_size, 500L)
+  expect_equal(spec$mixture$gamma, c(0, .01, .1, 1))
+  expect_equal(unname(spec$mixture$target_pi), c(.970, .015, .010, .005))
+  expect_equal(spec$mcmc[c("nchains", "nit", "nburn", "retained")],
+    list(nchains = 4L, nit = 12000L, nburn = 3000L, retained = 9000L))
+  expect_equal(spec$mcmc$ordinary_allocation_sweeps, 1L)
+  expect_equal(spec$mcmc$ordinary_hierarchy_updates, 1L)
+  expect_false(spec$prior$intercept_flat)
+  expect_equal(spec$prior$alpha_update_every, 1L)
+  expect_identical(spec$block$representation, "low_rank")
+  expect_identical(spec$block$eigen_policy, "cumulative_positive_mass")
+  expect_gt(spec$block$eigen_prop, .999999999999)
+  expect_lt(spec$block$eigen_prop, 1)
+  expect_false(any(grepl("csr|pair|temper|partial|H20", unlist(spec),
+    ignore.case = TRUE)))
+})
+
+test_that("Study 06 large annotation and alpha construction are deterministic", {
+  env <- new.env(parent = globalenv())
+  sys.source(testthat::test_path("..", "..", "studies",
+    "06_annotation_models", "large-feasibility.R"), envir = env)
+  marker <- paste0("m", seq_len(5000L)); block <- rep(1:10, each = 500L)
+  a <- env$study06_large_annotations(marker, block)
+  b <- env$study06_large_annotations(marker, block)
+  expect_identical(a, b)
+  expect_true(all(a$matrix[, 1L] == 1))
+  expect_equal(qr(a$matrix)$rank, 4L)
+  expect_equal(mean(a$matrix[, 2L]), .2)
+  expect_true(all(vapply(split(a$matrix[, 2L], block), function(x)
+    length(unique(x)) == 2L, logical(1))))
+  calibrated <- env$study06_large_calibrate_alpha(a$matrix)
+  expect_lte(max(abs(calibrated$expected_pi - c(.970, .015, .010, .005))),
+    1e-6)
+  expect_equal(unname(calibrated$alpha[-1L, ]),
+    unname(env$study06_large_spec()$mixture$nonintercept_alpha))
+  expect_true(all(calibrated$probability >= 0))
+  expect_equal(unname(rowSums(calibrated$probability)), rep(1, length(marker)),
+    tolerance = 1e-12)
+})
+
+test_that("Study 06 large blocked decision preserves scientific boundaries", {
+  path <- testthat::test_path("..", "..", "docs", "dev",
+    "study06_large_feasibility_decision.json")
+  decision <- jsonlite::read_json(path, simplifyVector = TRUE)
+  expect_identical(decision$decision, "LARGE-F6")
+  expect_identical(decision$scientific_fits_launched, 0L)
+  expect_false(decision$formal_qualification_changed)
+  expect_false(decision$final_benchmark_authorized)
+  expect_identical(decision$additional_replicates, 0L)
+  expect_identical(decision$changed_seed_retries, 0L)
+  expect_false(decision$ordinary_sampler_changed)
+  expect_true(decision$truth_gates_passed)
+  expect_true(decision$positive_modes_all_retained)
+  expect_length(decision$blockers, 2L)
+})
+
 test_that("truth identifiability, component minima, and heritability are enforced", {
   for (scenario in names(study06_spec$scenarios)) {
     fixture <- study06_simulation_fixture(scenario)
@@ -553,7 +621,7 @@ test_that("Study 06 documentation hierarchy preserves status and evidence levels
     "official SBayesRC multichain parity: blocked by the v0.2.6 seed contract",
     "official SBayesRC single-trajectory descriptive comparison: completed",
     "final benchmark: not authorized",
-    "larger n=5000, m≈38000 feasibility experiment: planned, not yet run")
+    "large n=5000, m=37,991 feasibility experiment: technically blocked (LARGE-F6); no scientific fits run")
   for (line in status) {
     expect_true(grepl(line, readme, fixed = TRUE), info = line)
     expect_true(grepl(line, report, fixed = TRUE), info = line)

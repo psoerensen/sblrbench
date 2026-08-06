@@ -1,0 +1,37 @@
+{
+  "schema": "sblrbench-study06-large-feasibility-decision-v1",
+  "decision": "LARGE-F6",
+  "classification": "technical or design block",
+  "scientific_fits_launched": 0,
+  "formal_qualification_changed": false,
+  "final_benchmark_authorized": false,
+  "additional_replicates": 0,
+  "changed_seed_retries": 0,
+  "ordinary_sampler_changed": false,
+  "sblrbench_sha": "6ef276eab99a37946901812d5466274c23f56f8a",
+  "sblr_sha": "a165fb0635afcb8a712e8658175dfbb19896b3c3",
+  "sblr_version": "0.2.0",
+  "installed_sblr_tree_sha256": "9ab8c038a5f609370218ac6b3819643ac656b0187e424769a9a23cba9fec5f76",
+  "specification_hash": "b001bc36a5531e5e6b342286a253fc1fd34dad4265359d89d2feaa026d4533df",
+  "truth_hash": "e94a511540f600e61ef47b52947836f19a15388f5e8ce795c179929956817507",
+  "marker_order_hash": "e394f4324f89ca7ad88691284a6216a24e26c691d7cb59d822d5d7f006b096f2",
+  "sample_order_hash": "f3c14e98845fc565424a973a5a5850768c587f9d5a5306cc58ff36c5329a256b",
+  "annotation_hash": "5cc2a5dc64140b5cb2c3e77044d8a0b7bd698e2b33f1f8cb0f5b39ac278f7bd3",
+  "block_hash": "3b119c38fcababc5b70892f8fc29dcd773fb73e4e2a2b1cd6daf94556e16294d",
+  "gwas_hash": "f00c01326d20d32c1b389f239ebe520327f4b8c859acf7320b10d531243cacfd",
+  "truth_gates_passed": true,
+  "positive_modes_all_retained": true,
+  "smokes": {
+    "E0": "passed_noninferential",
+    "B0": "failed_invalid_residual_scale_iter0",
+    "E2": "passed_noninferential",
+    "E1": "passed_noninferential",
+    "B2": "not_run_after_route_stop",
+    "B1": "not_run_after_route_stop"
+  },
+  "blockers": [
+    "No compact public genome-wide component-count or realized-active-count history; all-marker tracing exceeds available storage.",
+    "Full-positive-mode B0 rejected the operator residual scale at trait 0, chain 0, iteration 0."
+  ],
+  "scientific_conclusion": "The registered feasibility question remains unanswered because no scientific fit was launched."
+}

@@ -33,8 +33,9 @@ final benchmark. Package-side hierarchy and transition audits are complete.
 Official SBayesRC multichain parity is blocked because v0.2.6 does not honor
 distinct public chain seeds; the separate single-trajectory descriptive
 comparison completed and found strong SNP-level agreement and annotation
-benefit alongside unresolved latent architecture. A larger `n=5000`,
-`m≈38000` feasibility experiment is planned but has not run. See the
+benefit alongside unresolved latent architecture. The registered `n=5000`,
+`m=37,991` feasibility experiment passed deterministic truth/LD audits but is
+technically blocked before scientific fitting (`LARGE-F6`). See the
 [Study 06 report](studies/06_annotation_models/report.qmd),
 [navigation page](studies/06_annotation_models/README.md), and
 [technical synthesis](docs/dev/study06_annotation_inference_evidence_synthesis.md).

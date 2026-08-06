@@ -20,7 +20,7 @@ package-side hierarchy and transition audits: completed
 official SBayesRC multichain parity: blocked by the v0.2.6 seed contract
 official SBayesRC single-trajectory descriptive comparison: completed
 final benchmark: not authorized
-larger n=5000, m≈38000 feasibility experiment: planned, not yet run
+large n=5000, m=37,991 feasibility experiment: technically blocked (LARGE-F6); no scientific fits run
 ```
 
 For a concise overview, read the
@@ -60,6 +60,7 @@ declared its own exact tiny-state criterion.
 | 16. partial-exchange feasibility | Can retained tempering histories determine whether smaller exact exchange blocks would work? Offline only. | Lower-replica complete states were not retained; P1–P8 ratios unavailable, P9 invalid/unavailable. Aggregate count mismatch was not sufficient to explain penalties. **F6: retained state insufficient.** | Rules out retrospective exact partial-exchange claims. Does not rule in or out any proposed partial exchange. | sibling partial-exchange note/decision |
 | 17. persistent route calibration | Is the BED/block h2 offset caused by annotation learning or eigen truncation? Baseline, learned, shuffled, fixed-alpha, hierarchy ablations and schedules; all blocks retain 100/100 modes. | Block h2 remains about .09–.10 above BED without annotations and with alpha fixed; predictions/effects remain highly correlated. **Separate route-calibration evidence.** | Rules out annotation learning and substantial eigenspace truncation as sole causes. Summary-likelihood/residual contracts remain unresolved. | paired isolation and sibling hierarchy/kernel notes |
 | 18. official single trajectory | Does one default-stream official v0.2.6 path recover the same SNP signal? Exact validated export; D0/D1 matched four-component and D2 native five-component, 9,000/3,000. | D1 versus learned block `sblr`: PIP/effect/validation-g correlations .957/.998/.998; D1 AUPRC .557 versus D0 .320. D0/D2 occupancy and later-stick quantities visibly drift. **GCTB-D1/D3/D5/D6/D7; descriptive only.** | Establishes strong agreement for this one trajectory and reproduces annotation ranking benefit. Does not repair GCTB-P5, establish convergence, or validate latent architecture. | `docs/dev/study06_gctb_single_trajectory_result.md`; decision JSON |
+| 19. large information-scale feasibility | Can ordinary BayesRC/SBayesRC converge and recover truth at n=5,000 and m=37,991? One frozen truth, six registered BED/block fits, all-positive block modes. | Truth, annotation, GWAS and LD audits passed; no scientific fit ran. Compact genome-wide occupancy histories were unavailable and B0 rejected its residual scale at iteration zero. **LARGE-F6.** | Does not answer the information-scale hypothesis. Identifies trace and block residual-scale contracts that must be resolved without changing the frozen truth. | `docs/dev/study06_large_feasibility_result.md`; decision JSON |
 
 ## Key quantitative comparison
 
@@ -263,16 +264,23 @@ four `sblr` block chains required about 1.4 times one official D1 trajectory.
 ## Current roadmap
 
 1. **Documentation cleanup** — this consolidation.
-2. **Larger information-scale feasibility experiment** — planned and not yet
-   run: one registered replicate with `n = 5000`, `m ≈ 38000`, four independent
+2. **Larger information-scale feasibility experiment** — designed and frozen,
+   but not scientifically run: the one-replicate `n = 5000`, `m = 37,991` design is
+   blocked before scientific fitting by unavailable compact genome-wide
+   occupancy histories and a full-positive-mode B0 iteration-0 residual-scale
+   rejection. See the [LARGE-F6 result](study06_large_feasibility_result.md).
+   Once those contracts are resolved, run the same registered truth with four independent
    `sblr` chains, and alpha, `sigmaSqAlpha`, component occupancy, expected and
    realized active counts, genetic/residual variance, heritability, PIP ranking,
    and truth-recovery checks.
-3. **Replicated validation** — only if the feasibility replicate succeeds.
+3. **Package-side contract audit** — compact aggregate occupancy tracing and
+   the frozen full-positive-mode B0 residual scale.
+4. **Replicated validation** — only if the exact feasibility replicate succeeds.
 
 An optional fixed-state official/`sblr` contract audit may examine residual
 variance, `nbsq` effect scale, p1 orientation, pi updates, active/component-count
-semantics, and annotation-variance output. It is not established as a required
-precondition for the larger feasibility experiment. Official multichain parity
+semantics, and annotation-variance output. This broader optional audit is not
+the narrow package contract work required to unblock the frozen experiment.
+Official multichain parity
 still requires an upstream seedable release or documented independent-chain
 mechanism. The final benchmark remains unauthorized.
