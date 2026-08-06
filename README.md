@@ -29,14 +29,17 @@ qualification failed and is preserved, while its v2 identifiable qualification
 completed all four fits but failed convergence, scientific-recovery, and route
 gates. A paired power/isolation diagnostic completed and isolated alpha
 hierarchy/feedback as the primary mixing mechanism; it did not authorize the
-final benchmark. Package-side hierarchy and transition audits are complete. An
-official SBayesRC parity export and API smoke also completed, but multichain
-parity was blocked because official v0.2.6 did not honor distinct public chain
-seeds. A subsequent single-trajectory comparison found strong descriptive
-SNP-level agreement and annotation benefit alongside latent-architecture
-differences; it did not establish convergence or amend the blocker. Study 07 —
-Multitrait validation is **in development**. Neither is a completed validation
-benchmark.
+final benchmark. Package-side hierarchy and transition audits are complete.
+Official SBayesRC multichain parity is blocked because v0.2.6 does not honor
+distinct public chain seeds; the separate single-trajectory descriptive
+comparison completed and found strong SNP-level agreement and annotation
+benefit alongside unresolved latent architecture. A larger `n=5000`,
+`m≈38000` feasibility experiment is planned but has not run. See the
+[Study 06 report](studies/06_annotation_models/report.qmd),
+[navigation page](studies/06_annotation_models/README.md), and
+[technical synthesis](docs/dev/study06_annotation_inference_evidence_synthesis.md).
+Study 07 — Multitrait validation is **in development**. Neither is a completed
+validation benchmark.
 
 ## Practical analysis workflows
 

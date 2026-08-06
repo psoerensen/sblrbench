@@ -535,3 +535,51 @@ test_that("single-trajectory decision preserves GCTB-P5 and forbids qualificatio
   expect_identical(parity$decision, "GCTB-P5")
   expect_false(parity$full_registry_run)
 })
+
+test_that("Study 06 documentation hierarchy preserves status and evidence levels", {
+  read_text <- function(...) paste(readLines(file.path(study06_root, ...),
+    warn = FALSE, encoding = "UTF-8"), collapse = "\n")
+  readme <- read_text("studies", "06_annotation_models", "README.md")
+  report <- read_text("studies", "06_annotation_models", "report.qmd")
+  synthesis <- read_text("docs", "dev",
+    "study06_annotation_inference_evidence_synthesis.md")
+  inventory <- read_text("docs", "dev", "study06_documentation_inventory.md")
+
+  status <- c(
+    "v1 sparse qualification: failed and preserved",
+    "v2 identifiable qualification: failed",
+    "paired power isolation: completed",
+    "package-side hierarchy and transition audits: completed",
+    "official SBayesRC multichain parity: blocked by the v0.2.6 seed contract",
+    "official SBayesRC single-trajectory descriptive comparison: completed",
+    "final benchmark: not authorized",
+    "larger n=5000, m≈38000 feasibility experiment: planned, not yet run")
+  for (line in status) {
+    expect_true(grepl(line, readme, fixed = TRUE), info = line)
+    expect_true(grepl(line, report, fixed = TRUE), info = line)
+  }
+  expect_true(grepl("Established", report, fixed = TRUE))
+  expect_true(grepl("Descriptive but useful", report, fixed = TRUE))
+  expect_true(grepl("Unresolved", report, fixed = TRUE))
+  expect_true(grepl("Implementation and sampler lessons", report,
+    fixed = TRUE))
+  expect_true(grepl("official SBayesRC multichain parity", synthesis,
+    fixed = TRUE))
+  expect_true(grepl("raw reference evidence", inventory, fixed = TRUE))
+})
+
+test_that("documentation cleanup decision cannot authorize scientific execution", {
+  path <- file.path(study06_root, "docs", "dev",
+    "study06_documentation_cleanup_decision.json")
+  expect_true(file.exists(path))
+  decision <- jsonlite::read_json(path, simplifyVector = TRUE)
+  expect_identical(decision$decision, "DOC-C1")
+  expect_false(decision$scientific_decision_changed)
+  expect_false(decision$mcmc_ran)
+  expect_false(decision$qualification_rerun)
+  expect_false(decision$official_sbayesrc_rerun)
+  expect_false(decision$final_benchmark_launched)
+  expect_false(decision$larger_feasibility_experiment_launched)
+  expect_false(decision$package_rebuilt)
+  expect_false(decision$sibling_modified)
+})

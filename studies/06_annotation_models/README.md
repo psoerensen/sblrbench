@@ -1,64 +1,167 @@
 # Study 06 — Annotation-informed models
 
-**Status: In development — versioned qualification work**
+**Status: In development — formal qualifications failed; final benchmark not
+authorized.**
 
-- v1 sparse qualification: **failed and preserved**;
-- v2 identifiable qualification: **failed with recorded convergence/mixing,
-  scientific-recovery, and route-agreement blockers**;
-- paired power/isolation diagnostic: **completed; alpha hierarchy and feedback
-  dominate, with route variance calibration a secondary issue**;
-- package-side hierarchy and transition audits: **completed**;
-- official SBayesRC multichain parity: **blocked because official v0.2.6
-  cannot produce independently seeded native chains through its public API**;
-- official single-trajectory comparison: **completed descriptively; strong
-  SNP-level agreement and annotation benefit coexist with architecture drift**;
-- final benchmark: **not authorized**.
+## Current status
 
-The tracked
-`results/reference/06_annotation_models/current-stop/` directory is immutable
-failed v1 development evidence. It is not a completed benchmark capsule and
-does not support method-performance claims. The original approximately
-37,991-marker, 50-active-marker design is also recorded as `v1_sparse_stress`:
-useful for sparse late-stick, prediction, PIP, active-count, variance, and
-numerical-integrity stress, but not the primary qualification of precise
-late-stick annotation recovery.
+```text
+v1 sparse qualification: failed and preserved
+v2 identifiable qualification: failed
+paired power isolation: completed
+package-side hierarchy and transition audits: completed
+official SBayesRC multichain parity: blocked by the v0.2.6 seed contract
+official SBayesRC single-trajectory descriptive comparison: completed
+final benchmark: not authorized
+larger n=5000, m≈38000 feasibility experiment: planned, not yet run
+```
 
-The current specification is `v2_identifiable_qualification`. It deterministically
-selects 1,500 chromosome-1 QC markers in 15 separated 100-marker blocks,
-targets 180 non-null markers with expected active counts 90/54/36, and uses
-matched informative and uninformative annotation scenarios. Deterministic
-truth checks prevent an accidentally unidentified qualification replicate.
+Study 06 asks whether correctly specified annotations improve causal-marker
+prioritization and signal recovery in BayesRC and SBayesRC, and whether the
+annotation hierarchy, mixture allocation, and individual-level versus
+summary-statistic likelihood routes behave reliably. The immutable v2 identity
+is:
 
-The four scientific routes are public `sblr::stblr_bed()` BayesR/BayesRC and
-public `sblr::stblr_block_eigen()` SBayesR/SBayesRC with canonical
-`representation = "low_rank"` and `eigen_prop = 0.995`. The current proper
-annotation-intercept prior default is used. Approximate sparse CSR, pair
-allocation, and unimplemented collapsed block allocation are not v2 gates.
+```text
+Specification:      241c15afab8fefc571e38e625130de6e4ab58b958c30cff369e26998ee30fa56
+Informative truth:  169d52bef390022a9106d7e61b200493869b40cbb76f1c8d911eebbc80fea1eb
+```
 
-V2 outputs and checkpoints must use the
-`results/local/06_annotation_models/v2_identifiable_qualification/` namespace;
-the runner rejects v1/current-stop collisions. Validation-only is the default
-analysis mode and performs no sampler call. The registered four-chain
-qualification has now run. All four histories completed, but every entry
-failed the convergence gate; informative late-stick directions and both
-BED/block-eigen heritability comparisons also failed. The final benchmark
-remains blocked.
+The [main report](report.qmd) is the primary readable account. The
+[evidence synthesis](../../docs/dev/study06_annotation_inference_evidence_synthesis.md)
+is the authoritative chronological technical history. Experiment-specific
+result documents and decision JSON files remain authoritative for their own
+formal or descriptive decisions.
 
-See the [v2 design](../../docs/dev/study06_v2_design.md) for the full scientific
-contract, audits, decision rule, and diagnostic isolation profiles. The
-[v2 qualification result](../../docs/dev/study06_v2_qualification_result.md)
-records the exact failed decision. The historical
-[v1 qualification result](../../docs/dev/study06_annotation_qualification_result.md)
-remains the authoritative record of why v1 stopped.
-The [paired power/isolation result](../../docs/dev/study06_v2_power_isolation_result.md)
-records the eight-fit diagnostic; it does not replace or amend either failed
-qualification result.
-The [annotation-inference evidence synthesis](../../docs/dev/study06_annotation_inference_evidence_synthesis.md)
-is the chronological diagnostic history. The
-[official parity design](../../docs/dev/study06_gctb_parity_design.md) and
-[blocked result](../../docs/dev/study06_gctb_parity_result.md) preserve the
-validated export and official seed-contract blocker without claiming parity.
-The [single-trajectory design](../../docs/dev/study06_gctb_single_trajectory_design.md)
-and [descriptive result](../../docs/dev/study06_gctb_single_trajectory_result.md)
-compare one reproducible default-stream trajectory without changing GCTB-P5 or
-claiming convergence.
+## Current conclusions
+
+### Established
+
+- BayesR/SBayesR baselines and fixed-true-alpha BayesRC/SBayesRC converge.
+- The independently audited probit-stick and `sigmaSqAlpha` conditionals are
+  correct, and the hierarchy converges when allocations are frozen.
+- Fixing `sigmaSqAlpha` or using the production-equivalent variance prior does
+  not resolve dynamic learned-alpha mixing.
+- Repeating hierarchy updates improves BED alpha marginals, but not the full
+  joint posterior; repeating allocation sweeps is unfavorable.
+- The tested complete-state coupling ladder is algebraically correct on a tiny
+  state space but has effectively zero overlap on Study 06. Existing retained
+  state cannot evaluate exact partial exchange.
+- The BED/block-eigen heritability offset persists without annotations, with
+  alpha fixed, and with all block modes retained.
+- Informative annotations improve causal-marker ranking. One matched official
+  SBayesRC trajectory independently reproduces that benefit and strongly agrees
+  with `sblr` for SNP effects, PIPs, ranks, and validation genetic values.
+
+### Descriptive but useful
+
+Learned-alpha AUPRC and prediction summaries are descriptive under
+non-convergence. Official alpha, occupancy, architecture, native five-component
+results, runtime, and drift are single-trajectory descriptive. Pooled learned
+BED/block summaries and per-chain official-versus-`sblr` comparisons are not
+formal posterior validation.
+
+### Unresolved
+
+Official multichain convergence, quantitative alpha and annotation-variance
+parity, latent architecture parity, active/component-count semantics,
+residual/effect-scale contracts, the BED/block variance calibration, and
+whether larger information scale resolves joint mixing remain unresolved.
+
+## Authoritative documents
+
+- [Main Study 06 report](report.qmd) — concise scientific overview.
+- [Technical evidence synthesis](../../docs/dev/study06_annotation_inference_evidence_synthesis.md)
+  — authoritative chronological ledger and evidence map.
+- [Documentation inventory](../../docs/dev/study06_documentation_inventory.md)
+  — tracked benchmark and package-side evidence map.
+- [Documentation cleanup result](../../docs/dev/study06_documentation_cleanup_result.md)
+  and [decision](../../docs/dev/study06_documentation_cleanup_decision.json).
+
+Formal decisions remain separate:
+
+- [v1 failed qualification](../../docs/dev/study06_annotation_qualification_result.md);
+- [v2 failed qualification](../../docs/dev/study06_v2_qualification_result.md);
+- [paired power isolation](../../docs/dev/study06_v2_power_isolation_result.md)
+  and [decision](../../docs/dev/study06_v2_power_isolation_decision.json);
+- [official multichain blocker](../../docs/dev/study06_gctb_parity_result.md)
+  and [GCTB-P5 decision](../../docs/dev/study06_gctb_parity_decision.json);
+- [official single-trajectory result](../../docs/dev/study06_gctb_single_trajectory_result.md)
+  and [GCTB-D decision](../../docs/dev/study06_gctb_single_trajectory_decision.json).
+
+## Recommended reading paths
+
+### Quick scientific overview
+
+1. [Main report](report.qmd).
+2. [Evidence synthesis](../../docs/dev/study06_annotation_inference_evidence_synthesis.md).
+3. [Official single-trajectory result](../../docs/dev/study06_gctb_single_trajectory_result.md).
+
+### Formal qualification history
+
+1. [v1 qualification result](../../docs/dev/study06_annotation_qualification_result.md).
+2. [v2 design](../../docs/dev/study06_v2_design.md).
+3. [v2 qualification result](../../docs/dev/study06_v2_qualification_result.md).
+4. [paired power-isolation result](../../docs/dev/study06_v2_power_isolation_result.md).
+
+### Implementation and sampler-diagnostic history
+
+1. [`sblr` alpha-hierarchy audit](https://github.com/psoerensen/sblr/blob/master/docs/dev/study06_alpha_hierarchy_joint_sampling_audit.md).
+2. Component-trace correction in that audit.
+3. [`sblr` kernel-composition audit](https://github.com/psoerensen/sblr/blob/master/docs/dev/study06_allocation_hierarchy_kernel_composition.md).
+4. [`sblr` coupling-tempering screen](https://github.com/psoerensen/sblr/blob/master/docs/dev/study06_bed_coupling_tempering_screen.md).
+5. [`sblr` partial-exchange feasibility audit](https://github.com/psoerensen/sblr/blob/master/docs/dev/study06_partial_exchange_feasibility.md).
+
+### Official SBayesRC comparison
+
+1. [Parity design](../../docs/dev/study06_gctb_parity_design.md).
+2. [GCTB-P5 seed-contract blocker](../../docs/dev/study06_gctb_parity_result.md).
+3. [Single-trajectory design](../../docs/dev/study06_gctb_single_trajectory_design.md).
+4. [Single-trajectory result](../../docs/dev/study06_gctb_single_trajectory_result.md).
+
+### Reproducibility and evidence
+
+- Immutable [v1 current-stop capsule](../../results/reference/06_annotation_models/current-stop/README.md),
+  [manifest](../../results/reference/06_annotation_models/current-stop/benchmark_manifest.json),
+  and [checksums](../../results/reference/06_annotation_models/current-stop/checksums.csv).
+- Versioned [specification](spec.R), [analysis](analysis.R), and
+  [annotation design](annotation-design.R).
+- Diagnostic helpers: [paired isolation](power-isolation.R),
+  [official export/parity](gctb-parity.R), and
+  [single trajectory](gctb-single-trajectory.R).
+- Entry points: [benchmark runner](../../scripts/run_benchmark.R),
+  [paired isolation](../../scripts/run_study06_power_isolation.R),
+  [official parity](../../scripts/run_study06_gctb_parity.R), and
+  [single trajectory](../../scripts/run_study06_gctb_single_trajectory.R).
+
+## Historical evidence and simulation designs
+
+The 37,991-marker, approximately 50-active-marker v1 design is preserved as
+failed qualification evidence and as the `v1_sparse_stress` concept. It is a
+sparse late-stick/numerical stress scenario, not proof that annotation sampling
+is incorrect and not a completed benchmark.
+
+The v2 identifiable design uses 2,000 people (1,400 training, 600 validation),
+1,500 markers in 15 separated blocks of 100, 171 realized active markers in the
+informative truth (component counts 1,329/84/50/37), heritability 0.50, and
+`gamma = c(0, 0.01, 0.1, 1)`. BED and block-eigen routes share marker order,
+truth, phenotype, annotations, and priors. Every block retains 100/100 positive
+modes, so the block route tests factorization and summary-model semantics, not
+substantial eigen truncation.
+
+## Next phases
+
+1. **Documentation cleanup** — this consolidation.
+2. **Larger information-scale feasibility experiment** — planned, not run:
+   one registered replicate with `n = 5000`, `m ≈ 38000`, four independent
+   `sblr` chains, and explicit alpha, `sigmaSqAlpha`, component occupancy,
+   expected active count, realized active count, variance, heritability, PIP,
+   and recovery
+   checks. This task does not design or authorize it.
+3. **Replicated validation** — only if the feasibility replicate succeeds.
+
+An optional fixed-state official-versus-`sblr` latent-contract audit may examine
+residual variance, effect/`nbsq` scaling, p1 orientation, pi updates, active and
+component-count definitions, and annotation-variance output semantics. Official
+multichain parity still requires a seedable official release or a documented
+independent-chain mechanism. The final benchmark remains unauthorized.

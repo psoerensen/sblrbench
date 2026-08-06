@@ -17,10 +17,18 @@ v1 sparse qualification: failed and preserved
 v2 identifiable qualification: failed
 paired power isolation: completed
 package-side hierarchy and transition audits: completed
-official SBayesRC multichain parity: blocked by the official seed contract
-official SBayesRC single-trajectory comparison: completed descriptively
+official SBayesRC multichain parity: blocked by the v0.2.6 seed contract
+official SBayesRC single-trajectory descriptive comparison: completed
 final benchmark: not authorized
+larger n=5000, m≈38000 feasibility experiment: planned, not yet run
 ```
+
+For a concise overview, read the
+[main report](../../studies/06_annotation_models/report.qmd). For file-level
+provenance and the authoritative/supporting distinction, use the
+[documentation inventory](study06_documentation_inventory.md). Formal result
+documents and decision JSON files remain authoritative for their individual
+experiments; this synthesis does not rewrite those decisions.
 
 ## Evidence ledger
 
@@ -155,7 +163,116 @@ full component-trace request was unavailable until the trace correction.
 | Does one official path reproduce SNP signal? | official single-trajectory D0/D1/D2 | Yes descriptively: D1 strongly agrees with `sblr` SNP effects/ranking and improves over D0, while architecture differs. | No convergence or independent-chain inference. |
 | Does official SBayesRC resolve posterior convergence? | official parity design/smoke | Not answerable: the public seed argument does not produce independent native chains. | Needs an upstream official seedable build or documented independent-chain mechanism. |
 
-The next implementation-parity task is a fixed-state audit of official versus
-`sblr` latent architecture contracts (residual/effect scale, p1 continuation,
-pi update, and active-count definitions). Multichain parity still requires an
-upstream documented native seed contract before the unchanged registry can run.
+## Implementation and sampler lessons
+
+The table below consolidates Study 06-relevant package lessons. Full source and
+mathematical detail remain in the read-only sibling `sblr` repository.
+
+| Question | Finding and implication | Status | Evidence |
+|---|---|---|---|
+| Shared annotation implementation | BED, CSR, and block-eigen scalar routes use the shared annotation-prior owner. Route consistency was audited directly. | correctness established | [`sblr` alpha-hierarchy audit](https://github.com/psoerensen/sblr/blob/master/docs/dev/study06_alpha_hierarchy_joint_sampling_audit.md) |
+| Stick eligibility/orientation | Eligible/continue/stop truth counts are 1500/171/1329, 171/87/84, and 87/37/50; native and independent references agree. | correctness established | same |
+| Albert–Chib and alpha | Truncated latent variables, residualized Gaussian updates, coefficient moments, and proper intercept handling agree to numerical precision. | correctness established | same |
+| `sigmaSqAlpha` | The intercept is excluded and the three non-intercepts enter the exact inverse-chi-square conditional; current and production priors were validated. Conditional correctness does not imply joint convergence. | correctness established | same |
+| Component probabilities | Sequential continuation-to-component probabilities, floor, normalization, and orientation pass numerical checks; the floor does not control ordinary Study 06 states. | correctness established | same |
+| BED component traces | Full-Glist indices were incorrectly used for a fitted subset. The correction changed trace resolution/boundary validation only, not sampler transitions or RNG order. It did not explain mixing. | defect corrected | same |
+| Frozen allocation | The hierarchy passes with current prior, production prior, fixed variance, and fixed alpha when allocations are truth-fixed. | candidate explanation ruled out | decision C |
+| Fixed variance | Dynamic learned fits still fail with `sigmaSqAlpha = 1`. | candidate explanation ruled out | decision C |
+| Production prior | The production-equivalent variance prior does not restore dynamic convergence. | candidate explanation ruled out | decision C |
+| Kernel schedules | H20 improves BED alpha marginals but joint occupancy/variance still fails; A5/A20 worsen behavior. More conditional work is not the missing global transition. | candidate explanation ruled out | [`sblr` K4 audit](https://github.com/psoerensen/sblr/blob/master/docs/dev/study06_allocation_hierarchy_kernel_composition.md) |
+| Coupling tempering | Tiny detailed balance and endpoints pass, but the Study 06 three-level ladder accepts 0/2,400 exchanges with gaps of hundreds of log-density units. Correct algebra is an ineffective bridge here. | candidate explanation ruled out | [`sblr` T4 screen](https://github.com/psoerensen/sblr/blob/master/docs/dev/study06_bed_coupling_tempering_screen.md) |
+| Partial exchange | Exact formulas were derived, but lower-replica complete state was not retained. No proposal was validated or rejected; aggregate active-count mismatch is not the sole cause. | unresolved contract difference | [`sblr` F6 audit](https://github.com/psoerensen/sblr/blob/master/docs/dev/study06_partial_exchange_feasibility.md) |
+| BED/block variance | The h2 offset persists without annotations, with fixed alpha, and with 100/100 modes. | unresolved contract difference | paired isolation; hierarchy/kernel audits |
+| Block execution | No MCMC-time eigendecomposition or BED rereading; immutable operators are shared. Recorded block runtime is lower, while analytical and observed process-memory measures differ. | performance observation | [`sblr` block contract](https://github.com/psoerensen/sblr/blob/master/docs/dev/blr_block_eigen_contract.md) |
+| Official/`sblr` contracts | Residual variance, `nbsq`/effect scale, p1 orientation, pi semantics, active/component counts, `sigma_anno`/`sigmaSqAlpha`, and wrapper labels remain partly different or unmapped. | unresolved contract difference | official result and source crosswalk |
+
+These safeguards apply throughout: a corrected trace defect is not a mixing
+cause when it did not alter transitions; exact conditional tests are not proof
+of full posterior convergence; stable SNP outputs do not validate latent
+architecture; and package experiments remain distinct from benchmark
+experiments.
+
+## Official SBayesRC: strongest delimited comparison
+
+The external implementation is official SBayesRC R implementation v0.2.6 at
+source SHA `b95d3fcbad8ff358290922a58fff893439296138`.
+
+| Matched D1 comparison | PIP Pearson | PIP Spearman | Effect Pearson | Validation-g correlation | Top 50 | Top 100 | AUPRC official / `sblr` |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| learned block `sblr` | .957 | .964 | .998 | .998 | 46 | 86 | .557 / .541 |
+| learned BED `sblr` | .933 | .953 | .956 | .960 | 39 | 77 | .557 / .595 |
+
+D1 resembled every saved learned chain: block PIP correlation .946–.965 and
+effect correlation .99831–.99833; BED PIP correlation .925–.936 and effect
+correlation .95483–.95664. Official D0 versus D1 AUPRC was .320 versus .557,
+AUROC .664 versus .842, validation genetic-value correlation .869 versus .896,
+and phenotype prediction .604 versus .634.
+
+> The `sblr` SBayesRC implementation compares well with official SBayesRC for
+> SNP effects, PIPs, causal prioritization, validation prediction, and practical
+> runtime. Agreement is weaker or unresolved for latent architecture,
+> later-stick alpha coefficients, component occupancy, and annotation-variance
+> parameters.
+
+This is single-trajectory descriptive evidence. Official v0.2.6 does not seed
+its native RNG streams through the public seed formal, so multichain convergence
+parity remains blocked.
+
+## Alpha and annotation-variance crosswalk
+
+The mapped first-stick non-intercept truth is enriched 1.60, continuous .30,
+and null 0. The calibrated truth intercept is available in the simulation
+object but is not duplicated in the compact result documents.
+
+| Stick-1 coefficient | Truth | Official D1 | learned BED | learned block | Evidence label |
+|---|---:|---:|---:|---:|---|
+| intercept | available in truth object | -2.406 | unavailable in compact table | unavailable in compact table | official single trajectory |
+| enriched | 1.600 | 1.507 | 1.897 | 1.642 | truth / official single path / pooled nonconverged |
+| continuous | .300 | .586 | .638 | .622 | same |
+| null | 0 | -.156 | -.042 | -.371 | same |
+
+First-stick enriched and continuous directions agree with truth and every
+saved learned `sblr` chain; the official null coefficient is comparatively
+small. Quantitative equality is not established. BED H20 brought all 12 alpha
+marginals inside the diagnostic contract, but remained a nonconverged joint
+state. Official p3 intercept and continuous drifted approximately 1.85 and
+-1.06 posterior SD, and `sblr` later-stick quantities also mixed poorly.
+
+Official final `sigma_anno` was 1.976/1.043/4.803 (D1) and
+3.480/.384/.413/.605 (D2). Pooled nonconverged `sblr` informative
+`sigmaSqAlpha` means were about 2.14/1.90/3.14 BED and 2.04/1.54/1.79 block.
+Official retained variance histories are not exposed. Final `sigma_anno` values
+cannot establish posterior parity, and `sigma_anno` and `sigmaSqAlpha` must not
+be assumed identical without a source-contract audit.
+
+## Runtime context
+
+| Method | Trajectories/chains | Iterations | Wall time |
+|---|---:|---:|---:|
+| Official D0 SBayesR | 1 | 9,000 | 4.61 s |
+| Official D1 matched SBayesRC | 1 | 9,000 | 39.28 s |
+| Official D2 native SBayesRC | 1 | 9,000 plus tuning | 82.03 s |
+| `sblr` informative block SBayesRC | 4 | 9,000 each | 54.74 s |
+| `sblr` informative BED BayesRC | 4 | 9,000 each | 129.24 s |
+
+Official runs used one OpenMP and one BLAS thread; `sblr` used four registered
+chains and may execute them in parallel. Builds, output retention, diagnostics,
+and startup differ. This is not a controlled performance benchmark. Descriptively,
+four `sblr` block chains required about 1.4 times one official D1 trajectory.
+
+## Current roadmap
+
+1. **Documentation cleanup** — this consolidation.
+2. **Larger information-scale feasibility experiment** — planned and not yet
+   run: one registered replicate with `n = 5000`, `m ≈ 38000`, four independent
+   `sblr` chains, and alpha, `sigmaSqAlpha`, component occupancy, expected and
+   realized active counts, genetic/residual variance, heritability, PIP ranking,
+   and truth-recovery checks.
+3. **Replicated validation** — only if the feasibility replicate succeeds.
+
+An optional fixed-state official/`sblr` contract audit may examine residual
+variance, `nbsq` effect scale, p1 orientation, pi updates, active/component-count
+semantics, and annotation-variance output. It is not established as a required
+precondition for the larger feasibility experiment. Official multichain parity
+still requires an upstream seedable release or documented independent-chain
+mechanism. The final benchmark remains unauthorized.
