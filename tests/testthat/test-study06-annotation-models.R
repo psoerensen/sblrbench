@@ -478,3 +478,60 @@ test_that("official eigen writer retains every positive mode", {
   expect_equal(result$rank, 2L)
   expect_lte(result$reconstruction_error, 1e-12)
 })
+
+test_that("official single-trajectory registry is descriptive and frozen", {
+  environment <- new.env(parent = globalenv())
+  sys.source(file.path(study06_root, "studies", "06_annotation_models",
+    "gctb-single-trajectory.R"), envir = environment)
+  cfg <- environment$study06_gctb_single_constants(study06_root)
+  expect_identical(cfg$specification_hash,
+    "241c15afab8fefc571e38e625130de6e4ab58b958c30cff369e26998ee30fa56")
+  expect_identical(cfg$truth_hash,
+    "169d52bef390022a9106d7e61b200493869b40cbb76f1c8d911eebbc80fea1eb")
+  expect_identical(cfg$official_sha,
+    "b95d3fcbad8ff358290922a58fff893439296138")
+  expect_identical(cfg$niter, 9000L)
+  expect_identical(cfg$burn, 3000L)
+  expect_identical(cfg$requested_seeds,
+    c(D0 = 711121L, D1 = 721121L, D2 = 731121L))
+  d0 <- environment$study06_gctb_condition("D0", cfg)
+  d1 <- environment$study06_gctb_condition("D1", cfg)
+  d2 <- environment$study06_gctb_condition("D2", cfg)
+  expect_identical(d0$gamma, c(0, .01, .1, 1))
+  expect_identical(d1$gamma, d0$gamma)
+  expect_false(d0$b_tune)
+  expect_false(d1$b_tune)
+  expect_true(d2$b_tune)
+  expect_identical(d2$gamma, c(0, .001, .01, .1, 1))
+  expect_identical(d2$tune_step, c(.995, .99, .95, .9))
+})
+
+test_that("official stick reconstruction follows source component orientation", {
+  environment <- new.env(parent = globalenv())
+  sys.source(file.path(study06_root, "studies", "06_annotation_models",
+    "gctb-single-trajectory.R"), envir = environment)
+  zero <- matrix(0, 1L, 4L,
+    dimnames = list(NULL, c("Intercept", "enriched_binary",
+      "continuous_signal", "null_annotation")))
+  off <- list(alpha = list(p1 = zero, p2 = zero, p3 = zero))
+  annotation <- matrix(c(1, 0, 0, 0), 1L, 4L,
+    dimnames = list("marker", colnames(zero)))
+  probability <- environment$study06_gctb_official_prior(off, annotation)
+  expect_equal(drop(probability), c(.5, .25, .125, .125), tolerance = 1e-15)
+  expect_equal(rowSums(probability), 1, tolerance = 1e-15)
+})
+
+test_that("single-trajectory decision preserves GCTB-P5 and forbids qualification claims", {
+  decision <- jsonlite::read_json(file.path(study06_root, "docs", "dev",
+    "study06_gctb_single_trajectory_decision.json"), simplifyVector = TRUE)
+  parity <- jsonlite::read_json(file.path(study06_root, "docs", "dev",
+    "study06_gctb_parity_decision.json"), simplifyVector = TRUE)
+  expect_true(decision$gctb_p5_unchanged)
+  expect_identical(decision$multichain_parity,
+    "blocked_by_official_v0.2.6_seed_contract")
+  expect_false(decision$formal_convergence_claim)
+  expect_false(decision$qualification_rerun)
+  expect_false(decision$final_benchmark_authorized)
+  expect_identical(parity$decision, "GCTB-P5")
+  expect_false(parity$full_registry_run)
+})

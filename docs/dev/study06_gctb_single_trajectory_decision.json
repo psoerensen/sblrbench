@@ -1,0 +1,65 @@
+{
+  "schema": "sblrbench-study06-gctb-single-trajectory-decision-v1",
+  "profile": "gctb_single_trajectory",
+  "status": "complete_descriptive_review_required",
+  "gctb_p5_unchanged": true,
+  "multichain_parity": "blocked_by_official_v0.2.6_seed_contract",
+  "single_trajectory_parity": "completed_with_explicit_limitations",
+  "specification_hash": "241c15afab8fefc571e38e625130de6e4ab58b958c30cff369e26998ee30fa56",
+  "truth_hash": "169d52bef390022a9106d7e61b200493869b40cbb76f1c8d911eebbc80fea1eb",
+  "official_version": "0.2.6",
+  "official_sha": "b95d3fcbad8ff358290922a58fff893439296138",
+  "selected_decisions": [
+    "GCTB-D1: strong SNP-level agreement",
+    "GCTB-D3: SNP agreement with architecture disagreement",
+    "GCTB-D5: visible within-trajectory instability in D0/D2 occupancy and later-stick quantities",
+    "GCTB-D6: official annotation benefit reproduced",
+    "GCTB-D7: native and matched official models differ materially"
+  ],
+  "key_comparisons": {
+    "D1_vs_sblr_block": {
+      "pip_pearson": 0.95735676,
+      "effect_pearson": 0.99836199,
+      "validation_genetic_value_correlation": 0.99830783,
+      "top50_overlap": 46,
+      "top100_overlap": 86
+    },
+    "D1_vs_sblr_bed": {
+      "pip_pearson": 0.93289972,
+      "effect_pearson": 0.95565718,
+      "validation_genetic_value_correlation": 0.96004445,
+      "top50_overlap": 39,
+      "top100_overlap": 77
+    },
+    "D1_vs_D0": {
+      "auprc_delta": 0.2368269,
+      "auroc_delta": 0.1777751,
+      "validation_genetic_correlation_delta": 0.0265792,
+      "phenotype_prediction_correlation_delta": 0.0293951
+    },
+    "D2_vs_D1": {
+      "pip_pearson": 0.54203177,
+      "effect_pearson": 0.99953290,
+      "validation_genetic_value_correlation": 0.99957612,
+      "top50_overlap": 35,
+      "top100_overlap": 63
+    }
+  },
+  "official_architecture_means": {
+    "D0_active_count": 486.4010,
+    "D0_heritability": 0.4649923,
+    "D1_active_count": 78.8673,
+    "D1_expected_active_from_alpha": 79.2550,
+    "D1_heritability": 0.4608531,
+    "D2_active_count": 749.0215,
+    "D2_expected_active_from_alpha": 748.9364,
+    "D2_heritability": 0.4560139
+  },
+  "fixed_stream_reproducible": true,
+  "D2_selected_threshold": 0.995,
+  "formal_convergence_claim": false,
+  "qualification_rerun": false,
+  "final_benchmark_authorized": false,
+  "valid_scientific_conclusion": "One matched official SBayesRC trajectory recovered the same dominant SNP-level signal and annotation-informed prioritization benefit as the existing sblr learned fits, while active allocation, later-stick annotation quantities, and native five-component architecture remained trajectory- or implementation-sensitive. This is descriptive evidence only and does not establish convergence."
+}
+

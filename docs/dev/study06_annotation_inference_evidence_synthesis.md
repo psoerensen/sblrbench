@@ -17,7 +17,8 @@ v1 sparse qualification: failed and preserved
 v2 identifiable qualification: failed
 paired power isolation: completed
 package-side hierarchy and transition audits: completed
-official SBayesRC parity diagnostic: blocked by the official seed contract
+official SBayesRC multichain parity: blocked by the official seed contract
+official SBayesRC single-trajectory comparison: completed descriptively
 final benchmark: not authorized
 ```
 
@@ -50,6 +51,7 @@ declared its own exact tiny-state criterion.
 | 15. Study 06 BED coupling-tempering screen | Does lambda 0/.5/1 replica exchange bridge Study 06 modes? Four 3,000-cycle ensembles. | 0/2,400 exchanges; median log ratios -348 and -455; target convergence failed, while AUPRC .5898 and prediction remained familiar. **T4: exchange mechanism fails.** | Rules out this sparse three-level ladder. The exact source of the extensive log-density gap was not decomposed. | sibling tempering screen/decision |
 | 16. partial-exchange feasibility | Can retained tempering histories determine whether smaller exact exchange blocks would work? Offline only. | Lower-replica complete states were not retained; P1–P8 ratios unavailable, P9 invalid/unavailable. Aggregate count mismatch was not sufficient to explain penalties. **F6: retained state insufficient.** | Rules out retrospective exact partial-exchange claims. Does not rule in or out any proposed partial exchange. | sibling partial-exchange note/decision |
 | 17. persistent route calibration | Is the BED/block h2 offset caused by annotation learning or eigen truncation? Baseline, learned, shuffled, fixed-alpha, hierarchy ablations and schedules; all blocks retain 100/100 modes. | Block h2 remains about .09–.10 above BED without annotations and with alpha fixed; predictions/effects remain highly correlated. **Separate route-calibration evidence.** | Rules out annotation learning and substantial eigenspace truncation as sole causes. Summary-likelihood/residual contracts remain unresolved. | paired isolation and sibling hierarchy/kernel notes |
+| 18. official single trajectory | Does one default-stream official v0.2.6 path recover the same SNP signal? Exact validated export; D0/D1 matched four-component and D2 native five-component, 9,000/3,000. | D1 versus learned block `sblr`: PIP/effect/validation-g correlations .957/.998/.998; D1 AUPRC .557 versus D0 .320. D0/D2 occupancy and later-stick quantities visibly drift. **GCTB-D1/D3/D5/D6/D7; descriptive only.** | Establishes strong agreement for this one trajectory and reproduces annotation ranking benefit. Does not repair GCTB-P5, establish convergence, or validate latent architecture. | `docs/dev/study06_gctb_single_trajectory_result.md`; decision JSON |
 
 ## Key quantitative comparison
 
@@ -100,6 +102,10 @@ full component-trace request was unavailable until the trace correction.
   exchange or matched-endpoint analysis.
 - The roughly .09–.10 BED/block h2 offset persists without annotation learning
   and with alpha fixed; it is separate from the alpha feedback failure.
+- One matched official SBayesRC trajectory recovers nearly the same SNP effects,
+  PIP ranking, and validation genetic values as learned block `sblr`, and it
+  reproduces the annotation prioritization gain over official SBayesR. This is
+  an established descriptive trajectory result, not a convergence result.
 
 ## Strongly suggested, not established
 
@@ -110,17 +116,17 @@ full component-trace request was unavailable until the trace correction.
   variance, and occupancy: ranking/prediction are remarkably stable across
   non-converged schedules and the tempering target. This does not validate the
   latent posterior.
-- Official SBayesRC could face similar output-specific behavior on this small
-  dataset, but the official four-chain comparison was blocked before this
-  could be tested.
+- Official SBayesRC may share the separation between stable SNP outputs and
+  unstable latent architecture: the single path supports this interpretation,
+  but genuinely independent official chains remain unavailable.
 - GCTB’s practical success criterion may emphasize SNP weights/PIPs rather than
   complete latent-state convergence. That is an interpretation of exposed
   outputs, not evidence that unmonitored quantities converge.
 
 ## Unresolved questions
 
-- Whether official SBayesRC behaves differently on this exact truth, and
-  whether its alpha traces converge across genuinely independent chains.
+- Whether official alpha, occupancy, or SNP outputs converge across genuinely
+  independent chains; v0.2.6 cannot answer this through its public seed API.
 - Whether the native five-component architecture and its 0.001 component
   improve posterior geometry.
 - Whether official residual-variance sampling/tuning changes the result.
@@ -146,9 +152,10 @@ full component-trace request was unavailable until the trace correction.
 | Can simple coupling tempering bridge modes? | tiny exact + Study 06 screen | Algebra works tiny; the three-level Study 06 ladder has zero exchanges. | Denser or alternative paths are untested. |
 | Can existing screen data assess partial exchange? | partial-exchange audit | No; required lower-replica state is missing. | A new retention design would be required. |
 | Is the h2 offset caused by annotation/eigen truncation? | baseline and fixed-alpha route pairs | No; it persists and all 100 modes are retained. | Summary-likelihood/residual calibration cause unknown. |
-| Does official SBayesRC resolve the discrepancy? | official parity design/smoke | Not answerable: the public seed argument does not produce independent native chains. | Needs an upstream official seedable build or documented independent-chain mechanism. |
+| Does one official path reproduce SNP signal? | official single-trajectory D0/D1/D2 | Yes descriptively: D1 strongly agrees with `sblr` SNP effects/ranking and improves over D0, while architecture differs. | No convergence or independent-chain inference. |
+| Does official SBayesRC resolve posterior convergence? | official parity design/smoke | Not answerable: the public seed argument does not produce independent native chains. | Needs an upstream official seedable build or documented independent-chain mechanism. |
 
-The next scientifically narrow task is therefore not another Study 06 fit. It
-is an upstream official-SBayesRC reproducibility review: establish a documented
-native seed contract in an official release/commit, then rerun the already
-registered G0/G1/G2 parity design without changing Study 06.
+The next implementation-parity task is a fixed-state audit of official versus
+`sblr` latent architecture contracts (residual/effect scale, p1 continuation,
+pi update, and active-count definitions). Multichain parity still requires an
+upstream documented native seed contract before the unchanged registry can run.

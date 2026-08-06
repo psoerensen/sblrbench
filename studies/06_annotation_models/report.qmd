@@ -23,8 +23,9 @@ computation <- rcsv("computational_summary.csv")
 **Status: In development — versioned qualification work.** V1 sparse qualification **failed and is preserved**; v2
 identifiable qualification **completed all four fits but failed its gates**;
 the paired power/isolation diagnostic **completed without changing that decision**;
-package-side hierarchy/transition audits **completed**; the official SBayesRC
-parity diagnostic was **blocked by its public native seed contract**;
+package-side hierarchy/transition audits **completed**; official SBayesRC
+multichain parity was **blocked by its public native seed contract**, while a
+single-trajectory descriptive comparison **completed**;
 the final benchmark is **not authorized**. The existing capsule is a
 prespecified v1 convergence stop containing partial evidence only and no final
 BayesR/BayesRC or SBayesR/SBayesRC performance comparison.
@@ -191,13 +192,20 @@ The four-independent-chain registry was therefore stopped as GCTB-P5. See the
 [result](../../docs/dev/study06_gctb_parity_result.md). No scientific parity or
 convergence conclusion was drawn from the smoke outputs.
 
+The narrower [single-trajectory diagnostic](../../docs/dev/study06_gctb_single_trajectory_result.md)
+then ran D0/D1/D2 for 9,000 iterations on the same export. Matched D1 strongly
+agreed with learned `sblr` at SNP level and reproduced the annotation-ranking
+benefit over D0, while D0/D2 occupancy and later-stick quantities visibly
+drifted and D2 differed materially from D1. This descriptive result does not
+amend GCTB-P5, establish convergence, or authorize the final benchmark.
+
 ## Required next runs
 
-The next external-reference action is to obtain an official release or commit
-with a documented native seed contract, then rerun the unchanged G0/G1/G2
-registry. Package-side transition or route-calibration work remains separately
-scoped. The final multi-replicate benchmark remains blocked. V1 sparse stress
-remains separate and cannot authorize v2 or final execution.
+The next focused parity action is a fixed-state latent-contract audit; a future
+multichain run still requires an official release or commit with a documented
+native seed contract. Package-side transition or route-calibration work remains
+separately scoped. The final multi-replicate benchmark remains blocked. V1
+sparse stress remains separate and cannot authorize v2 or final execution.
 
 ## Validation boundaries
 

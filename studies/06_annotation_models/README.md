@@ -8,8 +8,10 @@
 - paired power/isolation diagnostic: **completed; alpha hierarchy and feedback
   dominate, with route variance calibration a secondary issue**;
 - package-side hierarchy and transition audits: **completed**;
-- official SBayesRC parity diagnostic: **blocked because official v0.2.6
+- official SBayesRC multichain parity: **blocked because official v0.2.6
   cannot produce independently seeded native chains through its public API**;
+- official single-trajectory comparison: **completed descriptively; strong
+  SNP-level agreement and annotation benefit coexist with architecture drift**;
 - final benchmark: **not authorized**.
 
 The tracked
@@ -56,3 +58,7 @@ is the chronological diagnostic history. The
 [official parity design](../../docs/dev/study06_gctb_parity_design.md) and
 [blocked result](../../docs/dev/study06_gctb_parity_result.md) preserve the
 validated export and official seed-contract blocker without claiming parity.
+The [single-trajectory design](../../docs/dev/study06_gctb_single_trajectory_design.md)
+and [descriptive result](../../docs/dev/study06_gctb_single_trajectory_result.md)
+compare one reproducible default-stream trajectory without changing GCTB-P5 or
+claiming convergence.
