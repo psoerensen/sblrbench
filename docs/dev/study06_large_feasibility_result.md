@@ -9,6 +9,55 @@ non-inferential API smokes.
 The formal small Study 06 qualification remains failed, historical evidence is
 unchanged, and the final benchmark remains unauthorized.
 
+## Continuation audit (2026-08-06)
+
+The package-side continuation removed the first blocker: compact integer
+component-count, realized-active-count, and stick-count histories now require
+about 2.56 MiB per fit rather than a 13.59 GiB full component array. Exact
+full-state oracles and tracing-on/off RNG-neutrality tests pass.
+
+The continuation development installation is `sblr 0.2.0` under
+`results/local/06_annotation_models/large_feasibility/continuation/devlib`,
+with installed-tree SHA-256
+`231de56787d101a15b87fd798bb4f247e3de7c9ee0967b04186498bb741fcdca`
+and DLL SHA-256
+`ae39c01607613db2af89ede5f31ea4063b7958d621ec5bf4e8cd196b3eba5825`.
+Local installation does not provide `RemoteSha`; the package base HEAD and
+unstaged source diff are recorded separately.
+
+Package source tests passed (`4,688` expectations, no failures; one opt-in
+skip). `R CMD check --no-manual --as-cran` completed compilation,
+installation, documentation, examples, and compiled-code checks with zero
+warnings, but ended with one test error because an existing test sources the
+developer-only `tools/study06_partial_exchange_feasibility.R`, which is absent
+from the built tarball. The check therefore does not meet the requested
+zero-error contract; this packaging-test issue is separate from the B0
+scientific execution blocker.
+
+The B0 blocker remains and is now classified **B0-C4 (unresolved)**. The exact
+frozen iteration-0 state was captured immediately before its residual draw.
+Native and independent block-factor SSE calculations agree within `4.04e-10`:
+
+| Residual audit term | Value |
+|---|---:|
+| `yy` | 10,223.891131 |
+| transformed-score squared norm | 82,949.69 |
+| reduced-residual squared norm | 68,502.41 |
+| block fitted quadratic | 13,411.44 |
+| block SSE | -4,223.39 |
+| block residual scale | -4,221.35 |
+| direct same-BED quadratic | 30,740.09 |
+| direct same-BED SSE | 13,105.26 |
+| omitted cross-block quadratic | 17,328.66 |
+
+This is not floating-point cancellation. Full positive retention reproduces
+every within-block cross-product but does not restore cross-block terms. A
+0.995 diagnostic also failed materially, and `adjE = 0` did not change the
+first failure. Clamping, applying a tolerance, changing rank, or adopting a
+different residual-variance likelihood would violate the frozen execution
+contract. Therefore no continuation smoke or scientific fit was promoted and
+the decision remains `LARGE-F6`.
+
 ## Frozen identities and deterministic truth
 
 The experiment used `sblrbench` commit
@@ -53,7 +102,7 @@ was `4.99e-14`, transformed-score error `1.56e-13`, maximum sampled global
 cross-block absolute correlation 0.0681, and maximum complete adjacent-block
 absolute correlation 0.0791.
 
-## Non-inferential smokes and blockers
+## Initial non-inferential smokes and blockers
 
 | Fit | Status | Wall time | Scientific use |
 |---|---|---:|---|
@@ -68,21 +117,23 @@ E2 held alpha exactly (`max absolute final error = 0`). E1 exposed all 12 alpha
 and three `sigmaSqAlpha` histories. All successful smokes exposed the selected
 300-marker effect, active, and component histories with finite outputs.
 
-Two independent blockers prevent contract-compliant scientific execution:
+The original `LARGE-F6` phase recorded two independent blockers:
 
 1. The pinned public trace API exposes component-probability histories and
    selected-marker component histories, but no compact genome-wide
    per-iteration component-count or realized-active-count history. Deriving it
    would require tracing all 37,991 component states. The materialized R trace is
    about 14.6 GB per fit, or 87.5 GB across six fits, before checkpoints and other
-   histories; only 54.9 GB was free. Modifying `sblr` to add an aggregate trace is
-   outside scope. Final component states cannot substitute for posterior traces.
+   histories; only 54.9 GB was free. Final component states cannot substitute for
+   posterior traces. The continuation work has now removed this blocker through
+   an RNG-neutral compact aggregate trace.
 2. B0 stopped before a retained iteration with: `BayesR operator residual scale
    is invalid. trait=0, chain=0, iter=0`. This used the required same-sample,
    all-positive-mode, cumulative-mass operator. Changing eigen retention,
    operator route, seeds, or initialization after the failure was prohibited.
 
-The successful smokes cannot answer the scientific question. There are no
+The original successful smokes and the continuation B0 reproducer cannot answer
+the scientific question. There are no
 convergence, recovery, PIP, ranking, effect, genetic-value, route-agreement, or
 heritability-offset results. They must be reported as unavailable, not as
 failures of learned-alpha sampling.
@@ -93,12 +144,8 @@ The correct conclusion is technical: the registered six-fit feasibility study
 could not be executed under the current public trace and block-eigen contracts.
 This is not evidence for or against information-scale-dependent convergence.
 
-The next task should be a package-side, fixed-input audit with two narrowly
-scoped goals: (1) expose compact per-iteration component-count and active-count
-aggregates without retaining all marker states; and (2) reproduce and diagnose
-the full-positive-mode B0 iteration-0 residual-scale rejection on the frozen
-large-feasibility GWAS/block inputs. No sampler transition, prior, seed, or
-scientific design change is justified by this blocked run. After those contracts
-are corrected and independently tested, this exact frozen experiment—not a new
-truth seed—can be considered for a separately authorized execution.
-
+The compact-retention work is complete. The next task is a separately reviewed
+block-eigen residual-likelihood contract decision. It must choose and validate
+how residual variance is defined when block projections overlap in sample
+space; this cannot be disguised as a numerical fix. Only after that decision
+can this exact frozen experiment—not a new truth seed—be resumed.

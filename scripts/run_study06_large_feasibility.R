@@ -8,6 +8,9 @@ value <- function(flag, default = NULL) {
 stage <- value("--stage", "all")
 fit_id <- value("--fit", "")
 resume <- tolower(value("--resume", "true")) == "true"
+phase <- value("--phase", "initial")
+if (!phase %in% c("initial", "continuation"))
+  stop("--phase must be initial or continuation.")
 output <- value("--output-dir",
   "results/local/06_annotation_models/large_feasibility")
 isolated <- normalizePath("results/local/current_benchmark_refresh/rlib",
@@ -154,7 +157,9 @@ run_one <- function(id, smoke = FALSE) {
   if (nrow(row) != 1L) stop("Unknown fit id: ", id)
   controls <- study06_large_controls(row, bundle$calibrated$alpha, spec, smoke)
   suffix <- if (smoke) "smoke" else "fit"
-  path <- file.path(output, "checkpoints", paste0(id, "_", suffix, ".rds"))
+  checkpoint_name <- if (phase == "initial") paste0(id, "_", suffix, ".rds") else
+    paste0("continuation_", id, "_", suffix, ".rds")
+  path <- file.path(output, "checkpoints", checkpoint_name)
   identity <- list(schema = spec$schema, fit = as.list(row),
     specification_hash = bundle$identities$specification_hash,
     truth_hash = bundle$identities$truth_hash,
@@ -162,8 +167,13 @@ run_one <- function(id, smoke = FALSE) {
     annotation_hash = bundle$identities$annotation_hash,
     block_hash = bundle$identities$block_hash, gwas_hash = bundle$identities$gwas_hash,
     trace_hash = bundle$identities$trace_panel_hash, controls = controls,
-    smoke = smoke, sblr_sha = system2("git", c("-C", "../sblr", "rev-parse",
-      "HEAD"), stdout = TRUE))
+    smoke = smoke, phase = phase,
+    sblr_sha = system2("git", c("-C", "../sblr", "rev-parse", "HEAD"),
+      stdout = TRUE),
+    sblr_diff_sha256 = digest::digest(system2("git",
+      c("-C", "../sblr", "diff", "--binary"), stdout = TRUE),
+      algo = "sha256"),
+    installed_package = benchmark_package_provenance("sblr"))
   semantic_hash <- study06_large_hash(identity)
   if (resume && file.exists(path)) {
     saved <- readRDS(path)

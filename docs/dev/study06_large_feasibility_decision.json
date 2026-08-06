@@ -30,8 +30,25 @@
     "B1": "not_run_after_route_stop"
   },
   "blockers": [
-    "No compact public genome-wide component-count or realized-active-count history; all-marker tracing exceeds available storage.",
+    "No compact public genome-wide component-count or realized-active-count history; all-marker tracing exceeded available storage.",
     "Full-positive-mode B0 rejected the operator residual scale at trait 0, chain 0, iteration 0."
   ],
-  "scientific_conclusion": "The registered feasibility question remains unanswered because no scientific fit was launched."
+  "current_blockers": [
+    "Full-positive-mode B0 has a materially negative block-factor residual scale because the registered block-diagonal operator omits cross-block quadratic terms."
+  ],
+  "scientific_conclusion": "The registered feasibility question remains unanswered because no scientific fit was launched.",
+  "continuation": {
+    "date": "2026-08-06",
+    "compact_trace_blocker": "removed_and_validated",
+    "compact_bytes_per_fit": 2688000,
+    "full_component_bytes_per_fit": 14588544000,
+    "continuation_installed_tree_sha256": "231de56787d101a15b87fd798bb4f247e3de7c9ee0967b04186498bb741fcdca",
+    "continuation_dll_sha256": "ae39c01607613db2af89ede5f31ea4063b7958d621ec5bf4e8cd196b3eba5825",
+    "b0_classification": "B0-C4_unresolved",
+    "b0_block_sse": -4223.391775,
+    "b0_direct_sse": 13105.26,
+    "omitted_cross_block_quadratic": 17328.66,
+    "scientific_fits_launched": 0,
+    "decision_unchanged": "LARGE-F6"
+  }
 }

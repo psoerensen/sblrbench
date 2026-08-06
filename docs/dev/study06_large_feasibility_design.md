@@ -92,6 +92,13 @@ block; only this panel retains full effect, active, and component histories.
 Genome-wide posterior means, SDs where supported, PIPs, and component
 probabilities are retained as accumulators.
 
+The continuation phase requests compact aggregate component-state histories
+through `aggregate_component_states = TRUE`. These histories keep explicit
+draw and chain dimensions and do not change the frozen specification, truth,
+model, seed, or posterior target. Continuation checkpoints are prefixed
+`continuation_` so they cannot overwrite the original non-inferential smoke
+evidence.
+
 The strict diagnostic thresholds are R-hat 1.01, bulk and tail ESS 400, and
 relative MCSE 0.05. Full feasibility requires latent aggregate convergence; stable
 PIPs alone cannot establish success. Decision classes are `LARGE-F1` through
@@ -99,4 +106,3 @@ PIPs alone cannot establish success. Decision classes are `LARGE-F1` through
 [large-feasibility.R](../../studies/06_annotation_models/large-feasibility.R)
 and the runner is
 [run_study06_large_feasibility.R](../../scripts/run_study06_large_feasibility.R).
-

@@ -1555,6 +1555,7 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
       identical(mode, "qualification"))
     benchmark_annotation_seeds(spec, profile, mode = "qualification") else
       benchmark_seeds(spec, profile)
+  validation_only <- isTRUE(validate_only) || identical(mode, "validate_only")
   source_only_validation <- identical(spec$task, "annotation_models") &&
     identical(mode, "validate_only")
   if (source_only_validation) {
@@ -1566,7 +1567,7 @@ run_benchmark <- function(spec, output_dir, profile = "benchmark",
           spec$packages$sblr$sha))
       stop("Study 06 v2 validate-only mode requires the pinned sibling sblr source HEAD.",
         call. = FALSE)
-  } else {
+  } else if (!validation_only) {
     benchmark_assert_package_sha("sblr", spec$packages$sblr$sha)
     if (!identical(as.character(utils::packageVersion("sblr")),
         spec$packages$sblr$version))

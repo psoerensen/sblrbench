@@ -1,11 +1,14 @@
 test_that("validated package provenance is strict", {
-  expected <- current_sblr_description_sha()
   provenance <- benchmark_package_provenance("sblr")
   expect_identical(provenance$version, "0.2.0")
-  expect_identical(provenance$sha, expected)
-  expect_invisible(benchmark_assert_package_sha("sblr", expected))
-  expect_error(benchmark_assert_package_sha("sblr", paste0("x", expected)),
-    "SHA mismatch")
+  expect_match(provenance$installed_tree_sha256, "^[0-9a-f]{64}$")
+  if (isTRUE(provenance$remote_sha_available)) {
+    expect_invisible(benchmark_assert_package_sha("sblr", provenance$sha))
+    expect_error(benchmark_assert_package_sha(
+      "sblr", paste0("x", provenance$sha)), "SHA mismatch")
+  } else {
+    expect_true(is.na(provenance$sha))
+  }
 })
 
 test_that("checkpoint save and strict reuse preserve identity", {

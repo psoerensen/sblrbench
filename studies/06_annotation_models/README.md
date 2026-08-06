@@ -159,11 +159,13 @@ substantial eigen truncation.
 1. **Documentation cleanup** — this consolidation.
 2. **Large information-scale feasibility experiment** — designed and frozen,
    but [technically blocked](../../docs/dev/study06_large_feasibility_result.md)
-   before scientific fitting (`LARGE-F6`). The current public API lacks compact
-   genome-wide occupancy-count traces, and the required full-positive-mode B0
-   smoke rejected its iteration-0 residual scale.
-3. **Package-side contract audit** — add/test compact occupancy aggregates and
-   diagnose the frozen B0 residual-scale rejection without changing this truth.
+   before scientific fitting (`LARGE-F6`). Compact genome-wide occupancy-count
+   traces are now implemented and exact-oracle validated; the required
+   full-positive-mode B0 operator still has a materially invalid iteration-0
+   residual-scale contract.
+3. **Package-side contract decision** — choose and validate a posterior-preserving
+   residual definition for overlapping block projections without changing this
+   frozen truth.
 4. **Exact feasibility execution and replicated validation** — only after those
    contracts are resolved; replicated validation still requires the exact
    single replicate to succeed first.

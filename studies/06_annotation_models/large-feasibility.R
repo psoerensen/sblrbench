@@ -404,6 +404,7 @@ study06_large_fit_call <- function(fit_row, controls, bundle,
   selected <- bundle$trace_panel$panel$marker_id
   controls$convergence_control$selected_markers <- selected
   controls$convergence_control$selected_marker_quantities <- spec$trace$quantities
+  controls$convergence_control$aggregate_component_states <- TRUE
   common <- controls
   if (fit_row$route == "bed") {
     common$method <- fit_row$method

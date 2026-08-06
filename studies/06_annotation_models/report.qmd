@@ -97,11 +97,14 @@ The separate one-replicate profile froze all 5,000 canonical individuals and
 37,991 QC markers. Its annotation, truth, stick-identifiability, GWAS, and 76
 full-positive-mode block audits passed; realized counts were
 36,791/618/392/190 and realized heritability was exactly 0.50. No scientific
-fit was launched. The public trace API cannot retain compact genome-wide
-component-count/realized-active-count histories, while all-marker tracing would
-exceed available storage, and the required B0 full-positive-mode smoke rejected
-its residual scale at iteration zero. This is `LARGE-F6`, a technical block—not
-evidence about large-scale sampler convergence. See the
+fit was launched. The original public trace API could not retain compact
+genome-wide component-count/realized-active-count histories, while all-marker
+tracing would exceed available storage; this blocker is now removed by an
+exact-oracle-tested, RNG-neutral compact trace. The required B0
+full-positive-mode operator still produces a materially negative residual scale
+because its block-diagonal quadratic omits cross-block terms. This is
+`LARGE-F6`, a technical block—not evidence about large-scale sampler
+convergence. See the
 [design](../../docs/dev/study06_large_feasibility_design.md),
 [result](../../docs/dev/study06_large_feasibility_result.md), and
 [decision](../../docs/dev/study06_large_feasibility_decision.json).
@@ -313,7 +316,7 @@ performance benchmark.
 | 12. official export/API | Exact Study 06 official input and seed test | Export valid; independent chains blocked | GCTB-P5 remains | formal decision |
 | 13. official single path | D0/D1/D2, 9,000 iterations | Strong SNP agreement/benefit; architecture drift | Descriptive parity completed | single-trajectory descriptive |
 | 14. documentation consolidation | This task | Evidence hierarchy normalized | One authoritative reading path | documentation decision |
-| 15. larger feasibility | `n=5000`, `m=37,991` | Truth/LD audits passed; scientific fits blocked | Compact occupancy histories unavailable; B0 residual scale invalid at iteration 0 | LARGE-F6 |
+| 15. larger feasibility | `n=5000`, `m=37,991` | Truth/LD audits passed; scientific fits blocked | Compact occupancy trace validated; B0 block residual contract remains invalid at iteration 0 | LARGE-F6 |
 
 ## Interpretation and next phases
 

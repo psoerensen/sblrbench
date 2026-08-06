@@ -35,7 +35,9 @@ distinct public chain seeds; the separate single-trajectory descriptive
 comparison completed and found strong SNP-level agreement and annotation
 benefit alongside unresolved latent architecture. The registered `n=5000`,
 `m=37,991` feasibility experiment passed deterministic truth/LD audits but is
-technically blocked before scientific fitting (`LARGE-F6`). See the
+technically blocked before scientific fitting (`LARGE-F6`): compact aggregate
+occupancy tracing is now validated, but the registered full-positive-mode B0
+operator has a materially invalid residual-scale contract. See the
 [Study 06 report](studies/06_annotation_models/report.qmd),
 [navigation page](studies/06_annotation_models/README.md), and
 [technical synthesis](docs/dev/study06_annotation_inference_evidence_synthesis.md).

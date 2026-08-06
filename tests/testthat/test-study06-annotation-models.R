@@ -203,6 +203,13 @@ test_that("Study 06 large blocked decision preserves scientific boundaries", {
     "study06_large_feasibility_decision.json")
   decision <- jsonlite::read_json(path, simplifyVector = TRUE)
   expect_identical(decision$decision, "LARGE-F6")
+  expect_identical(decision$continuation$compact_trace_blocker,
+                   "removed_and_validated")
+  expect_identical(decision$continuation$b0_classification,
+                   "B0-C4_unresolved")
+  expect_identical(decision$continuation$scientific_fits_launched, 0L)
+  expect_true(decision$continuation$compact_bytes_per_fit <
+                decision$continuation$full_component_bytes_per_fit)
   expect_identical(decision$scientific_fits_launched, 0L)
   expect_false(decision$formal_qualification_changed)
   expect_false(decision$final_benchmark_authorized)
