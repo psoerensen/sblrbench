@@ -29,7 +29,10 @@ qualification failed and is preserved, while its v2 identifiable qualification
 completed all four fits but failed convergence, scientific-recovery, and route
 gates. A paired power/isolation diagnostic completed and isolated alpha
 hierarchy/feedback as the primary mixing mechanism; it did not authorize the
-final benchmark. Study 07 —
+final benchmark. Package-side hierarchy and transition audits are complete. An
+official SBayesRC parity export and API smoke also completed, but the scientific
+registry was blocked because official v0.2.6 did not honor distinct public
+chain seeds; no parity conclusion was made. Study 07 —
 Multitrait validation is **in development**. Neither is a completed validation
 benchmark.
 

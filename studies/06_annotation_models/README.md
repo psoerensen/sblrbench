@@ -7,6 +7,9 @@
   scientific-recovery, and route-agreement blockers**;
 - paired power/isolation diagnostic: **completed; alpha hierarchy and feedback
   dominate, with route variance calibration a secondary issue**;
+- package-side hierarchy and transition audits: **completed**;
+- official SBayesRC parity diagnostic: **blocked because official v0.2.6
+  cannot produce independently seeded native chains through its public API**;
 - final benchmark: **not authorized**.
 
 The tracked
@@ -48,3 +51,8 @@ remains the authoritative record of why v1 stopped.
 The [paired power/isolation result](../../docs/dev/study06_v2_power_isolation_result.md)
 records the eight-fit diagnostic; it does not replace or amend either failed
 qualification result.
+The [annotation-inference evidence synthesis](../../docs/dev/study06_annotation_inference_evidence_synthesis.md)
+is the chronological diagnostic history. The
+[official parity design](../../docs/dev/study06_gctb_parity_design.md) and
+[blocked result](../../docs/dev/study06_gctb_parity_result.md) preserve the
+validated export and official seed-contract blocker without claiming parity.

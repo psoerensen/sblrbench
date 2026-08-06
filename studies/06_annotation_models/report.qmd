@@ -23,6 +23,8 @@ computation <- rcsv("computational_summary.csv")
 **Status: In development — versioned qualification work.** V1 sparse qualification **failed and is preserved**; v2
 identifiable qualification **completed all four fits but failed its gates**;
 the paired power/isolation diagnostic **completed without changing that decision**;
+package-side hierarchy/transition audits **completed**; the official SBayesRC
+parity diagnostic was **blocked by its public native seed contract**;
 the final benchmark is **not authorized**. The existing capsule is a
 prespecified v1 convergence stop containing partial evidence only and no final
 BayesR/BayesRC or SBayesR/SBayesRC performance comparison.
@@ -171,13 +173,31 @@ the primary isolation interpretation, with route variance calibration as a
 secondary issue. It neither reruns nor changes the failed qualification. See
 the [paired power/isolation result](../../docs/dev/study06_v2_power_isolation_result.md).
 
+## Consolidated evidence and official parity diagnostic
+
+The [annotation-inference evidence synthesis](../../docs/dev/study06_annotation_inference_evidence_synthesis.md)
+combines the qualifications, paired controls, fixed-alpha and BayesR baselines,
+hierarchy ablations, kernel schedules, tempering screen, partial-exchange audit,
+and persistent route-calibration evidence.
+
+An external-reference diagnostic then exported the exact informative truth to
+official SBayesRC v0.2.6. GWAS, annotation, allele, marker-order, and 15
+full-positive-mode LD-block checks passed, and G0/G1/G2 execution paths passed
+short API smokes. Two fresh G0 processes requested different preregistered
+seeds but returned identical scientific histories. Source inspection confirmed
+that the wrapper's `seed` formal is not connected to its native random engines.
+The four-independent-chain registry was therefore stopped as GCTB-P5. See the
+[parity design](../../docs/dev/study06_gctb_parity_design.md) and
+[result](../../docs/dev/study06_gctb_parity_result.md). No scientific parity or
+convergence conclusion was drawn from the smoke outputs.
+
 ## Required next runs
 
-The next scientific action is review of v2 convergence/mixing and late-stick
-recovery, potentially using the disabled fixed-true-alpha isolation profile in
-a separately authorized task. The final multi-replicate benchmark remains
-blocked. V1 sparse stress remains separate and cannot authorize v2 or final
-execution.
+The next external-reference action is to obtain an official release or commit
+with a documented native seed contract, then rerun the unchanged G0/G1/G2
+registry. Package-side transition or route-calibration work remains separately
+scoped. The final multi-replicate benchmark remains blocked. V1 sparse stress
+remains separate and cannot authorize v2 or final execution.
 
 ## Validation boundaries
 

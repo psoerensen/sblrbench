@@ -212,6 +212,8 @@ test_that("block-eigen SBayesRC uses its supported public gamma control", {
 })
 
 test_that("v2 outputs cannot collide with v1 and qualification is opt-in", {
+  local_mocked_bindings(benchmark_git_sha = function(...)
+    study06_spec$packages$sblr$sha, .package = "sblrbench")
   expect_error(run_benchmark(study06_spec,
     file.path(study06_root, study06_spec$frozen_capsule$current_stop),
     validate_only = TRUE), "cannot overlap v1")
@@ -419,4 +421,60 @@ test_that("paired power convergence traces include expected active count", {
   expected <- draws[draws$quantity == "expected_active_count", ]
   expect_equal(nrow(expected), 20L)
   expect_equal(expected$value, rep(2.4, 20L))
+})
+
+test_that("official parity registry is frozen and dependency-free", {
+  environment <- new.env(parent = globalenv())
+  sys.source(file.path(study06_root, "studies", "06_annotation_models",
+    "gctb-parity.R"), envir = environment)
+  profile <- environment$study06_gctb_profile()
+  expect_identical(profile$spec_hash,
+    "241c15afab8fefc571e38e625130de6e4ab58b958c30cff369e26998ee30fa56")
+  expect_identical(profile$truth_hash,
+    "169d52bef390022a9106d7e61b200493869b40cbb76f1c8d911eebbc80fea1eb")
+  expect_identical(profile$official_sha,
+    "b95d3fcbad8ff358290922a58fff893439296138")
+  registry <- environment$study06_gctb_registry(
+    c(701121L, 701222L, 701323L, 701424L), profile)
+  expect_equal(nrow(registry), 12L)
+  expect_identical(as.integer(table(registry$condition)), c(4L, 4L, 4L))
+  expect_identical(registry$requested_seed[registry$condition == "G0"],
+    c(711121L, 711222L, 711323L, 711424L))
+  expect_true(all(registry$niter == 3000L & registry$burn == 1000L))
+  expect_true(all(registry$bTune == (registry$condition == "G2")))
+})
+
+test_that("official annotation export obeys the audited wrapper contract", {
+  environment <- new.env(parent = globalenv())
+  sys.source(file.path(study06_root, "studies", "06_annotation_models",
+    "gctb-parity.R"), envir = environment)
+  ids <- sprintf("m%03d", 1:20)
+  annotations <- study06_logic$construct_annotation_design(ids, study06_spec)
+  exported <- environment$study06_gctb_annotation_export(annotations, ids)
+  expect_identical(names(exported), c("SNP", "Intercept",
+    "enriched_binary", "continuous_signal", "null_annotation"))
+  expect_identical(exported$SNP, ids)
+  expect_true(all(exported$Intercept == 1))
+  expect_identical(unname(as.matrix(exported[, -c(1L, 2L)])),
+    unname(annotations[, -1L, drop = FALSE]))
+})
+
+test_that("official eigen writer retains every positive mode", {
+  environment <- new.env(parent = globalenv())
+  sys.source(file.path(study06_root, "studies", "06_annotation_models",
+    "gctb-parity.R"), envir = environment)
+  path <- tempfile(fileext = ".eigen.bin")
+  on.exit(unlink(path), add = TRUE)
+  r <- matrix(c(1, .2, .2, 1), 2L)
+  result <- environment$study06_gctb_write_eigen(r, path)
+  connection <- file(path, "rb")
+  on.exit(close(connection), add = TRUE)
+  expect_identical(readBin(connection, "integer", 1L, size = 4L), 2L)
+  expect_identical(readBin(connection, "integer", 1L, size = 4L), 2L)
+  expect_equal(readBin(connection, "numeric", 1L, size = 4L), 2,
+    tolerance = 1e-6)
+  expect_equal(readBin(connection, "numeric", 1L, size = 4L), 1,
+    tolerance = 1e-6)
+  expect_equal(result$rank, 2L)
+  expect_lte(result$reconstruction_error, 1e-12)
 })
