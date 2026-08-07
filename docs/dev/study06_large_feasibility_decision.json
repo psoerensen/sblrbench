@@ -1,54 +1,52 @@
 {
-  "schema": "sblrbench-study06-large-feasibility-decision-v1",
-  "decision": "LARGE-F6",
-  "classification": "technical or design block",
-  "scientific_fits_launched": 0,
-  "formal_qualification_changed": false,
-  "final_benchmark_authorized": false,
-  "additional_replicates": 0,
-  "changed_seed_retries": 0,
-  "ordinary_sampler_changed": false,
-  "sblrbench_sha": "6ef276eab99a37946901812d5466274c23f56f8a",
-  "sblr_sha": "a165fb0635afcb8a712e8658175dfbb19896b3c3",
+  "schema": "sblrbench-study06-large-feasibility-decision-v2",
+  "decision": "LARGE-G2",
+  "classification": "learned allocation feedback remains the bottleneck",
+  "secondary_flags": ["LARGE-G3", "LARGE-G4"],
+  "historical_phase": {
+    "decision": "LARGE-F6",
+    "classification": "technical or design block",
+    "scientific_fits_launched": 0,
+    "blockers": [
+      "Compact genome-wide aggregate allocation histories were unavailable.",
+      "The historical global-projected B0 residual scale was materially negative at iteration zero."
+    ],
+    "interpretation": "Historical technical block; no conclusion about large-scale mixing."
+  },
+  "sblrbench_sha": "536bde2a91b8497252e497d9f5cfc7fe189ed8c0",
+  "sblr_sha": "0c89234273389e14112ba0e08ef9d11d3e1819dc",
   "sblr_version": "0.2.0",
-  "installed_sblr_tree_sha256": "9ab8c038a5f609370218ac6b3819643ac656b0187e424769a9a23cba9fec5f76",
+  "installed_sblr_tree_sha256": "e723528e7d5d570a31b5b1d1c90551896ac48f86ab05261c181c8109af971fd0",
   "specification_hash": "b001bc36a5531e5e6b342286a253fc1fd34dad4265359d89d2feaa026d4533df",
   "truth_hash": "e94a511540f600e61ef47b52947836f19a15388f5e8ce795c179929956817507",
   "marker_order_hash": "e394f4324f89ca7ad88691284a6216a24e26c691d7cb59d822d5d7f006b096f2",
   "sample_order_hash": "f3c14e98845fc565424a973a5a5850768c587f9d5a5306cc58ff36c5329a256b",
+  "allele_hash": "996fb56147c14801f798a7bb21692a962aba18829c8a3a7abfa4dc768b06b082",
   "annotation_hash": "5cc2a5dc64140b5cb2c3e77044d8a0b7bd698e2b33f1f8cb0f5b39ac278f7bd3",
   "block_hash": "3b119c38fcababc5b70892f8fc29dcd773fb73e4e2a2b1cd6daf94556e16294d",
   "gwas_hash": "f00c01326d20d32c1b389f239ebe520327f4b8c859acf7320b10d531243cacfd",
+  "alpha_truth_hash": "4766d00b77653825e9130a32ebcde1b16754ee99103f2ab4c4d3f1d715fbbf82",
+  "selected_panel_hash": "0ae8cc37d0418d54cf52e4cf5271c5859d01506759a6d798f6c512a66b08438f",
+  "small_contract_gate": "SMALL-G1",
+  "smoke_gate": "SMOKE-G1",
+  "fit_status": {
+    "E0": "completed_core_convergence_pass",
+    "B0": "completed_core_convergence_pass",
+    "E2": "completed_core_convergence_pass_fixed_alpha_exact",
+    "B2": "completed_core_convergence_pass_fixed_alpha_exact",
+    "E1": "completed_learned_joint_convergence_failed",
+    "B1": "completed_learned_joint_convergence_failed"
+  },
+  "scientific_fit_coordinates_completed": 6,
   "truth_gates_passed": true,
   "positive_modes_all_retained": true,
-  "smokes": {
-    "E0": "passed_noninferential",
-    "B0": "failed_invalid_residual_scale_iter0",
-    "E2": "passed_noninferential",
-    "E1": "passed_noninferential",
-    "B2": "not_run_after_route_stop",
-    "B1": "not_run_after_route_stop"
-  },
-  "blockers": [
-    "No compact public genome-wide component-count or realized-active-count history; all-marker tracing exceeded available storage.",
-    "Full-positive-mode B0 rejected the operator residual scale at trait 0, chain 0, iteration 0."
-  ],
-  "current_blockers": [
-    "Full-positive-mode B0 has a materially negative block-factor residual scale because the registered block-diagonal operator omits cross-block quadratic terms."
-  ],
-  "scientific_conclusion": "The registered feasibility question remains unanswered because no scientific fit was launched.",
-  "continuation": {
-    "date": "2026-08-06",
-    "compact_trace_blocker": "removed_and_validated",
-    "compact_bytes_per_fit": 2688000,
-    "full_component_bytes_per_fit": 14588544000,
-    "continuation_installed_tree_sha256": "231de56787d101a15b87fd798bb4f247e3de7c9ee0967b04186498bb741fcdca",
-    "continuation_dll_sha256": "ae39c01607613db2af89ede5f31ea4063b7958d621ec5bf4e8cd196b3eba5825",
-    "b0_classification": "B0-C4_unresolved",
-    "b0_block_sse": -4223.391775,
-    "b0_direct_sse": 13105.26,
-    "omitted_cross_block_quadratic": 17328.66,
-    "scientific_fits_launched": 0,
-    "decision_unchanged": "LARGE-F6"
-  }
+  "ordinary_sampler_changed": false,
+  "compact_trace_bytes_per_fit": 2016000,
+  "historical_full_component_bytes_per_fit": 14588544000,
+  "formal_qualification_changed": false,
+  "final_benchmark_authorized": false,
+  "additional_replicates": 0,
+  "changed_seed_retries": 0,
+  "replicated_validation_recommended": false,
+  "scientific_conclusion": "At larger information scale, baseline and fixed-alpha controls have stable aggregate diagnostics, while both ordinary learned-alpha routes fail joint alpha-allocation convergence; SNP prioritization remains useful and BED/block variance differences persist."
 }

@@ -27,7 +27,7 @@ package-side hierarchy and transition audits: completed
 official SBayesRC multichain parity: blocked by the v0.2.6 seed contract
 official SBayesRC single-trajectory descriptive comparison: completed
 final benchmark: not authorized
-large n=5000, m=37,991 feasibility experiment: technically blocked (LARGE-F6); no scientific fits run
+large n=5000, m=37,991 feasibility experiment: completed (LARGE-G2; LARGE-G3/LARGE-G4 secondary); final benchmark not authorized
 ```
 
 The official comparison was not wholly blocked: multichain convergence parity
@@ -91,23 +91,35 @@ but every entry failed the multichain convergence contract. Informative
 later-stick directions and BED/block heritability agreement also failed. This
 is a formal qualification failure; the final benchmark remains unauthorized.
 
-### Large information-scale feasibility — technically blocked
+### Large information-scale feasibility — completed, learned joint mixing failed
 
 The separate one-replicate profile froze all 5,000 canonical individuals and
 37,991 QC markers. Its annotation, truth, stick-identifiability, GWAS, and 76
 full-positive-mode block audits passed; realized counts were
-36,791/618/392/190 and realized heritability was exactly 0.50. No scientific
-fit was launched. The original public trace API could not retain compact
-genome-wide component-count/realized-active-count histories, while all-marker
-tracing would exceed available storage; this blocker is now removed by an
-exact-oracle-tested, RNG-neutral compact trace. The required B0
-full-positive-mode operator still produces a materially negative residual scale
-because its block-diagonal quadratic omits cross-block terms. This is
-`LARGE-F6`, a technical block—not evidence about large-scale sampler
-convergence. See the
+36,791/618/392/190 and realized heritability was exactly 0.50. The historical
+phase stopped as `LARGE-F6`, which remains documented. After compact aggregate
+traces and the GCTB-compatible block residual contract were validated, all six
+frozen fits completed. E0/B0 and fixed-alpha E2/B2 pass aggregate latent and
+variance diagnostics; learned E1/B1 fail joint alpha, occupancy, and active-
+count convergence. SNP ranking remains useful, and the BED/block h2 offset
+persists. The primary decision is `LARGE-G2`, with `LARGE-G3/G4` secondary. See
+the [small contract validation](../../docs/dev/study06_gctb_block_contract_validation_result.md),
 [design](../../docs/dev/study06_large_feasibility_design.md),
 [result](../../docs/dev/study06_large_feasibility_result.md), and
 [decision](../../docs/dev/study06_large_feasibility_decision.json).
+
+| Fit | Core convergence | AUPRC | realized active | Vg | route h2 | g-truth cor. |
+|---|---|---:|---:|---:|---:|---:|
+| E0 BED baseline | pass | .151 | 1,072 | .713 | .349 | .835 |
+| B0 block baseline | pass | .134 | 1,143 | 1.054 | .515 | .838 |
+| E2 fixed-alpha BED | pass | .304 | 1,088 | .761 | .372 | .866 |
+| B2 fixed-alpha block | pass | .305 | 1,142 | 1.049 | .513 | .859 |
+| E1 learned BED | fail; descriptive | .312 | 144 | .719 | .352 | .834 |
+| B1 learned block | fail; descriptive | .254 | 1,093 | 1.048 | .512 | .855 |
+
+Block `ves` is retained mean block residual variance, whereas BED `ves` is
+global individual-level residual variance. Route h2 uses each registered route
+definition; direct residual-variance equality is neither expected nor tested.
 
 ## Evidence levels
 
@@ -153,6 +165,10 @@ marker allocations. They are not interchangeable.
   independently reproduces the prioritization benefit on this truth.
 - Matched official SBayesRC and `sblr` strongly agree for SNP effects, PIPs,
   ranking, and validation genetic values on the delimited single trajectory.
+- In the registered 5,000-person/37,991-marker replicate, baseline and
+  fixed-true-alpha aggregate quantities converge, but both ordinary learned-
+  alpha routes fail joint alpha/allocation convergence. Increasing information
+  scale alone did not resolve the bottleneck in this replicate.
 
 ### Descriptive but useful
 
@@ -181,8 +197,8 @@ formal posterior validation.
   semantics across implementations.
 - Residual-variance and effect/`nbsq` scale contracts.
 - BED versus block-eigen variance and heritability calibration.
-- Whether substantially larger annotation/allocation information resolves joint
-  mixing, or a coordinated posterior-preserving transition is required.
+- Which coordinated posterior-preserving transition, if any, can resolve joint
+  learned alpha/allocation mixing.
 - Whether later-stick annotation coefficients are quantitatively interpretable
   on this dataset.
 
@@ -316,7 +332,8 @@ performance benchmark.
 | 12. official export/API | Exact Study 06 official input and seed test | Export valid; independent chains blocked | GCTB-P5 remains | formal decision |
 | 13. official single path | D0/D1/D2, 9,000 iterations | Strong SNP agreement/benefit; architecture drift | Descriptive parity completed | single-trajectory descriptive |
 | 14. documentation consolidation | This task | Evidence hierarchy normalized | One authoritative reading path | documentation decision |
-| 15. larger feasibility | `n=5000`, `m=37,991` | Truth/LD audits passed; scientific fits blocked | Compact occupancy trace validated; B0 block residual contract remains invalid at iteration 0 | LARGE-F6 |
+| 15. block contract validation | small official D0/D1 vs new S0/S1 | SNP/residual gates passed | `gctb_block` semantics validated without relabeling history | SMALL-G1 |
+| 16. larger feasibility | `n=5000`, `m=37,991` | controls pass; learned joint mixing fails; SNP utility strong | information scale does not remove alpha/allocation bottleneck; route offset persists | LARGE-G2/G3/G4 |
 
 ## Interpretation and next phases
 
@@ -326,12 +343,11 @@ markers on this truth, and two implementations produce nearly identical SNP
 signals. Neither fact establishes joint learned-alpha convergence or validates
 component architecture.
 
-The one-replicate information-scale profile is now designed and frozen, but its
-scientific run is technically blocked. The next task is a narrow package-side
-contract audit of compact aggregate occupancy tracing and the frozen B0
-iteration-0 residual-scale rejection. After those issues are resolved, the same
-truth and seeds—not a replacement replicate—can be considered for execution.
-Replicated validation follows only if that exact feasibility run succeeds.
+The frozen one-replicate information-scale profile is complete. It does not
+support replicated validation because the learned models fail the full latent
+contract. The next task is a focused posterior-preserving coordinated
+alpha/allocation sampler audit, with a separate BED/block Vg and heritability
+contract audit. Stable SNP output must not be used to waive latent failures.
 An optional fixed-state official/`sblr` latent-contract audit can proceed
 independently. Official multichain parity awaits a seedable official release.
 
@@ -349,5 +365,5 @@ The experiment-specific authoritative records are the
 [paired isolation](../../docs/dev/study06_v2_power_isolation_result.md),
 [GCTB-P5 result](../../docs/dev/study06_gctb_parity_result.md), and
 [official single-trajectory result](../../docs/dev/study06_gctb_single_trajectory_result.md),
-plus the [large-feasibility LARGE-F6 result](../../docs/dev/study06_large_feasibility_result.md).
+plus the [large-feasibility result](../../docs/dev/study06_large_feasibility_result.md).
 This report reads only the unchanged v1 capsule and never launches a sampler.

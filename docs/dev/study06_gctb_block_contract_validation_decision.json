@@ -1,0 +1,17 @@
+{
+  "schema": "sblrbench-study06-gctb-block-contract-validation-v1",
+  "decision": "SMALL-G1",
+  "classification": "contract validation passed",
+  "sblr_sha": "0c89234273389e14112ba0e08ef9d11d3e1819dc",
+  "sblr_version": "0.2.0",
+  "installed_tree_sha256": "e723528e7d5d570a31b5b1d1c90551896ac48f86ab05261c181c8109af971fd0",
+  "official_sbayesrc_version": "0.2.6",
+  "official_sbayesrc_sha": "b95d3fcbad8ff358290922a58fff893439296138",
+  "gctb_reference_sha": "cc7fa7d765c83a89c6375946cf77fe50ba1a317e",
+  "specification_hash": "241c15afab8fefc571e38e625130de6e4ab58b958c30cff369e26998ee30fa56",
+  "truth_hash": "169d52bef390022a9106d7e61b200493869b40cbb76f1c8d911eebbc80fea1eb",
+  "s0_all_gates_passed": true,
+  "s1_all_gates_passed": true,
+  "formal_qualification_changed": false,
+  "final_benchmark_authorized": false
+}

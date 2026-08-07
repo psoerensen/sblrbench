@@ -13,7 +13,7 @@ package-side hierarchy and transition audits: completed
 official SBayesRC multichain parity: blocked by the v0.2.6 seed contract
 official SBayesRC single-trajectory descriptive comparison: completed
 final benchmark: not authorized
-large n=5000, m=37,991 feasibility experiment: technically blocked (LARGE-F6); no scientific fits run
+large n=5000, m=37,991 feasibility experiment: completed (LARGE-G2; LARGE-G3/LARGE-G4 secondary); final benchmark not authorized
 ```
 
 Study 06 asks whether correctly specified annotations improve causal-marker
@@ -52,6 +52,9 @@ formal or descriptive decisions.
 - Informative annotations improve causal-marker ranking. One matched official
   SBayesRC trajectory independently reproduces that benefit and strongly agrees
   with `sblr` for SNP effects, PIPs, ranks, and validation genetic values.
+- At 5,000 people and 37,991 markers, baseline and fixed-true-alpha controls
+  pass their aggregate convergence contracts, but both ordinary learned-alpha
+  routes still fail joint alpha/allocation convergence.
 
 ### Descriptive but useful
 
@@ -65,8 +68,9 @@ formal posterior validation.
 
 Official multichain convergence, quantitative alpha and annotation-variance
 parity, latent architecture parity, active/component-count semantics,
-residual/effect-scale contracts, the BED/block variance calibration, and
-whether larger information scale resolves joint mixing remain unresolved.
+residual/effect-scale contracts, the BED/block variance calibration, and the
+posterior-preserving transition needed for joint learned-alpha movement remain
+unresolved.
 
 ## Authoritative documents
 
@@ -88,9 +92,11 @@ Formal decisions remain separate:
   and [GCTB-P5 decision](../../docs/dev/study06_gctb_parity_decision.json);
 - [official single-trajectory result](../../docs/dev/study06_gctb_single_trajectory_result.md)
   and [GCTB-D decision](../../docs/dev/study06_gctb_single_trajectory_decision.json).
+- [GCTB-compatible block contract validation](../../docs/dev/study06_gctb_block_contract_validation_result.md)
+  and [SMALL-G1 decision](../../docs/dev/study06_gctb_block_contract_validation_decision.json);
 - [large information-scale design](../../docs/dev/study06_large_feasibility_design.md),
-  [blocked result](../../docs/dev/study06_large_feasibility_result.md), and
-  [LARGE-F6 decision](../../docs/dev/study06_large_feasibility_decision.json).
+  [completed result](../../docs/dev/study06_large_feasibility_result.md), and
+  [LARGE-G2 decision](../../docs/dev/study06_large_feasibility_decision.json).
 
 ## Recommended reading paths
 
@@ -157,18 +163,16 @@ substantial eigen truncation.
 ## Next phases
 
 1. **Documentation cleanup** — this consolidation.
-2. **Large information-scale feasibility experiment** — designed and frozen,
-   but [technically blocked](../../docs/dev/study06_large_feasibility_result.md)
-   before scientific fitting (`LARGE-F6`). Compact genome-wide occupancy-count
-   traces are now implemented and exact-oracle validated; the required
-   full-positive-mode B0 operator still has a materially invalid iteration-0
-   residual-scale contract.
-3. **Package-side contract decision** — choose and validate a posterior-preserving
-   residual definition for overlapping block projections without changing this
-   frozen truth.
-4. **Exact feasibility execution and replicated validation** — only after those
-   contracts are resolved; replicated validation still requires the exact
-   single replicate to succeed first.
+2. **Large information-scale feasibility experiment** — the exact frozen six-fit
+   experiment [completed](../../docs/dev/study06_large_feasibility_result.md).
+   Baseline/fixed-alpha controls pass aggregate diagnostics; learned-alpha joint
+   mixing fails. The historical `LARGE-F6` block is retained in the result.
+3. **Focused sampler audit** — investigate a posterior-preserving coordinated
+   alpha/allocation transition, without treating stable SNP outputs as latent
+   convergence.
+4. **Route-contract audit** — separately map BED/block Vg and heritability
+   semantics. Replicated validation is not recommended until the single
+   feasibility replicate passes its full latent contract.
 
 An optional fixed-state official-versus-`sblr` latent-contract audit may examine
 residual variance, effect/`nbsq` scaling, p1 orientation, pi updates, active and

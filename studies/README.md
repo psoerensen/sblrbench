@@ -9,9 +9,10 @@ shared framework.
 - Study 06 annotation-informed models is in development; v2 qualification
   failed and the final benchmark is blocked. The paired isolation and
   package-side audits are complete; official multichain parity is blocked, but
-  its single-trajectory descriptive comparison completed. The large
-  information-scale feasibility profile is frozen but technically blocked
-  before scientific fitting (`LARGE-F6`). Start with the
+  its single-trajectory descriptive comparison completed. The frozen large
+  information-scale feasibility profile completed all six fits: controls pass,
+  learned-alpha joint mixing fails (`LARGE-G2`), SNP utility remains useful,
+  and route differences persist. Start with the
   [Study 06 navigation page](06_annotation_models/README.md) or
   [report](06_annotation_models/report.qmd).
 - Study 07 multitrait validation is in development and paused.

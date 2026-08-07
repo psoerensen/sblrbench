@@ -2,70 +2,40 @@
 
 ## Decision
 
-**LARGE-F6 — technical or design block.** No scientific fit was launched. The
-single registered truth and input audits completed, followed only by short
-non-inferential API smokes.
+**Primary: LARGE-G2 — learned allocation feedback remains the bottleneck.**
 
-The formal small Study 06 qualification remains failed, historical evidence is
-unchanged, and the final benchmark remains unauthorized.
+The aggregate latent and variance quantities pass the registered convergence
+thresholds in E0/B0 and E2/B2, while both ordinary learned-alpha fits fail
+alpha, occupancy, and active/stick-count convergence. B1 also fails genetic and
+base-variance convergence. The result supports two secondary flags:
 
-## Continuation audit (2026-08-06)
+- **LARGE-G3:** SNP effects, ranking, and genetic-value recovery remain useful
+  despite learned latent nonconvergence.
+- **LARGE-G4:** material BED/block route differences persist in reported
+  heritability, Vg, occupancy, and learned marker priors.
 
-The package-side continuation removed the first blocker: compact integer
-component-count, realized-active-count, and stick-count histories now require
-about 2.56 MiB per fit rather than a 13.59 GiB full component array. Exact
-full-state oracles and tracing-on/off RNG-neutrality tests pass.
+This is a single-replicate feasibility result, not a qualification. The formal
+small Study 06 qualification remains failed and the final benchmark remains
+unauthorized.
 
-The continuation development installation is `sblr 0.2.0` under
-`results/local/06_annotation_models/large_feasibility/continuation/devlib`,
-with installed-tree SHA-256
-`231de56787d101a15b87fd798bb4f247e3de7c9ee0967b04186498bb741fcdca`
-and DLL SHA-256
-`ae39c01607613db2af89ede5f31ea4063b7958d621ec5bf4e8cd196b3eba5825`.
-Local installation does not provide `RemoteSha`; the package base HEAD and
-unstaged source diff are recorded separately.
+## Historical blocker and continuation
 
-Package source tests passed (`4,688` expectations, no failures; one opt-in
-skip). `R CMD check --no-manual --as-cran` completed compilation,
-installation, documentation, examples, and compiled-code checks with zero
-warnings, but ended with one test error because an existing test sources the
-developer-only `tools/study06_partial_exchange_feasibility.R`, which is absent
-from the built tarball. The check therefore does not meet the requested
-zero-error contract; this packaging-test issue is separate from the B0
-scientific execution blocker.
+The first registered phase ended as `LARGE-F6`: compact allocation histories
+were unavailable and B0 rejected a materially negative global-projected
+residual scale at iteration zero. That historical result remains intact.
 
-The B0 blocker remains and is now classified **B0-C4 (unresolved)**. The exact
-frozen iteration-0 state was captured immediately before its residual draw.
-Native and independent block-factor SSE calculations agree within `4.04e-10`:
+Package-side work subsequently added exact, RNG-neutral compact component and
+stick histories and a GCTB-compatible block-local residual policy. Before this
+continuation, a pinned small official comparison passed as `SMALL-G1`. The new
+large continuation used `sblr` 0.2.0 from clean source SHA
+`0c89234273389e14112ba0e08ef9d11d3e1819dc`, installed-tree SHA-256
+`e723528e7d5d570a31b5b1d1c90551896ac48f86ab05261c181c8109af971fd0`.
+Historical `global_projected` fits were not reinterpreted.
 
-| Residual audit term | Value |
-|---|---:|
-| `yy` | 10,223.891131 |
-| transformed-score squared norm | 82,949.69 |
-| reduced-residual squared norm | 68,502.41 |
-| block fitted quadratic | 13,411.44 |
-| block SSE | -4,223.39 |
-| block residual scale | -4,221.35 |
-| direct same-BED quadratic | 30,740.09 |
-| direct same-BED SSE | 13,105.26 |
-| omitted cross-block quadratic | 17,328.66 |
+## Frozen identity
 
-This is not floating-point cancellation. Full positive retention reproduces
-every within-block cross-product but does not restore cross-block terms. A
-0.995 diagnostic also failed materially, and `adjE = 0` did not change the
-first failure. Clamping, applying a tolerance, changing rank, or adopting a
-different residual-variance likelihood would violate the frozen execution
-contract. Therefore no continuation smoke or scientific fit was promoted and
-the decision remains `LARGE-F6`.
-
-## Frozen identities and deterministic truth
-
-The experiment used `sblrbench` commit
-`6ef276eab99a37946901812d5466274c23f56f8a` and clean sibling `sblr` commit
-`a165fb0635afcb8a712e8658175dfbb19896b3c3` (package 0.2.0). The exact sibling
-source was rebuilt into the established isolated benchmark library; local-source
-installation does not populate `RemoteSha`, so provenance is the clean source
-HEAD, build command, and installed-tree hash.
+No simulation object was regenerated. The continuation reverified all frozen
+identities before smoke or scientific execution.
 
 | Identity | SHA-256 |
 |---|---|
@@ -80,72 +50,179 @@ HEAD, build command, and installed-tree hash.
 | alpha truth | `4766d00b77653825e9130a32ebcde1b16754ee99103f2ab4c4d3f1d715fbbf82` |
 | selected panel | `0ae8cc37d0418d54cf52e4cf5271c5859d01506759a6d798f6c512a66b08438f` |
 
-QC retained 37,991 of 50,000 markers for all 5,000 unique individuals. There
-were no missing dosages among retained markers. MAF ranged from 0.0501 to 0.5.
-The physical panel forms 76 blocks: 75 of size 500 and one of size 491.
+The data contain 5,000 people, 37,991 markers, and 76 blocks (75 by 500 and one
+by 491). Truth occupancy is 36,791/618/392/190, hence 1,200 active markers.
+Stick eligible/continuation counts are 37,991/1,200, 1,200/582, and 582/190.
+Realized Vg and Ve are both one and h2 is exactly .50. All registered
+truth-identifiability, marker, allele, GWAS, annotation-rank, and full-positive-
+mode block gates passed.
 
-The annotation prevalence is 0.199995, its binary/continuous correlation is
-0.201909, both null correlations are below `1e-17`, matrix rank is four, and the
-condition number is 2.44. Every block has enriched and unenriched markers.
+## Execution contract and smokes
 
-Solved intercepts are `-2.471644`, `-0.693114`, and `-0.947510`. Expected
-proportions match `0.970/0.015/0.010/0.005` to numerical precision, giving
-expected counts `36,851.27 / 569.865 / 379.910 / 189.955`. The one registered
-truth draw realized `36,791 / 618 / 392 / 190`, or 1,200 active markers. Stick
-eligible/continuation counts were `37,991/1,200`, `1,200/582`, and `582/190`;
-all eligible-subset rank and binary-outcome gates passed. Realized genetic and
-residual variances are both 1.0 and realized heritability is exactly 0.50.
+All six noninferential 12-draw, four-chain smokes passed (`SMOKE-G1`) with the
+registered seeds and compact/selected traces. E2/B2 held alpha exactly at truth.
+B0/B1/B2 explicitly used `residual_policy = "gctb_block"`,
+`block_ve_mode = "allMixVe"`, `resam_thresh = 1.1`, and
+`minimum_ve_ratio = 0.7`; no global projected SSE was evaluated.
 
-All 76 block matrices were symmetric, finite, and positive under the registered
-tolerance. No positive mode was omitted. Maximum source-LD reconstruction error
-was `4.99e-14`, transformed-score error `1.56e-13`, maximum sampled global
-cross-block absolute correlation 0.0681, and maximum complete adjacent-block
-absolute correlation 0.0791.
+Every scientific fit used four chains with seeds
+760121/760222/760323/760424, 12,000 total iterations, 3,000 burn-in, 9,000
+retained iterations, thinning one, the proper alpha intercept prior,
+`sigmaSqAlpha_a = sigmaSqAlpha_b = 2`, probability floor `1e-12`, and the
+ordinary one-allocation/one-hierarchy schedule. No changed-seed retry,
+extension, substitution, or additional replicate occurred.
 
-## Initial non-inferential smokes and blockers
+| Fit | Model | Runtime | Checkpoint |
+|---|---|---:|---:|
+| E0 | BED BayesR | 6,475 s (107.9 min) | 497.9 MB |
+| B0 | block SBayesR | 1,701 s (28.3 min) | 499.2 MB |
+| E2 | fixed-alpha BED BayesRC | 6,070 s (101.2 min) | 500.0 MB |
+| B2 | fixed-alpha block SBayesRC | 991 s (16.5 min) | 505.5 MB |
+| E1 | learned BED BayesRC | 5,639 s (94.0 min) | 500.0 MB |
+| B1 | learned block SBayesRC | 1,486 s (24.8 min) | 505.5 MB |
 
-| Fit | Status | Wall time | Scientific use |
-|---|---|---:|---|
-| E0 BED BayesR | passed, 12 iterations x 4 chains | 22.63 s | none |
-| B0 block-eigen SBayesR | failed at iteration 0 | 83.5 s | none |
-| E2 fixed-alpha BED BayesRC | passed, 12 iterations x 4 chains | 11.05 s | none |
-| E1 learned BED BayesRC | passed, 12 iterations x 4 chains | 11.34 s | none |
-| B2 fixed-alpha block SBayesRC | not launched after route stop | — | none |
-| B1 learned block SBayesRC | not launched after route stop | — | none |
+The compact aggregate trace is about 2 MB per fit, versus roughly 14.6 GB for
+a full all-marker component history. The frozen 300-marker panel was retained.
 
-E2 held alpha exactly (`max absolute final error = 0`). E1 exposed all 12 alpha
-and three `sigmaSqAlpha` histories. All successful smokes exposed the selected
-300-marker effect, active, and component histories with finite outputs.
+## Convergence
 
-The original `LARGE-F6` phase recorded two independent blockers:
+Thresholds were R-hat <= 1.01, bulk and tail ESS >= 400, and relative MCSE <=
+.05. “Core failures” below exclude selected-marker diagnostic limitations but
+include all registered aggregate, variance, and annotation quantities.
 
-1. The pinned public trace API exposes component-probability histories and
-   selected-marker component histories, but no compact genome-wide
-   per-iteration component-count or realized-active-count history. Deriving it
-   would require tracing all 37,991 component states. The materialized R trace is
-   about 14.6 GB per fit, or 87.5 GB across six fits, before checkpoints and other
-   histories; only 54.9 GB was free. Final component states cannot substitute for
-   posterior traces. The continuation work has now removed this blocker through
-   an RNG-neutral compact aggregate trace.
-2. B0 stopped before a retained iteration with: `BayesR operator residual scale
-   is invalid. trait=0, chain=0, iter=0`. This used the required same-sample,
-   all-positive-mode, cumulative-mass operator. Changing eigen retention,
-   operator route, seeds, or initialization after the failure was prohibited.
+| Fit | Core failures | Max R-hat | Min bulk ESS | Min tail ESS | Max rel. MCSE | Interpretation |
+|---|---:|---:|---:|---:|---:|---|
+| E0 | 0 | 1.0022 | 2,936 | 3,042 | .0185 | core contract passed |
+| B0 | 0 | 1.0013 | 2,304 | 4,528 | .0208 | core contract passed |
+| E2 | 0 | 1.0008 | 3,854 | 8,145 | .0161 | core contract passed; alpha fixed |
+| B2 | 0 | 1.0016 | 2,573 | 5,235 | .0198 | core contract passed; alpha fixed |
+| E1 | 23 | 1.3635 | 9.95 | 24.0 | .339 | failed |
+| B1 | 31 | 1.9629 | 5.51 | 11.4 | .454 | failed |
 
-The original successful smokes and the continuation B0 reproducer cannot answer
-the scientific question. There are no
-convergence, recovery, PIP, ranking, effect, genetic-value, route-agreement, or
-heritability-offset results. They must be reported as unavailable, not as
-failures of learned-alpha sampling.
+E1 failures comprise 14/15 annotation quantities, three component counts,
+realized active count, one stick-eligible, one stick-continuation, and all three
+stick-stopping counts. B1 fails all 15 annotation quantities, all four component
+counts, realized active count, two stick-eligible, all stick-continuation and
+stick-stopping counts, and base/genetic/component-genetic variance quantities.
 
-## Interpretation and next task
+Some selected-marker binary/component histories in every fit have one or more
+constant chains. Their rank/tail diagnostics are explicitly unavailable; they
+are not replaced with final states. The complete 300-marker failure table is in
+the local compact analysis. This limitation does not affect the exact aggregate
+trace results above.
 
-The correct conclusion is technical: the registered six-fit feasibility study
-could not be executed under the current public trace and block-eigen contracts.
-This is not evidence for or against information-scale-dependent convergence.
+The package did not retain a draw-wise genome-wide annotation-prior expected-
+active trace. Posterior expected occupancy is obtained exactly by summing the
+posterior marker component probabilities and agrees with the compact realized-
+active mean. Annotation-prior expected activity is reported only as a plug-in
+at mapped pooled alpha means and is not used as a convergence gate.
 
-The compact-retention work is complete. The next task is a separately reviewed
-block-eigen residual-likelihood contract decision. It must choose and validate
-how residual variance is defined when block projections overlap in sample
-space; this cannot be disguised as a numerical fix. Only after that decision
-can this exact frozen experiment—not a new truth seed—be resumed.
+## Alpha and annotation variance recovery
+
+Neither learned route meets the convergence precondition for declaring
+parameter recovery. Descriptively, all six informative non-intercept means have
+the correct sign and all six 95% pooled intervals contain truth on each route;
+all three null-annotation intervals contain zero.
+
+| Route | Non-intercept median/max abs. error | Informative sign | Informative coverage | Null coverage |
+|---|---:|---:|---:|---:|
+| E1 BED | .278/.529 | 6/6 | 6/6 | 3/3 |
+| B1 block | .102/.339 | 6/6 | 6/6 | 3/3 |
+
+The pooled means cannot be interpreted as converged recovery. E1 first-stick
+means (truth in parentheses) are intercept -3.552 (-2.472), enriched 1.200
+(1.0), continuous .293 (.4), and null -.116 (0). B1 gives -2.658, 1.179,
+.162, and -.198. Later-stick intercepts depart strongly and chain locations
+differ.
+
+`sigmaSqAlpha` is broad and mostly nonconverged. E1 means are
+1.195/2.163/1.957; only stick 1 passes. B1 means are 1.208/1.340/1.400 and none
+passes. Only three non-intercept coefficients inform each variance, so width by
+itself is not failure; here the R-hat/ESS/MCSE failures establish poor mixing.
+The value one is the registered initial/reference value, not a randomly drawn
+simulation truth for these prespecified alpha coefficients.
+
+## Occupancy, variance, and block residual behavior
+
+| Fit | Posterior component counts 0/1/2/3 | Realized active | Expected active from posterior component probabilities | Vg | h2 |
+|---|---|---:|---:|---:|---:|
+| E0 | 36919/565/347/159 | 1,071.8 | 1,071.8 | .713 | .349 |
+| B0 | 36848/570/380/194 | 1,142.9 | 1,142.9 | 1.054 | .515 |
+| E2 | 36903/567/352/169 | 1,087.9 | 1,087.9 | .761 | .372 |
+| B2 | 36849/570/379/193 | 1,142.3 | 1,142.3 | 1.049 | .513 |
+| E1 | 37847/25/9/110 | 144.4 | 144.4 | .719 | .352 |
+| B1 | 36898/655/172/266 | 1,092.7 | 1,092.7 | 1.048 | .512 |
+
+Truth is 36,791/618/392/190 and 1,200 active. Controls broadly recover total
+activity, though E0/E2 undercount and their large-component means are 16% and
+11% below truth. E1 collapses to a very sparse, large-component-heavy regime;
+B1 is closer in total activity but has broad, chain-separated small-component
+occupancy. These learned summaries are descriptive under nonconvergence.
+
+BED `ves` is global individual-level residual variance: 1.332 (E0), 1.283
+(E2), and 1.324 (E1). Block `ves` is the retained mean block residual variance,
+not a BED-equivalent quantity. Under `allMixVe`, no block met the registered
+resampling trigger in any large fit; every retained/final block Ve remained at
+the initialized phenotype variance 2.045, with zero resamples and zero
+minimum-ratio resets. Complete block-Ve histories were not requested.
+
+Reported block heritability is total block Vg divided by phenotype variance.
+The BED-minus-block h2 differences are -.166 (baseline), -.141 (fixed alpha),
+and -.161 (learned). The offset therefore persists at large scale and remains a
+route-contract issue separate from annotation learning. It must not be inferred
+from a direct BED-versus-block `ves` comparison.
+
+## SNP-level utility
+
+| Fit | AUPRC | AUROC | Top-50 causal | Top-100 causal | Effect-truth cor. | Genetic-g cor. | Phenotype cor. |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| E0 | .151 | .618 | 49 | 84 | .783 | .835 | .711 |
+| B0 | .134 | .601 | 48 | 78 | .769 | .838 | .748 |
+| E2 | .304 | .872 | 50 | 90 | .829 | .866 | .716 |
+| B2 | .305 | .872 | 50 | 88 | .814 | .859 | .736 |
+| E1 | .312 | .863 | 50 | 93 | .809 | .834 | .644 |
+| B1 | .254 | .840 | 50 | 87 | .807 | .855 | .732 |
+
+At Bayesian FDR 5%, selected/true/false counts are E0 42/42/0, B0 55/53/2,
+E2 60/59/1, B2 78/74/4, E1 55/54/1, and B1 77/75/2. At 10% they are
+50/49/1, 67/62/5, 73/72/1, 96/86/10, 65/64/1, and 95/84/11.
+
+Annotations improve AUPRC over matched no-annotation baselines on both routes
+(.312 vs .151 BED; .254 vs .134 block), and fixed-true-alpha results are also
+substantially better than baselines. These learned comparisons are useful but
+descriptive under nonconvergence; better ranking does not compensate for the
+failed joint posterior contract. Genetic-value recovery is in-sample against
+known simulated g because no independent registered sample exists.
+
+## BED/block comparisons
+
+| Pair | PIP Pearson/Spearman | Effect Pearson | Genetic-g agreement | Top 50/100 overlap | BED-block h2 |
+|---|---:|---:|---:|---:|---:|
+| E0/B0 | .894/.581 | .940 | .959 | 43/77 | -.166 |
+| E2/B2 | .961/.993 | .949 | .963 | 41/78 | -.141 |
+| E1/B1 | .738/.840 | .922 | .933 | 43/77 | -.161 |
+
+Fixed marker priors are identical across routes (marker-prior correlation 1)
+and yield the strongest PIP/rank agreement. Learned E1/B1 plug-in marker priors
+remain correlated (.916) but differ materially in scale: expected prior-active
+counts from pooled alpha means are about 135 and 794. Posterior expected
+occupancy is 144 versus 1,093. These plug-in prior summaries are descriptive
+under nonconvergence and are not draw-wise prior-probability traces. The route
+difference supports `LARGE-G4` in addition to the primary mixing decision.
+
+## Scientific conclusion and next task
+
+> At 5,000 individuals and 37,991 markers, general BayesR mixture sampling and
+> heterogeneous marker-prior sampling with alpha fixed to truth have stable
+> aggregate latent and variance diagnostics. Ordinary joint learned-alpha
+> BayesRC/SBayesRC still fails multichain exploration, so increased information
+> scale did not remove learned alpha-allocation feedback as the main
+> computational bottleneck. SNP prioritization remains useful, but latent
+> architecture is unresolved and the BED/block variance offset persists.
+
+Replicated validation is not recommended because the one registered replicate
+did not achieve full feasibility. The next task should be a focused,
+posterior-preserving sampler audit of coordinated alpha/allocation movement,
+while separately auditing the BED/block Vg and heritability contracts. It must
+not reinterpret the current nonconverged learned posterior or launch the final
+benchmark.

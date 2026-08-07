@@ -51,8 +51,9 @@ Official SBayesRC multichain parity is blocked by the v0.2.6 seed contract, but
 a separate single-trajectory descriptive comparison completed and strongly
 agreed with `sblr` for SNP effects, PIPs, ranking, and validation genetic
 values. Latent architecture remains unresolved. The registered large
-information-scale feasibility experiment passed truth/LD audits but was
-technically blocked before scientific fitting (`LARGE-F6`). See the
+information-scale feasibility experiment completed: baseline and fixed-alpha
+controls pass, while ordinary learned-alpha BED and block routes fail joint
+convergence (`LARGE-G2`; `LARGE-G3/G4` secondary). See the
 [Study 06 index](06_annotation_models/README.md) and immutable
 [v1 stop capsule](../results/reference/06_annotation_models/current-stop/README.md).
 

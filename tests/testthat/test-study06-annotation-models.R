@@ -163,6 +163,8 @@ test_that("Study 06 large feasibility is frozen and scientifically isolated", {
   expect_equal(unname(spec$mixture$target_pi), c(.970, .015, .010, .005))
   expect_equal(spec$mcmc[c("nchains", "nit", "nburn", "retained")],
     list(nchains = 4L, nit = 12000L, nburn = 3000L, retained = 9000L))
+  expect_identical(env$study06_large_controls(registry[registry$fit_id == "B0", ],
+    matrix(0, 4, 3), spec, smoke = FALSE)$nit, 9000L)
   expect_equal(spec$mcmc$ordinary_allocation_sweeps, 1L)
   expect_equal(spec$mcmc$ordinary_hierarchy_updates, 1L)
   expect_false(spec$prior$intercept_flat)
@@ -198,19 +200,17 @@ test_that("Study 06 large annotation and alpha construction are deterministic", 
     tolerance = 1e-12)
 })
 
-test_that("Study 06 large blocked decision preserves scientific boundaries", {
+test_that("Study 06 large completed decision preserves historical boundaries", {
   path <- testthat::test_path("..", "..", "docs", "dev",
     "study06_large_feasibility_decision.json")
   decision <- jsonlite::read_json(path, simplifyVector = TRUE)
-  expect_identical(decision$decision, "LARGE-F6")
-  expect_identical(decision$continuation$compact_trace_blocker,
-                   "removed_and_validated")
-  expect_identical(decision$continuation$b0_classification,
-                   "B0-C4_unresolved")
-  expect_identical(decision$continuation$scientific_fits_launched, 0L)
-  expect_true(decision$continuation$compact_bytes_per_fit <
-                decision$continuation$full_component_bytes_per_fit)
-  expect_identical(decision$scientific_fits_launched, 0L)
+  expect_identical(decision$decision, "LARGE-G2")
+  expect_identical(decision$historical_phase$decision, "LARGE-F6")
+  expect_identical(decision$historical_phase$scientific_fits_launched, 0L)
+  expect_length(decision$historical_phase$blockers, 2L)
+  expect_true(decision$compact_trace_bytes_per_fit <
+                decision$historical_full_component_bytes_per_fit)
+  expect_identical(decision$scientific_fit_coordinates_completed, 6L)
   expect_false(decision$formal_qualification_changed)
   expect_false(decision$final_benchmark_authorized)
   expect_identical(decision$additional_replicates, 0L)
@@ -218,7 +218,8 @@ test_that("Study 06 large blocked decision preserves scientific boundaries", {
   expect_false(decision$ordinary_sampler_changed)
   expect_true(decision$truth_gates_passed)
   expect_true(decision$positive_modes_all_retained)
-  expect_length(decision$blockers, 2L)
+  expect_identical(decision$small_contract_gate, "SMALL-G1")
+  expect_identical(decision$smoke_gate, "SMOKE-G1")
 })
 
 test_that("truth identifiability, component minima, and heritability are enforced", {
@@ -628,7 +629,7 @@ test_that("Study 06 documentation hierarchy preserves status and evidence levels
     "official SBayesRC multichain parity: blocked by the v0.2.6 seed contract",
     "official SBayesRC single-trajectory descriptive comparison: completed",
     "final benchmark: not authorized",
-    "large n=5000, m=37,991 feasibility experiment: technically blocked (LARGE-F6); no scientific fits run")
+    "large n=5000, m=37,991 feasibility experiment: completed (LARGE-G2; LARGE-G3/LARGE-G4 secondary); final benchmark not authorized")
   for (line in status) {
     expect_true(grepl(line, readme, fixed = TRUE), info = line)
     expect_true(grepl(line, report, fixed = TRUE), info = line)

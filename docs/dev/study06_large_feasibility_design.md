@@ -11,6 +11,12 @@ The ordinary sampler is the object of study: one allocation sweep and one alpha
 hierarchy update per cycle. H20 schedules, repeated allocation sweeps,
 tempering, partial exchange, official SBayesRC, and sampler changes are excluded.
 
+The original execution phase was technically blocked (`LARGE-F6`). The frozen
+continuation uses the validated package source SHA
+`0c89234273389e14112ba0e08ef9d11d3e1819dc` and the explicitly registered
+GCTB-compatible block residual contract. It does not change any scientific
+input, seed, prior, chain length, or model setting.
+
 ## Scientific question
 
 Does ordinary learned-alpha BayesRC/SBayesRC achieve multichain convergence and
@@ -106,3 +112,18 @@ PIPs alone cannot establish success. Decision classes are `LARGE-F1` through
 [large-feasibility.R](../../studies/06_annotation_models/large-feasibility.R)
 and the runner is
 [run_study06_large_feasibility.R](../../scripts/run_study06_large_feasibility.R).
+
+## Continuation block semantics
+
+The block fits explicitly set `residual_policy = "gctb_block"`,
+`block_ve_mode = "allMixVe"`, `resam_thresh = 1.1`, and
+`minimum_ve_ratio = 0.7`. Under this contract, `fit$ves` is the retained mean
+block residual variance and `fit$heritability_summary` is total block Vg divided
+by phenotype variance. Neither is silently interpreted as the BED global
+residual contract. Historical block fits retain the semantics of the package
+SHA and residual policy that generated them.
+
+The continuation stores compact component-count, realized-active-count, and
+stick eligible/continue/stop histories plus the unchanged 300-marker panel.
+Checkpoint identity includes package SHA, installed-tree hash, residual policy,
+block Ve mode, frozen input hashes, seeds, and MCMC controls.

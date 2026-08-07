@@ -60,6 +60,13 @@ study06_large_spec <- function() {
 study06_large_hash <- function(x) digest::digest(x, algo = "sha256",
   serialize = TRUE)
 
+study06_large_block_contract <- function() list(
+  residual_policy = "gctb_block", block_ve_mode = "allMixVe",
+  resam_thresh = 1.1, minimum_ve_ratio = 0.7,
+  block_ve_keep_history = FALSE,
+  ves_definition = "retained mean block residual variance",
+  heritability_definition = "sum(block Vg) / phenotype variance")
+
 study06_large_registry <- function(spec = study06_large_spec()) {
   out <- data.frame(
     fit_id = c("E0", "B0", "E2", "B2", "E1", "B1"),
@@ -273,7 +280,9 @@ study06_large_trace_panel <- function(marker_truth, A, positions,
 
 study06_large_controls <- function(fit_row, alpha_truth,
                                    spec = study06_large_spec(), smoke = FALSE) {
-  controls <- list(nit = if (smoke) 12L else spec$mcmc$nit,
+  # sblr's `nit` is retained post-burn history, while spec$mcmc$nit records
+  # the total scientific trajectory length.
+  controls <- list(nit = if (smoke) 12L else spec$mcmc$retained,
     nburn = if (smoke) 4L else spec$mcmc$nburn, nthin = spec$mcmc$nthin,
     seed = if (smoke) spec$seeds$smoke[[1L]] else spec$seeds$fit,
     nchains = spec$mcmc$nchains, ncores = spec$mcmc$ncores,
@@ -421,6 +430,7 @@ study06_large_fit_call <- function(fit_row, controls, bundle,
     } else common$mixture_var <- spec$prior$mixture_var
     do.call(sblr::stblr_bed, common)
   } else {
+    block_contract <- study06_large_block_contract()
     common$method <- fit_row$method
     common$stats <- bundle$gwas$stats
     common$Glist <- bundle$glist
@@ -428,6 +438,11 @@ study06_large_fit_call <- function(fit_row, controls, bundle,
     common$representation <- spec$block$representation
     common$eigen_policy <- spec$block$eigen_policy
     common$eigen_prop <- spec$block$eigen_prop
+    common$residual_policy <- block_contract$residual_policy
+    common$block_ve_mode <- block_contract$block_ve_mode
+    common$resam_thresh <- block_contract$resam_thresh
+    common$minimum_ve_ratio <- block_contract$minimum_ve_ratio
+    common$block_ve_keep_history <- block_contract$block_ve_keep_history
     if (fit_row$annotation_aware) {
       common$gamma <- spec$prior$mixture_var
       common$annotation <- bundle$annotations
@@ -436,6 +451,48 @@ study06_large_fit_call <- function(fit_row, controls, bundle,
     }
     do.call(sblr::stblr_block_eigen, common)
   }
+}
+
+study06_large_validate_smoke <- function(fit, fit_row, alpha_truth,
+                                         selected_count = 300L,
+                                         retained = 12L) {
+  if (length(fit$chains) != 4L) stop("Smoke chain count is invalid.")
+  for (chain in fit$chains) {
+    trace <- chain$convergence_trace
+    if (!identical(dim(trace$component_count), c(retained, 4L)) ||
+        !identical(dim(trace$realized_active_count), c(retained, 1L)) ||
+        !identical(dim(trace$stick_eligible_count), c(retained, 3L)) ||
+        !identical(dim(trace$stick_continue_count), c(retained, 3L)) ||
+        !identical(dim(trace$stick_stop_count), c(retained, 3L)) ||
+        !identical(dim(trace$b), c(retained, selected_count)) ||
+        !identical(dim(trace$component), c(retained, selected_count)) ||
+        any(!is.finite(trace$b))) stop("Smoke compact trace contract failed.")
+    if (fit_row$annotation_aware) {
+      if (!identical(dim(trace$alpha), c(retained, 12L)) ||
+          !identical(dim(trace$sigmaSqAlpha), c(retained, 3L)) ||
+          any(!is.finite(trace$alpha)) || any(!is.finite(trace$sigmaSqAlpha)))
+        stop("Smoke annotation trace contract failed.")
+      if (!fit_row$update_alpha) {
+        expected <- rep(as.numeric(alpha_truth), each = retained)
+        if (!identical(as.numeric(trace$alpha), expected))
+          stop("Fixed-alpha smoke changed registered truth.")
+      }
+    }
+  }
+  if (fit_row$route == "block_eigen") {
+    contract <- study06_large_block_contract()
+    if (!identical(fit$input$residual_policy, contract$residual_policy) ||
+        !identical(fit$input$block_ve_mode, contract$block_ve_mode) ||
+        !identical(fit$input$resam_thresh, contract$resam_thresh) ||
+        !identical(fit$input$minimum_ve_ratio,
+          contract$minimum_ve_ratio) || is.null(fit$block_ve) ||
+        is.null(fit$heritability_summary) ||
+        any(!is.finite(fit$block_ve$posterior_mean_per_chain_block)) ||
+        any(!is.finite(fit$heritability_summary)))
+      stop("Smoke block residual contract failed.")
+  } else if (any(c("residual_policy", "block_ve_mode") %in%
+      names(fit$input))) stop("BED smoke received block-only controls.")
+  invisible(TRUE)
 }
 
 study06_large_scalar_diagnostics <- function(fit, fit_id,

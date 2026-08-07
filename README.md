@@ -34,10 +34,11 @@ Official SBayesRC multichain parity is blocked because v0.2.6 does not honor
 distinct public chain seeds; the separate single-trajectory descriptive
 comparison completed and found strong SNP-level agreement and annotation
 benefit alongside unresolved latent architecture. The registered `n=5000`,
-`m=37,991` feasibility experiment passed deterministic truth/LD audits but is
-technically blocked before scientific fitting (`LARGE-F6`): compact aggregate
-occupancy tracing is now validated, but the registered full-positive-mode B0
-operator has a materially invalid residual-scale contract. See the
+`m=37,991` feasibility experiment has now completed all six frozen fits. Its
+baseline and fixed-alpha controls pass their aggregate convergence contracts,
+while both learned-alpha routes fail joint alpha/allocation convergence
+(`LARGE-G2`); SNP-level utility remains strong (`LARGE-G3`) and material route
+differences persist (`LARGE-G4`). See the
 [Study 06 report](studies/06_annotation_models/report.qmd),
 [navigation page](studies/06_annotation_models/README.md), and
 [technical synthesis](docs/dev/study06_annotation_inference_evidence_synthesis.md).

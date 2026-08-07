@@ -9,11 +9,14 @@ stage <- value("--stage", "all")
 fit_id <- value("--fit", "")
 resume <- tolower(value("--resume", "true")) == "true"
 phase <- value("--phase", "initial")
-if (!phase %in% c("initial", "continuation"))
-  stop("--phase must be initial or continuation.")
-output <- value("--output-dir",
-  "results/local/06_annotation_models/large_feasibility")
-isolated <- normalizePath("results/local/current_benchmark_refresh/rlib",
+if (!phase %in% c("initial", "continuation", "gctb_block"))
+  stop("--phase must be initial, continuation, or gctb_block.")
+default_output <- if (identical(phase, "gctb_block"))
+  "results/local/06_annotation_models/large_feasibility/gctb_block" else
+    "results/local/06_annotation_models/large_feasibility"
+output <- value("--output-dir", default_output)
+isolated <- normalizePath(value("--library",
+  "results/local/06_annotation_models/gctb_block_contract_validation/rlib"),
   winslash = "/", mustWork = TRUE)
 .libPaths(c(isolated, .libPaths()))
 
@@ -23,6 +26,21 @@ source("studies/06_annotation_models/large-feasibility.R")
 spec <- study06_large_spec()
 registry <- study06_large_registry(spec)
 dir.create(output, recursive = TRUE, showWarnings = FALSE)
+
+required_sblr_sha <- "0c89234273389e14112ba0e08ef9d11d3e1819dc"
+required_sblr_tree <- "e723528e7d5d570a31b5b1d1c90551896ac48f86ab05261c181c8109af971fd0"
+source_sha <- trimws(system2("git", c("-C", "../sblr", "rev-parse", "HEAD"),
+  stdout = TRUE))
+source_status <- system2("git", c("-C", "../sblr", "status", "--short"),
+  stdout = TRUE)
+installed_provenance <- benchmark_package_provenance("sblr", lib.loc = isolated)
+if (!identical(source_sha, required_sblr_sha) || length(source_status) ||
+    !identical(as.character(utils::packageVersion("sblr", lib.loc = isolated)),
+      "0.2.0") ||
+    !identical(installed_provenance$installed_tree_sha256,
+      required_sblr_tree)) {
+  stop("Exact clean sblr source or isolated installed-tree identity mismatch.")
+}
 
 write_json <- function(x, path) {
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
@@ -34,7 +52,11 @@ write_csv <- function(x, path) {
   utils::write.csv(x, path, row.names = FALSE, na = "")
 }
 sha_file <- function(path) digest::digest(file = path, algo = "sha256")
-bundle_path <- file.path(output, "prepared_bundle.rds")
+default_bundle <- if (identical(phase, "gctb_block"))
+  "results/local/06_annotation_models/large_feasibility/prepared_bundle.rds" else
+    file.path(output, "prepared_bundle.rds")
+bundle_path <- normalizePath(value("--bundle", default_bundle),
+  winslash = "/", mustWork = stage != "prepare")
 
 prepare <- function() {
   message("Preparing immutable large-feasibility truth; no MCMC is running.")
@@ -148,6 +170,26 @@ load_bundle <- function() {
   x <- readRDS(bundle_path)
   if (!identical(x$identities$specification_hash, study06_large_hash(spec)))
     stop("Prepared specification identity mismatch.")
+  expected <- c(
+    specification_hash = "b001bc36a5531e5e6b342286a253fc1fd34dad4265359d89d2feaa026d4533df",
+    truth_hash = "e94a511540f600e61ef47b52947836f19a15388f5e8ce795c179929956817507",
+    marker_order_hash = "e394f4324f89ca7ad88691284a6216a24e26c691d7cb59d822d5d7f006b096f2",
+    sample_order_hash = "f3c14e98845fc565424a973a5a5850768c587f9d5a5306cc58ff36c5329a256b",
+    allele_hash = "996fb56147c14801f798a7bb21692a962aba18829c8a3a7abfa4dc768b06b082",
+    annotation_hash = "5cc2a5dc64140b5cb2c3e77044d8a0b7bd698e2b33f1f8cb0f5b39ac278f7bd3",
+    block_hash = "3b119c38fcababc5b70892f8fc29dcd773fb73e4e2a2b1cd6daf94556e16294d",
+    gwas_hash = "f00c01326d20d32c1b389f239ebe520327f4b8c859acf7320b10d531243cacfd",
+    alpha_truth_hash = "4766d00b77653825e9130a32ebcde1b16754ee99103f2ab4c4d3f1d715fbbf82",
+    trace_panel_hash = "0ae8cc37d0418d54cf52e4cf5271c5859d01506759a6d798f6c512a66b08438f")
+  got <- unlist(x$identities[names(expected)])
+  if (!identical(unname(got), unname(expected)) ||
+      length(x$sample_ids) != 5000L || length(x$markers$marker_ids) != 37991L ||
+      length(x$blocks$block_start) != 76L ||
+      !identical(as.integer(x$truth$component_count),
+        c(36791L, 618L, 392L, 190L)) ||
+      sum(x$truth$marker_truth$active) != 1200L ||
+      !isTRUE(all.equal(x$truth$realized_h2, .5, tolerance = 0)))
+    stop("Frozen large bundle identity or truth-count audit failed.")
   x
 }
 
@@ -156,9 +198,13 @@ run_one <- function(id, smoke = FALSE) {
   row <- registry[registry$fit_id == id, , drop = FALSE]
   if (nrow(row) != 1L) stop("Unknown fit id: ", id)
   controls <- study06_large_controls(row, bundle$calibrated$alpha, spec, smoke)
+  if (smoke && identical(phase, "gctb_block")) {
+    controls$seed <- spec$seeds$fit
+    controls$chain_seeds <- spec$seeds$chain
+  }
   suffix <- if (smoke) "smoke" else "fit"
   checkpoint_name <- if (phase == "initial") paste0(id, "_", suffix, ".rds") else
-    paste0("continuation_", id, "_", suffix, ".rds")
+    paste0(phase, "_", id, "_", suffix, ".rds")
   path <- file.path(output, "checkpoints", checkpoint_name)
   identity <- list(schema = spec$schema, fit = as.list(row),
     specification_hash = bundle$identities$specification_hash,
@@ -167,6 +213,8 @@ run_one <- function(id, smoke = FALSE) {
     annotation_hash = bundle$identities$annotation_hash,
     block_hash = bundle$identities$block_hash, gwas_hash = bundle$identities$gwas_hash,
     trace_hash = bundle$identities$trace_panel_hash, controls = controls,
+    block_contract = if (row$route == "block_eigen")
+      study06_large_block_contract() else NULL,
     smoke = smoke, phase = phase,
     sblr_sha = system2("git", c("-C", "../sblr", "rev-parse", "HEAD"),
       stdout = TRUE),
@@ -187,6 +235,8 @@ run_one <- function(id, smoke = FALSE) {
   elapsed <- as.numeric(difftime(Sys.time(), started, units = "secs"))
   if (any(!is.finite(fit$bm)) || any(!is.finite(fit$dm)))
     stop("Non-finite posterior output for ", id)
+  if (smoke) study06_large_validate_smoke(fit, row,
+    bundle$calibrated$alpha, nrow(bundle$trace_panel$panel), 12L)
   saved <- list(identity = identity, semantic_hash = semantic_hash,
     elapsed_seconds = elapsed, fit = fit)
   benchmark_atomic_save_rds(saved, path, compress = FALSE,
@@ -254,6 +304,16 @@ if (stage == "fit") {
 }
 if (stage == "manifest") {
   write_blocked_manifest(); quit(save = "no")
+}
+if (stage == "analyze") {
+  source("studies/06_annotation_models/large-feasibility-analysis.R")
+  bundle <- load_bundle()
+  checkpoint_dir <- file.path(output, "checkpoints")
+  analysis_dir <- file.path(output, "analysis")
+  result <- study06_large_analyze_completed(checkpoint_dir, analysis_dir,
+    bundle, spec)
+  message("Analyzed six completed identity-matched fits; no MCMC was run.")
+  quit(save = "no")
 }
 if (stage == "all") {
   if (!file.exists(bundle_path)) prepare()
