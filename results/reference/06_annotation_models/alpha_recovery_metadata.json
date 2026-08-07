@@ -1,0 +1,56 @@
+{
+  "schema": "sblrbench-study06-alpha-recovery-v1",
+  "study": "06_annotation_models",
+  "decision": "ALPHA-R1",
+  "decision_label": "isolated standard SBayesRC alpha hierarchy validated",
+  "scope": "isolated probit hierarchy; no SNP-effect or production SBayesRC sampler",
+  "seed": 20260807,
+  "snps": 1500,
+  "sticks": 3,
+  "replicates": 20,
+  "chains": 4,
+  "iterations": 8000,
+  "burn_in": 2000,
+  "repeated_update": "blocked",
+  "nonintercept_prior_variance": [1, 1, 1],
+  "target_continuation": [0.114, 0.508771929824561, 0.425287356321839],
+  "fixed_z": {
+    "decision": "pass",
+    "maximum_posterior_mean_error": 0.00428,
+    "maximum_posterior_covariance_error": 0.00084
+  },
+  "single_fixture_blocked_vs_scalar": {
+    "maximum_absolute_posterior_mean_difference": 0.009355895,
+    "maximum_absolute_posterior_sd_difference": 0.003050331,
+    "maximum_rhat": 1.001268
+  },
+  "repeated_recovery": {
+    "maximum_mean_rhat": 1.00073666814997,
+    "maximum_rhat": 1.0019912120968,
+    "minimum_coverage_95": 0.9
+  },
+  "jian_zeng_2024_intercept_diagnostic": {
+    "interpretation": "descriptive source-contract comparison only",
+    "stick2_enriched_eligible_n_mean": 0.5084,
+    "stick2_enriched_total_m_mean": 0.5045,
+    "stick3_enriched_eligible_n_mean": -0.4416,
+    "stick3_enriched_total_m_mean": -0.4753
+  },
+  "source_references": {
+    "primary": {
+      "path": "local_reference/test_sbayesrc_alpha_recovery_v2.R",
+      "sha256": "9f1edd471d019aaf1e65a63be289abe47f5e162460c58ef5d4639730bcf082e3"
+    },
+    "mathematical": {
+      "path": "local_reference/test_sbayesrc_continuous_reference.R",
+      "sha256": "bba54addbec93a2219f01bd0269714fa2a0032a1327092e5ee58732637b41c16"
+    },
+    "provenance_only": {
+      "path": "local_reference/sbayesrc_reference_jian_zeng_2024.R",
+      "sha256": "50c393dd579459ce611fbc58f884d56a032531437b1d190411a5d7db842ab683"
+    }
+  },
+  "tracked_reference_script": "studies/06_annotation_models/alpha_recovery_reference.R",
+  "rerun_performed": true,
+  "rerun_scope": "deterministic isolated probit reference only"
+}

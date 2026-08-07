@@ -217,6 +217,42 @@ formal posterior validation.
 - Unrestricted continuous-alpha joint learning, global alpha/allocation
   coupling, and later-stick quantitative interpretation. The same-posterior
   development line is closed at PMA-R3 rather than left as a current roadmap.
+
+## Post-closure isolated alpha recovery
+
+The **ALPHA-R1 — isolated standard SBayesRC alpha hierarchy validated** addendum
+does not reopen Study 06 or change EST-R2. With fixed latent `z`, scalar Gibbs
+reproduced the exact Gaussian posterior (maximum mean error 0.00428; maximum
+covariance error 0.00084). With known continuation outcomes, blocked and scalar
+chains agreed closely (maximum mean difference 0.00936; maximum R-hat 1.00127).
+
+Across 20 independent simulated hierarchies and four blocked-update chains per
+fit, maximum mean R-hat was 1.00074, maximum individual R-hat was 1.00199, and
+95% coverage ranged from .90 to 1.00. Enriched-slope posterior SD increased from
+.118 to .198 to .279 over the three sticks, but its repeated biases were only
+-.017, -.002, and -.012. This is increasing finite-sample uncertainty, not
+systematic conditional alpha failure.
+
+Eligible counts averaged 1,500, 170.7, and 84.2; enriched eligible counts
+averaged 149.1, 77.2, and 42.3. Informative enriched SNPs therefore became about
+45% and 50% of later eligible sets rather than remaining 10%. Total information
+declines, while selective continuation partly preserves information about the
+informative slope.
+
+```text
+fixed z: exact alpha conditional
+known outcomes: calibrated, well-mixed alpha inference
+full SBayesRC: difficult joint alpha <-> allocation/occupancy exploration
+```
+
+PMA-R3 is consistent with this diagnosis: it supplied an exact coordinated
+global move under the same posterior, but was computationally impractical. The
+2024 Jian Zeng R-reference total-`m` versus eligible-`n` intercept detail changed
+the isolated stick-2/stick-3 enriched means only modestly (.505/.508 and
+-.475/-.442); it is a source-contract note, not an explanation of the full
+problem or a claim about production GCTB. Compact evidence and the standalone,
+non-production reproduction script are registered in
+[`alpha_recovery_metadata.json`](../../results/reference/06_annotation_models/alpha_recovery_metadata.json).
 - Exact annotation-contrast magnitudes and some hierarchy-scale quantities,
   despite stable directions and downstream SNP outputs.
 
@@ -349,6 +385,13 @@ and closer to truth, but not perfectly calibrated. The raw null values similarly
 map to smaller contrasts whose intervals include zero.
 
 ## Why SBayesRC can work despite difficult alpha parameters
+
+The isolated-alpha addendum establishes that alpha estimation works when the
+hierarchy is known. The full learned model is harder because alpha changes SNP
+mixture probabilities and the resulting allocations/effects determine the next
+alpha regression. Local conditionals can be correct while this coupled joint
+state is traversed slowly. Later sticks are less precise, but are not shown to
+be intrinsically unidentified.
 
 For stick \(k\),
 

@@ -197,6 +197,20 @@ expected-active R-hat 1.22. It shows that a valid global move can coordinate
 alpha and occupancy, but 200 retained draws per chain are not qualification
 evidence and do not change EST-R2.
 
+### Post-closure isolated-alpha addendum
+
+The registered **ALPHA-R1** reference experiment sharpens, but does not replace,
+this estimability analysis. Fixed-`z` scalar Gibbs matches the exact Gaussian
+alpha posterior; blocked and scalar updates agree when continuation outcomes are
+known; and 20 repeated known-outcome simulations show small bias, 0.90--1.00
+coverage, and maximum R-hat 1.00199. Posterior precision decreases down the
+sticks, while enriched SNPs become more common among eligible records (about
+10%, 45%, and 50%). Thus the full-model difficulty is best attributed primarily
+to joint alpha--allocation/occupancy exploration, not failure of the alpha
+conditional or structural non-identifiability. See the
+[final conclusion](study06_final_conclusion.md#isolated-alpha-recovery) and
+[`alpha_recovery_metadata.json`](../../results/reference/06_annotation_models/alpha_recovery_metadata.json).
+
 ## Interpretation
 
 Study 06 separates three claims. The exact continuous alpha decomposition is

@@ -5,6 +5,11 @@
 **CLOSED — EST-R2**, with official qualifier **EST-R5** and same-posterior
 sampler-development endpoint **PMA-R3**.
 
+Post-closure supporting evidence **ALPHA-R1** is registered in
+`alpha_recovery_metadata.json`, `alpha_recovery_summary.csv`, and
+`alpha_recovery_single_fixture.csv`. These compact files describe an isolated
+probit hierarchy reference only; they contain no production SBayesRC draws.
+
 Current compact closure evidence:
 
 - `final_decision.json` — authoritative machine-readable status, source

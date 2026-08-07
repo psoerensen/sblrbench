@@ -47,11 +47,61 @@ official multichain convergence claim is made.
 - Stable annotation-informed SNP prioritization and SNP-level inference on the
   frozen Study 06 fixture.
 
-These results support the restrained statement that `sblr` implements the core
+These results, together with the post-closure isolated-alpha reference below,
+support the restrained statement that `sblr` implements the core standard
 SBayesRC model and has been lightly but systematically validated against the
-official implementation on this controlled simulation benchmark. They do not
+official implementation and independent mathematical reference experiments on
+controlled simulation benchmarks. They do not
 establish universal GCTB replacement, posterior identity, or equivalence under
 all architectures and scales.
+
+## Isolated alpha recovery
+
+The post-closure **ALPHA-R1 — isolated standard SBayesRC alpha hierarchy
+validated** addendum separates alpha estimation from alpha-allocation coupling.
+It is supporting evidence: Study 06 remains closed at EST-R2, with EST-R5 as the
+official qualifier and PMA-R3 as the same-posterior sampler endpoint.
+
+Conditional on fixed latent probit variables, scalar Gibbs reproduced the exact
+Gaussian alpha posterior: the maximum posterior-mean error was 0.00428 and the
+maximum covariance error was 0.00084. Conditional on known continuation
+outcomes, independent blocked and scalar chains gave essentially the same
+posterior summaries (maximum absolute mean difference 0.00936; maximum R-hat
+1.00127). A single realization could still place a later-stick mean far from
+truth while R-hat was near one, illustrating that chain agreement is not truth
+recovery.
+
+Across 20 independently simulated Study-06-like probit hierarchies, each fitted
+with four blocked-update chains of 8,000 iterations and 2,000 burn-in, mean R-hat
+never exceeded 1.00074 and the maximum individual R-hat was 1.00199. Bias was
+small relative to uncertainty and empirical 95% coverage was 0.90--1.00 across
+all 12 coefficients. For the enriched slope, truth/posterior mean/bias/coverage
+were 1.600/1.583/-0.017/1.00, 0.300/0.298/-0.002/0.95, and
+0.200/0.188/-0.012/0.95 for sticks 1--3. Its mean posterior SD increased from
+0.118 to 0.198 to 0.279.
+
+Mean eligible counts decreased from 1,500 to 170.7 to 84.2, but mean enriched
+eligible counts were 149.1, 77.2, and 42.3. Thus an annotation present in about
+10% of all SNPs comprised about 45% and 50% of later eligible sets because it
+preferentially continued. Total information still falls down the hierarchy, but
+the earlier shorthand that later sticks necessarily retain only 10% enriched
+SNPs is not correct.
+
+The 2024 Jian Zeng R-reference source restricts later-stick records to the
+eligible set but uses total marker count `m` in the intercept update. Replacing
+that count with the eligible-set size changed the isolated enriched means only
+modestly: 0.505 versus 0.508 on stick 2 and -0.475 versus -0.442 on stick 3.
+This is a source-contract note, not evidence that the reference is wrong or
+that production GCTB necessarily uses the same contract.
+
+The registered evidence is
+[`alpha_recovery_metadata.json`](../../results/reference/06_annotation_models/alpha_recovery_metadata.json),
+[`alpha_recovery_summary.csv`](../../results/reference/06_annotation_models/alpha_recovery_summary.csv),
+and the standalone
+[`alpha_recovery_reference.R`](../../studies/06_annotation_models/alpha_recovery_reference.R).
+Run `Rscript studies/06_annotation_models/alpha_recovery_reference.R` to repeat
+only this deterministic isolated probit experiment; it does not invoke a
+production `sblr` sampler or alter frozen Study 06 data.
 
 ## Raw first-stick annotation comparison
 
@@ -169,6 +219,23 @@ and its uncertainty.
 
 ## Why SBayesRC can work despite difficult alpha parameters
 
+ALPHA-R1 sharpens the diagnosis. With a known compatible hierarchy, the alpha
+conditional is correct, calibrated across repeated simulations, and very well
+mixed. Later-stick alpha is less precise because fewer observations remain, not
+intrinsically unidentified. In the full learned model the harder feedback is
+
+```text
+alpha <-> SNP allocations / occupancy.
+```
+
+Alpha changes SNP mixture probabilities; allocations and effects then define
+the regression information presented back to alpha. A substantial alpha move
+can require a compatible genome-wide allocation change, so correct local Gibbs
+conditionals can still explore the joint posterior slowly. PMA-R3's exact global
+alpha/allocation move confirmed that coordinated movement is possible under the
+same posterior, but at unacceptable computational cost. Alpha conditional on a
+compatible hierarchy is therefore not the principal unresolved problem.
+
 For stick \(k\),
 
 \[
@@ -230,12 +297,13 @@ SNP outputs. Poor MCMC exploration is not harmless in general; the empirical
 result here is specifically that downstream quantities are much more stable
 than the latent decomposition on this frozen fixture.
 
-There is therefore no contradiction between difficult alpha inference and
-useful SBayesRC SNP inference. Some later-stick combinations are weakly
-determined and strongly correlated; the stick/probit map compresses many of
-their functional consequences; posterior averaging then yields highly
-reproducible SNP PIPs and effects even though every alpha coefficient is not
-precisely recovered.
+There is therefore no contradiction between difficult joint alpha/allocation
+exploration and useful SBayesRC SNP inference. The alpha regression itself is
+valid and calibrated when supplied a compatible hierarchy. In the full model,
+some later-stick combinations are less precise and strongly correlated, while
+alternative hierarchy/allocation states are hard to traverse. The stick/probit
+map compresses many functional consequences; posterior averaging then yields
+highly reproducible SNP PIPs and effects.
 
 ## Three levels of estimability
 

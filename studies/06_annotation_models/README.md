@@ -66,6 +66,10 @@ decision files remain authoritative for their historical gates.
 - The final estimability analysis finds highly reproducible induced prior
   rankings and SNP outputs, directionally stable informative-annotation
   contrasts, and quantitatively uncertain contrast magnitudes: **EST-R2**.
+- The post-closure isolated-alpha oracle finds exact fixed-`z` conditionals and
+  calibrated, well-mixed alpha recovery when stick outcomes are known:
+  **ALPHA-R1**. This supports alpha--allocation/occupancy coupling as the
+  full-model difficulty and does not change the closed EST-R2 decision.
 
 ### Descriptive but useful
 

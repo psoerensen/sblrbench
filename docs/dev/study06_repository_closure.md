@@ -161,6 +161,34 @@ and route-sensitive.
 
 ## Why SBayesRC can work despite difficult alpha parameters
 
+### Post-closure ALPHA-R1 evidence
+
+An isolated standard-SBayesRC probit reference was added after repository
+closure. It leaves EST-R2, EST-R5, and PMA-R3 unchanged. Fixed-`z` scalar Gibbs
+matched the exact Gaussian alpha posterior (maximum mean/covariance errors
+0.00428/0.00084); blocked and scalar known-outcome fits agreed (maximum mean
+difference 0.00936); and 20 repeated fits had coverage 0.90--1.00 and maximum
+R-hat 1.00199. Enriched-slope posterior SD rose .118, .198, .279 as mean eligible
+counts fell 1,500, 170.7, 84.2. Enriched eligible counts were 149.1, 77.2, 42.3,
+so selective continuation raised the later eligible fractions to about 45% and
+50%.
+
+```text
+known compatible hierarchy -> alpha inference works
+unknown hierarchy -> alpha changes SNP probabilities
+SNP allocations/effects -> define the next alpha regression
+coupled joint state -> local Gibbs exploration can be slow
+```
+
+PMA-R3 remains the endpoint: coordinated global alpha/allocation movement is
+exactly possible but computationally impractical. The Jian Zeng 2024 R-reference
+total-`m` intercept detail produced only modest isolated differences from the
+eligible-`n` calculation and is retained as a source-contract note, not called
+an error or attributed to production GCTB. The tracked script is
+`studies/06_annotation_models/alpha_recovery_reference.R`; compact evidence is
+under `results/reference/06_annotation_models/alpha_recovery_*`. No production
+sampler or frozen Study 06 artifact is involved.
+
 For each stick,
 
 \[
@@ -222,12 +250,14 @@ not be the sole or primary biological summary.
 
 ## Implementation-validation statement
 
-`sblr` implements the core SBayesRC model and has been lightly but
-systematically validated against the official implementation on this controlled
-simulation benchmark. The support is the validated residual contract,
+`sblr` implements the core standard SBayesRC model and has been lightly but
+systematically validated against the official implementation and independent
+mathematical reference experiments on controlled simulation benchmarks. The
+support is the validated residual contract,
 baseline/fixed-alpha controls, direct small official comparisons, first-stick
-direction and derived-contrast agreement, high SNP-level concordance, and exact
-transition/oracle audits. The claim is controlled-benchmark concordance, not
+direction and derived-contrast agreement, high SNP-level concordance, exact
+alpha-conditional/known-outcome calibration, and transition/oracle audits. The
+claim is controlled-benchmark concordance, not
 universal GCTB equivalence.
 
 ## Reproduction

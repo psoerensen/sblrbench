@@ -20,6 +20,14 @@
   "additional_scientific_fits_required": false,
   "study06_closed": true,
   "next_method_direction": "bayesian_annotation_selection",
+  "supporting_evidence": [
+    {
+      "decision": "ALPHA-R1",
+      "label": "isolated standard SBayesRC alpha hierarchy validated",
+      "metadata": "results/reference/06_annotation_models/alpha_recovery_metadata.json",
+      "summary": "results/reference/06_annotation_models/alpha_recovery_summary.csv"
+    }
+  ],
   "created_at": "2026-08-07T15:29:24+02:00",
   "frozen_artifacts": {
     "truth_export_sha256": "eb4efd63195874c21e273c11114b6144069afa5e841289af9e240a919c0e5013",
