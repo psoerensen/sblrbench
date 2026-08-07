@@ -115,5 +115,5 @@ analysis for the complete validated contract.
 3. Run explicit validation and review compact outputs before capsule promotion.
 4. Add a capsule-only report and catalogue entry.
 
-Studies 01–05 have completed this lifecycle. Study 06 failed qualification and
-Study 07 remains paused; both are **In development**.
+
+Studies 01–05 have completed this lifecycle. **Study 06 is complete and closed at EST-R2**, with EST-R5 retained as the official-implementation qualifier and PMA-R3 as the endpoint for same-posterior sampler development. **Study 07** remains in development and paused.
