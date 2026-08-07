@@ -32,14 +32,17 @@ test_that("root targets dispatch is development-only", {
   expect_false(grepl("05_ld_operator.*targets.R", text))
 })
 
-test_that("development studies publish honest status", {
-  for (study in c("06_annotation_models", "07_mt_validation")) {
-    text <- paste(readLines(file.path(root, "studies", study, "README.md"),
-      warn = FALSE), collapse = "\n")
-    expect_match(text, "Status: In development", fixed = TRUE)
-    expect_match(text, "not a completed benchmark|no completed benchmark",
-      ignore.case = TRUE)
-  }
+test_that("current studies publish honest status", {
+  study06 <- paste(readLines(file.path(root, "studies", "06_annotation_models",
+    "README.md"), warn = FALSE), collapse = "\n")
+  expect_match(study06, "CLOSED — EST-R2", fixed = TRUE)
+  expect_match(study06, "Official qualifier: EST-R5", fixed = TRUE)
+
+  study07 <- paste(readLines(file.path(root, "studies", "07_mt_validation",
+    "README.md"), warn = FALSE), collapse = "\n")
+  expect_match(study07, "Status: In development", fixed = TRUE)
+  expect_match(study07, "not a completed benchmark|no completed benchmark",
+    ignore.case = TRUE)
 })
 
 test_that("five reusable templates use the shared runner", {

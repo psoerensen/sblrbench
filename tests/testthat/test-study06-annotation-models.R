@@ -612,7 +612,7 @@ test_that("single-trajectory decision preserves GCTB-P5 and forbids qualificatio
   expect_false(parity$full_registry_run)
 })
 
-test_that("Study 06 documentation hierarchy preserves status and evidence levels", {
+test_that("Study 06 documentation hierarchy preserves history and closure", {
   read_text <- function(...) paste(readLines(file.path(study06_root, ...),
     warn = FALSE, encoding = "UTF-8"), collapse = "\n")
   readme <- read_text("studies", "06_annotation_models", "README.md")
@@ -621,26 +621,22 @@ test_that("Study 06 documentation hierarchy preserves status and evidence levels
     "study06_annotation_inference_evidence_synthesis.md")
   inventory <- read_text("docs", "dev", "study06_documentation_inventory.md")
 
-  status <- c(
-    "v1 sparse qualification: failed and preserved",
-    "v2 identifiable qualification: failed",
-    "paired power isolation: completed",
-    "package-side hierarchy and transition audits: completed",
-    "official SBayesRC multichain parity: blocked by the v0.2.6 seed contract",
-    "official SBayesRC single-trajectory descriptive comparison: completed",
-    "final benchmark: not authorized",
-    "large n=5000, m=37,991 feasibility experiment: completed (LARGE-G2; LARGE-G3/LARGE-G4 secondary); final benchmark not authorized")
-  for (line in status) {
+  for (line in c("CLOSED — EST-R2", "Official qualifier: EST-R5",
+    "closed at PMA-R3")) {
     expect_true(grepl(line, readme, fixed = TRUE), info = line)
-    expect_true(grepl(line, report, fixed = TRUE), info = line)
   }
+  expect_true(grepl("CLOSED — EST-R2", report, fixed = TRUE))
+  expect_true(grepl("v1 sparse qualification", synthesis, fixed = TRUE))
+  expect_true(grepl("v2 identifiable design", synthesis, fixed = TRUE))
+  expect_true(grepl("LARGE-G2", synthesis, fixed = TRUE))
+  expect_true(grepl("PMA-R3", synthesis, fixed = TRUE))
+  expect_true(grepl("EST-R2", synthesis, fixed = TRUE))
   expect_true(grepl("Established", report, fixed = TRUE))
   expect_true(grepl("Descriptive but useful", report, fixed = TRUE))
-  expect_true(grepl("Unresolved", report, fixed = TRUE))
+  expect_true(grepl("Difficult or delimited at closure", report, fixed = TRUE))
   expect_true(grepl("Implementation and sampler lessons", report,
     fixed = TRUE))
-  expect_true(grepl("official SBayesRC multichain parity", synthesis,
-    fixed = TRUE))
+  expect_true(grepl("GCTB-P5", synthesis, fixed = TRUE))
   expect_true(grepl("raw reference evidence", inventory, fixed = TRUE))
 })
 

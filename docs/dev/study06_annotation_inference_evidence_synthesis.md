@@ -4,8 +4,8 @@
 
 This is the authoritative chronological synthesis of the committed Study 06
 annotation-inference diagnostics in `sblrbench` and the read-only sibling
-`sblr` repository through 2026-08-06. It does not replace either failed
-qualification decision. The immutable v2 specification and informative truth
+`sblr` repository through scientific closure. It does not replace either failed
+qualification decision or any other historical gate. The immutable v2 specification and informative truth
 hashes are respectively
 `241c15afab8fefc571e38e625130de6e4ab58b958c30cff369e26998ee30fa56`
 and `169d52bef390022a9106d7e61b200493869b40cbb76f1c8d911eebbc80fea1eb`.
@@ -13,17 +13,18 @@ and `169d52bef390022a9106d7e61b200493869b40cbb76f1c8d911eebbc80fea1eb`.
 Current status:
 
 ```text
-v1 sparse qualification: failed and preserved
-v2 identifiable qualification: failed
-paired power isolation: completed
-package-side hierarchy and transition audits: completed
-official SBayesRC multichain parity: blocked by the v0.2.6 seed contract
-official SBayesRC single-trajectory descriptive comparison: completed
-final benchmark: not authorized
-large n=5000, m=37,991 feasibility experiment: completed (LARGE-G2; LARGE-G3/LARGE-G4 secondary); final benchmark not authorized
+Study 06 status: CLOSED
+Primary final decision: EST-R2
+Official qualifier: EST-R5 (formal independent multichain replication unavailable)
+Standard same-posterior continuous-alpha sampler development: closed at PMA-R3
+Additional final benchmark / scientific fit: not required
+Next methodology: separate Bayesian annotation-selection / annotation-PIP study
 ```
 
-For a concise overview, read the
+For the authoritative scientific endpoint, read the
+[final conclusion](../studies/study06_final_conclusion.md) and
+[machine-readable decision](../../results/reference/06_annotation_models/final_decision.json).
+For the chronological account, continue here and use the
 [main report](../../studies/06_annotation_models/report.qmd). For file-level
 provenance and the authoritative/supporting distinction, use the
 [documentation inventory](study06_documentation_inventory.md). Formal result
@@ -239,8 +240,8 @@ and phenotype prediction .604 versus .634.
 > parameters.
 
 This is single-trajectory descriptive evidence. Official v0.2.6 does not seed
-its native RNG streams through the public seed formal, so multichain convergence
-parity remains blocked.
+its native RNG streams through the public seed formal, so formal independently
+seeded multichain replication remains unavailable.
 
 ## Alpha and annotation-variance crosswalk
 
@@ -286,19 +287,15 @@ four `sblr` block chains required about 1.4 times one official D1 trajectory.
 
 ## Current roadmap
 
-1. **Documentation cleanup** — this consolidation.
-2. **Larger information-scale feasibility experiment** — completed on the exact
-   frozen `n = 5000`, `m = 37,991` truth. The historical `LARGE-F6` phase and
-   later contract validation remain explicit. The scientific decision is
-   [LARGE-G2](study06_large_feasibility_result.md), with G3/G4 secondary.
-3. **Focused sampler audit** — evaluate a posterior-preserving coordinated
-   alpha/allocation transition without changing this result.
-4. **Route-contract audit** — map BED/block Vg and h2 differences separately.
-5. **Replicated validation** — not recommended until a registered learned model
-   passes the full latent contract.
+1. Study 06 is closed at **EST-R2**.
+2. Standard same-posterior continuous-alpha sampler development is closed at
+   **PMA-R3**.
+3. No additional Study 06 scientific fit is recommended.
+4. The next methodology is a separate Bayesian annotation-selection /
+   annotation-PIP study.
 
-An optional fixed-state official/`sblr` contract audit may examine residual
-variance, `nbsq` effect scale, p1 orientation, pi updates, active/component-count
-semantics, and annotation-variance output. Official multichain parity
-still requires an upstream seedable release or documented independent-chain
-mechanism. The final benchmark remains unauthorized.
+The historical `LARGE-F6`, `LARGE-G2/G3/G4`, qualification, official, and
+sampler-audit records above remain unchanged evidence of the path to closure.
+Official multichain work would require an upstream seedable release or another
+documented independent-chain mechanism, but it is not a prerequisite for the
+closed primary `sblr` conclusion.

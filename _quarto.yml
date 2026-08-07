@@ -15,6 +15,7 @@ project:
     - studies/04_convergence/report.qmd
     - studies/05_ld_operator/report.qmd
     - studies/06_annotation_models/report.qmd
+    - docs/studies/study06_final_conclusion.md
     - studies/07_mt_validation/status.qmd
   resources:
     - results/reference/**
@@ -39,6 +40,8 @@ website:
         text: Home
       - href: studies/index.qmd
         text: Benchmarks
+      - href: docs/studies/study06_final_conclusion.md
+        text: Study 06 closure
       - href: workflows.qmd
         text: Workflows
       - href: framework.qmd

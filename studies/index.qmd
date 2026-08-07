@@ -40,22 +40,19 @@ sampler transitions. The same integrated study tests exact, hard-sparse, and
 block-eigen SBayesR operators in one deterministic LD-rich window.
 [Integrated capsule](../results/reference/05_ld_operator/current/README.md).
 
+### [Study 06: Annotation-informed BayesRC/SBayesRC](06_annotation_models/report.qmd)
+
+**Status: Complete / Closed — EST-R2.** Annotation-induced SNP-prior rankings
+and SNP-level inference are highly stable, while unrestricted continuous-alpha
+and precise annotation-contrast magnitudes remain quantitatively uncertain.
+The official trajectory supplies descriptive support; formal official
+multichain replication remains unavailable (**EST-R5**). Same-posterior sampler
+development ended at **PMA-R3**. See the
+[final conclusion](../docs/studies/study06_final_conclusion.md),
+[Study 06 index](06_annotation_models/README.md), and
+[final decision](../results/reference/06_annotation_models/final_decision.json).
+
 ## In development
-
-### [Study 06: Annotation-informed models](06_annotation_models/report.qmd)
-
-**Status: In development — v1 and v2 qualifications failed; final benchmark
-not authorized.** Paired isolation and package-side audits identify learned
-alpha/allocation feedback while preserving strong causal-ranking signals.
-Official SBayesRC multichain parity is blocked by the v0.2.6 seed contract, but
-a separate single-trajectory descriptive comparison completed and strongly
-agreed with `sblr` for SNP effects, PIPs, ranking, and validation genetic
-values. Latent architecture remains unresolved. The registered large
-information-scale feasibility experiment completed: baseline and fixed-alpha
-controls pass, while ordinary learned-alpha BED and block routes fail joint
-convergence (`LARGE-G2`; `LARGE-G3/G4` secondary). See the
-[Study 06 index](06_annotation_models/README.md) and immutable
-[v1 stop capsule](../results/reference/06_annotation_models/current-stop/README.md).
 
 ### [Study 07: Multitrait validation](07_mt_validation/status.qmd)
 

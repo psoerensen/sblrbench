@@ -1,6 +1,6 @@
 ---
 title: "Study 06: Annotation-informed models"
-description: "Qualifications failed; SNP-level annotation benefit established; final benchmark blocked."
+description: "Closed at EST-R2: stable probability rankings and SNP inference with uncertain annotation-contrast magnitudes."
 ---
 
 ```{r}
@@ -16,23 +16,38 @@ computation <- rcsv("computational_summary.csv")
 ::: {.callout-important}
 ## Current status
 
-**Status: In development — formal qualifications failed; final benchmark not
-authorized.**
+**CLOSED — EST-R2.** Probability/ranking functions are stable, but
+annotation-contrast magnitudes remain uncertain.
 
 ```text
-v1 sparse qualification: failed and preserved
-v2 identifiable qualification: failed
-paired power isolation: completed
-package-side hierarchy and transition audits: completed
-official SBayesRC multichain parity: blocked by the v0.2.6 seed contract
-official SBayesRC single-trajectory descriptive comparison: completed
-final benchmark: not authorized
-large n=5000, m=37,991 feasibility experiment: completed (LARGE-G2; LARGE-G3/LARGE-G4 secondary); final benchmark not authorized
+Study 06 status: CLOSED
+Primary final decision: EST-R2
+Official qualifier: EST-R5
+Standard unrestricted continuous-alpha sampler development: closed at PMA-R3
+Additional final benchmark / scientific fit: not required
+Next methodology: separate Bayesian annotation-selection / annotation-PIP study
 ```
 
-The official comparison was not wholly blocked: multichain convergence parity
-is blocked, while the single-trajectory descriptive comparison completed.
+The pinned official trajectory provides descriptive evidence, but formal
+independently seeded multichain replication remains unavailable under the
+v0.2.6 native RNG contract. Historical failed qualifications and intermediate
+decisions below remain part of the audit trail; they are not the current study
+status.
 :::
+
+## Final authoritative scientific result
+
+Functional annotations produce reproducible SNP-prior rankings and stable
+SNP-level inference, while the unrestricted continuous-alpha decomposition and
+exact annotation-effect magnitudes are substantially less reliable. Enriched
+and continuous effects are directionally stable; the null annotation is
+compatible with zero; magnitude is quantitatively uncertain and route-sensitive.
+This is **EST-R2**. The authoritative synthesis is the
+[final conclusion](../../docs/studies/study06_final_conclusion.md), with detailed
+evidence in the
+[estimability analysis](../../docs/studies/study06_estimability_and_contrasts.md)
+and identity in
+[`final_decision.json`](../../results/reference/06_annotation_models/final_decision.json).
 
 ## What Study 06 tests
 
@@ -88,8 +103,10 @@ marker-order, and block audits all passed.
 
 All four registered learned BayesRC/SBayesRC qualification entries completed,
 but every entry failed the multichain convergence contract. Informative
-later-stick directions and BED/block heritability agreement also failed. This
-is a formal qualification failure; the final benchmark remains unauthorized.
+later-stick directions and BED/block heritability agreement also failed. At
+that historical gate this was a formal qualification failure and the then-
+envisioned final benchmark was not authorized. The later estimability analysis,
+not an additional fit, supplied the final EST-R2 endpoint.
 
 ### Large information-scale feasibility — completed, learned joint mixing failed
 
@@ -161,8 +178,8 @@ marker allocations. They are not interchangeable.
 - The roughly 0.09–0.10 BED/block heritability offset persists without
   annotation learning, with true alpha fixed, and with every block mode
   retained. It is distinct from learned-alpha feedback and eigen truncation.
-- Informative annotations improve causal-marker ranking. Official SBayesRC
-  independently reproduces the prioritization benefit on this truth.
+- Informative annotations improve causal-marker ranking. The official SBayesRC
+  trajectory shows the same prioritization benefit descriptively on this truth.
 - Matched official SBayesRC and `sblr` strongly agree for SNP effects, PIPs,
   ranking, and validation genetic values on the delimited single trajectory.
 - In the registered 5,000-person/37,991-marker replicate, baseline and
@@ -189,7 +206,7 @@ formal posterior validation.
 | BED H20 | nonconverged joint state | .5945 | .8520 | about 55.6 | .4164 | .9138 | .9178 | .6546 |
 | block H20 | nonconverged joint state | .5419 | .8309 | about 133.6 | .5090 | .8850 | .8958 | .6320 |
 
-### Unresolved
+### Difficult or delimited at closure
 
 - Official SBayesRC multichain convergence and quantitative alpha parity.
 - Quantitative parity of official `sigma_anno` and `sblr` `sigmaSqAlpha`.
@@ -197,10 +214,11 @@ formal posterior validation.
   semantics across implementations.
 - Residual-variance and effect/`nbsq` scale contracts.
 - BED versus block-eigen variance and heritability calibration.
-- Which coordinated posterior-preserving transition, if any, can resolve joint
-  learned alpha/allocation mixing.
-- Whether later-stick annotation coefficients are quantitatively interpretable
-  on this dataset.
+- Unrestricted continuous-alpha joint learning, global alpha/allocation
+  coupling, and later-stick quantitative interpretation. The same-posterior
+  development line is closed at PMA-R3 rather than left as a current roadmap.
+- Exact annotation-contrast magnitudes and some hierarchy-scale quantities,
+  despite stable directions and downstream SNP outputs.
 
 ## Implementation and sampler lessons
 
@@ -295,6 +313,125 @@ Official retained `sigmaSqAlpha` histories are not exposed. Official
 source-contract audit, and final official values cannot establish posterior
 mean, uncertainty, drift, ESS, or chain parity.
 
+## Derived annotation functions and final estimability result
+
+### Why stick 1 is scientifically central
+
+With four components, stick 1 is the active-versus-null decision:
+
+\[
+P(c_i>0\mid A_i)=q_{i1}=\Phi(A_i\alpha_1).
+\]
+
+Later sticks redistribute already-active SNPs among nonzero components. The
+frozen truth has 1,500/171/87 eligible SNPs across sticks 1/2/3. The enriched
+column occurs in exactly 225/1,500 SNPs (15%), and in 107/171 and 62/87 of the
+later eligible sets. The information loss is therefore the sharp reduction in
+eligible latent continuation outcomes; no claim that only a handful of enriched
+eligible SNPs remain is needed. This helps explain why first-stick informative
+directions can be useful while later-stick decomposition remains weak.
+
+### Counterfactual active/non-null contrasts
+
+| Annotation | Truth | `sblr` BED | `sblr` block | Official D1 descriptive |
+|---|---:|---:|---:|---:|
+| enriched binary | .423 | .192 [.081, .397] | .299 [.119, .642] | .204 [.117, .302] |
+| continuous signal | .0886 | .0555 [.0239, .104] | .112 [.0383, .236] | .077 [.042, .118] |
+| null annotation | 0 | -.007 [-.068, .046] | -.068 [-.268, .060] | -.024 [-.096, .024] |
+
+The shared ordering is enriched much greater than continuous, with null near
+zero. Directions and rankings are convincing; exact magnitudes are biased,
+route-sensitive, and incompletely covered. The continuous example makes the
+distinction concrete: raw first-stick values are truth .300, official .586,
+BED .638, and block .622, while the induced active contrasts are .0886, .077,
+.0555, and .112. The probability-level functional is more biologically useful
+and closer to truth, but not perfectly calibrated. The raw null values similarly
+map to smaller contrasts whose intervals include zero.
+
+## Why SBayesRC can work despite difficult alpha parameters
+
+For stick \(k\),
+
+\[
+\eta_{ik}=A_i\alpha_k,\qquad q_{ik}=\Phi(\eta_{ik}),
+\]
+
+and the four mixture probabilities are
+
+\[
+\pi_{i0}=1-q_{i1},\quad
+\pi_{i1}=q_{i1}(1-q_{i2}),\quad
+\pi_{i2}=q_{i1}q_{i2}(1-q_{i3}),\quad
+\pi_{i3}=q_{i1}q_{i2}q_{i3}.
+\]
+
+```text
+alpha
+→ A alpha
+→ q
+→ SNP-specific pi
+→ latent components/effects
+→ SNP PIP / posterior beta
+→ genetic values / prediction
+```
+
+Raw alpha is an upstream latent parameterization. Correlated coefficient
+configurations—such as lower intercept plus larger enriched slope—can behave
+similarly over the realized annotation profiles. The full-rank annotation
+matrix (rank 4, condition number about 2.23) rules out a simple design null
+space, so the supported language is weak practical determination and strong
+posterior dependence, not formal non-identifiability.
+
+The probit map can compress latent differences in saturated regions:
+`Phi(4)` is about .99997 and `Phi(7)` is effectively 1. Official D1 provides a
+striking descriptive example: half-specific `A alpha` vector correlation is as
+low as -.975 while the minimum nonconstant induced probability-vector Pearson
+correlation is at least .999. Its raw-alpha ESS range is about 1.4–86.2 and the
+largest half shift about 1.25 posterior SD. These are halves of one native
+trajectory, not independent chains.
+
+Posterior inference also averages over the hierarchy:
+
+\[
+P(c_i>0\mid y)=E_{\alpha,\theta}
+\left[P(c_i>0\mid y,\alpha,\theta)\right].
+\]
+
+Thus no single plug-in alpha value is the ordinary SNP endpoint. There is no
+contradiction between difficult alpha inference and useful SBayesRC SNP
+inference: the induced probability functions can be substantially more stable,
+and posterior averaging can yield reproducible marginal PIPs and effects. Poor
+MCMC exploration is not harmless in general; this is the empirical hierarchy
+observed on the frozen fixture.
+
+### Three levels of estimability and reporting
+
+| Level | Study 06 behavior | Reporting role |
+|---|---|---|
+| Latent alpha / `sigmaSqAlpha` | weak or correlated in some directions, especially later sticks | secondary plus R-hat, ESS, MCSE, intervals, covariance |
+| `A alpha`, q/pi, contrasts, rankings | substantially more stable; direction strong, magnitude uncertain | primary annotation-derived functions; `A alpha` secondary |
+| SNP PIP, beta, genetic value, prediction | highly stable | primary SNP and downstream outputs |
+
+Probability ranking is reproducible: active-prior Spearman is at least
+.986/.950 and largest-component-prior Spearman at least .999/.995 for BED/block.
+PIP Pearson is at least .994/.969, signed-beta Pearson .9999/.9991, and
+genetic-value chain correlation .99994/.99925. BED chain ranges are AUPRC
+.591–.597, AUROC .849–.856, genetic-value truth correlation .917–.918, and
+prediction .654–.655; block ranges are .514–.560, .818–.840, .896–.897, and
+.631–.633.
+
+R-hat near one is agreement, not truth recovery. Expected active count averages
+about 351.8 BED and 807.4 block versus truth 180 despite R-hat near one and very
+large variability. Therefore convergence is not calibration, and stable ranking
+is not exact probability-magnitude recovery.
+
+Future SBayesRC reports should emphasize SNP PIPs/effects and downstream
+performance; annotation-induced active/component probabilities, rankings, and
+counterfactual contrasts with uncertainty; and retain raw alpha, `A alpha`,
+hierarchy scales, covariance, R-hat, ESS, and MCSE as secondary diagnostics.
+Raw alpha can inform first-stick direction but should not be the sole biological
+summary.
+
 ## Runtime observations
 
 | Method | Trajectories/chains | Iterations | Wall time |
@@ -320,7 +457,7 @@ performance benchmark.
 |---|---|---|---|---|
 | 1. v1 sparse qualification | Sparse BED/CSR annotation qualification | Failed; preserved | Too sparse for primary late-stick qualification; CSR fidelity confounded | formal qualification |
 | 2. v2 identifiable design | Increase active/stick information | Deterministic gates passed | Accidental empty truth cells ruled out | design/protocol |
-| 3. v2 qualification | Learned BED/block BayesRC/SBayesRC | All fits completed; all failed convergence | Final benchmark blocked | formal qualification |
+| 3. v2 qualification | Learned BED/block BayesRC/SBayesRC | All fits completed; all failed convergence | Final benchmark historically blocked at this gate | formal qualification |
 | 4. paired power isolation | Baseline, learned, shuffled, fixed-alpha | Baselines/fixed pass; learned fails; ranking benefit large | Alpha/allocation feedback isolated | diagnostic experiment |
 | 5. mathematical audit | Shared conditionals in `sblr` | Exact checks pass | Formula defect ruled out | correctness established |
 | 6. frozen allocations | Hierarchy with truth allocations | Converges rapidly | Isolated hierarchy ruled out | exact/converged diagnostic |
@@ -334,29 +471,33 @@ performance benchmark.
 | 14. documentation consolidation | This task | Evidence hierarchy normalized | One authoritative reading path | documentation decision |
 | 15. block contract validation | small official D0/D1 vs new S0/S1 | SNP/residual gates passed | `gctb_block` semantics validated without relabeling history | SMALL-G1 |
 | 16. larger feasibility | `n=5000`, `m=37,991` | controls pass; learned joint mixing fails; SNP utility strong | information scale does not remove alpha/allocation bottleneck; route offset persists | LARGE-G2/G3/G4 |
+| 17. exact transition audits | pair, coordinated subset, PX, particle Gibbs, particle-marginal alpha | exact references; no scalable qualification solution | standard same-posterior development endpoint reached | AA-R5 / PMA-R3 |
+| 18. estimability and contrasts | frozen 1,500-marker retained chains and official D1 | rankings/SNP outputs stable; contrast magnitude uncertain | final scientific closure | EST-R2; EST-R5 qualifier |
 
-## Interpretation and next phases
+## Closure and next model
 
-The accumulated evidence separates practical SNP prioritization from latent
-posterior reliability. Annotation information clearly helps find causal
-markers on this truth, and two implementations produce nearly identical SNP
-signals. Neither fact establishes joint learned-alpha convergence or validates
-component architecture.
+Study 06 is complete. No further unrestricted continuous-alpha sampler
+engineering or additional Study 06 scientific fit is recommended. The
+same-posterior development line ended at PMA-R3: exact but computationally
+impractical. On this controlled benchmark, `sblr` reproduces the main behavior
+of official SBayesRC—similar first-stick directions, broadly comparable active
+contrasts, highly concordant SNP inference, and a qualitative separation
+between difficult alpha and stable induced probabilities—without claiming
+universal posterior or implementation equivalence.
 
-The frozen one-replicate information-scale profile is complete. It does not
-support replicated validation because the learned models fail the full latent
-contract. The next task is a focused posterior-preserving coordinated
-alpha/allocation sampler audit, with a separate BED/block Vg and heritability
-contract audit. Stable SNP output must not be used to waive latent failures.
-An optional fixed-state official/`sblr` latent-contract audit can proceed
-independently. Official multichain parity awaits a seedable official release.
+The next methodology is Bayesian annotation selection / annotation PIPs as a
+distinct statistical model and study. It targets annotation relevance rather
+than acting as a sampler fix for standard SBayesRC.
 
 ## Navigation and reproducibility
 
-Start with the [Study 06 README](README.md), then use the
-[authoritative evidence synthesis](../../docs/dev/study06_annotation_inference_evidence_synthesis.md)
-for the complete ledger. The [documentation inventory](../../docs/dev/study06_documentation_inventory.md)
-maps every tracked Study 06 file and package-side evidence source.
+Start with the [final conclusion](../../docs/studies/study06_final_conclusion.md),
+then the [estimability evidence](../../docs/studies/study06_estimability_and_contrasts.md)
+and this report. The
+[evidence synthesis](../../docs/dev/study06_annotation_inference_evidence_synthesis.md)
+preserves the complete chronological ledger. The
+[documentation inventory](../../docs/dev/study06_documentation_inventory.md)
+maps the earlier tracked Study 06 evidence.
 
 The experiment-specific authoritative records are the
 [v1 result](../../docs/dev/study06_annotation_qualification_result.md),
@@ -366,4 +507,11 @@ The experiment-specific authoritative records are the
 [GCTB-P5 result](../../docs/dev/study06_gctb_parity_result.md), and
 [official single-trajectory result](../../docs/dev/study06_gctb_single_trajectory_result.md),
 plus the [large-feasibility result](../../docs/dev/study06_large_feasibility_result.md).
+Those historical decisions remain intact. The final closure identity is
+[`final_decision.json`](../../results/reference/06_annotation_models/final_decision.json).
 This report reads only the unchanged v1 capsule and never launches a sampler.
+
+Offline regeneration of final derived tables uses
+`Rscript scripts/run_study06_estimability.R` with retained frozen chains already
+present. It invokes no sampler, regenerates no truth, and writes only to the
+ignored Study 06 estimability directory.

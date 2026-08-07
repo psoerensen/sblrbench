@@ -100,13 +100,18 @@ low-rank/block approximations, recovery, convergence, runtime, and storage.
 
 ## Annotation-informed models
 
-**Use it for:** developing matched BayesR/BayesRC and SBayesR/SBayesRC
-annotation validation with informative and uninformative controls.
+**Use it for:** the completed matched BayesR/BayesRC and SBayesR/SBayesRC
+annotation validation, offline estimability analysis, and reporting derived
+annotation probability functions.
 
-- [Exact gated analysis](studies/06_annotation_models/analysis.R) · [specification](studies/06_annotation_models/spec.R) · [annotation design](studies/06_annotation_models/annotation-design.R) · [v2 design](docs/dev/study06_v2_design.md) · [status report](studies/06_annotation_models/report.qmd)
-- Current evidence: [prespecified stop capsule](results/reference/06_annotation_models/current-stop/README.md) and [qualification diagnostics](results/reference/06_annotation_models/current-stop/convergence_diagnostics.csv)
+- [Exact gated analysis](studies/06_annotation_models/analysis.R) · [offline estimability analysis](scripts/run_study06_estimability.R) · [specification](studies/06_annotation_models/spec.R) · [annotation design](studies/06_annotation_models/annotation-design.R) · [final conclusion](docs/studies/study06_final_conclusion.md) · [report](studies/06_annotation_models/report.qmd)
+- Current evidence: [final decision](results/reference/06_annotation_models/final_decision.json), [cross-implementation comparison](results/reference/06_annotation_models/final_cross_implementation_comparison.csv), and [hierarchy summary](results/reference/06_annotation_models/final_hierarchy_of_evidence.csv). The [prespecified v1 stop capsule](results/reference/06_annotation_models/current-stop/README.md) remains historical evidence.
 - `sblr` references: [`stblr_bed()`](https://psoerensen.github.io/sblr/reference/stblr_bed.html) and [`stblr_block_eigen()`](https://psoerensen.github.io/sblr/reference/stblr_block_eigen.html)
-- **Validation status:** v1 sparse qualification **failed and is preserved**; v2 identifiable qualification is **scaffolded but unrun**; the final benchmark is **not authorized** and no method-performance claim is supported.
+- **Validation status:** **closed at EST-R2**. Probability/ranking functions and
+  SNP inference are stable; precise annotation-contrast magnitudes remain
+  uncertain. The official qualifier is EST-R5, and standard same-posterior
+  continuous-alpha sampler development is closed at PMA-R3. No additional
+  Study 06 scientific fit is required.
 
 See the [Framework](framework.qmd) for execution and output responsibilities,
 and [Reproducibility](reproducibility.qmd) for the distinction between local

@@ -11,10 +11,15 @@ and recover the expected directions, but their magnitudes remain biased,
 route-sensitive, and Monte Carlo-uncertain. This does not support strong
 quantitative annotation-effect claims.
 
-The pinned official arm is secondarily qualified as **EST-R5 — official
-replication is inconclusive**. Its one retained trajectory shows the same
+The pinned official arm is secondarily qualified as **EST-R5 — formal official
+multichain replication remains unavailable**. Its one retained trajectory shows the same
 qualitative compression from raw alpha movement to induced probabilities, but
 official v0.2.6 cannot produce independently seeded native trajectories.
+
+The authoritative closure is recorded in
+[`final_decision.json`](../../results/reference/06_annotation_models/final_decision.json)
+and interpreted in the [final conclusion](study06_final_conclusion.md). This
+document remains the detailed final evidence source.
 
 ## Provenance and immutable inputs
 

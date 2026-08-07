@@ -35,14 +35,16 @@ fine-mapping, prediction, parameter estimation, convergence, and LD operators.
 
 | Evidence or workflow | Current status |
 |---|---|
-| Validation studies | **5 completed** — Studies 01–05 |
-| Development studies | **2 in development** — Studies 06–07 |
-| Reusable templates | **6 available** — five validated workflow types plus annotation development |
+| Validation studies | **6 completed** — Studies 01–06 |
+| Development studies | **1 in development** — Study 07 |
+| Reusable templates | **6 available** — including annotation-informed analysis |
 
-Study 06 v1 sparse qualification stopped at its prespecified gate and is
-preserved. Its separately versioned v2 identifiable qualification is
-scaffolded but has not run; no final performance benchmark is authorized.
-Study 06 and Study 07 multitrait validation remain **In development**.
+Study 06 is **closed at EST-R2**: annotation-induced prior rankings and SNP
+inference are stable, while exact annotation-contrast magnitudes remain
+uncertain. Its official qualifier is EST-R5, and same-posterior continuous-alpha
+sampler development ended at PMA-R3. Read the
+[final Study 06 conclusion](docs/studies/study06_final_conclusion.md).
+Study 07 multitrait validation remains **In development**.
 
 ::: {.callout-note}
 ## How to read the evidence

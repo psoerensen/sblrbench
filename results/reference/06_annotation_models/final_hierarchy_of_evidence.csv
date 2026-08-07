@@ -1,0 +1,9 @@
+quantity,role_in_model,study06_behavior,truth_recovery,cross_implementation_agreement,recommended_reporting
+raw alpha,latent annotation coefficient,"weak in some directions, especially later sticks",imperfect,"qualitative first-stick agreement",secondary plus diagnostics
+sigmaSqAlpha / sigma_anno,hierarchy scale,"limited and not directly cross-implementation comparable",not directly comparable,"descriptive scale consistency only",diagnostic
+A alpha,latent SNP score,"improved over raw alpha but uneven",imperfect,"weak later-stick stability",secondary
+q / pi probabilities,SNP-specific prior architecture,"high ranking stability","moderate magnitude error","very strong qualitative agreement",primary annotation-derived output
+active annotation contrast,effect on non-null probability,"stable direction; uncertain and route-sensitive magnitude",partial,"similar ordering across truth, official, BED, and block",primary annotation summary with uncertainty
+SNP PIP,marginal SNP activity,highly stable,useful,"strong official agreement on controlled fixture",primary SNP output
+posterior beta,marginal SNP effect,highly stable,useful,"strong official agreement on controlled fixture",primary SNP output
+genetic value / prediction,downstream inference,highly stable,useful,strong on controlled fixture,primary downstream output

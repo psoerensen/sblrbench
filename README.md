@@ -6,13 +6,14 @@ extensible analysis workflows built on the same validated framework.
 
 ## Validate `sblr`
 
-Five completed scalar-validation studies are available:
+Six completed scalar-validation studies are available:
 
 1. Study 01 — Fine-mapping
 2. Study 02 — Prediction
 3. Study 03 — Parameter estimation
 4. Study 04 — Convergence
 5. Study 05 — LD-operator validation
+6. Study 06 — Annotation-informed BayesRC/SBayesRC
 
 Each completed report reads only a compact frozen capsule under
 `results/reference/`. Capsules contain numerical tables, manifests, checksums,
@@ -24,31 +25,26 @@ New validation studies should keep scientific choices in an ordinary-list
 `spec.R`, use shared mechanics under `R/`, expose a readable `analysis.R`, and
 publish only reviewed compact results through a frozen capsule.
 
-Study 06 — Annotation-informed models is **in development**: its v1 sparse
-qualification failed and is preserved, while its v2 identifiable qualification
-completed all four fits but failed convergence, scientific-recovery, and route
-gates. A paired power/isolation diagnostic completed and isolated alpha
-hierarchy/feedback as the primary mixing mechanism; it did not authorize the
-final benchmark. Package-side hierarchy and transition audits are complete.
-Official SBayesRC multichain parity is blocked because v0.2.6 does not honor
-distinct public chain seeds; the separate single-trajectory descriptive
-comparison completed and found strong SNP-level agreement and annotation
-benefit alongside unresolved latent architecture. The registered `n=5000`,
-`m=37,991` feasibility experiment has now completed all six frozen fits. Its
-baseline and fixed-alpha controls pass their aggregate convergence contracts,
-while both learned-alpha routes fail joint alpha/allocation convergence
-(`LARGE-G2`); SNP-level utility remains strong (`LARGE-G3`) and material route
-differences persist (`LARGE-G4`). See the
-[Study 06 report](studies/06_annotation_models/report.qmd),
-[navigation page](studies/06_annotation_models/README.md), and
-[technical synthesis](docs/dev/study06_annotation_inference_evidence_synthesis.md).
-Study 07 — Multitrait validation is **in development**. Neither is a completed
-validation benchmark.
+Study 06 — Annotation-informed BayesRC/SBayesRC is **complete / closed** at
+**EST-R2**. Functional annotations produce reproducible SNP-prior rankings and
+stable SNP PIPs, effects, genetic values, and predictions, while the exact
+unrestricted continuous-alpha decomposition and annotation-contrast magnitudes
+remain quantitatively uncertain. The official arm carries **EST-R5** because
+formal independently seeded multichain replication is unavailable under pinned
+SBayesRC v0.2.6; its retained trajectory remains useful descriptive evidence.
+Standard same-posterior continuous-alpha sampler development is closed at
+**PMA-R3**, exact but computationally impractical. No additional Study 06 fit
+or final benchmark is required. See the
+[final conclusion](docs/studies/study06_final_conclusion.md),
+[Study 06 report](studies/06_annotation_models/report.qmd), and
+[navigation page](studies/06_annotation_models/README.md).
+
+Study 07 — Multitrait validation remains **in development**.
 
 ## Practical analysis workflows
 
 The exact study scripts under `studies/01_finemapping/` through
-`studies/05_ld_operator/` show complete auditable workflows. Shorter reusable
+`studies/06_annotation_models/` show complete auditable workflows. Shorter reusable
 examples live under `inst/templates/` for fine-mapping, prediction, parameter
 estimation, convergence, and operator analysis.
 

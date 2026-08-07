@@ -19,7 +19,7 @@ test_that("retired CLI IDs are rejected with their replacements", {
     "out")), "06_annotation_models", fixed = TRUE)
 })
 
-test_that("website has one Study 05 report and no additional validation", {
+test_that("website has authoritative Study 05 and Study 06 reports", {
   root <- testthat::test_path("..", "..")
   quarto <- paste(readLines(file.path(root, "_quarto.yml"), warn = FALSE),
     collapse = "\n")
@@ -30,5 +30,5 @@ test_that("website has one Study 05 report and no additional validation", {
   annotation <- paste(readLines(file.path(root, "studies",
     "06_annotation_models", "report.qmd"), warn = FALSE),
     collapse = "\n")
-  expect_match(annotation, "In development", fixed = TRUE)
+  expect_match(annotation, "CLOSED — EST-R2", fixed = TRUE)
 })
