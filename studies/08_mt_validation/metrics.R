@@ -1,11 +1,11 @@
-.study07_safe_cor <- function(x, y) {
+.study08_safe_cor <- function(x, y) {
   if (length(x) != length(y) || length(x) < 2L ||
       any(!is.finite(c(x, y))) || stats::sd(x) == 0 || stats::sd(y) == 0)
     return(NA_real_)
   stats::cor(x, y)
 }
 
-.study07_auc <- function(score, truth) {
+.study08_auc <- function(score, truth) {
   truth <- as.logical(truth)
   if (!any(truth) || all(truth) || any(!is.finite(score))) return(NA_real_)
   ranks <- rank(score, ties.method = "average")
@@ -13,7 +13,7 @@
     (sum(truth) * sum(!truth))
 }
 
-.study07_auprc <- function(score, truth) {
+.study08_auprc <- function(score, truth) {
   truth <- as.logical(truth)
   if (!any(truth) || any(!is.finite(score))) return(NA_real_)
   o <- order(score, decreasing = TRUE); y <- truth[o]
@@ -21,7 +21,7 @@
   mean(precision[y])
 }
 
-.study07_prediction_metrics <- function(run, simulation, Z_test, test_rows) {
+.study08_prediction_metrics <- function(run, simulation, Z_test, test_rows) {
   B <- run$fit$bm; pred <- Z_test %*% B
   y <- simulation$phenotype[test_rows, , drop = FALSE]
   g <- simulation$genetic_values[test_rows, , drop = FALSE]
@@ -35,26 +35,26 @@
       metric = c("phenotype_prediction_correlation",
         "phenotype_prediction_rmse", "prediction_slope",
         "genetic_value_correlation", "genetic_value_rmse"),
-      value = c(.study07_safe_cor(pred[, t], y[, t]),
+      value = c(.study08_safe_cor(pred[, t], y[, t]),
         sqrt(mean((pred[, t] - y[, t])^2)), slope,
-        .study07_safe_cor(pred[, t], g[, t]),
+        .study08_safe_cor(pred[, t], g[, t]),
         sqrt(mean((pred[, t] - g[, t])^2))),
       stringsAsFactors = FALSE)
   }))
 }
 
-.study07_marker_metrics <- function(run, simulation, Z_all) {
+.study08_marker_metrics <- function(run, simulation, Z_all) {
   est <- run$fit$bm; truth <- simulation$effects; pip <- run$fit$dm
   do.call(rbind, lapply(seq_len(2L), function(t) {
     causal <- simulation$state[, t] == 1L
-    values <- c(marker_effect_correlation = .study07_safe_cor(est[, t], truth[, t]),
+    values <- c(marker_effect_correlation = .study08_safe_cor(est[, t], truth[, t]),
       marker_effect_rmse = sqrt(mean((est[, t] - truth[, t])^2)),
-      causal_marker_effect_correlation = .study07_safe_cor(est[causal, t],
+      causal_marker_effect_correlation = .study08_safe_cor(est[causal, t],
         truth[causal, t]), noncausal_marker_rmse = sqrt(mean(est[!causal, t]^2)),
-      pip_auroc = .study07_auc(pip[, t], causal),
-      pip_auprc = .study07_auprc(pip[, t], causal),
+      pip_auroc = .study08_auc(pip[, t], causal),
+      pip_auprc = .study08_auprc(pip[, t], causal),
       pip_brier = mean((pip[, t] - causal)^2),
-      genetic_value_reconstruction_correlation = .study07_safe_cor(
+      genetic_value_reconstruction_correlation = .study08_safe_cor(
         Z_all %*% est[, t], simulation$genetic_values[, t]))
     data.frame(architecture = simulation$architecture,
       replicate = simulation$replicate,
@@ -64,7 +64,7 @@
   }))
 }
 
-.study07_internal_consistency <- function(run, simulation) {
+.study08_internal_consistency <- function(run, simulation) {
   fit <- run$fit
   rg <- fit$cov_g_mean[1L, 2L] /
     sqrt(fit$cov_g_mean[1L, 1L] * fit$cov_g_mean[2L, 2L])
@@ -85,7 +85,7 @@
     stringsAsFactors = FALSE)
 }
 
-.study07_comparison_registry <- function() data.frame(
+.study08_comparison_registry <- function() data.frame(
   comparison_id = c("full_csr_minus_bed", "block_eigen_minus_full_csr",
     "block_eigen_minus_runtime_block_csr"),
   focal = c("mt_csr_sbayesc", "mt_block_eigen_sbayesc",
@@ -96,8 +96,8 @@
     "block_approximation", "runtime_operator_equivalence"),
   stringsAsFactors = FALSE)
 
-.study07_paired_differences <- function(table) {
-  registry <- .study07_comparison_registry(); out <- list()
+.study08_paired_differences <- function(table) {
+  registry <- .study08_comparison_registry(); out <- list()
   for (i in seq_len(nrow(registry))) for (architecture in unique(table$architecture)) {
     a <- table[table$architecture == architecture &
       table$implementation == registry$focal[[i]], ]
@@ -118,7 +118,7 @@
   do.call(rbind, out)
 }
 
-.study07_paired_summary <- function(x) {
+.study08_paired_summary <- function(x) {
   keys <- interaction(x$comparison_id, x$architecture,
     if ("trait" %in% names(x)) x$trait else "joint", x$metric, drop = TRUE)
   do.call(rbind, lapply(split(x, keys), function(z) {

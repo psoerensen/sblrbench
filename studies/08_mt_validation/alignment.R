@@ -1,4 +1,4 @@
-.study07_assert_matrix_alignment <- function(x, row_ids, column_ids,
+.study08_assert_matrix_alignment <- function(x, row_ids, column_ids,
                                                name = "matrix") {
   if (!is.matrix(x) || !identical(rownames(x), row_ids) ||
       !identical(colnames(x), column_ids) || any(!is.finite(x)))
@@ -6,13 +6,13 @@
   invisible(TRUE)
 }
 
-.study07_marker_subset <- function(marker_ids, marker_count) {
+.study08_marker_subset <- function(marker_ids, marker_count) {
   if (marker_count > length(marker_ids) || marker_count < 1L)
     stop("Invalid nested marker count.", call. = FALSE)
   marker_ids[seq_len(marker_count)]
 }
 
-.study07_permutation_contract <- function(Z, Y, B, seed) {
+.study08_permutation_contract <- function(Z, Y, B, seed) {
   set.seed(seed)
   marker_order <- sample.int(ncol(Z))
   sample_order <- sample.int(nrow(Z))
@@ -32,7 +32,7 @@
     passed = TRUE, stringsAsFactors = FALSE)
 }
 
-.study07_validate_stats <- function(stats, marker_ids, trait_names,
+.study08_validate_stats <- function(stats, marker_ids, trait_names,
                                     sample_count) {
   if (!identical(stats$marker_names, marker_ids) ||
       !identical(stats$trait_names, trait_names) ||
@@ -40,6 +40,6 @@
         all(as.integer(stats$n) == as.integer(sample_count))) ||
       any(!is.finite(unlist(stats[c("wy", "ww", "yy")],
         recursive = TRUE, use.names = FALSE))))
-    stop("Study 07 summary-statistic alignment failed.", call. = FALSE)
+    stop("Study 08 summary-statistic alignment failed.", call. = FALSE)
   invisible(TRUE)
 }

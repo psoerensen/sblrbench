@@ -1,4 +1,4 @@
-.study07_detect_memory <- function() {
+.study08_detect_memory <- function() {
   value <- tryCatch({
     x <- system2("powershell", c("-NoProfile", "-Command",
       "(Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory"),
@@ -8,7 +8,7 @@
   if (!is.finite(value) || value <= 0) NA_real_ else value
 }
 
-.study07_runtime_row <- function(run, marker_count, sample_count,
+.study08_runtime_row <- function(run, marker_count, sample_count,
                                  controls, physical_memory = NA_real_) {
   fit_bytes <- if (identical(run$status, "ok"))
     as.numeric(object.size(run$fit)) else NA_real_
@@ -31,10 +31,10 @@
     stringsAsFactors = FALSE)
 }
 
-.study07_runtime_projection <- function(timing, config,
+.study08_runtime_projection <- function(timing, config,
                                         assumed_iterations = 1250L) {
   one <- timing[timing$chain_count == 1L & timing$status == "ok", ]
-  if (!nrow(one)) stop("No successful Study 07 timing fits.")
+  if (!nrow(one)) stop("No successful Study 08 timing fits.")
   one$projected_four_chain_seconds <- one$seconds_per_iteration *
     assumed_iterations * 4
   one$projected_10_fit_seconds <- one$projected_four_chain_seconds * 10
@@ -55,7 +55,7 @@
   one
 }
 
-.study07_select_marker_count <- function(projection, config) {
+.study08_select_marker_count <- function(projection, config) {
   required <- config$runtime_implementations
   candidates <- sort(unique(projection$marker_count), decreasing = TRUE)
   for (m in candidates) {

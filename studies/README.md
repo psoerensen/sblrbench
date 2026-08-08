@@ -15,7 +15,13 @@ shared framework.
   [final conclusion](../docs/studies/study06_final_conclusion.md),
   [Study 06 navigation page](06_annotation_models/README.md), or
   [report](06_annotation_models/report.qmd).
-- Study 07 multitrait validation is in development and paused.
+- Study 07 is a completed one-replicate joint-versus-EM demonstration with
+  decision **STUDY07-R5**: useful genomic inference persisted, but both EM
+  lines failed the prespecified dispersed-start stability gate under qualified
+  defaults. Its compact local evidence awaits review and capsule promotion.
+  See the [report](07_joint_em_sbayesrc/report.qmd) and
+  [study page](07_joint_em_sbayesrc/README.md).
+- Study 08 multitrait validation is in development and paused.
 
 Move mechanics into package-level `R/` only when their shared contract is
 demonstrated. This directory is repository research infrastructure and is

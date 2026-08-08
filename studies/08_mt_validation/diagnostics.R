@@ -1,4 +1,4 @@
-.study07_diagnostic_one <- function(x, thresholds) {
+.study08_diagnostic_one <- function(x, thresholds) {
   wide <- reshape(x[c("iteration", "chain", "value")],
     idvar = "iteration", timevar = "chain", direction = "wide")
   m <- as.matrix(wide[-1L]); sd_all <- stats::sd(as.numeric(m))
@@ -24,25 +24,25 @@
     stringsAsFactors = FALSE)
 }
 
-.study07_diagnostics <- function(draws, burnin, retained, config) {
+.study08_diagnostics <- function(draws, burnin, retained, config) {
   z <- draws[draws$iteration > burnin &
     draws$iteration <= burnin + retained, , drop = FALSE]
-  if (!nrow(z)) stop("Empty Study 07 diagnostic window.", call. = FALSE)
+  if (!nrow(z)) stop("Empty Study 08 diagnostic window.", call. = FALSE)
   do.call(rbind, lapply(split(z, z$estimand), function(x) cbind(
     x[1L, c("architecture", "replicate", "implementation", "estimand")],
     nburn = burnin, nit = retained,
-    .study07_diagnostic_one(x, config$convergence$thresholds),
+    .study08_diagnostic_one(x, config$convergence$thresholds),
     stringsAsFactors = FALSE)))
 }
 
-.study07_select_recommendation <- function(draws, config) {
+.study08_select_recommendation <- function(draws, config) {
   grid <- expand.grid(nburn = config$convergence$burnin_candidates,
     nit = config$convergence$retained_candidates,
     KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)
   grid <- grid[grid$nburn + grid$nit <= config$convergence$maximum_nit, ]
   grid <- grid[order(grid$nburn + grid$nit, grid$nit, grid$nburn), ]
   diagnostics <- do.call(rbind, lapply(seq_len(nrow(grid)), function(i)
-    .study07_diagnostics(draws, grid$nburn[[i]], grid$nit[[i]], config)))
+    .study08_diagnostics(draws, grid$nburn[[i]], grid$nit[[i]], config)))
   candidates <- do.call(rbind, lapply(split(diagnostics,
     interaction(diagnostics$nburn, diagnostics$nit, drop = TRUE)), function(x) {
       score <- pmax(x$rhat / config$convergence$thresholds$rhat,
@@ -62,7 +62,7 @@
   candidates <- candidates[order(candidates$nburn + candidates$nit,
     candidates$nit, candidates$nburn), ]
   passed <- candidates[candidates$pass, , drop = FALSE]
-  if (!nrow(passed)) stop("No supported Study 07 convergence setting for ",
+  if (!nrow(passed)) stop("No supported Study 08 convergence setting for ",
     draws$implementation[[1L]], call. = FALSE)
   selected <- passed[1L, ]
   list(diagnostics = diagnostics, candidates = candidates,

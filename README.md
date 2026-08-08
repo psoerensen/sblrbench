@@ -39,7 +39,15 @@ or final benchmark is required. See the
 [Study 06 report](studies/06_annotation_models/report.qmd), and
 [navigation page](studies/06_annotation_models/README.md).
 
-Study 07 — Multitrait validation remains **in development**.
+Study 07 — SBayesRC joint versus EM inference is **complete at STUDY07-R5
+(review required)**. On one frozen Study 06 replicate, both qualified MCEM
+lines reached their 50-outer caps and retained material dependence on dispersed
+annotation starts, even though many SNP-level outputs remained useful. The
+[Study 07 report](studies/07_joint_em_sbayesrc/report.qmd) documents the
+one-replicate scope. Its compact outputs remain local pending scientific review
+and capsule promotion.
+
+Study 08 — Multitrait validation remains **in development**.
 
 ## Practical analysis workflows
 

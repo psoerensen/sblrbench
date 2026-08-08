@@ -1,11 +1,11 @@
 ---
-title: "Study 07: Multitrait validation"
+title: "Study 08: Multitrait validation"
 description: "Development status for the paused multitrait validation study."
 ---
 
 ## Status: In development
 
-Study 07 is paused and no completed benchmark result is claimed. The repository
+Study 08 is paused and no completed benchmark result is claimed. The repository
 preserves two-trait state, simulation, alignment, extraction, diagnostic,
 runtime, and metric prototypes for future work.
 
@@ -15,6 +15,6 @@ multivariate execution and the associated scientific design must be resolved
 before benchmark fitting resumes.
 
 See the [development README](README.md) and the
-[benchmark catalogue](../index.qmd). No Study 07 reference capsule is presented
+[benchmark catalogue](../index.qmd). No Study 08 reference capsule is presented
 as authoritative evidence.
 

@@ -1,11 +1,11 @@
-.study07_extract_draws <- function(run, architecture, replicate) {
+.study08_extract_draws <- function(run, architecture, replicate) {
   if (!identical(run$status, "ok"))
-    stop("Cannot extract a failed Study 07 fit.", call. = FALSE)
+    stop("Cannot extract a failed Study 08 fit.", call. = FALSE)
   fit <- run$fit; bundle <- fit$convergence_traces
   values <- bundle$values; q <- bundle$quantities
   if (length(dim(values)) != 3L || dim(values)[2L] != 4L ||
       nrow(q) != dim(values)[3L])
-    stop("Study 07 convergence trace dimensions are invalid.", call. = FALSE)
+    stop("Study 08 convergence trace dimensions are invalid.", call. = FALSE)
   trait_names <- colnames(fit$bm)
   name_one <- function(i) {
     group <- q$group[[i]]
@@ -59,12 +59,12 @@
     })))
   if (any(!is.finite(out$value)) ||
       !identical(sort(unique(out$chain)), 1:4))
-    stop("Study 07 retained draws are non-finite or chains are ambiguous.",
+    stop("Study 08 retained draws are non-finite or chains are ambiguous.",
       call. = FALSE)
   out
 }
 
-.study07_truth_for_estimand <- function(estimand, simulation) {
+.study08_truth_for_estimand <- function(estimand, simulation) {
   traits <- colnames(simulation$effects)
   if (estimand == paste("vgs", traits[[1L]], sep = "__"))
     return(simulation$truth$cov_g[1L, 1L])
@@ -90,10 +90,10 @@
   NA_real_
 }
 
-.study07_parameter_estimates <- function(draws, simulation) {
+.study08_parameter_estimates <- function(draws, simulation) {
   groups <- split(draws, draws$estimand)
   do.call(rbind, lapply(groups, function(x) {
-    truth <- .study07_truth_for_estimand(x$estimand[[1L]], simulation)
+    truth <- .study08_truth_for_estimand(x$estimand[[1L]], simulation)
     lower <- unname(stats::quantile(x$value, .025))
     upper <- unname(stats::quantile(x$value, .975))
     data.frame(architecture = x$architecture[[1L]],

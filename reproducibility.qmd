@@ -53,7 +53,9 @@ quarto render
 Reports read only tracked current capsules. Rendering never constructs LD,
 simulates phenotypes, calls samplers, or reads `results/local`. The complete site
 is rendered and audited for broken local links. Study 06's tracked stop capsule
-is explicitly development evidence; Study 07 has no authoritative capsule.
+is explicitly development evidence. Study 07's static report labels its compact
+local result as review-pending and does not read it during rendering; no Study
+07 capsule is claimed. Study 08 has no authoritative capsule.
 
 Study 01 uses public simulated PLINK data from a pinned qgdata revision. Its
 current capsule records file sizes and checksums without copying large genotype

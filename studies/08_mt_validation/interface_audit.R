@@ -1,4 +1,4 @@
-.study07_interface_audit <- function(config) {
+.study08_interface_audit <- function(config) {
   exports <- getNamespaceExports("sblr")
   required <- c("mtblr_bed", "mtblr_csr", "mtblr_block_eigen")
   if (!all(required %in% exports))
@@ -6,7 +6,7 @@
   rows <- list(
     data.frame(interface = "mtblr_bed", method = "bayesc",
       data_level = "individual", operator = "packed_bed",
-      residual_covariance = "full_or_diagonal; Study07 uses diagonal",
+      residual_covariance = "full_or_diagonal; Study08 uses diagonal",
       sample_overlap = "identical individuals in phenotype matrix",
       trait_specific_ld = FALSE, sampled_maf_s = FALSE,
       annotation_support = TRUE, bayesr_support = TRUE,
@@ -40,7 +40,7 @@
   do.call(rbind, rows)
 }
 
-.study07_output_semantics <- function() data.frame(
+.study08_output_semantics <- function() data.frame(
   field = c("bm", "dm", "b", "d", "pi_mean", "pi_final",
     "cov_g_mean", "cov_e_mean", "cov_b_mean", "vgs", "ves", "vbs",
     "vld", "vle", "bm_chain_mean_sd", "dm_chain_mean_sd",

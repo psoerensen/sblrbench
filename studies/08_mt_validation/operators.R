@@ -1,4 +1,4 @@
-.study07_source_operator_helpers <- function() {
+.study08_source_operator_helpers <- function() {
   needed <- c("study05_blocks", "study05_validate_blocks",
     ".study05_inspect_operator", ".study05_dense_blocks",
     ".study05_write_runtime_csr", ".study05_runtime_glist",
@@ -11,9 +11,9 @@
   invisible(TRUE)
 }
 
-.study07_subset_full_csr <- function(full_csr, marker_count, prefix,
+.study08_subset_full_csr <- function(full_csr, marker_count, prefix,
                                      marker_ids) {
-  .study07_source_operator_helpers()
+  .study08_source_operator_helpers()
   if (marker_count != length(marker_ids) || marker_count > full_csr$nrow)
     stop("Invalid full-CSR subset contract.", call. = FALSE)
   counts <- diff(full_csr$row_ptr)[seq_len(marker_count)]
@@ -47,7 +47,7 @@
     col_idx = cols - 1L, values = values, nnz = length(values))
 }
 
-.study07_full_csr_glist <- function(Glist, stats, subset_csr, source) {
+.study08_full_csr_glist <- function(Glist, stats, subset_csr, source) {
   out <- Glist
   out$sparseLD <- list(prefix = subset_csr$prefix, chr = stats$chr,
     bed_files = stats$bed_files, cls = stats$cls, af = stats$af,
@@ -59,9 +59,9 @@
   out
 }
 
-.study07_operator_bundle <- function(Glist, stats, full_csr, config,
+.study08_operator_bundle <- function(Glist, stats, full_csr, config,
                                      output_dir, effect_matrix = NULL) {
-  .study07_source_operator_helpers()
+  .study08_source_operator_helpers()
   blocks <- study05_blocks(stats$marker_names, config$block_size)
   study05_validate_blocks(blocks, stats$marker_names)
   effect <- if (is.null(effect_matrix)) numeric(length(stats$marker_names))
@@ -78,7 +78,7 @@
   # explicit reference identifier below.
   runtime_glist$sparseLD$source <- "make_sparse_ld"
   runtime_glist$sparseLD$reference_id <-
-    "study07_runtime_matched_block_reconstruction"
+    "study08_runtime_matched_block_reconstruction"
   runtime_glist$sparseLD$marker_metadata <- stats$marker_metadata
   runtime_inspection <- .study05_inspect_from_csr(runtime$prefix,
     unfiltered$diagonal, blocks, unfiltered)
@@ -110,7 +110,7 @@
     matrix_action_relative_error = matrix_relative_error)
 }
 
-.study07_operator_summary <- function(bundle, marker_count) {
+.study08_operator_summary <- function(bundle, marker_count) {
   x <- bundle$equivalence$summary
   x$marker_count <- marker_count
   x$matrix_matrix_maximum_error <- bundle$matrix_action_maximum_error

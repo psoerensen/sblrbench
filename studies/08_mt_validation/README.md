@@ -1,8 +1,8 @@
-# Study 07 — Multitrait validation
+# Study 08 — Multitrait validation
 
 **Status: In development — paused**
 
-Study 07 preserves two-trait state definitions, simulation and alignment
+Study 08 preserves two-trait state definitions, simulation and alignment
 contracts, method-interface experiments, chain extraction, convergence,
 runtime, and metric prototypes. It claims no completed benchmark result.
 

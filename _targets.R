@@ -1,5 +1,5 @@
 study <- Sys.getenv("SBLR_BENCH_STUDY", "")
-development_studies <- "07_mt_validation"
+development_studies <- "08_mt_validation"
 
 if (!nzchar(study))
   stop("Set SBLR_BENCH_STUDY to an active development study: ",
@@ -10,7 +10,7 @@ if (identical(study, "06_annotation_models"))
 if (!study %in% development_studies)
   stop("No targets graph is available for `", study,
     "`. Completed Studies 01-05 use scripts/run_benchmark.R; ",
-    "Study 06 uses the shared runner; Study 07 remains development-only.",
+    "Study 06 uses the shared runner; Study 08 remains development-only.",
     call. = FALSE)
 
 source(file.path("studies", study, "targets.R"), local = TRUE)$value

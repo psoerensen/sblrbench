@@ -116,4 +116,4 @@ analysis for the complete validated contract.
 4. Add a capsule-only report and catalogue entry.
 
 
-Studies 01–05 have completed this lifecycle. **Study 06 is complete and closed at EST-R2**, with EST-R5 retained as the official-implementation qualifier and PMA-R3 as the endpoint for same-posterior sampler development. **Study 07** remains in development and paused.
+Studies 01–05 have completed this lifecycle. **Study 06 is complete and closed at EST-R2**, with EST-R5 retained as the official-implementation qualifier and PMA-R3 as the endpoint for same-posterior sampler development. **Study 08** remains in development and paused.

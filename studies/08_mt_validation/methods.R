@@ -1,4 +1,4 @@
-.study07_method_spec <- function(id) {
+.study08_method_spec <- function(id) {
   map <- list(
     mt_bed_bayesc = list(interface = "mtblr_bed", method = "bayesc",
       operator = "packed_bed"),
@@ -9,16 +9,16 @@
     mt_block_eigen_sbayesc = list(interface = "mtblr_block_eigen",
       method = "sbayesc", operator = "block_eigen"))
   out <- map[[id]]
-  if (is.null(out)) stop("Unknown Study 07 implementation.", call. = FALSE)
+  if (is.null(out)) stop("Unknown Study 08 implementation.", call. = FALSE)
   c(list(id = id), out)
 }
 
-.study07_fit_seeds <- function(config, architecture, replicate,
+.study08_fit_seeds <- function(config, architecture, replicate,
                                implementation, nchains = 4L) {
   ai <- match(architecture, config$contract_architectures)
   mi <- match(implementation, unique(c(config$runtime_implementations,
     config$implementations)))
-  if (anyNA(c(ai, mi))) stop("Invalid Study 07 seed coordinates.")
+  if (anyNA(c(ai, mi))) stop("Invalid Study 08 seed coordinates.")
   fit <- as.integer(config$seeds$fit_base +
     ai * config$seeds$architecture_stride +
     replicate * config$seeds$replicate_stride +
@@ -27,46 +27,46 @@
   list(fit_seed = fit, chain_seeds = chains)
 }
 
-.study07_extended_controls <- function(keep_traces = TRUE) list(
+.study08_extended_controls <- function(keep_traces = TRUE) list(
   warn = FALSE, keep_traces = keep_traces,
   extended_groups = c("covariance", "probability"),
   max_trace_gb = 1, allow_large_traces = FALSE)
 
-.study07_pause_message <- function() paste(
-  "Study 07 MT block-eigen execution is paused.",
+.study08_pause_message <- function() paste(
+  "Study 08 MT block-eigen execution is paused.",
   "The current mtblr_block_eigen() backend is reconstructed dense.",
   "Resume this phase only after the retained low-rank MT operator",
   "has been implemented and validated in sblr."
 )
 
-.study07_assert_phase_allowed <- function(phase) {
+.study08_assert_phase_allowed <- function(phase) {
   if (phase %in% c("runtime", "convergence", "benchmark", "stress",
       "aggregate", "all"))
-    stop(.study07_pause_message(), call. = FALSE)
+    stop(.study08_pause_message(), call. = FALSE)
   invisible(TRUE)
 }
 
-.study07_assert_execution_allowed <- function(implementation, phase = "fit") {
+.study08_assert_execution_allowed <- function(implementation, phase = "fit") {
   if (identical(implementation, "mt_block_eigen_sbayesc"))
-    stop(.study07_pause_message(), call. = FALSE)
+    stop(.study08_pause_message(), call. = FALSE)
   invisible(TRUE)
 }
 
-.study07_fit <- function(implementation, simulation, stats, Glist,
+.study08_fit <- function(implementation, simulation, stats, Glist,
                          runtime_glist, rows, blocks, config, controls) {
-  .study07_assert_execution_allowed(implementation, "fit")
-  spec <- .study07_method_spec(implementation)
-  seeds <- .study07_fit_seeds(config, simulation$architecture,
+  .study08_assert_execution_allowed(implementation, "fit")
+  spec <- .study08_method_spec(implementation)
+  seeds <- .study08_fit_seeds(config, simulation$architecture,
     simulation$replicate, implementation, controls$nchains)
   common <- c(controls, list(
     method = spec$method, h2 = unname(config$simulation$h2),
-    models = .study07_state_models(config$trait_names),
+    models = .study08_state_models(config$trait_names),
     pimodels = unname(config$model_probabilities),
     residual_covariance = if (spec$interface == "mtblr_bed")
       "diagonal" else NULL,
     seed = seeds$fit_seed, chain_seeds = seeds$chain_seeds,
     keep_chains = TRUE, convergence = "extended",
-    convergence_control = .study07_extended_controls(TRUE),
+    convergence_control = .study08_extended_controls(TRUE),
     verbose = FALSE))
   common <- common[!vapply(common, is.null, logical(1))]
   input <- switch(implementation,
@@ -90,7 +90,7 @@
     error = conditionMessage(result), fit = NULL, implementation = spec,
     runtime = runtime, warnings = warnings, seeds = seeds,
     controls = controls, started_at = started, finished_at = Sys.time()))
-  validation <- try(.study07_validate_fit_contract(result,
+  validation <- try(.study08_validate_fit_contract(result,
     length(simulation$marker_ids), config$trait_names, controls$nchains),
     silent = TRUE)
   if (inherits(validation, "try-error")) return(list(status = "failed",
@@ -103,7 +103,7 @@
     finished_at = Sys.time())
 }
 
-.study07_validate_fit_contract <- function(fit, marker_count, trait_names,
+.study08_validate_fit_contract <- function(fit, marker_count, trait_names,
                                             chain_count) {
   reported_chain_count <- if (!is.null(fit$nchains)) fit$nchains else
     fit$input$nchains

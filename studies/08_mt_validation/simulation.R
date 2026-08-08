@@ -1,4 +1,4 @@
-.study07_simulation_seed <- function(config, architecture, replicate) {
+.study08_simulation_seed <- function(config, architecture, replicate) {
   i <- match(architecture, config$contract_architectures)
   if (is.na(i) || replicate < 1L) stop("Invalid simulation coordinates.")
   as.integer(config$seeds$simulation_base +
@@ -6,11 +6,11 @@
     replicate * config$seeds$replicate_stride)
 }
 
-.study07_allocate_states <- function(marker_count, architecture, seed,
+.study08_allocate_states <- function(marker_count, architecture, seed,
                                      config) {
   counts <- config$simulation$state_counts[[architecture]]
   if (is.null(counts) || sum(counts) > marker_count)
-    stop("Invalid Study 07 causal-state specification.", call. = FALSE)
+    stop("Invalid Study 08 causal-state specification.", call. = FALSE)
   set.seed(seed + config$seeds$state_offset)
   selected <- sample.int(marker_count, sum(counts), replace = FALSE)
   state <- integer(marker_count)
@@ -24,7 +24,7 @@
   state
 }
 
-.study07_orthogonal_residuals <- function(n, seed, trait_names) {
+.study08_orthogonal_residuals <- function(n, seed, trait_names) {
   set.seed(seed)
   e1 <- scale(stats::rnorm(n), center = TRUE, scale = TRUE)[, 1L]
   raw <- stats::rnorm(n); raw <- raw - mean(raw)
@@ -35,11 +35,11 @@
   out
 }
 
-.study07_simulate <- function(Z, architecture, replicate, config) {
+.study08_simulate <- function(Z, architecture, replicate, config) {
   marker_ids <- colnames(Z); sample_ids <- rownames(Z)
-  seed <- .study07_simulation_seed(config, architecture, replicate)
-  state_id <- .study07_allocate_states(ncol(Z), architecture, seed, config)
-  state <- .study07_state_inclusion(state_id, config$trait_names)
+  seed <- .study08_simulation_seed(config, architecture, replicate)
+  state_id <- .study08_allocate_states(ncol(Z), architecture, seed, config)
+  state <- .study08_state_inclusion(state_id, config$trait_names)
   rownames(state) <- marker_ids
   set.seed(seed + config$seeds$effect_offset)
   B <- matrix(0, ncol(Z), 2L,
@@ -62,7 +62,7 @@
   scales <- sqrt(target_vg / apply(G, 2L, stats::var))
   B <- sweep(B, 2L, scales, `*`)
   G <- Z %*% B
-  E <- .study07_orthogonal_residuals(nrow(Z),
+  E <- .study08_orthogonal_residuals(nrow(Z),
     seed + config$seeds$residual_offset, config$trait_names)
   Y <- G + E
   rownames(G) <- rownames(E) <- rownames(Y) <- sample_ids
@@ -81,25 +81,25 @@
       effect_scales = scales))
 }
 
-.study07_validate_simulation <- function(x, Z, config, tolerance = 0.015) {
-  .study07_assert_matrix_alignment(x$effects, colnames(Z),
+.study08_validate_simulation <- function(x, Z, config, tolerance = 0.015) {
+  .study08_assert_matrix_alignment(x$effects, colnames(Z),
     config$trait_names, "effect")
-  .study07_assert_matrix_alignment(x$phenotype, rownames(Z),
+  .study08_assert_matrix_alignment(x$phenotype, rownames(Z),
     config$trait_names, "phenotype")
   if (any(abs(x$truth$heritability - config$simulation$h2) > tolerance) ||
       max(abs(stats::cov(x$genetic_values) - x$truth$cov_g)) > 1e-12 ||
       max(abs(stats::cov(x$residuals) - x$truth$cov_e)) > 1e-12 ||
       abs(x$truth$cov_e[1L, 2L]) > 1e-10 ||
-      !identical(.study07_state_id(x$state, config$trait_names), x$state_id))
-    stop("Study 07 simulation/covariance contract failed.", call. = FALSE)
+      !identical(.study08_state_id(x$state, config$trait_names), x$state_id))
+    stop("Study 08 simulation/covariance contract failed.", call. = FALSE)
   reconstructed <- Z %*% x$effects
   if (!isTRUE(all.equal(unname(reconstructed),
       unname(x$genetic_values), tolerance = 1e-10)))
-    stop("Study 07 genetic-value identity failed.", call. = FALSE)
+    stop("Study 08 genetic-value identity failed.", call. = FALSE)
   invisible(TRUE)
 }
 
-.study07_simulation_summary <- function(x) data.frame(
+.study08_simulation_summary <- function(x) data.frame(
   architecture = x$architecture, replicate = x$replicate,
   seed = x$seed, marker_count = length(x$marker_ids),
   trait1_only_count = sum(x$state_id == 1L),

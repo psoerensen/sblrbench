@@ -35,8 +35,9 @@ fine-mapping, prediction, parameter estimation, convergence, and LD operators.
 
 | Evidence or workflow | Current status |
 |---|---|
-| Validation studies | **6 completed** — Studies 01–06 |
-| Development studies | **1 in development** — Study 07 |
+| Reviewed validation capsules | **6 completed** — Studies 01–06 |
+| Executed demonstrations awaiting review | **1** — Study 07 (`STUDY07-R5`) |
+| Development studies | **1 in development** — Study 08 |
 | Reusable templates | **6 available** — including annotation-informed analysis |
 
 Study 06 is **closed at EST-R2**: annotation-induced prior rankings and SNP
@@ -44,7 +45,11 @@ inference are stable, while exact annotation-contrast magnitudes remain
 uncertain. Its official qualifier is EST-R5, and same-posterior continuous-alpha
 sampler development ended at PMA-R3. Read the
 [final Study 06 conclusion](docs/studies/study06_final_conclusion.md).
-Study 07 multitrait validation remains **In development**.
+Study 07's one-replicate joint-versus-EM demonstration is complete at
+**STUDY07-R5**: qualified EM defaults retained material dispersed-start
+dependence while genomic inference was often useful. Its compact evidence is
+awaiting review; see the [Study 07 report](studies/07_joint_em_sbayesrc/report.qmd).
+Study 08 multitrait validation remains **In development**.
 
 ::: {.callout-note}
 ## How to read the evidence

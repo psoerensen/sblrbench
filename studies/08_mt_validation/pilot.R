@@ -1,4 +1,4 @@
-.study07_paths <- function(config) list(
+.study08_paths <- function(config) list(
   local_dir = config$local_dir,
   data_dir = file.path(config$local_dir, "data"),
   ld_dir = file.path(config$local_dir, "ld"),
@@ -9,7 +9,7 @@
   convergence_output = file.path(config$local_dir, "convergence_output"),
   benchmark_output = file.path(config$local_dir, "benchmark_output"))
 
-.study07_write_csv <- function(x, path) {
+.study08_write_csv <- function(x, path) {
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   if (is.data.frame(x) && nrow(x) && ncol(x)) {
     order_columns <- vapply(x, function(z)
@@ -21,17 +21,17 @@
   path
 }
 
-.study07_atomic_rds <- function(x, path) {
+.study08_atomic_rds <- function(x, path) {
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-  tmp <- tempfile(".study07-", dirname(path), ".rds")
+  tmp <- tempfile(".study08-", dirname(path), ".rds")
   saveRDS(x, tmp, compress = FALSE)
   if (!file.rename(tmp, path)) {
-    unlink(tmp); stop("Atomic Study 07 checkpoint replacement failed.")
+    unlink(tmp); stop("Atomic Study 08 checkpoint replacement failed.")
   }
   path
 }
 
-.study07_base_resources <- function(config) {
+.study08_base_resources <- function(config) {
   store <- file.path(config$local_dir, "..", "study05_ld_operator", "_targets")
   if (!dir.exists(store))
     stop("Validated Study 05 local target store is unavailable.", call. = FALSE)
@@ -42,15 +42,15 @@
     split = read("study05_split"))
 }
 
-.study07_raw_genotypes <- function(resources, config) {
+.study08_raw_genotypes <- function(resources, config) {
   max_m <- max(config$marker_candidates)
-  marker_ids <- .study07_marker_subset(resources$marker_ids, max_m)
+  marker_ids <- .study08_marker_subset(resources$marker_ids, max_m)
   qgg::getG(Glist = resources$base_glist, chr = config$chr,
     ids = resources$sample_ids, rsids = marker_ids,
     impute = FALSE, scale = FALSE)
 }
 
-.study07_scaled_data <- function(raw, marker_count, training_rows) {
+.study08_scaled_data <- function(raw, marker_count, training_rows) {
   marker_ids <- colnames(raw)[seq_len(marker_count)]
   x <- raw[, marker_ids, drop = FALSE]
   training_rows <- as.integer(training_rows)
@@ -58,13 +58,13 @@
       !length(training_rows) || anyNA(training_rows) ||
       anyDuplicated(training_rows) ||
       any(training_rows < 1L | training_rows > nrow(x)))
-    stop("Study 07 genotype scaling inputs are invalid.", call. = FALSE)
+    stop("Study 08 genotype scaling inputs are invalid.", call. = FALSE)
   train <- x[training_rows, , drop = FALSE]
   means <- colMeans(train, na.rm = TRUE); af <- means / 2
   scale <- sqrt(2 * af * (1 - af))
   if (any(!is.finite(c(means, af, scale))) ||
       any(af <= 0 | af >= 1) || any(scale <= 0))
-    stop("Study 07 training genotype scale is invalid.", call. = FALSE)
+    stop("Study 08 training genotype scale is invalid.", call. = FALSE)
   filled <- x; missing <- which(is.na(filled), arr.ind = TRUE)
   if (nrow(missing)) filled[missing] <- means[missing[, 2L]]
   scaled <- sweep(sweep(filled, 2L, means, "-"), 2L, scale, "/")
@@ -76,12 +76,12 @@
     test_rows = test_rows)
 }
 
-.study07_working_glist <- function(base_glist, marker_ids, af, config) {
+.study08_working_glist <- function(base_glist, marker_ids, af, config) {
   sblrbench:::benchmark_set_training_af(sblrbench:::benchmark_set_glist_marker_order(base_glist,
     config$chr, marker_ids), config$chr, marker_ids, af)
 }
 
-.study07_make_ld <- function(Glist, rows, marker_ids, config, output_dir,
+.study08_make_ld <- function(Glist, rows, marker_ids, config, output_dir,
                              tag) {
   dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
   prefix <- file.path(output_dir, paste0("ld_", tag, "_m", length(marker_ids)))
@@ -99,26 +99,26 @@
   ids <- out$rsids[[config$chr]][out$sparseLD$cls[[1L]]]
   if (!identical(ids, marker_ids) ||
       !identical(out$sparseLD$rows, as.integer(rows)))
-    stop("Study 07 sparse-LD alignment failed.", call. = FALSE)
+    stop("Study 08 sparse-LD alignment failed.", call. = FALSE)
   saveRDS(out, cache)
   out
 }
 
-.study07_make_stats <- function(simulation, Glist, rows, config) {
+.study08_make_stats <- function(simulation, Glist, rows, config) {
   stats <- sblr::make_summary_stats(Glist = Glist,
     y = simulation$phenotype[rows, , drop = FALSE], chr = config$chr,
     rows = as.integer(rows), scale = TRUE, nthreads = 1L)
   if (is.list(stats$af) && is.list(stats$cls) &&
       length(stats$af) == length(stats$cls)) names(stats$af) <- names(stats$cls)
-  .study07_validate_stats(stats, simulation$marker_ids,
+  .study08_validate_stats(stats, simulation$marker_ids,
     config$trait_names, length(rows))
   stats
 }
 
-.study07_cached_fit <- function(implementation, simulation, stats, Glist,
+.study08_cached_fit <- function(implementation, simulation, stats, Glist,
                                 runtime_glist, rows, blocks, config,
                                 controls, phase) {
-  paths <- .study07_paths(config)
+  paths <- .study08_paths(config)
   path <- file.path(paths$fit_dir, phase, paste0(simulation$architecture,
     "__", simulation$replicate, "__", implementation, "__m",
     length(simulation$marker_ids), ".rds"))
@@ -129,12 +129,12 @@
         nrow(old$fit$bm) == length(simulation$marker_ids) &&
         length(old$fit$chains) == controls$nchains) return(old)
   }
-  run <- .study07_fit(implementation, simulation, stats, Glist,
+  run <- .study08_fit(implementation, simulation, stats, Glist,
     runtime_glist, rows, blocks, config, controls)
   status_path <- file.path(paths$local_dir, "fit_status", phase,
     paste0(simulation$architecture, "__", simulation$replicate, "__",
       implementation, ".csv"))
-  .study07_write_csv(data.frame(phase = phase,
+  .study08_write_csv(data.frame(phase = phase,
     architecture = simulation$architecture, replicate = simulation$replicate,
     implementation = implementation, marker_count = length(simulation$marker_ids),
     chain_count = controls$nchains, state = run$status,
@@ -145,19 +145,19 @@
     output_path = path, validation_status = if (run$status == "ok")
       "passed" else "failed", error_message = run$error,
     stringsAsFactors = FALSE), status_path)
-  if (run$status != "ok") stop("Study 07 fit failed: ", implementation,
+  if (run$status != "ok") stop("Study 08 fit failed: ", implementation,
     " / ", simulation$architecture, " / replicate ", simulation$replicate,
     ": ", run$error, call. = FALSE)
-  .study07_atomic_rds(run, path)
+  .study08_atomic_rds(run, path)
   run
 }
 
-.study07_contract_evidence <- function(Z, config) {
+.study08_contract_evidence <- function(Z, config) {
   rows <- list()
   for (architecture in config$contract_architectures) {
-    sim <- .study07_simulate(Z, architecture, 1L, config)
-    .study07_validate_simulation(sim, Z, config)
-    perm <- .study07_permutation_contract(Z, sim$phenotype,
+    sim <- .study08_simulate(Z, architecture, 1L, config)
+    .study08_validate_simulation(sim, Z, config)
+    perm <- .study08_permutation_contract(Z, sim$phenotype,
       sim$effects, config$seeds$permutation)
     perm$architecture <- architecture
     rows[[architecture]] <- perm

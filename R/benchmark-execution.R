@@ -39,11 +39,11 @@ parse_benchmark_cli_arguments <- function(args) {
   if (identical(options[["--study"]], "05_annotation_models"))
     stop("Study ID `05_annotation_models` is retired; use ",
       "`06_annotation_models` (in development).", call. = FALSE)
-  if (identical(options[["--study"]], "07_mtblr_validation"))
-    stop("Study ID `07_mtblr_validation` is retired; use `07_mt_validation` ",
+  if (identical(options[["--study"]], "08_mtblr_validation"))
+    stop("Study ID `08_mtblr_validation` is retired; use `08_mt_validation` ",
       "(in development).", call. = FALSE)
-  if (identical(options[["--study"]], "07_mt_validation"))
-    stop("Study `07_mt_validation` is in development and is not yet ",
+  if (identical(options[["--study"]], "08_mt_validation"))
+    stop("Study `08_mt_validation` is in development and is not yet ",
       "supported by run_benchmark().", call. = FALSE)
   if (!options[["--study"]] %in% supported_studies)
     stop("Unsupported --study; choose a completed Study 01--05 ID or `06_annotation_models`.",

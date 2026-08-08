@@ -52,13 +52,22 @@ development ended at **PMA-R3**. See the
 [Study 06 index](06_annotation_models/README.md), and
 [final decision](../results/reference/06_annotation_models/final_decision.json).
 
+### [Study 07: SBayesRC joint versus EM inference](07_joint_em_sbayesrc/report.qmd)
+
+**Status: Complete — STUDY07-R5 (review required).** One frozen Study 06
+replicate tested joint SBayesRC/SBayesRC-S against their separately derived
+MCEM lines. Both EM methods retained material dispersed-start dependence under
+qualified defaults, although genomic inference was often useful. This is a
+one-replicate demonstration, not a calibration study. Compact results remain
+local pending review; no reference capsule is claimed.
+
 ## In development
 
-### [Study 07: Multitrait validation](07_mt_validation/status.qmd)
+### [Study 08: Multitrait validation](08_mt_validation/status.qmd)
 
 **Status: In development — paused.** Retained-low-rank MT
 implementation and scientific design work. Preserved alignment, state-mapping,
 covariance, checkpoint, and runtime prototypes are not current scientific
-evidence. See the [development status](07_mt_validation/status.qmd).
+evidence. See the [development status](08_mt_validation/status.qmd).
 
 Earlier development benchmark versions remain available through Git history.

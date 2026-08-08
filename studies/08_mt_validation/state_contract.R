@@ -1,4 +1,4 @@
-.study07_state_table <- function(trait_names = c("trait1", "trait2")) {
+.study08_state_table <- function(trait_names = c("trait1", "trait2")) {
   stopifnot(length(trait_names) == 2L, !anyDuplicated(trait_names))
   data.frame(
     state_id = 0:3,
@@ -10,8 +10,8 @@
     stringsAsFactors = FALSE)
 }
 
-.study07_state_models <- function(trait_names = c("trait1", "trait2")) {
-  x <- .study07_state_table(trait_names)
+.study08_state_models <- function(trait_names = c("trait1", "trait2")) {
+  x <- .study08_state_table(trait_names)
   out <- as.matrix(x[, c("trait1", "trait2")])
   storage.mode(out) <- "integer"
   rownames(out) <- x$state_label
@@ -19,22 +19,22 @@
   out
 }
 
-.study07_state_id <- function(inclusion,
+.study08_state_id <- function(inclusion,
                               trait_names = c("trait1", "trait2")) {
   x <- as.matrix(inclusion)
   if (ncol(x) != 2L || any(!x %in% 0:1))
     stop("State inclusion must be a binary marker-by-two-trait matrix.",
       call. = FALSE)
   key <- apply(x, 1L, paste, collapse = "_")
-  map <- .study07_state_table(trait_names)
+  map <- .study08_state_table(trait_names)
   id <- map$state_id[match(key, map$internal_key)]
   if (anyNA(id)) stop("Unknown MTBLR state pattern.", call. = FALSE)
   as.integer(id)
 }
 
-.study07_state_inclusion <- function(state_id,
+.study08_state_inclusion <- function(state_id,
                                      trait_names = c("trait1", "trait2")) {
-  map <- .study07_state_table(trait_names)
+  map <- .study08_state_table(trait_names)
   if (any(!state_id %in% map$state_id))
     stop("Unknown MTBLR state ID.", call. = FALSE)
   out <- as.matrix(map[match(state_id, map$state_id),
@@ -44,7 +44,7 @@
   out
 }
 
-.study07_trait_pip_from_state_probabilities <- function(probabilities,
+.study08_trait_pip_from_state_probabilities <- function(probabilities,
                                                          models) {
   p <- as.matrix(probabilities); models <- as.matrix(models)
   if (ncol(p) != nrow(models) || ncol(models) != 2L ||
@@ -56,22 +56,22 @@
   out
 }
 
-.study07_permute_states <- function(probabilities) {
+.study08_permute_states <- function(probabilities) {
   p <- as.matrix(probabilities)
   if (ncol(p) != 4L) stop("Expected four two-trait state probabilities.")
   p[, c(1L, 3L, 2L, 4L), drop = FALSE]
 }
 
-.study07_validate_state_contract <- function(config) {
-  expected <- .study07_state_models(config$trait_names)
+.study08_validate_state_contract <- function(config) {
+  expected <- .study08_state_models(config$trait_names)
   if (!identical(unname(expected), unname(config$models)) ||
       !identical(unname(apply(expected, 1L, paste, collapse = "_")),
         c("0_0", "1_0", "0_1", "1_1")))
     stop("Two-trait joint-state ordering differs from the verified contract.",
       call. = FALSE)
-  ids <- .study07_state_id(expected, config$trait_names)
+  ids <- .study08_state_id(expected, config$trait_names)
   if (!identical(ids, 0:3) ||
-      !identical(unname(.study07_state_inclusion(ids,
+      !identical(unname(.study08_state_inclusion(ids,
         config$trait_names)), unname(expected)))
     stop("Joint-state round-trip contract failed.", call. = FALSE)
   invisible(TRUE)

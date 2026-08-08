@@ -1,9 +1,14 @@
-# Current `sblr` implementation map
+# Historical `sblr` 0.1.2 implementation map
 
 This map describes the installed `sblr` 0.1.2 implementation at source commit
 `92ff3f6e7a0b1228f9f04b693d91a36d86934b0f`. It separates confirmed public
 contracts from benchmark observations and unresolved concerns. It is not a
 claim that every public path has received a scientific benchmark.
+
+This snapshot is historical and is **not authoritative for the completed
+single-trait EM routes in `sblr` 0.2.0**. Study 07 records the committed and
+installed 0.2.0 contracts used for its benchmark in
+[`studies/07_joint_em_sbayesrc/implementation-map.md`](../../studies/07_joint_em_sbayesrc/implementation-map.md).
 
 ## Public implementation matrix
 
@@ -13,9 +18,9 @@ claim that every public path has received a scientific benchmark.
 | single | `stblr_csr()` | summary statistics + sparse-LD CSR | `sbayesc`, `sbayesr` | no | scalar residual variance | fixed or sampled where supported | native; optional compact chains | SBayesC/R Studies 02--04 |
 | single | `stblr_csr_annot()` | summary statistics + sparse-LD CSR | fixed-marker, group, learned-logistic, or `sbayesrc` annotation route | yes | scalar residual variance | model-dependent | native; optional compact chains | SBayesRC Study 05 interface only |
 | single | `stblr_block_eigen()` | summary statistics + reconstructed block-eigen operator | `sbayesc`, `sbayesr`, `sbayesrc` | SBayesRC | scalar residual variance | fixed or sampled where supported | native; optional compact chains | Study 06 complete five-replicate development benchmark |
-| multivariate | `mtblr_bed()` | joint individual-level packed BED | `bayesc`, `bayesr`, `bayesrc` | BayesRC | full or diagonal residual covariance | fixed only for BayesR/RC; sampled MT MAF-S unsupported | native joint chains | Study 07 contract scaffold preserved; scientific benchmark paused |
-| multivariate | `mtblr_csr()` | joint summary statistics + sparse-LD CSR | `sbayesc`, `sbayesr`, `sbayesrc` | SBayesRC | diagonal residual policy; `sample_overlap = "not_modeled"` | fixed only for BayesR/RC | native joint chains | Study 07 contract scaffold preserved; scientific benchmark paused |
-| multivariate | `mtblr_block_eigen()` | joint summary statistics + reconstructed-dense block operator | `sbayesc`, `sbayesr`, `sbayesrc` | SBayesRC | diagonal residual policy; `sample_overlap = "not_modeled"` | fixed only for BayesR/RC | native joint chains | Study 07 execution paused pending retained low-rank MT operator |
+| multivariate | `mtblr_bed()` | joint individual-level packed BED | `bayesc`, `bayesr`, `bayesrc` | BayesRC | full or diagonal residual covariance | fixed only for BayesR/RC; sampled MT MAF-S unsupported | native joint chains | Study 08 contract scaffold preserved; scientific benchmark paused |
+| multivariate | `mtblr_csr()` | joint summary statistics + sparse-LD CSR | `sbayesc`, `sbayesr`, `sbayesrc` | SBayesRC | diagonal residual policy; `sample_overlap = "not_modeled"` | fixed only for BayesR/RC | native joint chains | Study 08 contract scaffold preserved; scientific benchmark paused |
+| multivariate | `mtblr_block_eigen()` | joint summary statistics + reconstructed-dense block operator | `sbayesc`, `sbayesr`, `sbayesrc` | SBayesRC | diagonal residual policy; `sample_overlap = "not_modeled"` | fixed only for BayesR/RC | native joint chains | Study 08 execution paused pending retained low-rank MT operator |
 
 The `S` prefix denotes a summary-statistics likelihood. It is independent of
 the optional MAF-dependent effect-variance parameter `maf_effect_s`.
@@ -94,7 +99,7 @@ are distinct.
 - Block eigen: exact no-shrink, hard-truncated, fixed-ridge, and LW-ridge
   construction have package contract tests. Study 06 established deterministic
   runtime equivalence and a five-replicate single-trait development benchmark.
-- Study 07 scope: two traits and BayesC/SBayesC only, with identical individuals,
+- Study 08 scope: two traits and BayesC/SBayesC only, with identical individuals,
   diagonal residual covariance, zero generating residual covariance, and no
   sample-overlap model. The verified two-trait pattern order is `0_0`, `1_0`,
   `0_1`, `1_1`. Global pattern probabilities and their chain histories are
@@ -105,10 +110,10 @@ are distinct.
   chain 1. `*_sd`, `*_min`, and `*_max` describe variation among chain posterior
   means and are not posterior uncertainty. Formal convergence must use the
   unpooled chain histories retained by the convergence engine.
-- Study 07 pause: MT-BED, MT-CSR, alignment, state, covariance, timing,
+- Study 08 pause: MT-BED, MT-CSR, alignment, state, covariance, timing,
   checkpoint, and report infrastructure is preserved. The current
   `mtblr_block_eigen()` path reconstructs dense packed blocks and is explicitly
-  guarded from further Study 07 execution. Primary block-eigen validation waits
+  guarded from further Study 08 execution. Primary block-eigen validation waits
   for the retained low-rank MT operator in `sblr` after Study 06 v2 review.
 
 ## Evidence
@@ -126,5 +131,5 @@ source at the installed commit, especially:
   `docs/methods/mt_bayesr_sbayesr.qmd`, and
   `docs/methods/mt_bayesrc_sbayesrc.qmd`.
 
-Repository benchmark status comes from frozen Studies 02--06 and the Study 07
+Repository benchmark status comes from frozen Studies 02--06 and the Study 08
 development audit. No sibling source was modified or loaded.

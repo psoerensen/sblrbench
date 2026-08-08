@@ -1,14 +1,14 @@
-.study07_promotion_root <- if (file.exists(file.path("R",
+.study08_promotion_root <- if (file.exists(file.path("R",
   "benchmark-provenance.R"))) "." else file.path("..", "..")
-source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
+source(file.path(.study08_promotion_root, "R", "benchmark-provenance.R"),
   local = TRUE)
 
-.study07_optional_flag <- function(x, default = FALSE) {
+.study08_optional_flag <- function(x, default = FALSE) {
   if (is.null(x) || !length(x) || is.na(x[[1L]])) isTRUE(default) else
     isTRUE(x[[1L]])
 }
 
-.study07_required <- function(type = c("contract", "convergence", "benchmark")) {
+.study08_required <- function(type = c("contract", "convergence", "benchmark")) {
   type <- match.arg(type)
   common <- c("README.md", "benchmark_manifest.json", "config.R",
     "example_data_manifest.csv", "source_files.csv",
@@ -32,7 +32,7 @@ source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
       "seed_registry.csv"))
 }
 
-.study07_checksums <- function(path) {
+.study08_checksums <- function(path) {
   files <- sort(setdiff(list.files(path, recursive = FALSE), "checksums.csv"))
   info <- file.info(file.path(path, files))
   data.frame(file = files, size_bytes = info$size,
@@ -40,28 +40,28 @@ source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
     stringsAsFactors = FALSE)
 }
 
-.study07_validate_checksums <- function(path, required) {
+.study08_validate_checksums <- function(path, required) {
   x <- utils::read.csv(file.path(path, "checksums.csv"),
     stringsAsFactors = FALSE)
   if (anyDuplicated(x$file) || any(x$file != basename(x$file)) ||
       any(grepl("(^[A-Za-z]:|^[/\\\\]|(^|[/\\\\])\\.\\.([/\\\\]|$))",
         x$file)) || !setequal(x$file, setdiff(required, "checksums.csv")) ||
       any(unname(benchmark_canonical_md5(file.path(path, x$file))) != x$md5))
-    stop("Study 07 canonical checksum validation failed.", call. = FALSE)
+    stop("Study 08 canonical checksum validation failed.", call. = FALSE)
   invisible(TRUE)
 }
 
-.study07_validate_capsule <- function(path,
+.study08_validate_capsule <- function(path,
                                       type = c("contract", "convergence", "benchmark")) {
-  type <- match.arg(type); required <- .study07_required(type)
+  type <- match.arg(type); required <- .study08_required(type)
   if (!dir.exists(path) || length(setdiff(required, list.files(path))))
-    stop("Study 07 capsule is incomplete: ", type, call. = FALSE)
-  .study07_validate_checksums(path, required)
+    stop("Study 08 capsule is incomplete: ", type, call. = FALSE)
+  .study08_validate_checksums(path, required)
   manifest <- jsonlite::read_json(file.path(path, "benchmark_manifest.json"),
     simplifyVector = TRUE)
   if (!identical(manifest$benchmark_status, "complete") ||
-      !identical(manifest$study, "07_mt_validation"))
-    stop("Study 07 manifest is incomplete.", call. = FALSE)
+      !identical(manifest$study, "08_mt_validation"))
+    stop("Study 08 manifest is incomplete.", call. = FALSE)
   if (type == "contract") {
     states <- read.csv(file.path(path, "joint_state_map.csv"))
     tiny <- read.csv(file.path(path, "tiny_fit_status.csv"))
@@ -71,14 +71,14 @@ source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
         nrow(tiny) != 4L || any(tiny$status != "ok") ||
         any(tiny$chain_count != 4L) || !isTRUE(gate$pass[[1L]]) ||
         selected$marker_count[[1L]] < 2000L)
-      stop("Study 07 contract/runtime capsule validation failed.")
+      stop("Study 08 contract/runtime capsule validation failed.")
   } else if (type == "convergence") {
     status <- read.csv(file.path(path, "fit_status.csv"))
     rec <- read.csv(file.path(path, "method_recommendations.csv"))
     if (nrow(status) != 4L || any(status$status != "ok") ||
         nrow(rec) != 4L || any(rec$recommendation_status != "available") ||
         any(rec$nchains != 4L) || any(rec$nthin != 1L))
-      stop("Study 07 convergence capsule validation failed.")
+      stop("Study 08 convergence capsule validation failed.")
   } else {
     status <- read.csv(file.path(path, "fit_status.csv"))
     identity <- read.csv(file.path(path, "internal_consistency.csv"))
@@ -93,21 +93,21 @@ source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
         !setequal(key(status), key(expected)) || any(status$status != "ok") ||
         any(status$chain_count != 4L) || any(!identity$passed) ||
         any(!paired$complete_pair))
-      stop("Study 07 benchmark capsule validation failed.")
+      stop("Study 08 benchmark capsule validation failed.")
   }
   invisible(TRUE)
 }
 
-.study07_seed_registry <- function(config) {
+.study08_seed_registry <- function(config) {
   grid <- expand.grid(architecture = config$main_architectures,
     replicate = seq_len(config$replicate_count),
     implementation = config$implementations, chain = 1:4,
     KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)
-  values <- Map(function(a, r, i) .study07_fit_seeds(config, a, r, i, 4L),
+  values <- Map(function(a, r, i) .study08_fit_seeds(config, a, r, i, 4L),
     grid$architecture, grid$replicate, grid$implementation)
   grid$sample_selection_seed <- config$seeds$sample_selection
   grid$marker_selection_seed <- config$seeds$marker_selection
-  grid$simulation_seed <- mapply(.study07_simulation_seed,
+  grid$simulation_seed <- mapply(.study08_simulation_seed,
     grid$architecture, grid$replicate, MoreArgs = list(config = config))
   grid$fit_seed <- vapply(values, `[[`, integer(1), "fit_seed")
   grid$chain_seed <- mapply(function(x, chain) x$chain_seeds[[chain]],
@@ -115,15 +115,15 @@ source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
   grid
 }
 
-.study07_promote <- function(type = c("contract", "convergence", "benchmark"),
+.study08_promote <- function(type = c("contract", "convergence", "benchmark"),
                              source_dir, destination, config) {
   type <- match.arg(type); validator <- function(path)
-    .study07_validate_capsule(path, type)
+    .study08_validate_capsule(path, type)
   if (dir.exists(destination)) { validator(destination); return(destination) }
-  required <- .study07_required(type)
+  required <- .study08_required(type)
   staging <- file.path(config$local_dir, "promotion_staging",
     paste0(basename(destination), "-", Sys.getpid()))
-  if (dir.exists(staging)) stop("Study 07 promotion staging already exists.")
+  if (dir.exists(staging)) stop("Study 08 promotion staging already exists.")
   dir.create(staging, recursive = TRUE, showWarnings = FALSE)
   generated <- setdiff(required, c("README.md", "benchmark_manifest.json",
     "config.R", "example_data_manifest.csv", "source_files.csv",
@@ -132,18 +132,18 @@ source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
   if (type != "contract") generated <- setdiff(generated, "joint_state_map.csv")
   for (name in generated) if (!file.copy(file.path(source_dir, name),
       file.path(staging, name), overwrite = FALSE))
-    stop("Missing Study 07 promotion source: ", name)
-  file.copy("studies/07_mt_validation/config.R",
+    stop("Missing Study 08 promotion source: ", name)
+  file.copy("studies/08_mt_validation/config.R",
     file.path(staging, "config.R"))
   file.copy(file.path("results", "reference", "05_ld_operator",
     "current",
     "example_data_manifest.csv"), file.path(staging,
       "example_data_manifest.csv"))
-  if (type != "contract") .study07_write_csv(
-    .study07_state_table(config$trait_names),
+  if (type != "contract") .study08_write_csv(
+    .study08_state_table(config$trait_names),
     file.path(staging, "joint_state_map.csv"))
   if (type == "benchmark") {
-    .study07_write_csv(data.frame(
+    .study08_write_csv(data.frame(
       implementation = config$implementations,
       marker_joint_state_probabilities = FALSE,
       marker_joint_state_reason =
@@ -151,10 +151,10 @@ source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
       trait_specific_pip = TRUE, global_state_probabilities = TRUE,
       covariance_draws = TRUE, stringsAsFactors = FALSE),
       file.path(staging, "method_output_availability.csv"))
-    .study07_write_csv(.study07_seed_registry(config),
+    .study08_write_csv(.study08_seed_registry(config),
       file.path(staging, "seed_registry.csv"))
   }
-  sources <- list.files("studies/07_mt_validation", full.names = TRUE)
+  sources <- list.files("studies/08_mt_validation", full.names = TRUE)
   write.csv(data.frame(file = sources,
     md5 = unname(benchmark_canonical_md5(sources))),
     file.path(staging, "source_files.csv"), row.names = FALSE)
@@ -165,7 +165,7 @@ source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
       "interface_audit_sources.csv"), row.names = FALSE)
   writeLines(capture.output(utils::sessionInfo()),
     file.path(staging, "session_info.txt"))
-  writeLines(c("# Study 07 multivariate implementation validation", "",
+  writeLines(c("# Study 08 multivariate implementation validation", "",
     "Reduced-marker, two-trait BayesC/SBayesC development evidence.",
     "Residual covariance is diagonal and generating residual covariance is zero.",
     "Both traits use identical individuals; sample-overlap modelling is not assessed.",
@@ -173,7 +173,7 @@ source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
     file.path(staging, "README.md"))
   status <- if (file.exists(file.path(staging, "fit_status.csv")))
     read.csv(file.path(staging, "fit_status.csv")) else NULL
-  manifest <- list(study = "07_mt_validation",
+  manifest <- list(study = "08_mt_validation",
     task = switch(type, contract = "mtblr_contract_runtime_validation",
       convergence = "mtblr_convergence_selection",
       benchmark = "mtblr_five_replicate_validation"),
@@ -200,22 +200,22 @@ source(file.path(.study07_promotion_root, "R", "benchmark-provenance.R"),
   jsonlite::write_json(manifest, file.path(staging,
     "benchmark_manifest.json"), pretty = TRUE, auto_unbox = TRUE,
     null = "null", na = "null")
-  write.csv(.study07_checksums(staging), file.path(staging,
+  write.csv(.study08_checksums(staging), file.path(staging,
     "checksums.csv"), row.names = FALSE)
   validator(staging)
   dir.create(dirname(destination), recursive = TRUE, showWarnings = FALSE)
   if (!file.rename(staging, destination))
-    stop("Atomic Study 07 capsule promotion failed.")
+    stop("Atomic Study 08 capsule promotion failed.")
   validator(destination)
   invisible(destination)
 }
 
-.study07_promote_contract <- function(config)
-  .study07_promote("contract", .study07_paths(config)$contract_output,
+.study08_promote_contract <- function(config)
+  .study08_promote("contract", .study08_paths(config)$contract_output,
     config$contract_capsule, config)
-.study07_promote_convergence <- function(config)
-  .study07_promote("convergence", .study07_paths(config)$convergence_output,
+.study08_promote_convergence <- function(config)
+  .study08_promote("convergence", .study08_paths(config)$convergence_output,
     config$convergence_capsule, config)
-.study07_promote_benchmark <- function(config)
-  .study07_promote("benchmark", .study07_paths(config)$benchmark_output,
+.study08_promote_benchmark <- function(config)
+  .study08_promote("benchmark", .study08_paths(config)$benchmark_output,
     config$benchmark_capsule, config)

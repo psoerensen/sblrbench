@@ -21,7 +21,7 @@ summaries and named error, rank, spectral, recovery, and runtime plots.
 
 Block construction, retained-eigen policy, projected residual/SSE identities,
 and integrated SBayesR audits remain Study 05-specific. No operator registry or
-class was introduced. Paused Study 07 sources the one authoritative operator
+class was introduced. Paused Study 08 sources the one authoritative operator
 design file.
 
 Study 01 adds fine-mapping task validation and execution, shared PIP/marker
@@ -108,7 +108,7 @@ or 24 complete benchmark coordinates without data preparation or fit dispatch.
   no repository-only provenance loader remains.
 - Current callers: package provenance, active Studies 01--06 promotion, and
   focused tests.
-- Deferred callers: future Study 06 and Study 07 migrations.
+- Deferred callers: future Study 06 and Study 08 migrations.
 - Limitation: installed metadata only; no network lookup.
 - Wrapper removal: at the corresponding study migration, after callers use the
   authoritative names.
@@ -128,7 +128,7 @@ or 24 complete benchmark coordinates without data preparation or fit dispatch.
 - Current callers also include the Study 03 SBayesR comparison and integrated
   Study 05 SBayesR evidence. Their semantic schema
   is `sblrbench-semantic-v2`; legacy source-hashed caches are rejected.
-- Deferred callers: paused Study 07 and Study 06 annotation CSV status checkpoints.
+- Deferred callers: paused Study 08 and Study 06 annotation CSV status checkpoints.
 - Limitation: diagnostic IDs and scientific payload construction remain local.
 - Wrapper removal: complete for migrated Studies 01--05.
 
@@ -143,7 +143,7 @@ or 24 complete benchmark coordinates without data preparation or fit dispatch.
   Study 05 operator diagnostics use the integrated shared/operator helpers.
 - Current callers: Study 04 execution and exact workflow, Studies 05--06
   diagnostic wrappers, and focused tests.
-- Deferred callers: paused Study 07 and later study-specific trace extraction.
+- Deferred callers: paused Study 08 and later study-specific trace extraction.
 - Limitation: accepts true numeric chain traces only; it does not reconstruct
   traces from posterior means, compact summaries, or final states.
 - Wrapper removal: after each study’s trace schema is migrated and compared to
@@ -160,7 +160,7 @@ or 24 complete benchmark coordinates without data preparation or fit dispatch.
   lists, manifests, README text, and semantic checks; Study 05--06 checksum
   functions delegate to the shared inventory.
 - Current callers: promotion checksum wrappers and focused tests.
-- Deferred callers: paused Study 07 and full staging/finalization adoption
+- Deferred callers: paused Study 08 and full staging/finalization adoption
   during each study migration, because current cleanup and overwrite policies
   differ.
 - Limitation: never chooses scientific outputs or promotes on its own.
@@ -175,7 +175,7 @@ or 24 complete benchmark coordinates without data preparation or fit dispatch.
 - Compatibility: Studies 05, 06, and 06 v2 retain named wrapper errors and
   semantic validation after this structural check.
 - Current callers: those promotion validators and focused tests.
-- Deferred callers: Studies 01--04 and paused Study 07, whose existing combined
+- Deferred callers: Studies 01--04 and paused Study 08, whose existing combined
   validators are retained until migration.
 - Limitation: structural integrity only; it cannot decide scientific
   completeness.
